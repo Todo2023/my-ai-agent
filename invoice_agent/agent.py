@@ -48,7 +48,7 @@ def run(instruction: str, max_retries: int = 5) -> str:
     for attempt in range(max_retries):
         try:
             response = client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemma-4-26b-a4b-it",
                 contents=instruction,
                 config=types.GenerateContentConfig(tools=[generate_invoice_pdf]),
             )
