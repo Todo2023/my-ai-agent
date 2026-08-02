@@ -12,6 +12,19 @@ import openpyxl
 from fpdf import FPDF
 
 
+def list_customer_names(excel_path: str) -> list[str]:
+    """Excelに登録されている顧客名の一覧を、重複なしで返す。"""
+    wb = openpyxl.load_workbook(excel_path)
+    ws = wb.active
+
+    names = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        name = row[0]
+        if name not in names:
+            names.append(name)
+    return names
+
+
 def load_items_for_customer(excel_path: str, customer_name: str) -> list[dict]:
     """Excelから、指定した顧客の行だけを取り出す。"""
     wb = openpyxl.load_workbook(excel_path)
