@@ -11,10 +11,11 @@ LLMは「どのツールを、どんな引数で呼ぶか」を決めるだけ�
 
 import os
 import sys
+import time
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
+from google.genai import errors, types
 
 from invoice import create_invoice_pdf
 
@@ -42,14 +43,22 @@ def generate_invoice_pdf(customer_name: str) -> str:
         raise
 
 
-def run(instruction: str) -> str:
+def run(instruction: str, max_retries: int = 5) -> str:
     tool_calls.clear()
-    response = client.models.generate_content(
-        model="gemini-flash-latest",
-        contents=instruction,
-        config=types.GenerateContentConfig(tools=[generate_invoice_pdf]),
-    )
-    return response.text
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-flash-latest",
+                contents=instruction,
+                config=types.GenerateContentConfig(tools=[generate_invoice_pdf]),
+            )
+            return response.text
+        except errors.ClientError as e:
+            if e.code == 429 and attempt < max_retries - 1:
+                # 無料枠のレート制限に達した。少し待って再試行する
+                time.sleep(20)
+                continue
+            raise
 
 
 if __name__ == "__main__":
