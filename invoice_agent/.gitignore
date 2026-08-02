@@ -6,3 +6,4 @@ invoice_*.pdf
 gate2_results.json
 gate2_run.log
 *.log
+checkpoints.sqlite

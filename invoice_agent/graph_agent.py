@@ -21,12 +21,13 @@
 
 import difflib
 import os
+import sqlite3
 from typing import TypedDict
 
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
@@ -218,7 +219,8 @@ builder.add_edge("generate", END)
 builder.add_edge("out_of_scope", END)
 builder.add_edge("cancelled", END)
 
-graph = builder.compile(checkpointer=MemorySaver())
+_conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
+graph = builder.compile(checkpointer=SqliteSaver(_conn))
 
 
 def run_interactive(instruction: str, thread_id: str = "cli") -> None:
