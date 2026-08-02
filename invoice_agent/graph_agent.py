@@ -20,8 +20,10 @@
 """
 
 import difflib
+import json
 import os
 import sqlite3
+import time
 from typing import TypedDict
 
 from dotenv import load_dotenv
@@ -38,6 +40,9 @@ load_dotenv()
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 EXCEL_PATH = "sample_data.xlsx"
 MODEL = "gemma-4-26b-a4b-it"
+
+# ゲート4の検証用: LLM呼び出し1回ごとの実測値を記録する
+traces: list[dict] = []
 
 PARSE_SCHEMA = {
     "type": "object",
@@ -76,6 +81,7 @@ def parse_node(state: State) -> dict:
   日本語で短く列挙する（無ければ空リスト）
 - out_of_scope: 請求書作成と無関係な指示（雑談・天気など）なら true
 """
+    start = time.perf_counter()
     response = client.models.generate_content(
         model=MODEL,
         contents=prompt,
@@ -84,7 +90,18 @@ def parse_node(state: State) -> dict:
             response_schema=PARSE_SCHEMA,
         ),
     )
-    import json
+    latency = time.perf_counter() - start
+    usage = response.usage_metadata
+    traces.append(
+        {
+            "model": MODEL,
+            "instruction": state["instruction"],
+            "latency_sec": round(latency, 3),
+            "input_tokens": usage.prompt_token_count,
+            "output_tokens": usage.candidates_token_count,
+            "total_tokens": usage.total_token_count,
+        }
+    )
 
     parsed = json.loads(response.text)
     return {
