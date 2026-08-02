@@ -2,14 +2,56 @@
 
 このファイルにはAI(LLM)は一切登場しない。
 「表を読む→計算する→PDFに書く」という決まった処理だけを行う。
-この土台が正しく動くことを先に確認してから、あとでAIをかぶせて
-「自然文の指示から顧客名を読み取る」部分を追加していく。
+
+実際の請求書フォーマット（発行者情報・請求書番号・税率区分・支払期日）に
+合わせている。発行者情報は固定（合同会社To do）で、請求書ごとに変わらない。
 """
 
+import datetime as dt
+import json
 import sys
+from pathlib import Path
 
 import openpyxl
 from fpdf import FPDF
+
+FONT_PATH = "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf"
+
+ISSUER = {
+    "name": "合同会社To do",
+    "postal_code": "〒004-0022",
+    "address": "札幌市厚別区厚別南1-4-3",
+    "address2": "Asterope厚別南101",
+    "tel": "070-9136-4879",
+    "contact": "辰巳",
+    "registration_number": "T4011603004093",
+    "bank": "GMOあおぞらネット銀行　法人営業部",
+    "bank_account": "口座番号：1785630　名義：ド）トゥードゥー",
+}
+
+COUNTER_FILE = Path("invoice_counter.json")
+
+
+def next_invoice_number(issue_date: dt.date) -> str:
+    """「YYYYMM-連番」形式の請求書番号を発行する（月ごとに1から連番）。"""
+    key = issue_date.strftime("%Y%m")
+    counts = json.loads(COUNTER_FILE.read_text()) if COUNTER_FILE.exists() else {}
+    counts[key] = counts.get(key, 0) + 1
+    COUNTER_FILE.write_text(json.dumps(counts, ensure_ascii=False, indent=2))
+    return f"{key}-{counts[key]:03d}"
+
+
+def compute_due_date(issue_date: dt.date) -> dt.date:
+    """支払期日 = 発行月の翌月末日。"""
+    if issue_date.month == 12:
+        next_month_first = dt.date(issue_date.year + 1, 1, 1)
+    else:
+        next_month_first = dt.date(issue_date.year, issue_date.month + 1, 1)
+    if next_month_first.month == 12:
+        month_after_first = dt.date(next_month_first.year + 1, 1, 1)
+    else:
+        month_after_first = dt.date(next_month_first.year, next_month_first.month + 1, 1)
+    return month_after_first - dt.timedelta(days=1)
 
 
 def list_customer_names(excel_path: str) -> list[str]:
@@ -25,64 +67,147 @@ def list_customer_names(excel_path: str) -> list[str]:
     return names
 
 
-def load_items_for_customer(excel_path: str, customer_name: str) -> list[dict]:
-    """Excelから、指定した顧客の行だけを取り出す。"""
+def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
+    """Excelから、指定した顧客の行を取り出し、明細と件名・納品日をまとめて返す。
+
+    列構成: 顧客名 / 日付 / 品目 / 数量 / 単価 / 税率 / 件名 / 納品日
+    件名・納品日は同じ顧客の行で共通の値を想定し、最初に見つかった値を使う。
+    """
     wb = openpyxl.load_workbook(excel_path)
     ws = wb.active
 
-    items = []
+    line_items = []
+    matter = None
+    delivery_date = None
+
     for row in ws.iter_rows(min_row=2, values_only=True):
-        name, item, quantity, unit_price = row
-        if name == customer_name:
-            items.append(
-                {
-                    "item": item,
-                    "quantity": quantity,
-                    "unit_price": unit_price,
-                    "subtotal": quantity * unit_price,
-                }
-            )
-    return items
+        name, date_, item, quantity, unit_price, tax_rate, row_matter, row_delivery_date = row
+        if name != customer_name:
+            continue
+        subtotal = quantity * unit_price
+        line_items.append(
+            {
+                "date": date_,
+                "item": item,
+                "quantity": quantity,
+                "unit_price": unit_price,
+                "tax_rate": tax_rate if tax_rate else 10,
+                "subtotal": subtotal,
+            }
+        )
+        if matter is None and row_matter:
+            matter = row_matter
+        if delivery_date is None and row_delivery_date:
+            delivery_date = row_delivery_date
+
+    return {"line_items": line_items, "matter": matter, "delivery_date": delivery_date}
+
+
+def _format_date(value) -> str:
+    if isinstance(value, dt.datetime):
+        value = value.date()
+    if isinstance(value, dt.date):
+        return f"{value.month}月{value.day}日"
+    return str(value)
 
 
 def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) -> None:
     """指定した顧客の請求書PDFを作る。"""
-    items = load_items_for_customer(excel_path, customer_name)
+    data = load_items_for_customer(excel_path, customer_name)
+    line_items = data["line_items"]
 
-    if not items:
+    if not line_items:
         raise ValueError(f"「{customer_name}」のデータが見つかりませんでした")
 
-    total = sum(item["subtotal"] for item in items)
+    subtotal_10 = sum(i["subtotal"] for i in line_items if i["tax_rate"] == 10)
+    subtotal_8 = sum(i["subtotal"] for i in line_items if i["tax_rate"] == 8)
+    tax_10 = round(subtotal_10 * 0.10)
+    tax_8 = round(subtotal_8 * 0.08)
+    subtotal = subtotal_10 + subtotal_8
+    total = subtotal + tax_10 + tax_8
+
+    issue_date = dt.date.today()
+    due_date = compute_due_date(issue_date)
+    invoice_number = next_invoice_number(issue_date)
 
     pdf = FPDF()
     pdf.add_page()
-    # 標準フォントは日本語に対応していないため、日本語フォントを読み込んで使う
-    pdf.add_font("IPAGothic", "", "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf")
-    pdf.set_font("IPAGothic", size=16)
-    pdf.cell(0, 10, "請求書", new_x="LMARGIN", new_y="NEXT")
+    pdf.add_font("IPAGothic", "", FONT_PATH)
+
+    pdf.set_font("IPAGothic", size=9)
+    pdf.cell(0, 6, f"発行日：{issue_date.year}年{issue_date.month}月{issue_date.day}日", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, f"No：{invoice_number}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.ln(2)
+
+    pdf.set_font("IPAGothic", size=18)
+    pdf.cell(0, 12, "請求書", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
 
     pdf.set_font("IPAGothic", size=12)
-    pdf.cell(0, 10, f"宛先: {customer_name}", new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(5)
+    pdf.cell(0, 8, f"{customer_name} 御中", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
 
+    pdf.set_font("IPAGothic", size=9)
+    if data["matter"]:
+        pdf.cell(0, 6, f"件名：{data['matter']}", new_x="LMARGIN", new_y="NEXT")
+    if data["delivery_date"]:
+        pdf.cell(0, 6, f"納品日：{_format_date(data['delivery_date'])}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+
+    pdf.set_font("IPAGothic", size=14)
+    pdf.cell(0, 10, f"ご請求金額　¥{total:,}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+
+    # 発行者情報（固定）
+    pdf.set_font("IPAGothic", size=9)
+    pdf.cell(0, 6, ISSUER["name"], new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, f"{ISSUER['postal_code']} {ISSUER['address']}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, ISSUER["address2"], new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, f"TEL：{ISSUER['tel']}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, f"担当：{ISSUER['contact']}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.cell(0, 6, f"登録番号：{ISSUER['registration_number']}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.ln(6)
+
+    # 明細テーブル
+    pdf.set_font("IPAGothic", size=9)
+    pdf.cell(30, 8, "日付", border=1)
+    pdf.cell(80, 8, "項目", border=1)
+    pdf.cell(20, 8, "数量", border=1)
+    pdf.cell(30, 8, "単価", border=1)
+    pdf.cell(30, 8, "金額", border=1, new_x="LMARGIN", new_y="NEXT")
+
+    for i in line_items:
+        pdf.cell(30, 8, _format_date(i["date"]), border=1)
+        pdf.cell(80, 8, str(i["item"]), border=1)
+        pdf.cell(20, 8, str(i["quantity"]), border=1)
+        pdf.cell(30, 8, f"{i['unit_price']:,}", border=1)
+        pdf.cell(30, 8, f"{i['subtotal']:,}", border=1, new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(6)
+
+    # 税率別の集計
     pdf.set_font("IPAGothic", size=10)
-    pdf.cell(90, 8, "品目", border=1)
-    pdf.cell(30, 8, "数量", border=1)
-    pdf.cell(35, 8, "単価", border=1)
-    pdf.cell(35, 8, "小計", border=1, new_x="LMARGIN", new_y="NEXT")
+    for label, value in [
+        ("小計", subtotal),
+        ("消費税(10%対象)", tax_10),
+        ("消費税(8%対象)", tax_8),
+    ]:
+        pdf.cell(150, 7, label, align="R")
+        pdf.cell(30, 7, f"{value:,}", new_x="LMARGIN", new_y="NEXT", align="R")
 
-    for item in items:
-        pdf.cell(90, 8, str(item["item"]), border=1)
-        pdf.cell(30, 8, str(item["quantity"]), border=1)
-        pdf.cell(35, 8, f"{item['unit_price']:,}", border=1)
-        pdf.cell(35, 8, f"{item['subtotal']:,}", border=1, new_x="LMARGIN", new_y="NEXT")
-
-    pdf.ln(5)
     pdf.set_font("IPAGothic", size=12)
-    pdf.cell(0, 10, f"合計: {total:,}円", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(150, 8, "税込合計", align="R")
+    pdf.cell(30, 8, f"¥{total:,}", new_x="LMARGIN", new_y="NEXT", align="R")
+    pdf.ln(6)
+
+    pdf.set_font("IPAGothic", size=9)
+    pdf.cell(0, 6, f"振込先　{ISSUER['bank']}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, f"　　　　{ISSUER['bank_account']}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    pdf.cell(0, 6, f"支払期日　{due_date.year}年{due_date.month}月{due_date.day}日", new_x="LMARGIN", new_y="NEXT")
 
     pdf.output(output_path)
-    print(f"{output_path} を作成しました（合計: {total:,}円）")
+    print(f"{output_path} を作成しました（No:{invoice_number}, 税込合計: {total:,}円）")
 
 
 if __name__ == "__main__":
