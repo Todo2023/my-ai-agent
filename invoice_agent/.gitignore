@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 invoice_*.pdf
 .env
+gate2_results.json
+gate2_run.log

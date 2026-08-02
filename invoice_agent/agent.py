@@ -22,6 +22,9 @@ load_dotenv()
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
+# ゲート2の検証用: 実際にツールが呼ばれた記録を残す
+tool_calls: list[dict] = []
+
 
 def generate_invoice_pdf(customer_name: str) -> str:
     """指定した顧客の請求書PDFを作成する。
@@ -30,11 +33,17 @@ def generate_invoice_pdf(customer_name: str) -> str:
         customer_name: 請求書を作る対象の顧客名（例: "A社"）
     """
     output_path = f"invoice_{customer_name}.pdf"
-    create_invoice_pdf(customer_name, "sample_data.xlsx", output_path)
-    return f"{output_path} を作成しました"
+    try:
+        create_invoice_pdf(customer_name, "sample_data.xlsx", output_path)
+        tool_calls.append({"customer_name": customer_name, "ok": True})
+        return f"{output_path} を作成しました"
+    except ValueError as e:
+        tool_calls.append({"customer_name": customer_name, "ok": False, "error": str(e)})
+        raise
 
 
 def run(instruction: str) -> str:
+    tool_calls.clear()
     response = client.models.generate_content(
         model="gemini-flash-latest",
         contents=instruction,
