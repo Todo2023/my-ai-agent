@@ -7,8 +7,6 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 
-DRY_RUN = os.environ.get("DRY_RUN", "true").lower() in ("1", "true", "yes")
-
 
 def send_email(to: str, subject: str, body: str) -> None:
     """指定した宛先にメールを送信する。
@@ -16,7 +14,8 @@ def send_email(to: str, subject: str, body: str) -> None:
     DRY_RUN=true（デフォルト）の場合は実際には送信せず、内容を標準出力に表示するだけ。
     本当に送信するには .env で DRY_RUN=false にし、SMTP_* を設定する。
     """
-    if DRY_RUN:
+    dry_run = os.environ.get("DRY_RUN", "true").lower() in ("1", "true", "yes")
+    if dry_run:
         print("--- DRY RUN: メールは送信されません（.env の DRY_RUN=false で送信有効化） ---")
         print(f"To: {to}\nSubject: {subject}\n\n{body}")
         print("--------------------------------------------------------------------")
