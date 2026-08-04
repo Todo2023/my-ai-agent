@@ -23,11 +23,14 @@ ISSUER = {
     "address": "札幌市厚別区厚別南1-4-3",
     "address2": "Asterope厚別南101",
     "tel": "070-9136-4879",
-    "contact": "辰巳",
     "registration_number": "T4011603004093",
     "bank": "GMOあおぞらネット銀行　法人営業部",
     "bank_account": "口座番号：1785630　名義：ド）トゥードゥー",
 }
+
+# 顧客マスタに無い顧客に使うデフォルト値
+DEFAULT_CONTACT = "辰巳"
+DEFAULT_PHRASE = "下記の通り、ご請求申し上げます。"
 
 COUNTER_FILE = Path("invoice_counter.json")
 
@@ -57,7 +60,7 @@ def compute_due_date(issue_date: dt.date) -> dt.date:
 def list_customer_names(excel_path: str) -> list[str]:
     """Excelに登録されている顧客名の一覧を、重複なしで返す。"""
     wb = openpyxl.load_workbook(excel_path)
-    ws = wb.active
+    ws = wb["請求データ"]
 
     names = []
     for row in ws.iter_rows(min_row=2, values_only=True):
@@ -67,6 +70,24 @@ def list_customer_names(excel_path: str) -> list[str]:
     return names
 
 
+def load_customer_master(excel_path: str, customer_name: str) -> dict:
+    """「顧客マスタ」シートから、担当者・請求文言を取得する。
+
+    シートが無い、またはその顧客の行が無い場合はデフォルト値を使う。
+    列構成: 顧客名 / 担当者 / 請求文言
+    """
+    wb = openpyxl.load_workbook(excel_path)
+    if "顧客マスタ" not in wb.sheetnames:
+        return {"contact": DEFAULT_CONTACT, "phrase": DEFAULT_PHRASE}
+
+    ws = wb["顧客マスタ"]
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        name, contact, phrase = row
+        if name == customer_name:
+            return {"contact": contact or DEFAULT_CONTACT, "phrase": phrase or DEFAULT_PHRASE}
+    return {"contact": DEFAULT_CONTACT, "phrase": DEFAULT_PHRASE}
+
+
 def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
     """Excelから、指定した顧客の行を取り出し、明細と件名・納品日をまとめて返す。
 
@@ -74,7 +95,7 @@ def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
     件名・納品日は同じ顧客の行で共通の値を想定し、最初に見つかった値を使う。
     """
     wb = openpyxl.load_workbook(excel_path)
-    ws = wb.active
+    ws = wb["請求データ"]
 
     line_items = []
     matter = None
@@ -119,6 +140,8 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
 
     if not line_items:
         raise ValueError(f"「{customer_name}」のデータが見つかりませんでした")
+
+    master = load_customer_master(excel_path, customer_name)
 
     subtotal_10 = sum(i["subtotal"] for i in line_items if i["tax_rate"] == 10)
     subtotal_8 = sum(i["subtotal"] for i in line_items if i["tax_rate"] == 8)
@@ -173,7 +196,7 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
         (f"{ISSUER['postal_code']} {ISSUER['address']}", 9),
         (ISSUER["address2"], 9),
         (f"TEL：{ISSUER['tel']}", 9),
-        (f"担当：{ISSUER['contact']}", 9),
+        (f"担当：{master['contact']}", 9),
         (f"登録番号：{ISSUER['registration_number']}", 9),
     ]
     for text, size in issuer_lines:
@@ -197,7 +220,7 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
 
     pdf.set_x(15)
     pdf.set_font("IPAGothic", size=9)
-    pdf.cell(page_w, 6, "下記の通り、ご請求申し上げます。", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(page_w, 6, master["phrase"], new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
     # 金額（大きく、下線つき）

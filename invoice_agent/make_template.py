@@ -45,5 +45,27 @@ ws.append(["（記入例）A社", dt.date(2026, 7, 27), "資料納品", 1, 0, 10
 for col, width in zip(range(1, 9), [16, 12, 28, 8, 10, 8, 24, 12]):
     ws.column_dimensions[chr(64 + col)].width = width
 
+# 顧客マスタ（顧客ごとに固定の情報。担当者や文面は顧客によって違うため）
+ws_master = wb.create_sheet("顧客マスタ")
+master_headers = ["顧客名", "担当者", "請求文言"]
+ws_master.append(master_headers)
+for col, header in enumerate(master_headers, start=1):
+    cell = ws_master.cell(row=1, column=col)
+    cell.font = Font(bold=True)
+    cell.fill = header_fill
+    cell.alignment = Alignment(horizontal="center")
+
+master_notes = {
+    "A1": "「請求データ」シートの顧客名と一致させる",
+    "B1": "請求書右上に載る担当者名",
+    "C1": "請求書の本文。「下記の通り、ご請求申し上げます。」か「下記の通り、ご注文を受付致します。」など、顧客ごとに決まった文言があれば入力（空欄ならご請求申し上げます。になる）",
+}
+for ref, text in master_notes.items():
+    ws_master[ref].comment = Comment(text, "invoice_agent")
+
+ws_master.append(["（記入例）A社", "辰巳", "下記の通り、ご請求申し上げます。"])
+for col, width in zip(range(1, 4), [16, 12, 40]):
+    ws_master.column_dimensions[chr(64 + col)].width = width
+
 wb.save("invoice_template.xlsx")
 print("invoice_template.xlsx を作成しました")
