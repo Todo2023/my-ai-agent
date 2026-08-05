@@ -1,4 +1,4 @@
-<title>トドの晩酌</title>
+<title>トドの回転晩酌</title>
 <style>
   :root {
     --sea-900: #0b1220;
@@ -33,7 +33,7 @@
   .sign h1 {
     margin: 0;
     font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-    font-size: clamp(28px, 7.5vw, 40px);
+    font-size: clamp(26px, 7vw, 38px);
     font-weight: 600;
     letter-spacing: 0.18em;
     text-indent: 0.18em;
@@ -85,11 +85,7 @@
 
   .keys b { color: #fbe3bd; font-weight: 600; }
 
-  .bar {
-    width: min(100%, 470px);
-    display: flex;
-    gap: 10px;
-  }
+  .bar { width: min(100%, 470px); display: flex; gap: 10px; }
 
   button {
     background: none;
@@ -107,18 +103,18 @@
 </style>
 
 <div class="sign">
-  <h1>トドの晩酌</h1>
-  <p>矢印の先が空いていれば、肴は外へ出る</p>
+  <h1>トドの回転晩酌</h1>
+  <p>手前に来た皿の蓋を開ける</p>
 </div>
 
 <div class="cabinet">
   <canvas id="game" width="460" height="720" tabindex="0"
-    aria-label="矢印つきの品ブロックを押し出して、口の絵が合うトドに食べさせるパズル。矢印キーで選択、エンターで押し出し。"></canvas>
+    aria-label="回転レーンを流れてくる皿の蓋を開け、ご注文と同じ品ならトドが食べる。手前の皿をタップ、またはスペースキー。"></canvas>
 </div>
 
 <div class="keys">
-  <div>品をタップ／クリック<br />矢印キーで選んで <b>Enter</b> でも可</div>
-  <div style="text-align:right">食べ手のいない品は<b>棚</b>へ<br />棚が溢れたら <b>おあいそ</b></div>
+  <div>手前の明るい皿をタップ<br /><b>Space</b> で正面の皿を開ける</div>
+  <div style="text-align:right">注文と同じ品 → <b>食べる</b><br />ちがう品 → <b>ごきげんが下がる</b></div>
 </div>
 
 <div class="bar">
@@ -131,18 +127,17 @@
   "use strict";
 
   const W = 460, H = 720;
-  const GW = 6, GH = 8, CELL = 54;
-  const BX = (W - GW * CELL) / 2, BY = 214;
-  const SHELF_MAX = 6;
-  const TODO_SLOTS = 4;
-  const NEED = 3;                 // トド1匹が平らげる品数
+  const TRACK = { cx: 230, cy: 280, rx: 174, ry: 108 };
+  const TODO = { x: 230, y: 568 };
+  const PLATES = 11;
+  const REACH = 0.34;              // sin(角度) がこれ以上なら手が届く
 
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
   const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // --- お品書き ---------------------------------------------------------
-  const SAKE = [
+  const MENU = [
     { id: "beer",  name: "ビール", color: "#e9a13b", deep: "#9c6316", lite: "#f6c377" },
     { id: "soda",  name: "ラムネ", color: "#46a8e5", deep: "#1a648f", lite: "#8fd0f5" },
     { id: "sushi", name: "寿司",   color: "#e8637a", deep: "#8d2440", lite: "#f5a3b2" },
@@ -150,9 +145,9 @@
     { id: "mame",  name: "枝豆",   color: "#62b96b", deep: "#2b6f36", lite: "#a2dda8" },
     { id: "budo",  name: "葡萄",   color: "#a06ad4", deep: "#5d3387", lite: "#c9a5ec" },
   ];
+  const TOKUJO = { id: "tokujo", name: "特上", color: "#f6e08a", deep: "#b08c1e", lite: "#fdf3c4" };
 
-  // お品のアイコン。色に頼らず形でも見分けられるようにする。
-  // 原点中心・一辺 1 の座標系で描き、呼び出し側で拡大する。
+  // 品のアイコン。原点中心・一辺1で描き、呼び出し側で拡大する。
   const INK = "#241713", PAPER = "#f6efe2";
   function drawIcon(kind, x, y, size) {
     ctx.save();
@@ -164,7 +159,6 @@
     ctx.strokeStyle = INK;
 
     if (kind.id === "beer") {
-      // ジョッキと泡
       ctx.beginPath();
       ctx.moveTo(-0.3, -0.16); ctx.lineTo(0.22, -0.16); ctx.lineTo(0.16, 0.42); ctx.lineTo(-0.24, 0.42);
       ctx.closePath(); ctx.fill();
@@ -178,7 +172,6 @@
       ctx.fill();
       ctx.fillRect(-0.32, -0.26, 0.56, 0.14);
     } else if (kind.id === "soda") {
-      // ラムネ瓶
       ctx.beginPath();
       ctx.moveTo(-0.1, -0.44); ctx.lineTo(0.1, -0.44); ctx.lineTo(0.1, -0.24);
       ctx.quadraticCurveTo(0.28, -0.12, 0.28, 0.16);
@@ -191,7 +184,6 @@
       ctx.beginPath(); ctx.arc(-0.09, 0.19, 0.06, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(0.08, 0.28, 0.045, 0, Math.PI * 2); ctx.fill();
     } else if (kind.id === "sushi") {
-      // にぎり（シャリの上にネタ）
       ctx.fillStyle = PAPER;
       ctx.beginPath();
       ctx.moveTo(-0.42, 0.0);
@@ -211,7 +203,6 @@
       ctx.beginPath(); ctx.moveTo(-0.18, -0.21); ctx.lineTo(-0.02, -0.25); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0.02, -0.11); ctx.lineTo(0.22, -0.15); ctx.stroke();
     } else if (kind.id === "mame") {
-      // 枝豆のさや
       ctx.save();
       ctx.rotate(-0.5);
       ctx.beginPath(); ctx.ellipse(0, 0, 0.46, 0.19, 0, 0, Math.PI * 2); ctx.fill();
@@ -224,7 +215,6 @@
       ctx.lineWidth = 0.07;
       ctx.beginPath(); ctx.moveTo(0.24, -0.34); ctx.lineTo(0.36, -0.46); ctx.stroke();
     } else if (kind.id === "niku") {
-      // 骨つき肉
       ctx.beginPath();
       ctx.moveTo(-0.34, 0.12);
       ctx.quadraticCurveTo(-0.44, -0.3, -0.04, -0.4);
@@ -238,8 +228,7 @@
       ctx.fillStyle = PAPER;
       ctx.beginPath(); ctx.arc(-0.42, 0.44, 0.1, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(-0.3, 0.5, 0.09, 0, Math.PI * 2); ctx.fill();
-    } else {
-      // 葡萄
+    } else if (kind.id === "budo") {
       ctx.beginPath();
       for (const [bx, by] of [[-0.2, -0.02], [0.2, -0.02], [0, -0.14], [-0.12, 0.2], [0.12, 0.2], [0, 0.4]]) {
         ctx.moveTo(bx + 0.14, by);
@@ -251,294 +240,161 @@
       ctx.beginPath(); ctx.moveTo(0, -0.2); ctx.lineTo(0.06, -0.42); ctx.stroke();
       ctx.fillStyle = PAPER;
       ctx.beginPath(); ctx.ellipse(0.19, -0.4, 0.13, 0.07, -0.5, 0, Math.PI * 2); ctx.fill();
+    } else {
+      // 特上：星
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        const r = i % 2 ? 0.19 : 0.44;
+        i ? ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r) : ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath(); ctx.fill();
     }
     ctx.restore();
   }
-  const DIRS = {
-    up:    { dx: 0, dy: -1, glyph: "↑" },
-    down:  { dx: 0, dy: 1,  glyph: "↓" },
-    left:  { dx: -1, dy: 0, glyph: "←" },
-    right: { dx: 1, dy: 0,  glyph: "→" },
-  };
-  const DIR_KEYS = Object.keys(DIRS);
 
   // --- 状態 -------------------------------------------------------------
   let S = null;
   let best = 0;
-  try { best = Number(localStorage.getItem("todo-banshaku-best")) || 0; } catch (e) {}
+  try { best = Number(localStorage.getItem("todo-kaiten-best")) || 0; } catch (e) {}
 
   function newGame() {
     S = {
       phase: "title",
       t: 0,
-      stage: 1,
       score: 0,
-      pieces: [],
+      fed: 0,
+      combo: 0,
+      mood: 1,
+      speed: 0.42,
+      want: MENU[0],
+      plates: [],
       flyers: [],
       puffs: [],
-      todos: [],
-      shelf: [],
-      cursor: { c: 0, r: 0 },
-      clearAt: 0,
-      overAt: 0,
+      todo: { chew: 0, face: 0, spit: 0, blink: 0 },
+      hint: null,
     };
-    buildStage();
-  }
-
-  // --- 盤面生成（逆順に置くので必ず解ける） -------------------------------
-  function paletteFor(stage) {
-    return SAKE.slice(0, Math.min(SAKE.length, 4 + Math.floor(stage / 3)));
-  }
-
-  function occupied(cells, c, r) { return cells[r * GW + c]; }
-
-  function pathClear(cells, p, dir) {
-    const d = DIRS[dir];
-    // ブロックの前面から盤外までを走査
-    for (let step = 1; step < GW + GH + 2; step++) {
-      let any = false;
-      for (let oy = 0; oy < p.h; oy++) {
-        for (let ox = 0; ox < p.w; ox++) {
-          const c = p.c + ox + d.dx * step, r = p.r + oy + d.dy * step;
-          if (c < 0 || c >= GW || r < 0 || r >= GH) continue;  // 盤外は通過済み
-          // 自分自身の占有セルは無視
-          if (c >= p.c && c < p.c + p.w && r >= p.r && r < p.r + p.h) continue;
-          any = true;
-          if (occupied(cells, c, r)) return false;
-        }
-      }
-      if (!any) break;
+    for (let i = 0; i < PLATES; i++) {
+      S.plates.push({ ang: (Math.PI * 2 * i) / PLATES, kind: pick(), open: false, lid: 0, gone: false });
     }
-    return true;
+    S.want = nextOrder();
   }
 
-  function buildStage() {
-    const palette = paletteFor(S.stage);
-    const target = Math.min(GW * GH - 6, 13 + S.stage * 2);
-    const cells = new Array(GW * GH).fill(null);
-    const pieces = [];
-    const shapes = [
-      { w: 1, h: 1, weight: 2 },
-      { w: 2, h: 1, weight: 3 },
-      { w: 1, h: 2, weight: 3 },
-      { w: 2, h: 2, weight: 1 },
-    ];
-    const bag = [];
-    shapes.forEach((s) => { for (let i = 0; i < s.weight; i++) bag.push(s); });
-
-    let guard = 0;
-    while (pieces.length < target && guard++ < 4000) {
-      const sh = bag[(Math.random() * bag.length) | 0];
-      const c = (Math.random() * (GW - sh.w + 1)) | 0;
-      const r = (Math.random() * (GH - sh.h + 1)) | 0;
-      let free = true;
-      for (let oy = 0; oy < sh.h && free; oy++)
-        for (let ox = 0; ox < sh.w && free; ox++)
-          if (occupied(cells, c + ox, r + oy)) free = false;
-      if (!free) continue;
-
-      const cand = { c, r, w: sh.w, h: sh.h };
-      // 「いま置いてある品」を避けて出られる向きだけを許す。
-      // 置いた順の逆から外すと、必ず全部出せる盤面になる。
-      const dirs = DIR_KEYS.filter((d) => pathClear(cells, cand, d));
-      if (!dirs.length) continue;
-
-      const kind = palette[(Math.random() * palette.length) | 0];
-      const p = {
-        ...cand,
-        dir: dirs[(Math.random() * dirs.length) | 0],
-        kind,
-        shake: 0,
-        pop: 0,
-      };
-      pieces.push(p);
-      for (let oy = 0; oy < sh.h; oy++)
-        for (let ox = 0; ox < sh.w; ox++)
-          cells[(r + oy) * GW + c + ox] = p;
-    }
-
-    S.pieces = pieces;
-    S.flyers = [];
-    S.shelf = [];
-    S.todos = [];
-    for (let i = 0; i < TODO_SLOTS; i++) S.todos.push(makeTodo(i));
-    S.cursor = { c: 0, r: 0 };
-    moveCursorToPiece(0, 0);
+  function pick(bonus = true) {
+    if (bonus && Math.random() < 0.06) return TOKUJO;
+    return MENU[(Math.random() * MENU.length) | 0];
   }
 
-  function grid() {
-    const cells = new Array(GW * GH).fill(null);
-    for (const p of S.pieces) {
-      for (let oy = 0; oy < p.h; oy++)
-        for (let ox = 0; ox < p.w; ox++)
-          cells[(p.r + oy) * GW + p.c + ox] = p;
-    }
-    return cells;
-  }
+  function level() { return 1 + Math.floor(S.fed / 5); }
 
-  // --- トド -------------------------------------------------------------
-  function todoX(i) { return (W / (TODO_SLOTS * 2)) * (i * 2 + 1); }
-
-  function pickColor(exclude) {
-    const count = {};
-    for (const p of S.pieces) count[p.kind.id] = (count[p.kind.id] || 0) + 1;
-    for (const c of S.shelf) count[c.id] = (count[c.id] || 0) + 3;   // 棚に溜まった色を優先
-    let pool = SAKE.filter((k) => count[k.id] && !exclude.includes(k.id));
-    if (!pool.length) pool = SAKE.filter((k) => count[k.id]);
-    if (!pool.length) pool = paletteFor(S.stage);
-    const total = pool.reduce((a, k) => a + (count[k.id] || 1), 0);
-    let roll = Math.random() * total;
-    for (const k of pool) {
-      roll -= count[k.id] || 1;
-      if (roll <= 0) return k;
-    }
-    return pool[0];
-  }
-
-  function makeTodo(i) {
-    const exclude = S.todos.filter((t) => t && t.i !== i).map((t) => t.kind.id);
-    return { i, kind: pickColor(exclude), need: NEED, gulp: 0, surface: 0, face: 0 };
-  }
-
-  // --- 進行 -------------------------------------------------------------
   function start() {
     if (S.phase === "play") return;
-    if (S.phase !== "clear") { S.stage = 1; S.score = 0; }
+    newGame();
     S.phase = "play";
-    buildStage();
-    beep(420, 0.12, "triangle", 0.05, 640);
+    say("いらっしゃい");
+    beep(430, 0.12, "triangle", 0.05, 660);
   }
 
-  function push(p) {
-    if (S.phase !== "play" || p.pop > 0) return;
-    const cells = grid();
-    if (!pathClear(cells, p, p.dir)) {
-      p.shake = 0.32;
-      beep(120, 0.09, "square", 0.03);
-      return;
-    }
-    p.pop = 1;
-    S.pieces = S.pieces.filter((x) => x !== p);
-    const d = DIRS[p.dir];
-    const from = cellRect(p);
-    const dist = d.dx ? W * 0.9 : H * 0.9;
-    S.flyers.push({
-      kind: p.kind,
-      x: from.x, y: from.y, w: from.w, h: from.h,
-      vx: d.dx * 1250, vy: d.dy * 1250,
-      stage: "out", life: dist / 1250,
-      dir: p.dir,
-    });
-    beep(520, 0.07, "triangle", 0.04, 700);
+  function say(text) { S.hint = { text, life: 1.6 }; }
+
+  // --- レーン -----------------------------------------------------------
+  function trackPos(ang) {
+    const s = Math.sin(ang);
+    return {
+      x: TRACK.cx + Math.cos(ang) * TRACK.rx,
+      y: TRACK.cy + s * TRACK.ry,
+      scale: 0.7 + ((s + 1) / 2) * 0.46,
+      near: s,
+    };
   }
 
-  function serve(flyer) {
-    // 盤外に出た品の行き先を決める
-    const todo = S.todos.find((t) => t.kind.id === flyer.kind.id && t.need - (t.reserved || 0) > 0);
-    if (todo) {
-      flyer.stage = "toTodo";
-      flyer.target = { x: todoX(todo.i), y: 104 };
-      flyer.todo = todo;
-      flyer.life = 0.34;
-      todo.reserved = (todo.reserved || 0) + 1;
-    } else {
-      const slot = S.shelf.length;
-      if (slot >= SHELF_MAX) { gameOver(); return; }
-      S.shelf.push(flyer.kind);
-      flyer.stage = "toShelf";
-      flyer.target = shelfPos(slot);
-      flyer.life = 0.3;
-      beep(300, 0.08, "sine", 0.03);
-    }
-  }
+  function inReach(p) { return !p.gone && Math.sin(p.ang) >= REACH; }
 
-  function drink(todo, kind) {
-    if (S.todos[todo.i] !== todo) return;   // すでに潜ったトド宛ての品は捨てる
-    todo.need--;
-    todo.gulp = 0.3;
-    todo.face = 1;
-    todo.reserved = Math.max(0, (todo.reserved || 0) - 1);
-    S.score += 10;
-    puff(todoX(todo.i), 104, kind.color, 10);
-    beep(620 + (NEED - todo.need) * 90, 0.1, "triangle", 0.05);
-    if (todo.need <= 0) {
-      S.score += 60;
-      todo.face = 1;
-      setTimeout(() => {
-        if (!S || S.phase !== "play") return;
-        S.todos[todo.i] = makeTodo(todo.i);
-        S.todos[todo.i].surface = 1;
-        beep(360, 0.16, "sine", 0.04, 520);
-        drainShelf();
-      }, 420);
-    }
-    if (!S.pieces.length && !S.flyers.length) stageClear();
-  }
-
-  // 新しいトドが顔を出したら、棚の同じ品を順に食べさせる
-  function drainShelf() {
-    let delay = 0;
-    for (let i = S.shelf.length - 1; i >= 0; i--) {
-      const kind = S.shelf[i];
-      const todo = S.todos.find((t) => t.kind.id === kind.id && t.need - (t.reserved || 0) > 0);
-      if (!todo) continue;
-      const from = shelfPos(i);
-      S.shelf.splice(i, 1);
-      todo.reserved = (todo.reserved || 0) + 1;
-      delay += 130;
-      setTimeout(() => {
-        if (!S || S.phase !== "play") return;
-        S.flyers.push({
-          kind, x: from.x, y: from.y, w: 34, h: 34,
-          stage: "toTodo", target: { x: todoX(todo.i), y: 104 }, todo, life: 0.3, total: 0.3,
-        });
-      }, delay);
-    }
-  }
-
-  function stageClear() {
+  function tapAt(x, y) {
     if (S.phase !== "play") return;
-    S.phase = "clear";
-    S.score += 200;
-    S.clearAt = S.t;
-    saveBest();
-    beep(520, 0.4, "triangle", 0.05, 880);
-    setTimeout(() => {
-      if (!S || S.phase !== "clear") return;
-      S.stage++;
-      S.phase = "play";
-      buildStage();
-    }, 1700);
+    let target = null, bestD = 1e9;
+    for (const p of S.plates) {
+      if (!inReach(p)) continue;
+      const q = trackPos(p.ang);
+      const d = Math.hypot(q.x - x, (q.y - y) * 1.4);
+      if (d < 44 * q.scale && d < bestD) { bestD = d; target = p; }
+    }
+    if (target) openPlate(target);
+  }
+
+  function openPlate(p) {
+    const known = p.open;
+    p.open = true;
+    if (!known) beep(540, 0.08, "triangle", 0.04, 720);
+
+    if (p.kind.id === S.want.id || p.kind.id === "tokujo") {
+      eat(p);
+    } else {
+      // はずれ。蓋は開いたまま回り続けるので、次の注文で使える
+      S.combo = 0;
+      S.mood = Math.max(0, S.mood - (known ? 0.10 : 0.04));
+      S.todo.face = -1;
+      S.todo.spit = 0.4;
+      say(known ? "それはさっき見た" : `${p.kind.name}か……`);
+      beep(190, 0.2, "sawtooth", 0.04, 90);
+      if (S.mood <= 0) gameOver();
+    }
+  }
+
+  function eat(p) {
+    const q = trackPos(p.ang);
+    p.gone = true;
+    p.respawn = 1.1;
+    S.combo++;
+    S.fed++;
+    const mult = Math.min(5, 1 + Math.floor(S.combo / 3));
+    S.score += (p.kind.id === "tokujo" ? 250 : 100) * mult;
+    S.mood = Math.min(1, S.mood + (p.kind.id === "tokujo" ? 0.32 : 0.2));
+    S.speed = 0.42 + Math.min(14, level()) * 0.05;
+    S.flyers.push({ kind: p.kind, x: q.x, y: q.y, s: q.scale, life: 0.34, total: 0.34 });
+    if (p.kind.id === "tokujo") say("特上いただき");
+    else if (S.combo >= 3) say(`${S.combo} 皿つづけて`);
+  }
+
+  function swallow(kind) {
+    S.todo.chew = 0.36;
+    S.todo.face = 1;
+    puff(TODO.x, TODO.y - 6, kind.color, 12);
+    beep(620 + Math.min(6, S.combo) * 40, 0.1, "triangle", 0.05);
+    S.want = nextOrder();
+  }
+
+  // 注文は「いまレーンに乗っている品」から選ぶ。無い物を頼まれたら詰むため。
+  function nextOrder() {
+    const live = S.plates.filter((p) => !p.gone);
+    const onBelt = live.map((p) => p.kind.id);
+    const known = live.filter((p) => p.open).map((p) => p.kind.id);
+    let pool = MENU.filter((k) => onBelt.includes(k.id) && k.id !== (S.want && S.want.id));
+    if (!pool.length) pool = MENU.filter((k) => onBelt.includes(k.id));
+    if (!pool.length) return pick(false);
+    // 覚えている品をときどき指名して、探索のごほうびにする
+    if (known.length && Math.random() < 0.4) {
+      const hit = pool.filter((k) => known.includes(k.id));
+      if (hit.length) pool = hit;
+    }
+    return pool[(Math.random() * pool.length) | 0];
   }
 
   function gameOver() {
     S.phase = "over";
-    S.overAt = S.t;
-    saveBest();
-    beep(300, 0.5, "sine", 0.05, 100);
-  }
-
-  function saveBest() {
+    S.todo.face = -1;
     if (S.score > best) {
       best = S.score;
-      try { localStorage.setItem("todo-banshaku-best", String(best)); } catch (e) {}
+      try { localStorage.setItem("todo-kaiten-best", String(best)); } catch (e) {}
     }
+    beep(300, 0.5, "sine", 0.05, 100);
   }
 
   function puff(x, y, color, n) {
     for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 130;
-      S.puffs.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 50, r: 2 + Math.random() * 4, life: 1, color });
+      const a = Math.random() * Math.PI * 2, sp = 40 + Math.random() * 130;
+      S.puffs.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, r: 2 + Math.random() * 4, life: 1, color });
     }
-  }
-
-  // --- 座標 -------------------------------------------------------------
-  function cellRect(p) {
-    return { x: BX + p.c * CELL, y: BY + p.r * CELL, w: p.w * CELL, h: p.h * CELL };
-  }
-  function shelfPos(i) {
-    const slotW = 44, gap = 9, total = SHELF_MAX * slotW + (SHELF_MAX - 1) * gap;
-    return { x: (W - total) / 2 + i * (slotW + gap) + slotW / 2, y: 178 };
   }
 
   // --- 音 ---------------------------------------------------------------
@@ -564,88 +420,71 @@
     muted = !muted;
     e.currentTarget.textContent = muted ? "🔇 音なし" : "🔊 音あり";
   });
-  document.getElementById("againBtn").addEventListener("click", () => {
-    newGame();
-    start();
-    canvas.focus();
-  });
+  document.getElementById("againBtn").addEventListener("click", () => { newGame(); start(); canvas.focus(); });
 
   // --- 入力 -------------------------------------------------------------
   canvas.addEventListener("pointerdown", (ev) => {
     canvas.focus();
-    if (S.phase === "title" || S.phase === "over") { if (S.phase === "over") newGame(); start(); return; }
-    if (S.phase !== "play") return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (ev.clientX - rect.left) * (W / rect.width);
-    const y = (ev.clientY - rect.top) * (H / rect.height);
-    const c = Math.floor((x - BX) / CELL), r = Math.floor((y - BY) / CELL);
-    if (c < 0 || c >= GW || r < 0 || r >= GH) return;
-    const p = grid()[r * GW + c];
-    if (p) { S.cursor = { c: p.c, r: p.r }; push(p); }
+    if (S.phase !== "play") { start(); return; }
+    const r = canvas.getBoundingClientRect();
+    tapAt((ev.clientX - r.left) * (W / r.width), (ev.clientY - r.top) * (H / r.height));
   });
 
-  function moveCursorToPiece(dc, dr) {
-    const cells = grid();
-    let { c, r } = S.cursor;
-    for (let i = 0; i < GW + GH; i++) {
-      c += dc; r += dr;
-      if (c < 0 || c >= GW || r < 0 || r >= GH) break;
-      if (cells[r * GW + c]) { const p = cells[r * GW + c]; S.cursor = { c: p.c, r: p.r }; return; }
-    }
-    if (!cells[S.cursor.r * GW + S.cursor.c]) {
-      const first = S.pieces[0];
-      if (first) S.cursor = { c: first.c, r: first.r };
-    }
-  }
-
   addEventListener("keydown", (e) => {
-    const k = e.key;
-    if (k === " " || k === "Enter") {
-      e.preventDefault();
-      if (S.phase === "title" || S.phase === "over") { if (S.phase === "over") newGame(); start(); return; }
-      const p = grid()[S.cursor.r * GW + S.cursor.c];
-      if (p) push(p);
-      return;
+    if (e.key !== " " && e.key !== "Enter") return;
+    e.preventDefault();
+    if (S.phase !== "play") { start(); return; }
+    // 正面（真下）にいちばん近い皿を開ける
+    let target = null, bestD = 1e9;
+    for (const p of S.plates) {
+      if (!inReach(p)) continue;
+      const d = Math.abs(Math.atan2(Math.sin(p.ang - Math.PI / 2), Math.cos(p.ang - Math.PI / 2)));
+      if (d < bestD) { bestD = d; target = p; }
     }
-    if (S.phase !== "play") return;
-    const map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-    if (map[k]) { e.preventDefault(); moveCursorToPiece(map[k][0], map[k][1]); }
+    if (target) openPlate(target);
   });
 
   // --- 更新 -------------------------------------------------------------
   function update(dt) {
     S.t += dt;
+    if (S.hint) { S.hint.life -= dt; if (S.hint.life <= 0) S.hint = null; }
 
-    for (const p of S.pieces) p.shake = Math.max(0, p.shake - dt);
-    for (const t of S.todos) {
-      t.gulp = Math.max(0, t.gulp - dt);
-      t.surface = Math.max(0, t.surface - dt * 1.6);
-      t.face *= Math.pow(0.25, dt);
+    const td = S.todo;
+    td.chew = Math.max(0, td.chew - dt);
+    td.spit = Math.max(0, td.spit - dt);
+    td.face *= Math.pow(0.22, dt);
+    td.blink -= dt;
+    if (td.blink < -3) td.blink = 0.14 + Math.random() * 0.06;
+
+    if (S.phase === "play") {
+      for (const p of S.plates) {
+        p.ang = (p.ang + S.speed * dt) % (Math.PI * 2);
+        p.lid += ((p.open ? 1 : 0) - p.lid) * Math.min(1, dt * 12);
+        if (p.gone) {
+          p.respawn -= dt;
+          // 空いた枠は元の位置のまま流れていき、奥へ回り込んでから蓋つきで戻る
+          if (p.respawn <= 0 && Math.sin(p.ang) < -0.1) {
+            p.gone = false;
+            p.open = false;
+            p.lid = 0;
+            p.kind = Math.random() < 0.32 ? S.want : pick();
+          }
+        }
+      }
+      S.mood = Math.max(0, S.mood - (0.030 + level() * 0.0035) * dt);
+      if (S.mood <= 0) gameOver();
     }
 
     for (const f of S.flyers) {
-      if (f.stage === "out") {
-        f.x += f.vx * dt;
-        f.y += f.vy * dt;
-        f.life -= dt;
-        if (f.life <= 0) serve(f);
-      } else {
-        f.total = f.total || 0.34;
-        f.life -= dt;
-        const k = Math.max(0, Math.min(1, 1 - f.life / f.total));
-        const e = k * k * (3 - 2 * k);
-        f.x += (f.target.x - f.x) * Math.min(1, e * 0.45 + dt * 6);
-        f.y += (f.target.y - f.y) * Math.min(1, e * 0.45 + dt * 6);
-        if (f.life <= 0) {
-          f.done = true;
-          if (f.stage === "toTodo") drink(f.todo, f.kind);
-          else beep(260, 0.06, "sine", 0.03);
-        }
-      }
+      f.life -= dt;
+      const k = Math.max(0, Math.min(1, 1 - f.life / f.total));
+      const e = k * k * (3 - 2 * k);
+      f.x += (TODO.x - f.x) * Math.min(1, e * 0.4 + dt * 7);
+      f.y += (TODO.y - 8 - f.y) * Math.min(1, e * 0.4 + dt * 7);
+      f.s += (0.5 - f.s) * dt * 4;
+      if (f.life <= 0) { f.done = true; swallow(f.kind); }
     }
     S.flyers = S.flyers.filter((f) => !f.done);
-
-    if (S.phase === "play" && !S.pieces.length && !S.flyers.length) stageClear();
 
     for (const p of S.puffs) {
       p.vy += 480 * dt;
@@ -670,197 +509,224 @@
   function bg() {
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, "#0a111d");
-    g.addColorStop(0.4, "#132339");
-    g.addColorStop(1, "#0d1828");
+    g.addColorStop(0.45, "#14243a");
+    g.addColorStop(1, "#0e1a2b");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    const lamp = ctx.createRadialGradient(W / 2, 96, 20, W / 2, 96, 300);
-    lamp.addColorStop(0, "rgba(240,166,60,0.18)");
+    const lamp = ctx.createRadialGradient(TRACK.cx, TRACK.cy + 60, 20, TRACK.cx, TRACK.cy + 60, 330);
+    lamp.addColorStop(0, "rgba(240,166,60,0.20)");
     lamp.addColorStop(1, "rgba(240,166,60,0)");
     ctx.fillStyle = lamp;
     ctx.fillRect(0, 0, W, H);
-
-    // 氷の盤
-    ctx.fillStyle = "rgba(216,232,242,0.045)";
-    roundRect(BX - 10, BY - 10, GW * CELL + 20, GH * CELL + 20, 16);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(216,232,242,0.10)";
-    ctx.lineWidth = 1;
-    for (let c = 1; c < GW; c++) {
-      ctx.beginPath(); ctx.moveTo(BX + c * CELL, BY); ctx.lineTo(BX + c * CELL, BY + GH * CELL); ctx.stroke();
-    }
-    for (let r = 1; r < GH; r++) {
-      ctx.beginPath(); ctx.moveTo(BX, BY + r * CELL); ctx.lineTo(BX + GW * CELL, BY + r * CELL); ctx.stroke();
-    }
   }
 
-  function drawArrow(cx, cy, d, len) {
-    const nx = -d.dy, ny = d.dx;
-    const tx = cx + d.dx * len / 2, ty = cy + d.dy * len / 2;
-    const ex = cx - d.dx * len / 2, ey = cy - d.dy * len / 2;
-    const kx = tx - d.dx * len * 0.5, ky = ty - d.dy * len * 0.5;
-    const hw = len * 0.38, sw = len * 0.15;
+  function drawBelt() {
     ctx.save();
-    ctx.fillStyle = "rgba(255,255,255,0.97)";
-    ctx.shadowColor = "rgba(6,10,18,0.45)";
-    ctx.shadowBlur = 3;
+    // ベルト本体
+    ctx.strokeStyle = "#2b3d52";
+    ctx.lineWidth = 52;
     ctx.beginPath();
-    ctx.moveTo(tx, ty);
-    ctx.lineTo(kx + nx * hw, ky + ny * hw);
-    ctx.lineTo(kx + nx * sw, ky + ny * sw);
-    ctx.lineTo(ex + nx * sw, ey + ny * sw);
-    ctx.lineTo(ex - nx * sw, ey - ny * sw);
-    ctx.lineTo(kx - nx * sw, ky - ny * sw);
-    ctx.lineTo(kx - nx * hw, ky - ny * hw);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
+    ctx.ellipse(TRACK.cx, TRACK.cy, TRACK.rx, TRACK.ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = "#35506c";
+    ctx.lineWidth = 44;
+    ctx.beginPath();
+    ctx.ellipse(TRACK.cx, TRACK.cy, TRACK.rx, TRACK.ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
 
-  function drawBlock(x, y, w, h, kind, dir, opts = {}) {
-    const pad = 3, r = 9;
-    const bx = x + pad, by = y + pad, bw = w - pad * 2, bh = h - pad * 2;
-    ctx.save();
-    if (opts.scale) {
-      ctx.translate(bx + bw / 2, by + bh / 2);
-      ctx.scale(opts.scale, opts.scale);
-      ctx.translate(-(bx + bw / 2), -(by + bh / 2));
-    }
-    // 影と側面（立体感）
-    ctx.fillStyle = kind.deep;
-    roundRect(bx, by + 4, bw, bh, r);
-    ctx.fill();
-    const g = ctx.createLinearGradient(bx, by, bx, by + bh);
-    g.addColorStop(0, kind.lite);
-    g.addColorStop(0.45, kind.color);
-    g.addColorStop(1, kind.deep);
-    ctx.fillStyle = g;
-    roundRect(bx, by, bw, bh, r);
-    ctx.fill();
-    // 上面のつや
-    ctx.fillStyle = "rgba(255,255,255,0.22)";
-    roundRect(bx + 4, by + 4, bw - 8, bh * 0.3, r - 4);
-    ctx.fill();
+    // 手の届く手前側だけ、灯りで明るい
+    const a0 = Math.asin(REACH), a1 = Math.PI - Math.asin(REACH);
+    ctx.strokeStyle = "rgba(240,166,60,0.38)";
+    ctx.lineWidth = 46;
+    ctx.beginPath();
+    ctx.ellipse(TRACK.cx, TRACK.cy, TRACK.rx, TRACK.ry, 0, a0, a1);
+    ctx.stroke();
 
-    // 品のアイコン（色が見分けにくくても形で分かる）
-    const d0 = dir ? DIRS[dir] : { dx: 0, dy: 0 };
-    drawIcon(kind, bx + bw / 2 - d0.dx * 5, by + bh / 2 - d0.dy * 5, Math.min(bw, bh) * 0.56);
-
-    // 出る向きは先端に置く
-    if (dir) {
-      const d = DIRS[dir];
-      const len = 15;
-      drawArrow(
-        bx + bw / 2 + d.dx * (bw / 2 - len / 2 - 5),
-        by + bh / 2 + d.dy * (bh / 2 - len / 2 - 5),
-        d, len);
-    }
-    ctx.restore();
-  }
-
-  function drawTodoHead(x, y, kind, t) {
-    const gulp = t ? t.gulp : 0;
-    const rise = t ? t.surface : 0;
-    ctx.save();
-    ctx.translate(x, y + rise * 26);
-
-    // 氷の穴
-    ctx.fillStyle = "rgba(6,10,18,0.75)";
-    ctx.beginPath(); ctx.ellipse(0, 30, 46, 13, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "rgba(216,232,242,0.22)";
+    // 動いていることが分かる継ぎ目
+    ctx.strokeStyle = "rgba(216,232,242,0.13)";
     ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(0, 30, 46, 13, 0, 0, Math.PI * 2); ctx.stroke();
+    const phase = (S.t * S.speed) % 0.28;
+    for (let a = 0; a < Math.PI * 2; a += 0.28) {
+      const ang = a + phase;
+      const inner = { x: TRACK.cx + Math.cos(ang) * (TRACK.rx - 21), y: TRACK.cy + Math.sin(ang) * (TRACK.ry - 12) };
+      const outer = { x: TRACK.cx + Math.cos(ang) * (TRACK.rx + 21), y: TRACK.cy + Math.sin(ang) * (TRACK.ry + 12) };
+      ctx.beginPath();
+      ctx.moveTo(inner.x, inner.y);
+      ctx.lineTo(outer.x, outer.y);
+      ctx.stroke();
+    }
+
+    // レーンの内側（板場）
+    const board = ctx.createLinearGradient(0, TRACK.cy - TRACK.ry, 0, TRACK.cy + TRACK.ry);
+    board.addColorStop(0, "#243449");
+    board.addColorStop(1, "#141f31");
+    ctx.fillStyle = board;
+    ctx.beginPath();
+    ctx.ellipse(TRACK.cx, TRACK.cy, TRACK.rx - 26, TRACK.ry - 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(240,166,60,0.07)";
+    ctx.beginPath();
+    ctx.ellipse(TRACK.cx, TRACK.cy + 18, TRACK.rx - 54, TRACK.ry - 40, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPlate(p) {
+    const q = trackPos(p.ang);
+    const s = q.scale;
+    const reach = inReach(p);
+    ctx.save();
+    ctx.translate(q.x, q.y);
+    ctx.scale(s, s);
+    ctx.globalAlpha = reach ? 1 : 0.72;
+
+    // 皿
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath(); ctx.ellipse(0, 6, 30, 10, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#e9e2d4";
+    ctx.beginPath(); ctx.ellipse(0, 0, 30, 11, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#cbc2b1";
+    ctx.beginPath(); ctx.ellipse(0, 1, 22, 7, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 中身（蓋が開くほど見える）
+    if (p.lid > 0.05) {
+      ctx.save();
+      ctx.globalAlpha *= Math.min(1, p.lid * 1.4);
+      ctx.fillStyle = p.kind.color;
+      ctx.beginPath(); ctx.ellipse(0, -3, 17, 9, 0, 0, Math.PI * 2); ctx.fill();
+      drawIcon(p.kind, 0, -9, 26);
+      ctx.restore();
+    }
+
+    // 蓋（朱塗り）
+    const lift = p.lid * 34;
+    if (p.lid < 0.98) {
+      ctx.save();
+      ctx.globalAlpha *= 1 - p.lid * 0.85;
+      ctx.translate(0, -lift);
+      const dome = ctx.createLinearGradient(0, -26, 0, 2);
+      dome.addColorStop(0, "#d9645a");
+      dome.addColorStop(0.55, "#bb4239");
+      dome.addColorStop(1, "#8d2b25");
+      ctx.fillStyle = dome;
+      ctx.beginPath();
+      ctx.moveTo(-27, 0);
+      ctx.bezierCurveTo(-27, -26, 27, -26, 27, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.28)";
+      ctx.beginPath(); ctx.ellipse(-9, -13, 7, 4, -0.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#f0cf8a";
+      ctx.beginPath(); ctx.ellipse(0, -25, 5, 3.4, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    // 手が届く皿は縁が光る
+    if (reach && S.phase === "play") {
+      ctx.strokeStyle = "rgba(240,166,60,0.85)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, 0, 31, 12, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawTodo() {
+    const t = S.todo;
+    const mouthOpen = Math.max(0.18, Math.min(1, 1 - t.chew * 1.7));
+    const bob = REDUCED ? 0 : Math.sin(S.t * 1.4) * 3;
 
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(-56, -64, 112, 96);
-    ctx.clip();
+    ctx.translate(TODO.x, TODO.y + bob);
+
+    // 影
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath(); ctx.ellipse(0, 62, 62, 12, 0, 0, Math.PI * 2); ctx.fill();
+
+    // からだ
+    const body = ctx.createLinearGradient(0, -50, 0, 62);
+    body.addColorStop(0, "#9c8577");
+    body.addColorStop(1, "#6a564c");
+    ctx.fillStyle = body;
+    ctx.beginPath(); ctx.ellipse(0, 18, 58, 44, 0, 0, Math.PI * 2); ctx.fill();
+
+    // ひれ
+    ctx.fillStyle = "#5d4a41";
+    const flap = REDUCED ? 0 : Math.sin(S.t * 3) * 0.08 + t.chew * 0.5;
+    ctx.beginPath(); ctx.ellipse(-52, 40, 20, 10, -0.5 - flap, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(52, 40, 20, 10, 0.5 + flap, 0, Math.PI * 2); ctx.fill();
 
     // あたま
     ctx.fillStyle = "#a68e7e";
-    ctx.beginPath(); ctx.ellipse(0, -4, 38, 33, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, -22, 44, 38, 0, 0, Math.PI * 2); ctx.fill();
 
-    // 口＝欲しい品
-    const mh = 11 + 7 * (1 - Math.min(1, gulp * 3.3));
+    // 口（中身は今のご注文）
+    const mh = 15 + 17 * mouthOpen;
     ctx.fillStyle = "#2a1a18";
-    ctx.beginPath(); ctx.ellipse(0, 10, 23, mh + 3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.save();
-    ctx.fillStyle = kind.color;
-    ctx.shadowColor = kind.color;
-    ctx.shadowBlur = 16;
-    ctx.beginPath(); ctx.ellipse(0, 11, 17, mh, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-    drawIcon(kind, 0, 11, 17);
+    ctx.beginPath(); ctx.ellipse(0, -6, 27, mh, 0, 0, Math.PI * 2); ctx.fill();
+    const want = S.phase === "play" ? S.want : null;
+    if (want) {
+      ctx.save();
+      ctx.globalAlpha = 0.94;
+      ctx.fillStyle = want.color;
+      ctx.shadowColor = want.color;
+      ctx.shadowBlur = 20;
+      ctx.beginPath(); ctx.ellipse(0, -2, 20, Math.max(7, mh - 9), 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      drawIcon(want, 0, -2, 22);
+    } else {
+      ctx.fillStyle = "#8ea6bb";
+      ctx.font = "600 18px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("？", 0, -2);
+    }
 
     // きば
     ctx.fillStyle = "#f2ead9";
-    ctx.beginPath(); ctx.moveTo(-21, 15); ctx.lineTo(-16, 15); ctx.lineTo(-18, 29); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(16, 15); ctx.lineTo(21, 15); ctx.lineTo(18, 29); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-16, 6); ctx.lineTo(-9, 6); ctx.lineTo(-12, 30); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(9, 6); ctx.lineTo(16, 6); ctx.lineTo(12, 30); ctx.closePath(); ctx.fill();
 
     // ひげ
-    ctx.strokeStyle = "rgba(242,234,217,0.45)";
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 2; i++) {
-      const yy = 6 + i * 6;
-      ctx.beginPath(); ctx.moveTo(-19, yy); ctx.lineTo(-33, yy - 3 + i * 3); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(19, yy); ctx.lineTo(33, yy - 3 + i * 3); ctx.stroke();
+    ctx.strokeStyle = "rgba(242,234,217,0.5)";
+    ctx.lineWidth = 1.4;
+    for (let i = 0; i < 3; i++) {
+      const yy = -10 + i * 7;
+      ctx.beginPath(); ctx.moveTo(-26, yy); ctx.lineTo(-42, yy - 4 + i * 3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(26, yy); ctx.lineTo(42, yy - 4 + i * 3); ctx.stroke();
     }
 
-    // 目
-    const happy = t && t.face > 0.3;
-    for (const ex of [-21, 21]) {
-      if (happy) {
+    // 目：ふつう／うっとり／げんなり
+    const happy = t.face > 0.3, bad = t.face < -0.3 || S.phase === "over";
+    const blinking = t.blink > 0;
+    ctx.lineCap = "round";
+    for (const ex of [-27, 27]) {
+      if (happy || bad || blinking) {
         ctx.strokeStyle = "#2a1a18";
-        ctx.lineWidth = 2.6;
-        ctx.lineCap = "round";
-        ctx.beginPath(); ctx.arc(ex, -18, 5, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (bad) { ctx.moveTo(ex - 6, -40); ctx.lineTo(ex + 6, -31); ctx.moveTo(ex + 6, -40); ctx.lineTo(ex - 6, -31); }
+        else ctx.arc(ex, -36, 6.5, Math.PI * 1.08, Math.PI * 1.92);
+        ctx.stroke();
       } else {
         ctx.fillStyle = "#f2ead9";
-        ctx.beginPath(); ctx.ellipse(ex, -18, 5.5, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(ex, -36, 7, 8, 0, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "#2a1a18";
-        ctx.beginPath(); ctx.arc(ex, -17, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex, -35, 3.6, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.beginPath(); ctx.arc(ex - 1.3, -19.4, 1.2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex - 1.6, -38, 1.4, 0, Math.PI * 2); ctx.fill();
       }
     }
-    ctx.restore();
 
-    // あと何品
-    if (t) {
-      for (let i = 0; i < NEED; i++) {
-        const dx = (i - (NEED - 1) / 2) * 13;
-        ctx.globalAlpha = i < t.need ? 1 : 0.22;
-        ctx.fillStyle = kind.color;
-        ctx.beginPath(); ctx.arc(dx, 48, 4.2, 0, Math.PI * 2); ctx.fill();
-      }
+    // ごきげんが良いとほおが赤い
+    if (S.mood > 0.7 && S.phase === "play") {
+      ctx.globalAlpha = Math.min(0.5, (S.mood - 0.7) * 1.6);
+      ctx.fillStyle = "#e8687a";
+      ctx.beginPath(); ctx.ellipse(-30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
     }
     ctx.restore();
-  }
-
-  function drawShelf() {
-    const slotW = 44, gap = 9, total = SHELF_MAX * slotW + (SHELF_MAX - 1) * gap;
-    const x0 = (W - total) / 2;
-    ctx.fillStyle = "rgba(216,232,242,0.5)";
-    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillText("待ちの棚", x0, 150);
-
-    for (let i = 0; i < SHELF_MAX; i++) {
-      const x = x0 + i * (slotW + gap), y = 158;
-      const danger = i === SHELF_MAX - 1 && S.shelf.length >= SHELF_MAX - 1;
-      ctx.fillStyle = "rgba(216,232,242,0.05)";
-      roundRect(x, y, slotW, 40, 8);
-      ctx.fill();
-      ctx.strokeStyle = danger ? "rgba(232,104,122,0.65)" : "rgba(216,232,242,0.14)";
-      ctx.lineWidth = 1.4;
-      roundRect(x, y, slotW, 40, 8);
-      ctx.stroke();
-      const kind = S.shelf[i];
-      if (kind) drawBlock(x + 4, y + 3, slotW - 8, 34, kind, null);
-    }
   }
 
   function drawHud() {
@@ -870,21 +736,57 @@
     ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
     ctx.fillText("てんすう", 18, 24);
     ctx.fillStyle = "#fbe3bd";
-    ctx.font = "600 20px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.fillText(String(S.score), 18, 44);
+    ctx.font = "600 22px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText(String(S.score), 18, 46);
 
     ctx.textAlign = "right";
     ctx.fillStyle = "rgba(216,232,242,0.55)";
     ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
     ctx.fillText(`さいこう ${best}`, W - 18, 24);
     ctx.fillStyle = "#fbe3bd";
-    ctx.font = "600 16px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-    ctx.fillText(`${S.stage} 軒目`, W - 18, 46);
+    ctx.font = "600 14px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.fillText(`${S.fed} 皿目`, W - 18, 46);
+
+    // ごきげん
+    const bx = 18, by = 72, bw = W - 36, bh = 12;
+    ctx.fillStyle = "rgba(216,232,242,0.10)";
+    roundRect(bx, by, bw, bh, 6); ctx.fill();
+    const warm = S.mood < 0.3;
+    ctx.fillStyle = warm ? "#e8687a" : "#f0a63c";
+    if (S.mood > 0.01) { roundRect(bx, by, Math.max(8, bw * S.mood), bh, 6); ctx.fill(); }
+    ctx.fillStyle = "rgba(216,232,242,0.5)";
+    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("ごきげん", bx + 2, by - 4);
+
+    // カウンター
+    const cy = TODO.y + 76;
+    const wood = ctx.createLinearGradient(0, cy, 0, cy + 46);
+    wood.addColorStop(0, "#5b4433");
+    wood.addColorStop(1, "#3a2c22");
+    ctx.fillStyle = wood;
+    ctx.fillRect(0, cy, W, 46);
+    ctx.fillStyle = "rgba(240,166,60,0.28)";
+    ctx.fillRect(0, cy, W, 3);
 
     ctx.textAlign = "center";
+    ctx.fillStyle = "#f3e2c4";
+    ctx.font = "600 15px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    if (S.phase === "play") {
+      ctx.fillText(`ご注文　${S.want.name}`, W / 2, cy + 30);
+    } else {
+      ctx.fillText("ご注文　—", W / 2, cy + 30);
+    }
+
+    ctx.textAlign = "left";
     ctx.fillStyle = "rgba(216,232,242,0.45)";
     ctx.font = "11px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.fillText(`のこり ${S.pieces.length} 品`, W / 2, BY + GH * CELL + 34);
+    ctx.fillText(`${level()} 杯目の夜`, 18, cy + 30);
+    ctx.textAlign = "right";
+    if (S.combo >= 2) {
+      ctx.fillStyle = "#f0a63c";
+      ctx.fillText(`${S.combo} 連続`, W - 18, cy + 30);
+    }
   }
 
   function drawOverlay(title, lines, sub) {
@@ -893,45 +795,38 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#fbe3bd";
-    ctx.font = "600 32px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-    ctx.fillText(title, W / 2, H / 2 - 74);
+    ctx.font = "600 30px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.fillText(title, W / 2, H / 2 - 96);
     ctx.fillStyle = "#d8e8f2";
     ctx.font = "14px 'Hiragino Sans', system-ui, sans-serif";
-    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 30 + i * 25));
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 54 + i * 25));
     if (sub) {
       ctx.globalAlpha = REDUCED ? 1 : 0.6 + Math.sin(S.t * 3) * 0.4;
       ctx.fillStyle = "#f0a63c";
       ctx.font = "600 16px 'Hiragino Sans', system-ui, sans-serif";
-      ctx.fillText(sub, W / 2, H / 2 + 20 + lines.length * 25);
+      ctx.fillText(sub, W / 2, H / 2 - 8 + lines.length * 25);
       ctx.globalAlpha = 1;
     }
   }
 
   function draw() {
     bg();
+    drawBelt();
 
-    for (let i = 0; i < TODO_SLOTS; i++) {
-      const t = S.todos[i];
-      if (t) drawTodoHead(todoX(i), 88, t.kind, t);
-    }
-    drawShelf();
+    // 奥から手前の順に描く
+    const order = S.plates.filter((p) => !p.gone).sort((a, b) => trackPos(a.ang).y - trackPos(b.ang).y);
+    for (const p of order) drawPlate(p);
 
-    const cur = S.phase === "play" ? grid()[S.cursor.r * GW + S.cursor.c] : null;
-    for (const p of S.pieces) {
-      const rc = cellRect(p);
-      const sx = p.shake > 0 && !REDUCED ? Math.sin(p.shake * 60) * 5 : 0;
-      drawBlock(rc.x + sx, rc.y, rc.w, rc.h, p.kind, p.dir);
-      if (p === cur) {
-        ctx.strokeStyle = "#f0a63c";
-        ctx.lineWidth = 2.5;
-        roundRect(rc.x + 1, rc.y + 1, rc.w - 2, rc.h - 2, 11);
-        ctx.stroke();
-      }
-    }
+    drawTodo();
 
     for (const f of S.flyers) {
-      const w = f.stage === "out" ? f.w : 34, h = f.stage === "out" ? f.h : 34;
-      drawBlock(f.x - (f.stage === "out" ? 0 : w / 2), f.y - (f.stage === "out" ? 0 : h / 2), w, h, f.kind, f.stage === "out" ? f.dir : null);
+      ctx.save();
+      ctx.translate(f.x, f.y);
+      ctx.scale(f.s, f.s);
+      ctx.fillStyle = f.kind.color;
+      ctx.beginPath(); ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2); ctx.fill();
+      drawIcon(f.kind, 0, -4, 28);
+      ctx.restore();
     }
 
     for (const p of S.puffs) {
@@ -943,28 +838,28 @@
 
     drawHud();
 
+    if (S.hint) {
+      ctx.globalAlpha = Math.min(1, S.hint.life * 1.8);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fbe3bd";
+      ctx.font = "600 20px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+      ctx.fillText(S.hint.text, W / 2, 108);
+      ctx.globalAlpha = 1;
+    }
+
     if (S.phase === "title") {
-      drawOverlay("トドの晩酌", [
-        "品をタップすると、矢印の向きに滑り出す。",
-        "行き止まりなら動かない。順番が勝負。",
-        "外に出た品は、口の絵が合うトドが平らげる。",
-        "合う相手がいない品は棚に残る。棚が溢れたら終い。",
+      drawOverlay("トドの回転晩酌", [
+        "皿がレーンを回ってくる。中身は蓋の下。",
+        "手前の明るい皿をタップすると蓋が開く。",
+        "ご注文（トドの口）と同じならトドが食べる。",
+        "ちがえばごきげんが下がる。ただし蓋は開いたまま",
+        "回り続けるので、次の注文で出してやればいい。",
       ], "タップしてのれんをくぐる");
     } else if (S.phase === "over") {
       drawOverlay("おあいそ", [
-        `${S.stage} 軒目で棚が溢れました`,
+        `${S.fed} 皿でごきげんが尽きました`,
         `${S.score} てん　／　さいこう ${best} てん`,
-      ], "タップでもう一杯");
-    } else if (S.phase === "clear") {
-      ctx.fillStyle = "rgba(6,10,18,0.55)";
-      ctx.fillRect(0, 0, W, H);
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#fbe3bd";
-      ctx.font = "600 30px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-      ctx.fillText(`${S.stage} 軒目 完飲`, W / 2, H / 2);
-      ctx.font = "14px 'Hiragino Sans', system-ui, sans-serif";
-      ctx.fillStyle = "#d8e8f2";
-      ctx.fillText("+200 てん", W / 2, H / 2 + 30);
+      ], "タップでもう一献");
     }
   }
 
