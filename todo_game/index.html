@@ -4,11 +4,9 @@
     --sea-900: #0b1220;
     --sea-800: #101b2e;
     --sea-700: #16273f;
-    --sea-600: #24384f;
     --ice: #d8e8f2;
     --ice-dim: #8ea6bb;
     --lantern: #f0a63c;
-    --lantern-deep: #c8761c;
     --sumi: #060a12;
   }
 
@@ -19,28 +17,23 @@
     min-height: 100vh;
     background:
       radial-gradient(120% 80% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 60%),
-      radial-gradient(90% 60% at 50% 108%, rgba(240,166,60,0.18) 0%, rgba(240,166,60,0) 55%),
+      radial-gradient(90% 60% at 50% 108%, rgba(240,166,60,0.16) 0%, rgba(240,166,60,0) 55%),
       var(--sea-900);
     color: var(--ice);
     font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
-    padding: 28px 16px 40px;
+    gap: 16px;
+    padding: 24px 16px 36px;
   }
 
-  .sign {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
+  .sign { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
   .sign h1 {
     margin: 0;
     font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-    font-size: clamp(30px, 8vw, 44px);
+    font-size: clamp(28px, 7.5vw, 40px);
     font-weight: 600;
     letter-spacing: 0.18em;
     text-indent: 0.18em;
@@ -51,21 +44,20 @@
   .sign p {
     margin: 0;
     font-size: 12px;
-    letter-spacing: 0.34em;
-    text-indent: 0.34em;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
     color: var(--ice-dim);
   }
 
   .cabinet {
-    position: relative;
-    width: min(100%, 460px);
+    width: min(100%, 470px);
     border-radius: 20px;
     padding: 10px;
     background: linear-gradient(180deg, var(--sea-700), var(--sea-800));
     box-shadow:
       0 0 0 1px rgba(216,232,242,0.10),
       0 26px 60px -24px rgba(0,0,0,0.9),
-      0 0 70px -30px rgba(240,166,60,0.55);
+      0 0 70px -30px rgba(240,166,60,0.5);
   }
 
   canvas {
@@ -74,168 +66,484 @@
     height: auto;
     border-radius: 12px;
     background: var(--sumi);
-    touch-action: none;
+    touch-action: manipulation;
     cursor: pointer;
   }
 
-  canvas:focus-visible {
-    outline: 2px solid var(--lantern);
-    outline-offset: 3px;
+  canvas:focus-visible { outline: 2px solid var(--lantern); outline-offset: 3px; }
+
+  .keys {
+    width: min(100%, 470px);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    line-height: 1.85;
+    color: var(--ice-dim);
   }
 
-  .hud {
-    width: min(100%, 460px);
+  .keys b { color: #fbe3bd; font-weight: 600; }
+
+  .bar {
+    width: min(100%, 470px);
     display: flex;
-    align-items: stretch;
     gap: 10px;
   }
 
-  .chip {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: rgba(216,232,242,0.05);
-    border: 1px solid rgba(216,232,242,0.10);
-  }
-
-  .chip span {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-indent: 0.22em;
-    color: var(--ice-dim);
-  }
-
-  .chip strong {
-    font-size: 20px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-  }
-
-  #wantChip strong {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 17px;
-  }
-
-  #wantDot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    box-shadow: 0 0 12px currentColor;
-    background: currentColor;
-  }
-
-  .keys {
-    width: min(100%, 460px);
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 12px;
-    line-height: 1.8;
-    color: var(--ice-dim);
-  }
-
-  .keys b {
-    color: #fbe3bd;
-    font-weight: 600;
-  }
-
-  button.mute {
-    align-self: flex-start;
+  button {
     background: none;
     border: 1px solid rgba(216,232,242,0.18);
     color: var(--ice-dim);
     font: inherit;
     font-size: 12px;
-    padding: 6px 12px;
+    padding: 7px 14px;
     border-radius: 999px;
     cursor: pointer;
   }
 
-  button.mute:hover { color: #fbe3bd; border-color: rgba(240,166,60,0.5); }
-  button.mute:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+  button:hover { color: #fbe3bd; border-color: rgba(240,166,60,0.5); }
+  button:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
 </style>
 
 <div class="sign">
   <h1>トドの晩酌</h1>
-  <p>同じ色の酒だけを飲め</p>
+  <p>矢印の先が空いていれば、肴は外へ出る</p>
 </div>
 
 <div class="cabinet">
-  <canvas id="game" width="460" height="640" tabindex="0" aria-label="トドを左右に動かして、飲みたい色の酒だけを口で受けるゲーム"></canvas>
-</div>
-
-<div class="hud">
-  <div class="chip" id="wantChip">
-    <span>いま飲みたい</span>
-    <strong><i id="wantDot"></i><em id="wantName" style="font-style:normal">—</em></strong>
-  </div>
-  <div class="chip">
-    <span>てんすう</span>
-    <strong id="scoreOut">0</strong>
-  </div>
-  <div class="chip">
-    <span>さいこう</span>
-    <strong id="bestOut">0</strong>
-  </div>
+  <canvas id="game" width="460" height="720" tabindex="0"
+    aria-label="矢印つきの品ブロックを押し出して、口の絵が合うトドに食べさせるパズル。矢印キーで選択、エンターで押し出し。"></canvas>
 </div>
 
 <div class="keys">
-  <div>← → / A D で移動<br />ドラッグでも動きます</div>
-  <div style="text-align:right">同じ色 = <b>のむ</b><br />ちがう色 = <b>吐く（残機−1）</b></div>
+  <div>品をタップ／クリック<br />矢印キーで選んで <b>Enter</b> でも可</div>
+  <div style="text-align:right">食べ手のいない品は<b>棚</b>へ<br />棚が溢れたら <b>おあいそ</b></div>
 </div>
 
-<button class="mute" id="muteBtn" type="button">🔊 音あり</button>
+<div class="bar">
+  <button id="againBtn" type="button">はじめから</button>
+  <button id="muteBtn" type="button">🔊 音あり</button>
+</div>
 
 <script>
 (() => {
   "use strict";
 
-  const W = 460, H = 640;
+  const W = 460, H = 720;
+  const GW = 6, GH = 8, CELL = 54;
+  const BX = (W - GW * CELL) / 2, BY = 214;
+  const SHELF_MAX = 6;
+  const TODO_SLOTS = 4;
+  const NEED = 3;                 // トド1匹が平らげる品数
+
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // --- お品書き ---------------------------------------------------------
   const SAKE = [
-    { id: "ume",   name: "梅酒",     mark: "梅", color: "#e9a13b", deep: "#a96b18" },
-    { id: "ramune",name: "ラムネ酒", mark: "ラ", color: "#46a8e5", deep: "#1c6ea3" },
-    { id: "aka",   name: "赤ワイン", mark: "赤", color: "#d24960", deep: "#8d2436" },
-    { id: "matcha",name: "抹茶酒",   mark: "茶", color: "#62b96b", deep: "#2f7a39" },
+    { id: "beer",  name: "ビール", color: "#e9a13b", deep: "#9c6316", lite: "#f6c377" },
+    { id: "soda",  name: "ラムネ", color: "#46a8e5", deep: "#1a648f", lite: "#8fd0f5" },
+    { id: "sushi", name: "寿司",   color: "#e8637a", deep: "#8d2440", lite: "#f5a3b2" },
+    { id: "niku",  name: "肉",     color: "#a9714a", deep: "#5f3a20", lite: "#d2a480" },
+    { id: "mame",  name: "枝豆",   color: "#62b96b", deep: "#2b6f36", lite: "#a2dda8" },
+    { id: "budo",  name: "葡萄",   color: "#a06ad4", deep: "#5d3387", lite: "#c9a5ec" },
   ];
-  const GOLD = { id: "gold", name: "大吟醸", mark: "大", color: "#f6e7a8", deep: "#c9a53c" };
 
-  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // お品のアイコン。色に頼らず形でも見分けられるようにする。
+  // 原点中心・一辺 1 の座標系で描き、呼び出し側で拡大する。
+  const INK = "#241713", PAPER = "#f6efe2";
+  function drawIcon(kind, x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size, size);
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.fillStyle = INK;
+    ctx.strokeStyle = INK;
+
+    if (kind.id === "beer") {
+      // ジョッキと泡
+      ctx.beginPath();
+      ctx.moveTo(-0.3, -0.16); ctx.lineTo(0.22, -0.16); ctx.lineTo(0.16, 0.42); ctx.lineTo(-0.24, 0.42);
+      ctx.closePath(); ctx.fill();
+      ctx.lineWidth = 0.09;
+      ctx.beginPath(); ctx.arc(0.32, 0.04, 0.16, -Math.PI * 0.5, Math.PI * 0.5); ctx.stroke();
+      ctx.fillStyle = PAPER;
+      ctx.beginPath();
+      ctx.arc(-0.22, -0.26, 0.13, 0, Math.PI * 2);
+      ctx.arc(-0.02, -0.33, 0.16, 0, Math.PI * 2);
+      ctx.arc(0.18, -0.25, 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(-0.32, -0.26, 0.56, 0.14);
+    } else if (kind.id === "soda") {
+      // ラムネ瓶
+      ctx.beginPath();
+      ctx.moveTo(-0.1, -0.44); ctx.lineTo(0.1, -0.44); ctx.lineTo(0.1, -0.24);
+      ctx.quadraticCurveTo(0.28, -0.12, 0.28, 0.16);
+      ctx.quadraticCurveTo(0.28, 0.44, 0, 0.44);
+      ctx.quadraticCurveTo(-0.28, 0.44, -0.28, 0.16);
+      ctx.quadraticCurveTo(-0.28, -0.12, -0.1, -0.24);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = PAPER;
+      ctx.beginPath(); ctx.arc(0, -0.2, 0.075, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-0.09, 0.19, 0.06, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0.08, 0.28, 0.045, 0, Math.PI * 2); ctx.fill();
+    } else if (kind.id === "sushi") {
+      // にぎり（シャリの上にネタ）
+      ctx.fillStyle = PAPER;
+      ctx.beginPath();
+      ctx.moveTo(-0.42, 0.0);
+      ctx.lineTo(0.42, 0.0);
+      ctx.quadraticCurveTo(0.48, 0.04, 0.45, 0.24);
+      ctx.quadraticCurveTo(0.42, 0.4, 0.2, 0.4);
+      ctx.lineTo(-0.2, 0.4);
+      ctx.quadraticCurveTo(-0.42, 0.4, -0.45, 0.24);
+      ctx.quadraticCurveTo(-0.48, 0.04, -0.42, 0.0);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = INK;
+      ctx.beginPath();
+      ctx.ellipse(0, -0.16, 0.36, 0.15, -0.06, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = PAPER;
+      ctx.lineWidth = 0.045;
+      ctx.beginPath(); ctx.moveTo(-0.18, -0.21); ctx.lineTo(-0.02, -0.25); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0.02, -0.11); ctx.lineTo(0.22, -0.15); ctx.stroke();
+    } else if (kind.id === "mame") {
+      // 枝豆のさや
+      ctx.save();
+      ctx.rotate(-0.5);
+      ctx.beginPath(); ctx.ellipse(0, 0, 0.46, 0.19, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = PAPER;
+      for (const dx of [-0.24, 0, 0.24]) {
+        ctx.beginPath(); ctx.ellipse(dx, 0, 0.1, 0.095, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 0.07;
+      ctx.beginPath(); ctx.moveTo(0.24, -0.34); ctx.lineTo(0.36, -0.46); ctx.stroke();
+    } else if (kind.id === "niku") {
+      // 骨つき肉
+      ctx.beginPath();
+      ctx.moveTo(-0.34, 0.12);
+      ctx.quadraticCurveTo(-0.44, -0.3, -0.04, -0.4);
+      ctx.quadraticCurveTo(0.34, -0.46, 0.32, -0.06);
+      ctx.quadraticCurveTo(0.3, 0.24, -0.02, 0.24);
+      ctx.quadraticCurveTo(-0.28, 0.24, -0.34, 0.12);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = PAPER;
+      ctx.lineWidth = 0.13;
+      ctx.beginPath(); ctx.moveTo(-0.16, 0.2); ctx.lineTo(-0.36, 0.44); ctx.stroke();
+      ctx.fillStyle = PAPER;
+      ctx.beginPath(); ctx.arc(-0.42, 0.44, 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-0.3, 0.5, 0.09, 0, Math.PI * 2); ctx.fill();
+    } else {
+      // 葡萄
+      ctx.beginPath();
+      for (const [bx, by] of [[-0.2, -0.02], [0.2, -0.02], [0, -0.14], [-0.12, 0.2], [0.12, 0.2], [0, 0.4]]) {
+        ctx.moveTo(bx + 0.14, by);
+        ctx.arc(bx, by, 0.14, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 0.07;
+      ctx.beginPath(); ctx.moveTo(0, -0.2); ctx.lineTo(0.06, -0.42); ctx.stroke();
+      ctx.fillStyle = PAPER;
+      ctx.beginPath(); ctx.ellipse(0.19, -0.4, 0.13, 0.07, -0.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  const DIRS = {
+    up:    { dx: 0, dy: -1, glyph: "↑" },
+    down:  { dx: 0, dy: 1,  glyph: "↓" },
+    left:  { dx: -1, dy: 0, glyph: "←" },
+    right: { dx: 1, dy: 0,  glyph: "→" },
+  };
+  const DIR_KEYS = Object.keys(DIRS);
 
   // --- 状態 -------------------------------------------------------------
-  const state = {
-    phase: "title",      // title | play | over
-    t: 0,
-    score: 0,
-    best: 0,
-    lives: 4,
-    combo: 0,
-    want: SAKE[0],
-    served: 0,           // いまの色で飲んだ数
-    drunk: 0,            // 酔い（0..1）操作が揺れる
-    glasses: [],
-    puffs: [],
-    spawnIn: 0.9,
-    todo: { x: W / 2, vx: 0, tilt: 0, chew: 0, spit: 0, face: 0 },
-    flash: 0,
-    shake: 0,
-    banner: null,
-  };
+  let S = null;
+  let best = 0;
+  try { best = Number(localStorage.getItem("todo-banshaku-best")) || 0; } catch (e) {}
 
-  try { state.best = Number(localStorage.getItem("todo-banshaku-best")) || 0; } catch (e) {}
+  function newGame() {
+    S = {
+      phase: "title",
+      t: 0,
+      stage: 1,
+      score: 0,
+      pieces: [],
+      flyers: [],
+      puffs: [],
+      todos: [],
+      shelf: [],
+      cursor: { c: 0, r: 0 },
+      clearAt: 0,
+      overAt: 0,
+    };
+    buildStage();
+  }
 
-  // --- 音（合成／アセットなし） ------------------------------------------
+  // --- 盤面生成（逆順に置くので必ず解ける） -------------------------------
+  function paletteFor(stage) {
+    return SAKE.slice(0, Math.min(SAKE.length, 4 + Math.floor(stage / 3)));
+  }
+
+  function occupied(cells, c, r) { return cells[r * GW + c]; }
+
+  function pathClear(cells, p, dir) {
+    const d = DIRS[dir];
+    // ブロックの前面から盤外までを走査
+    for (let step = 1; step < GW + GH + 2; step++) {
+      let any = false;
+      for (let oy = 0; oy < p.h; oy++) {
+        for (let ox = 0; ox < p.w; ox++) {
+          const c = p.c + ox + d.dx * step, r = p.r + oy + d.dy * step;
+          if (c < 0 || c >= GW || r < 0 || r >= GH) continue;  // 盤外は通過済み
+          // 自分自身の占有セルは無視
+          if (c >= p.c && c < p.c + p.w && r >= p.r && r < p.r + p.h) continue;
+          any = true;
+          if (occupied(cells, c, r)) return false;
+        }
+      }
+      if (!any) break;
+    }
+    return true;
+  }
+
+  function buildStage() {
+    const palette = paletteFor(S.stage);
+    const target = Math.min(GW * GH - 6, 13 + S.stage * 2);
+    const cells = new Array(GW * GH).fill(null);
+    const pieces = [];
+    const shapes = [
+      { w: 1, h: 1, weight: 2 },
+      { w: 2, h: 1, weight: 3 },
+      { w: 1, h: 2, weight: 3 },
+      { w: 2, h: 2, weight: 1 },
+    ];
+    const bag = [];
+    shapes.forEach((s) => { for (let i = 0; i < s.weight; i++) bag.push(s); });
+
+    let guard = 0;
+    while (pieces.length < target && guard++ < 4000) {
+      const sh = bag[(Math.random() * bag.length) | 0];
+      const c = (Math.random() * (GW - sh.w + 1)) | 0;
+      const r = (Math.random() * (GH - sh.h + 1)) | 0;
+      let free = true;
+      for (let oy = 0; oy < sh.h && free; oy++)
+        for (let ox = 0; ox < sh.w && free; ox++)
+          if (occupied(cells, c + ox, r + oy)) free = false;
+      if (!free) continue;
+
+      const cand = { c, r, w: sh.w, h: sh.h };
+      // 「いま置いてある品」を避けて出られる向きだけを許す。
+      // 置いた順の逆から外すと、必ず全部出せる盤面になる。
+      const dirs = DIR_KEYS.filter((d) => pathClear(cells, cand, d));
+      if (!dirs.length) continue;
+
+      const kind = palette[(Math.random() * palette.length) | 0];
+      const p = {
+        ...cand,
+        dir: dirs[(Math.random() * dirs.length) | 0],
+        kind,
+        shake: 0,
+        pop: 0,
+      };
+      pieces.push(p);
+      for (let oy = 0; oy < sh.h; oy++)
+        for (let ox = 0; ox < sh.w; ox++)
+          cells[(r + oy) * GW + c + ox] = p;
+    }
+
+    S.pieces = pieces;
+    S.flyers = [];
+    S.shelf = [];
+    S.todos = [];
+    for (let i = 0; i < TODO_SLOTS; i++) S.todos.push(makeTodo(i));
+    S.cursor = { c: 0, r: 0 };
+    moveCursorToPiece(0, 0);
+  }
+
+  function grid() {
+    const cells = new Array(GW * GH).fill(null);
+    for (const p of S.pieces) {
+      for (let oy = 0; oy < p.h; oy++)
+        for (let ox = 0; ox < p.w; ox++)
+          cells[(p.r + oy) * GW + p.c + ox] = p;
+    }
+    return cells;
+  }
+
+  // --- トド -------------------------------------------------------------
+  function todoX(i) { return (W / (TODO_SLOTS * 2)) * (i * 2 + 1); }
+
+  function pickColor(exclude) {
+    const count = {};
+    for (const p of S.pieces) count[p.kind.id] = (count[p.kind.id] || 0) + 1;
+    for (const c of S.shelf) count[c.id] = (count[c.id] || 0) + 3;   // 棚に溜まった色を優先
+    let pool = SAKE.filter((k) => count[k.id] && !exclude.includes(k.id));
+    if (!pool.length) pool = SAKE.filter((k) => count[k.id]);
+    if (!pool.length) pool = paletteFor(S.stage);
+    const total = pool.reduce((a, k) => a + (count[k.id] || 1), 0);
+    let roll = Math.random() * total;
+    for (const k of pool) {
+      roll -= count[k.id] || 1;
+      if (roll <= 0) return k;
+    }
+    return pool[0];
+  }
+
+  function makeTodo(i) {
+    const exclude = S.todos.filter((t) => t && t.i !== i).map((t) => t.kind.id);
+    return { i, kind: pickColor(exclude), need: NEED, gulp: 0, surface: 0, face: 0 };
+  }
+
+  // --- 進行 -------------------------------------------------------------
+  function start() {
+    if (S.phase === "play") return;
+    if (S.phase !== "clear") { S.stage = 1; S.score = 0; }
+    S.phase = "play";
+    buildStage();
+    beep(420, 0.12, "triangle", 0.05, 640);
+  }
+
+  function push(p) {
+    if (S.phase !== "play" || p.pop > 0) return;
+    const cells = grid();
+    if (!pathClear(cells, p, p.dir)) {
+      p.shake = 0.32;
+      beep(120, 0.09, "square", 0.03);
+      return;
+    }
+    p.pop = 1;
+    S.pieces = S.pieces.filter((x) => x !== p);
+    const d = DIRS[p.dir];
+    const from = cellRect(p);
+    const dist = d.dx ? W * 0.9 : H * 0.9;
+    S.flyers.push({
+      kind: p.kind,
+      x: from.x, y: from.y, w: from.w, h: from.h,
+      vx: d.dx * 1250, vy: d.dy * 1250,
+      stage: "out", life: dist / 1250,
+      dir: p.dir,
+    });
+    beep(520, 0.07, "triangle", 0.04, 700);
+  }
+
+  function serve(flyer) {
+    // 盤外に出た品の行き先を決める
+    const todo = S.todos.find((t) => t.kind.id === flyer.kind.id && t.need - (t.reserved || 0) > 0);
+    if (todo) {
+      flyer.stage = "toTodo";
+      flyer.target = { x: todoX(todo.i), y: 104 };
+      flyer.todo = todo;
+      flyer.life = 0.34;
+      todo.reserved = (todo.reserved || 0) + 1;
+    } else {
+      const slot = S.shelf.length;
+      if (slot >= SHELF_MAX) { gameOver(); return; }
+      S.shelf.push(flyer.kind);
+      flyer.stage = "toShelf";
+      flyer.target = shelfPos(slot);
+      flyer.life = 0.3;
+      beep(300, 0.08, "sine", 0.03);
+    }
+  }
+
+  function drink(todo, kind) {
+    if (S.todos[todo.i] !== todo) return;   // すでに潜ったトド宛ての品は捨てる
+    todo.need--;
+    todo.gulp = 0.3;
+    todo.face = 1;
+    todo.reserved = Math.max(0, (todo.reserved || 0) - 1);
+    S.score += 10;
+    puff(todoX(todo.i), 104, kind.color, 10);
+    beep(620 + (NEED - todo.need) * 90, 0.1, "triangle", 0.05);
+    if (todo.need <= 0) {
+      S.score += 60;
+      todo.face = 1;
+      setTimeout(() => {
+        if (!S || S.phase !== "play") return;
+        S.todos[todo.i] = makeTodo(todo.i);
+        S.todos[todo.i].surface = 1;
+        beep(360, 0.16, "sine", 0.04, 520);
+        drainShelf();
+      }, 420);
+    }
+    if (!S.pieces.length && !S.flyers.length) stageClear();
+  }
+
+  // 新しいトドが顔を出したら、棚の同じ品を順に食べさせる
+  function drainShelf() {
+    let delay = 0;
+    for (let i = S.shelf.length - 1; i >= 0; i--) {
+      const kind = S.shelf[i];
+      const todo = S.todos.find((t) => t.kind.id === kind.id && t.need - (t.reserved || 0) > 0);
+      if (!todo) continue;
+      const from = shelfPos(i);
+      S.shelf.splice(i, 1);
+      todo.reserved = (todo.reserved || 0) + 1;
+      delay += 130;
+      setTimeout(() => {
+        if (!S || S.phase !== "play") return;
+        S.flyers.push({
+          kind, x: from.x, y: from.y, w: 34, h: 34,
+          stage: "toTodo", target: { x: todoX(todo.i), y: 104 }, todo, life: 0.3, total: 0.3,
+        });
+      }, delay);
+    }
+  }
+
+  function stageClear() {
+    if (S.phase !== "play") return;
+    S.phase = "clear";
+    S.score += 200;
+    S.clearAt = S.t;
+    saveBest();
+    beep(520, 0.4, "triangle", 0.05, 880);
+    setTimeout(() => {
+      if (!S || S.phase !== "clear") return;
+      S.stage++;
+      S.phase = "play";
+      buildStage();
+    }, 1700);
+  }
+
+  function gameOver() {
+    S.phase = "over";
+    S.overAt = S.t;
+    saveBest();
+    beep(300, 0.5, "sine", 0.05, 100);
+  }
+
+  function saveBest() {
+    if (S.score > best) {
+      best = S.score;
+      try { localStorage.setItem("todo-banshaku-best", String(best)); } catch (e) {}
+    }
+  }
+
+  function puff(x, y, color, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 130;
+      S.puffs.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 50, r: 2 + Math.random() * 4, life: 1, color });
+    }
+  }
+
+  // --- 座標 -------------------------------------------------------------
+  function cellRect(p) {
+    return { x: BX + p.c * CELL, y: BY + p.r * CELL, w: p.w * CELL, h: p.h * CELL };
+  }
+  function shelfPos(i) {
+    const slotW = 44, gap = 9, total = SHELF_MAX * slotW + (SHELF_MAX - 1) * gap;
+    return { x: (W - total) / 2 + i * (slotW + gap) + slotW / 2, y: 178 };
+  }
+
+  // --- 音 ---------------------------------------------------------------
   let audio = null, muted = false;
-  function beep(freq, dur, type = "sine", gain = 0.06, slideTo = null) {
+  function beep(freq, dur, type = "sine", gain = 0.05, slideTo = null) {
     if (muted) return;
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
@@ -251,505 +559,413 @@
       o.stop(audio.currentTime + dur + 0.02);
     } catch (e) {}
   }
-  const muteBtn = document.getElementById("muteBtn");
-  muteBtn.addEventListener("click", () => {
+
+  document.getElementById("muteBtn").addEventListener("click", (e) => {
     muted = !muted;
-    muteBtn.textContent = muted ? "🔇 音なし" : "🔊 音あり";
+    e.currentTarget.textContent = muted ? "🔇 音なし" : "🔊 音あり";
+  });
+  document.getElementById("againBtn").addEventListener("click", () => {
+    newGame();
+    start();
+    canvas.focus();
   });
 
   // --- 入力 -------------------------------------------------------------
-  const held = { left: false, right: false };
-  let pointerX = null;
+  canvas.addEventListener("pointerdown", (ev) => {
+    canvas.focus();
+    if (S.phase === "title" || S.phase === "over") { if (S.phase === "over") newGame(); start(); return; }
+    if (S.phase !== "play") return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (ev.clientX - rect.left) * (W / rect.width);
+    const y = (ev.clientY - rect.top) * (H / rect.height);
+    const c = Math.floor((x - BX) / CELL), r = Math.floor((y - BY) / CELL);
+    if (c < 0 || c >= GW || r < 0 || r >= GH) return;
+    const p = grid()[r * GW + c];
+    if (p) { S.cursor = { c: p.c, r: p.r }; push(p); }
+  });
+
+  function moveCursorToPiece(dc, dr) {
+    const cells = grid();
+    let { c, r } = S.cursor;
+    for (let i = 0; i < GW + GH; i++) {
+      c += dc; r += dr;
+      if (c < 0 || c >= GW || r < 0 || r >= GH) break;
+      if (cells[r * GW + c]) { const p = cells[r * GW + c]; S.cursor = { c: p.c, r: p.r }; return; }
+    }
+    if (!cells[S.cursor.r * GW + S.cursor.c]) {
+      const first = S.pieces[0];
+      if (first) S.cursor = { c: first.c, r: first.r };
+    }
+  }
 
   addEventListener("keydown", (e) => {
-    const k = e.key.toLowerCase();
-    if (k === "arrowleft" || k === "a") { held.left = true; e.preventDefault(); }
-    if (k === "arrowright" || k === "d") { held.right = true; e.preventDefault(); }
-    if (k === " " || k === "enter") { e.preventDefault(); startOrRestart(); }
-  });
-  addEventListener("keyup", (e) => {
-    const k = e.key.toLowerCase();
-    if (k === "arrowleft" || k === "a") held.left = false;
-    if (k === "arrowright" || k === "d") held.right = false;
-  });
-
-  function canvasX(ev) {
-    const r = canvas.getBoundingClientRect();
-    return (ev.clientX - r.left) * (W / r.width);
-  }
-  canvas.addEventListener("pointerdown", (ev) => {
-    canvas.setPointerCapture(ev.pointerId);
-    pointerX = canvasX(ev);
-    canvas.focus();
-    if (state.phase !== "play") startOrRestart();
-  });
-  canvas.addEventListener("pointermove", (ev) => {
-    if (pointerX !== null) pointerX = canvasX(ev);
-  });
-  const release = () => { pointerX = null; };
-  canvas.addEventListener("pointerup", release);
-  canvas.addEventListener("pointercancel", release);
-
-  function startOrRestart() {
-    if (state.phase === "play") return;
-    state.phase = "play";
-    state.score = 0; state.lives = 4; state.combo = 0; state.served = 0;
-    state.drunk = 0; state.glasses = []; state.puffs = [];
-    state.spawnIn = 0.6; state.todo.x = W / 2; state.todo.vx = 0;
-    state.want = SAKE[(Math.random() * SAKE.length) | 0];
-    say(`${state.want.name} をくれ`);
-    syncHud();
-    beep(420, 0.12, "triangle", 0.05, 640);
-  }
-
-  function say(text) { state.banner = { text, life: 1.6 }; }
-
-  // --- 進行 -------------------------------------------------------------
-  function difficulty() { return Math.min(1, state.score / 1200); }
-
-  function spawn() {
-    const d = difficulty();
-    const bonus = Math.random() < 0.05;
-    // 欲しい色が出なさすぎると理不尽なので、4割は当たり色を混ぜる
-    let kind;
-    if (bonus) kind = GOLD;
-    else if (Math.random() < 0.5) kind = state.want;
-    else kind = SAKE[(Math.random() * SAKE.length) | 0];
-    state.glasses.push({
-      x: 34 + Math.random() * (W - 68),
-      y: -30,
-      vy: 112 + d * 195 + Math.random() * 40,
-      spin: (Math.random() - 0.5) * 1.4,
-      rot: 0,
-      kind,
-      dead: false,
-    });
-    state.spawnIn = Math.max(0.34, 1.15 - d * 0.7) * (0.75 + Math.random() * 0.6);
-  }
-
-  function nextWant() {
-    const others = SAKE.filter((s) => s.id !== state.want.id);
-    state.want = others[(Math.random() * others.length) | 0];
-    state.served = 0;
-    state.flash = 1;
-    say(`つぎは ${state.want.name}`);
-    syncHud();
-    beep(300, 0.18, "triangle", 0.05, 520);
-  }
-
-  function drink(g) {
-    const gold = g.kind.id === "gold";
-    state.combo++;
-    const gain = (gold ? 50 : 10) * Math.min(5, 1 + Math.floor(state.combo / 5));
-    state.score += gain;
-    state.drunk = Math.min(1, state.drunk + (gold ? 0.16 : 0.07));
-    state.todo.chew = 0.34;
-    state.todo.face = 1;
-    puff(g.x, g.y, g.kind.color, 12);
-    beep(gold ? 880 : 620 + Math.min(6, state.combo) * 40, 0.1, "triangle", 0.06, gold ? 1320 : null);
-    if (!gold) {
-      state.served++;
-      if (state.served >= 5) nextWant();
+    const k = e.key;
+    if (k === " " || k === "Enter") {
+      e.preventDefault();
+      if (S.phase === "title" || S.phase === "over") { if (S.phase === "over") newGame(); start(); return; }
+      const p = grid()[S.cursor.r * GW + S.cursor.c];
+      if (p) push(p);
+      return;
     }
-    syncHud();
-  }
-
-  function spitOut(g) {
-    state.combo = 0;
-    state.lives--;
-    state.todo.spit = 0.5;
-    state.todo.face = -1;
-    state.shake = 1;
-    puff(g.x, g.y, g.kind.color, 18);
-    beep(180, 0.28, "sawtooth", 0.05, 70);
-    syncHud();
-    if (state.lives <= 0) gameOver();
-  }
-
-  function gameOver() {
-    state.phase = "over";
-    if (state.score > state.best) {
-      state.best = state.score;
-      try { localStorage.setItem("todo-banshaku-best", String(state.best)); } catch (e) {}
-    }
-    syncHud();
-    beep(320, 0.5, "sine", 0.05, 110);
-  }
-
-  function puff(x, y, color, n) {
-    for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 150;
-      state.puffs.push({
-        x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60,
-        r: 2 + Math.random() * 4, life: 1, color,
-      });
-    }
-  }
-
-  function syncHud() {
-    document.getElementById("scoreOut").textContent = state.score;
-    document.getElementById("bestOut").textContent = state.best;
-    document.getElementById("wantName").textContent = state.phase === "title" ? "—" : state.want.name;
-    document.getElementById("wantDot").style.color = state.phase === "title" ? "#8ea6bb" : state.want.color;
-  }
+    if (S.phase !== "play") return;
+    const map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+    if (map[k]) { e.preventDefault(); moveCursorToPiece(map[k][0], map[k][1]); }
+  });
 
   // --- 更新 -------------------------------------------------------------
   function update(dt) {
-    state.t += dt;
-    state.flash = Math.max(0, state.flash - dt * 2);
-    state.shake = Math.max(0, state.shake - dt * 3);
-    if (state.banner) {
-      state.banner.life -= dt;
-      if (state.banner.life <= 0) state.banner = null;
+    S.t += dt;
+
+    for (const p of S.pieces) p.shake = Math.max(0, p.shake - dt);
+    for (const t of S.todos) {
+      t.gulp = Math.max(0, t.gulp - dt);
+      t.surface = Math.max(0, t.surface - dt * 1.6);
+      t.face *= Math.pow(0.25, dt);
     }
 
-    const todo = state.todo;
-    todo.chew = Math.max(0, todo.chew - dt);
-    todo.spit = Math.max(0, todo.spit - dt);
-    todo.face *= Math.pow(0.2, dt);
-
-    if (state.phase === "play") {
-      // 移動：酔うほど効きが遅れて、勝手に揺れる
-      const speed = 430;
-      const drag = 1 - state.drunk * 0.45;
-      let target = null;
-      if (pointerX !== null) target = pointerX;
-      let ax = 0;
-      if (held.left) ax -= 1;
-      if (held.right) ax += 1;
-      if (target !== null) ax = Math.max(-1, Math.min(1, (target - todo.x) / 60));
-      todo.vx += ax * speed * drag * dt * 8;
-      todo.vx *= Math.pow(0.0015, dt);
-      todo.x += todo.vx * dt;
-      const sway = REDUCED ? 0 : Math.sin(state.t * 2.1) * 26 * state.drunk;
-      todo.x += sway * dt;
-      todo.x = Math.max(46, Math.min(W - 46, todo.x));
-      todo.tilt = Math.max(-0.3, Math.min(0.3, todo.vx / 900)) + (REDUCED ? 0 : Math.sin(state.t * 1.7) * 0.06 * state.drunk);
-
-      state.drunk = Math.max(0, state.drunk - dt * 0.035);
-
-      state.spawnIn -= dt;
-      if (state.spawnIn <= 0) spawn();
-
-      const mouthY = H - 116, mouthX = todo.x;
-      for (const g of state.glasses) {
-        g.y += g.vy * dt;
-        g.rot += g.spin * dt;
-        if (g.dead) continue;
-        if (g.y > mouthY - 26 && g.y < mouthY + 44 && Math.abs(g.x - mouthX) < 46) {
-          g.dead = true;
-          if (g.kind.id === state.want.id || g.kind.id === "gold") drink(g);
-          else spitOut(g);
-        } else if (g.y > H + 40) {
-          g.dead = true;
-          if (g.kind.id === state.want.id) { state.combo = 0; syncHud(); }
+    for (const f of S.flyers) {
+      if (f.stage === "out") {
+        f.x += f.vx * dt;
+        f.y += f.vy * dt;
+        f.life -= dt;
+        if (f.life <= 0) serve(f);
+      } else {
+        f.total = f.total || 0.34;
+        f.life -= dt;
+        const k = Math.max(0, Math.min(1, 1 - f.life / f.total));
+        const e = k * k * (3 - 2 * k);
+        f.x += (f.target.x - f.x) * Math.min(1, e * 0.45 + dt * 6);
+        f.y += (f.target.y - f.y) * Math.min(1, e * 0.45 + dt * 6);
+        if (f.life <= 0) {
+          f.done = true;
+          if (f.stage === "toTodo") drink(f.todo, f.kind);
+          else beep(260, 0.06, "sine", 0.03);
         }
       }
-      state.glasses = state.glasses.filter((g) => !g.dead && g.y < H + 60);
     }
+    S.flyers = S.flyers.filter((f) => !f.done);
 
-    for (const p of state.puffs) {
-      p.vy += 520 * dt;
+    if (S.phase === "play" && !S.pieces.length && !S.flyers.length) stageClear();
+
+    for (const p of S.puffs) {
+      p.vy += 480 * dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.life -= dt * 1.7;
     }
-    state.puffs = state.puffs.filter((p) => p.life > 0);
+    S.puffs = S.puffs.filter((p) => p.life > 0);
   }
 
   // --- 描画 -------------------------------------------------------------
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
   function bg() {
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, "#0a111d");
-    g.addColorStop(0.55, "#122238");
-    g.addColorStop(1, "#1b2f45");
+    g.addColorStop(0.4, "#132339");
+    g.addColorStop(1, "#0d1828");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    // 提灯の灯り
-    const lamp = ctx.createRadialGradient(W / 2, H - 90, 10, W / 2, H - 90, 260);
-    lamp.addColorStop(0, "rgba(240,166,60,0.20)");
+    const lamp = ctx.createRadialGradient(W / 2, 96, 20, W / 2, 96, 300);
+    lamp.addColorStop(0, "rgba(240,166,60,0.18)");
     lamp.addColorStop(1, "rgba(240,166,60,0)");
     ctx.fillStyle = lamp;
     ctx.fillRect(0, 0, W, H);
 
-    // 遠くの氷
-    ctx.fillStyle = "rgba(216,232,242,0.05)";
-    for (let i = 0; i < 5; i++) {
-      const x = ((i * 137 + state.t * 6) % (W + 160)) - 80;
-      const y = 120 + i * 46;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + 46, y - 16 - (i % 3) * 8);
-      ctx.lineTo(x + 96, y);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // 水面
-    ctx.fillStyle = "rgba(216,232,242,0.07)";
-    ctx.beginPath();
-    ctx.moveTo(0, H - 58);
-    for (let x = 0; x <= W; x += 12) {
-      ctx.lineTo(x, H - 58 + Math.sin((x / 40) + state.t * 1.4) * 3);
-    }
-    ctx.lineTo(W, H);
-    ctx.lineTo(0, H);
-    ctx.closePath();
+    // 氷の盤
+    ctx.fillStyle = "rgba(216,232,242,0.045)";
+    roundRect(BX - 10, BY - 10, GW * CELL + 20, GH * CELL + 20, 16);
     ctx.fill();
+    ctx.strokeStyle = "rgba(216,232,242,0.10)";
+    ctx.lineWidth = 1;
+    for (let c = 1; c < GW; c++) {
+      ctx.beginPath(); ctx.moveTo(BX + c * CELL, BY); ctx.lineTo(BX + c * CELL, BY + GH * CELL); ctx.stroke();
+    }
+    for (let r = 1; r < GH; r++) {
+      ctx.beginPath(); ctx.moveTo(BX, BY + r * CELL); ctx.lineTo(BX + GW * CELL, BY + r * CELL); ctx.stroke();
+    }
   }
 
-  function drawGlass(g) {
-    const k = g.kind;
+  function drawArrow(cx, cy, d, len) {
+    const nx = -d.dy, ny = d.dx;
+    const tx = cx + d.dx * len / 2, ty = cy + d.dy * len / 2;
+    const ex = cx - d.dx * len / 2, ey = cy - d.dy * len / 2;
+    const kx = tx - d.dx * len * 0.5, ky = ty - d.dy * len * 0.5;
+    const hw = len * 0.38, sw = len * 0.15;
     ctx.save();
-    ctx.translate(g.x, g.y);
-    ctx.rotate(Math.sin(g.rot) * 0.22);
-
-    // ぐい呑みの中身
-    ctx.fillStyle = k.deep;
+    ctx.fillStyle = "rgba(255,255,255,0.97)";
+    ctx.shadowColor = "rgba(6,10,18,0.45)";
+    ctx.shadowBlur = 3;
     ctx.beginPath();
-    ctx.moveTo(-15, -14); ctx.lineTo(15, -14); ctx.lineTo(11, 15); ctx.lineTo(-11, 15);
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(kx + nx * hw, ky + ny * hw);
+    ctx.lineTo(kx + nx * sw, ky + ny * sw);
+    ctx.lineTo(ex + nx * sw, ey + ny * sw);
+    ctx.lineTo(ex - nx * sw, ey - ny * sw);
+    ctx.lineTo(kx - nx * sw, ky - ny * sw);
+    ctx.lineTo(kx - nx * hw, ky - ny * hw);
     ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = k.color;
-    ctx.beginPath();
-    ctx.moveTo(-14, -12); ctx.lineTo(14, -12); ctx.lineTo(11, 12); ctx.lineTo(-11, 12);
-    ctx.closePath();
-    ctx.fill();
-
-    // 液面のつや
-    ctx.fillStyle = "rgba(255,255,255,0.55)";
-    ctx.beginPath();
-    ctx.ellipse(0, -12, 14, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ふち
-    ctx.strokeStyle = "rgba(255,255,255,0.75)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(-15, -13); ctx.lineTo(15, -13);
-    ctx.stroke();
-
-    // 色が見えない人向けの銘柄
-    ctx.fillStyle = "rgba(6,10,18,0.85)";
-    ctx.font = "600 13px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(k.mark, 0, 2);
     ctx.restore();
   }
 
-  function drawTodo() {
-    const t = state.todo;
-    const x = t.x, y = H - 92;
-    const open = 1 - t.chew * 1.6;
-    const mouthOpen = Math.max(0.2, Math.min(1, open));
+  function drawBlock(x, y, w, h, kind, dir, opts = {}) {
+    const pad = 3, r = 9;
+    const bx = x + pad, by = y + pad, bw = w - pad * 2, bh = h - pad * 2;
+    ctx.save();
+    if (opts.scale) {
+      ctx.translate(bx + bw / 2, by + bh / 2);
+      ctx.scale(opts.scale, opts.scale);
+      ctx.translate(-(bx + bw / 2), -(by + bh / 2));
+    }
+    // 影と側面（立体感）
+    ctx.fillStyle = kind.deep;
+    roundRect(bx, by + 4, bw, bh, r);
+    ctx.fill();
+    const g = ctx.createLinearGradient(bx, by, bx, by + bh);
+    g.addColorStop(0, kind.lite);
+    g.addColorStop(0.45, kind.color);
+    g.addColorStop(1, kind.deep);
+    ctx.fillStyle = g;
+    roundRect(bx, by, bw, bh, r);
+    ctx.fill();
+    // 上面のつや
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    roundRect(bx + 4, by + 4, bw - 8, bh * 0.3, r - 4);
+    ctx.fill();
+
+    // 品のアイコン（色が見分けにくくても形で分かる）
+    const d0 = dir ? DIRS[dir] : { dx: 0, dy: 0 };
+    drawIcon(kind, bx + bw / 2 - d0.dx * 5, by + bh / 2 - d0.dy * 5, Math.min(bw, bh) * 0.56);
+
+    // 出る向きは先端に置く
+    if (dir) {
+      const d = DIRS[dir];
+      const len = 15;
+      drawArrow(
+        bx + bw / 2 + d.dx * (bw / 2 - len / 2 - 5),
+        by + bh / 2 + d.dy * (bh / 2 - len / 2 - 5),
+        d, len);
+    }
+    ctx.restore();
+  }
+
+  function drawTodoHead(x, y, kind, t) {
+    const gulp = t ? t.gulp : 0;
+    const rise = t ? t.surface : 0;
+    ctx.save();
+    ctx.translate(x, y + rise * 26);
+
+    // 氷の穴
+    ctx.fillStyle = "rgba(6,10,18,0.75)";
+    ctx.beginPath(); ctx.ellipse(0, 30, 46, 13, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(216,232,242,0.22)";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(0, 30, 46, 13, 0, 0, Math.PI * 2); ctx.stroke();
 
     ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(t.tilt);
-
-    // 影
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
-    ctx.ellipse(0, 60, 62, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // からだ
-    const body = ctx.createLinearGradient(0, -50, 0, 62);
-    body.addColorStop(0, "#9c8577");
-    body.addColorStop(1, "#6a564c");
-    ctx.fillStyle = body;
-    ctx.beginPath();
-    ctx.ellipse(0, 18, 58, 44, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ひれ
-    ctx.fillStyle = "#5d4a41";
-    ctx.beginPath(); ctx.ellipse(-52, 40, 20, 10, -0.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(52, 40, 20, 10, 0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.rect(-56, -64, 112, 96);
+    ctx.clip();
 
     // あたま
     ctx.fillStyle = "#a68e7e";
-    ctx.beginPath();
-    ctx.ellipse(0, -22, 44, 38, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, -4, 38, 33, 0, 0, Math.PI * 2); ctx.fill();
 
-    // 口（＝当たり判定。中身が今飲みたい色）
-    const mh = 15 + 17 * mouthOpen;
+    // 口＝欲しい品
+    const mh = 11 + 7 * (1 - Math.min(1, gulp * 3.3));
     ctx.fillStyle = "#2a1a18";
-    ctx.beginPath();
-    ctx.ellipse(0, -6, 27, mh, 0, 0, Math.PI * 2);
-    ctx.fill();
-    const want = state.phase === "title" ? { color: "#8ea6bb", mark: "？" } : state.want;
+    ctx.beginPath(); ctx.ellipse(0, 10, 23, mh + 3, 0, 0, Math.PI * 2); ctx.fill();
     ctx.save();
-    ctx.globalAlpha = 0.92;
-    ctx.fillStyle = want.color;
-    ctx.shadowColor = want.color;
-    ctx.shadowBlur = 22;
-    ctx.beginPath();
-    ctx.ellipse(0, -2, 19, Math.max(6, mh - 9), 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = kind.color;
+    ctx.shadowColor = kind.color;
+    ctx.shadowBlur = 16;
+    ctx.beginPath(); ctx.ellipse(0, 11, 17, mh, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
-    ctx.fillStyle = "rgba(6,10,18,0.8)";
-    ctx.font = "600 15px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(want.mark, 0, -2);
+    drawIcon(kind, 0, 11, 17);
 
     // きば
     ctx.fillStyle = "#f2ead9";
-    ctx.beginPath(); ctx.moveTo(-16, 6); ctx.lineTo(-9, 6); ctx.lineTo(-12, 30); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(9, 6); ctx.lineTo(16, 6); ctx.lineTo(12, 30); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-21, 15); ctx.lineTo(-16, 15); ctx.lineTo(-18, 29); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(16, 15); ctx.lineTo(21, 15); ctx.lineTo(18, 29); ctx.closePath(); ctx.fill();
 
     // ひげ
-    ctx.strokeStyle = "rgba(242,234,217,0.5)";
-    ctx.lineWidth = 1.4;
-    for (let i = 0; i < 3; i++) {
-      const yy = -10 + i * 7;
-      ctx.beginPath(); ctx.moveTo(-26, yy); ctx.lineTo(-42, yy - 4 + i * 3); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(26, yy); ctx.lineTo(42, yy - 4 + i * 3); ctx.stroke();
+    ctx.strokeStyle = "rgba(242,234,217,0.45)";
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 2; i++) {
+      const yy = 6 + i * 6;
+      ctx.beginPath(); ctx.moveTo(-19, yy); ctx.lineTo(-33, yy - 3 + i * 3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(19, yy); ctx.lineTo(33, yy - 3 + i * 3); ctx.stroke();
     }
 
-    // 目：ふつう／うっとり／うげっ
-    const happy = t.face > 0.3, bad = t.face < -0.3;
-    ctx.lineCap = "round";
-    for (const ex of [-27, 27]) {
-      if (happy || bad) {
+    // 目
+    const happy = t && t.face > 0.3;
+    for (const ex of [-21, 21]) {
+      if (happy) {
         ctx.strokeStyle = "#2a1a18";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        if (happy) ctx.arc(ex, -36, 6.5, Math.PI * 1.08, Math.PI * 1.92);
-        else { ctx.moveTo(ex - 5, -40); ctx.lineTo(ex + 5, -32); ctx.moveTo(ex + 5, -40); ctx.lineTo(ex - 5, -32); }
-        ctx.stroke();
+        ctx.lineWidth = 2.6;
+        ctx.lineCap = "round";
+        ctx.beginPath(); ctx.arc(ex, -18, 5, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
       } else {
         ctx.fillStyle = "#f2ead9";
-        ctx.beginPath(); ctx.ellipse(ex, -36, 7, 8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(ex, -18, 5.5, 6.5, 0, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "#2a1a18";
-        ctx.beginPath(); ctx.arc(ex + (t.vx > 40 ? 2 : t.vx < -40 ? -2 : 0), -35, 3.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex, -17, 3, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.beginPath(); ctx.arc(ex - 1.6, -38, 1.4, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex - 1.3, -19.4, 1.2, 0, Math.PI * 2); ctx.fill();
       }
     }
+    ctx.restore();
 
-    // ほろ酔いのほお
-    if (state.drunk > 0.05) {
-      ctx.globalAlpha = Math.min(0.55, state.drunk);
-      ctx.fillStyle = "#e8687a";
-      ctx.beginPath(); ctx.ellipse(-30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+    // あと何品
+    if (t) {
+      for (let i = 0; i < NEED; i++) {
+        const dx = (i - (NEED - 1) / 2) * 13;
+        ctx.globalAlpha = i < t.need ? 1 : 0.22;
+        ctx.fillStyle = kind.color;
+        ctx.beginPath(); ctx.arc(dx, 48, 4.2, 0, Math.PI * 2); ctx.fill();
+      }
       ctx.globalAlpha = 1;
     }
-
     ctx.restore();
   }
 
+  function drawShelf() {
+    const slotW = 44, gap = 9, total = SHELF_MAX * slotW + (SHELF_MAX - 1) * gap;
+    const x0 = (W - total) / 2;
+    ctx.fillStyle = "rgba(216,232,242,0.5)";
+    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("待ちの棚", x0, 150);
+
+    for (let i = 0; i < SHELF_MAX; i++) {
+      const x = x0 + i * (slotW + gap), y = 158;
+      const danger = i === SHELF_MAX - 1 && S.shelf.length >= SHELF_MAX - 1;
+      ctx.fillStyle = "rgba(216,232,242,0.05)";
+      roundRect(x, y, slotW, 40, 8);
+      ctx.fill();
+      ctx.strokeStyle = danger ? "rgba(232,104,122,0.65)" : "rgba(216,232,242,0.14)";
+      ctx.lineWidth = 1.4;
+      roundRect(x, y, slotW, 40, 8);
+      ctx.stroke();
+      const kind = S.shelf[i];
+      if (kind) drawBlock(x + 4, y + 3, slotW - 8, 34, kind, null);
+    }
+  }
+
+  function drawHud() {
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(216,232,242,0.55)";
+    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText("てんすう", 18, 24);
+    ctx.fillStyle = "#fbe3bd";
+    ctx.font = "600 20px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText(String(S.score), 18, 44);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(216,232,242,0.55)";
+    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText(`さいこう ${best}`, W - 18, 24);
+    ctx.fillStyle = "#fbe3bd";
+    ctx.font = "600 16px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.fillText(`${S.stage} 軒目`, W - 18, 46);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(216,232,242,0.45)";
+    ctx.font = "11px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText(`のこり ${S.pieces.length} 品`, W / 2, BY + GH * CELL + 34);
+  }
+
   function drawOverlay(title, lines, sub) {
-    ctx.fillStyle = "rgba(6,10,18,0.78)";
+    ctx.fillStyle = "rgba(6,10,18,0.82)";
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#fbe3bd";
-    ctx.font = "600 34px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-    ctx.fillText(title, W / 2, H / 2 - 60);
+    ctx.font = "600 32px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.fillText(title, W / 2, H / 2 - 74);
     ctx.fillStyle = "#d8e8f2";
     ctx.font = "14px 'Hiragino Sans', system-ui, sans-serif";
-    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 16 + i * 24));
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 30 + i * 25));
     if (sub) {
-      const pulse = REDUCED ? 1 : 0.6 + Math.sin(state.t * 3) * 0.4;
-      ctx.globalAlpha = pulse;
+      ctx.globalAlpha = REDUCED ? 1 : 0.6 + Math.sin(S.t * 3) * 0.4;
       ctx.fillStyle = "#f0a63c";
       ctx.font = "600 16px 'Hiragino Sans', system-ui, sans-serif";
-      ctx.fillText(sub, W / 2, H / 2 + 24 + lines.length * 24);
+      ctx.fillText(sub, W / 2, H / 2 + 20 + lines.length * 25);
       ctx.globalAlpha = 1;
     }
   }
 
   function draw() {
-    ctx.save();
-    if (state.shake > 0 && !REDUCED) {
-      ctx.translate((Math.random() - 0.5) * 10 * state.shake, (Math.random() - 0.5) * 10 * state.shake);
-    }
     bg();
-    for (const g of state.glasses) drawGlass(g);
-    drawTodo();
 
-    for (const p of state.puffs) {
+    for (let i = 0; i < TODO_SLOTS; i++) {
+      const t = S.todos[i];
+      if (t) drawTodoHead(todoX(i), 88, t.kind, t);
+    }
+    drawShelf();
+
+    const cur = S.phase === "play" ? grid()[S.cursor.r * GW + S.cursor.c] : null;
+    for (const p of S.pieces) {
+      const rc = cellRect(p);
+      const sx = p.shake > 0 && !REDUCED ? Math.sin(p.shake * 60) * 5 : 0;
+      drawBlock(rc.x + sx, rc.y, rc.w, rc.h, p.kind, p.dir);
+      if (p === cur) {
+        ctx.strokeStyle = "#f0a63c";
+        ctx.lineWidth = 2.5;
+        roundRect(rc.x + 1, rc.y + 1, rc.w - 2, rc.h - 2, 11);
+        ctx.stroke();
+      }
+    }
+
+    for (const f of S.flyers) {
+      const w = f.stage === "out" ? f.w : 34, h = f.stage === "out" ? f.h : 34;
+      drawBlock(f.x - (f.stage === "out" ? 0 : w / 2), f.y - (f.stage === "out" ? 0 : h / 2), w, h, f.kind, f.stage === "out" ? f.dir : null);
+    }
+
+    for (const p of S.puffs) {
       ctx.globalAlpha = Math.max(0, p.life);
       ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
 
-    // 色替わりのフラッシュ
-    if (state.flash > 0) {
-      ctx.globalAlpha = state.flash * 0.25;
-      ctx.fillStyle = state.want.color;
+    drawHud();
+
+    if (S.phase === "title") {
+      drawOverlay("トドの晩酌", [
+        "品をタップすると、矢印の向きに滑り出す。",
+        "行き止まりなら動かない。順番が勝負。",
+        "外に出た品は、口の絵が合うトドが平らげる。",
+        "合う相手がいない品は棚に残る。棚が溢れたら終い。",
+      ], "タップしてのれんをくぐる");
+    } else if (S.phase === "over") {
+      drawOverlay("おあいそ", [
+        `${S.stage} 軒目で棚が溢れました`,
+        `${S.score} てん　／　さいこう ${best} てん`,
+      ], "タップでもう一杯");
+    } else if (S.phase === "clear") {
+      ctx.fillStyle = "rgba(6,10,18,0.55)";
       ctx.fillRect(0, 0, W, H);
-      ctx.globalAlpha = 1;
-    }
-
-    // 画面内HUD
-    ctx.textAlign = "left";
-    ctx.fillStyle = "rgba(216,232,242,0.9)";
-    ctx.font = "600 15px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.fillText(String(state.score), 16, 28);
-    ctx.font = "11px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.fillStyle = "rgba(216,232,242,0.55)";
-    ctx.fillText("てんすう", 16, 44);
-
-    ctx.textAlign = "right";
-    for (let i = 0; i < 4; i++) {
-      ctx.globalAlpha = i < state.lives ? 1 : 0.2;
-      ctx.fillStyle = "#e8687a";
-      ctx.beginPath();
-      ctx.arc(W - 22 - i * 21, 24, 7, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    if (state.combo >= 3) {
-      ctx.textAlign = "right";
-      ctx.fillStyle = "#f0a63c";
-      ctx.font = "600 14px 'Hiragino Sans', system-ui, sans-serif";
-      ctx.fillText(`${state.combo} 杯つづけて`, W - 16, 52);
-    }
-
-    // 酔いメーター
-    ctx.fillStyle = "rgba(216,232,242,0.12)";
-    ctx.fillRect(16, H - 26, 120, 6);
-    ctx.fillStyle = state.drunk > 0.7 ? "#e8687a" : "#f0a63c";
-    ctx.fillRect(16, H - 26, 120 * state.drunk, 6);
-    ctx.fillStyle = "rgba(216,232,242,0.55)";
-    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("酔い", 16, H - 32);
-
-    if (state.banner) {
-      ctx.globalAlpha = Math.min(1, state.banner.life * 1.6);
       ctx.textAlign = "center";
       ctx.fillStyle = "#fbe3bd";
-      ctx.font = "600 22px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-      ctx.fillText(state.banner.text, W / 2, 120);
-      ctx.globalAlpha = 1;
+      ctx.font = "600 30px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+      ctx.fillText(`${S.stage} 軒目 完飲`, W / 2, H / 2);
+      ctx.font = "14px 'Hiragino Sans', system-ui, sans-serif";
+      ctx.fillStyle = "#d8e8f2";
+      ctx.fillText("+200 てん", W / 2, H / 2 + 30);
     }
-
-    if (state.phase === "title") {
-      drawOverlay("トドの晩酌", [
-        "口の色と同じ酒だけを飲ませる。",
-        "ちがう色を飲むと吐いて、残機が減る。",
-        "5杯ごとに飲みたい色が変わる。",
-        "飲むほど酔って、動きがふらつく。",
-      ], "タップ / スペースではじめる");
-    } else if (state.phase === "over") {
-      drawOverlay("おあいそ", [
-        `${state.score} てん`,
-        `さいこう ${state.best} てん`,
-      ], "タップ / スペースでもう一杯");
-    }
-
-    ctx.restore();
   }
 
   // --- ループ -----------------------------------------------------------
@@ -762,7 +978,6 @@
     requestAnimationFrame(frame);
   }
 
-  // 高DPI
   function fit() {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = W * dpr;
@@ -772,7 +987,7 @@
   fit();
   addEventListener("resize", fit);
 
-  syncHud();
+  newGame();
   requestAnimationFrame(frame);
 })();
 </script>
