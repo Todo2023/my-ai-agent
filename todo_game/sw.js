@@ -1,9 +1,10 @@
 // オフラインでも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "todo-banshaku-v3";
+const CACHE = "todo-banshaku-v4";
 const ASSETS = [
   "./",
   "./index.html",
   "./game.html",
+  "./check.html",
   "./game.css",
   "./game.js",
   "./manifest.webmanifest",

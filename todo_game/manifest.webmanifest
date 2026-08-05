@@ -3,9 +3,14 @@
   "short_name": "晩酌",
   "description": "回転レーンの皿の蓋を開けて、ご注文と同じ品をトドに食べさせるゲーム。",
   "lang": "ja",
+  "id": "./game.html",
   "start_url": "./game.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
