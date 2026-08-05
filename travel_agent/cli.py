@@ -15,8 +15,8 @@ GREETING = (
 def main():
     load_dotenv()
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("エラー: 環境変数 ANTHROPIC_API_KEY が設定されていません。")
+    if not os.environ.get("GEMINI_API_KEY"):
+        print("エラー: 環境変数 GEMINI_API_KEY が設定されていません。")
         print(".env ファイルを作成するか、環境変数を設定してください（.env.example を参照）。")
         sys.exit(1)
 
@@ -37,7 +37,7 @@ def main():
             break
 
         print("エージェント: ", end="", flush=True)
-        agent.send(user_input)
+        print(agent.send(user_input))
         print()
 
 
