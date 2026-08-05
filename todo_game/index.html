@@ -133,10 +133,11 @@
 <h1>トドの晩酌</h1>
 <p class="lead">回転レーンの皿の蓋を開けて、<br />ご注文どおりの品をトドに食べさせる。</p>
 
-<button id="installBtn" type="button" hidden>📲 アプリとして入れる</button>
+<button id="installBtn" type="button">📲 アプリとして入れる</button>
 <p class="step" id="step" hidden></p>
 
 <a class="play" href="./game.html">このままブラウザで遊ぶ</a>
+<a class="play" href="./check.html" style="font-size:11px">うまく入らないときの診断</a>
 <p class="free">無料・広告なし・アカウント不要</p>
 
 <script>
@@ -147,7 +148,7 @@
   (() => {
     const btn = document.getElementById("installBtn");
     const step = document.getElementById("step");
-    let deferred = null;
+    let deferred = null, ready = false;
 
     // Android / デスクトップ Chrome：この合図が来たらワンタップで入る
     addEventListener("beforeinstallprompt", (e) => {
@@ -155,10 +156,11 @@
       deferred = e;
       btn.hidden = false;
       step.hidden = true;
+      ready = true;
     });
 
     btn.addEventListener("click", async () => {
-      if (!deferred) return;
+      if (!deferred) { showSteps(); return; }   // 合図が来ていなければ手順を出す
       btn.disabled = true;
       deferred.prompt();
       const { outcome } = await deferred.userChoice;
@@ -190,7 +192,7 @@
     }
 
     // 合図が来ない環境（iOS、すでに入っている、条件未達）には手順を出す
-    setTimeout(() => { if (btn.hidden && step.hidden) showSteps(); }, 2000);
+    setTimeout(() => { if (!ready && step.hidden) showSteps(); }, 2500);
   })();
 </script>
 </body>
