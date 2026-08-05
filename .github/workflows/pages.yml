@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          # Pages のソースが「ブランチ」のままでも、ここで Actions 方式に切り替える
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: todo_game
