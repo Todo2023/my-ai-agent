@@ -1,9 +1,18 @@
+"""対話しながら旅行プランを提案するエージェント。
+
+invoice_agent と同様、無料枠のあるGemini APIを使う。
+無料枠はレート制限（429）に当たりやすいため、指数バックオフ的な単純リトライを入れている。
+"""
+
 import os
+import time
 
-from anthropic import Anthropic
+from google import genai
+from google.genai import errors, types
 
-DEFAULT_MODEL = "claude-sonnet-5"
-MAX_TOKENS = 2048
+DEFAULT_MODEL = "gemma-4-26b-a4b-it"
+MAX_RETRIES = 5
+RETRY_WAIT_SECONDS = 20
 
 SYSTEM_PROMPT = """あなたは経験豊富な旅行プランナー「トラベルエージェント」です。
 ユーザーと対話しながら、以下の情報をヒアリングしてください（すでに分かっている情報は聞き直さない）。
@@ -30,27 +39,23 @@ SYSTEM_PROMPT = """あなたは経験豊富な旅行プランナー「トラベ�
 
 class TravelAgent:
     def __init__(self, model: str = None, api_key: str = None):
-        self.model = model or os.environ.get("ANTHROPIC_MODEL", DEFAULT_MODEL)
-        self.client = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
-        self.history = []
-
-    def reset(self):
-        self.history = []
+        self.model = model or os.environ.get("GEMINI_MODEL", DEFAULT_MODEL)
+        # keep a reference to the client: genai.Client closes its httpx
+        # connection pool on GC, which would kill self.chat if unreferenced
+        self.client = genai.Client(api_key=api_key or os.environ["GEMINI_API_KEY"])
+        self.chat = self.client.chats.create(
+            model=self.model,
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        )
 
     def send(self, user_message: str) -> str:
-        self.history.append({"role": "user", "content": user_message})
-
-        reply_text = ""
-        with self.client.messages.stream(
-            model=self.model,
-            max_tokens=MAX_TOKENS,
-            system=SYSTEM_PROMPT,
-            messages=self.history,
-        ) as stream:
-            for chunk in stream.text_stream:
-                print(chunk, end="", flush=True)
-                reply_text += chunk
-            print()
-
-        self.history.append({"role": "assistant", "content": reply_text})
-        return reply_text
+        for attempt in range(MAX_RETRIES):
+            try:
+                response = self.chat.send_message(user_message)
+                return response.text
+            except errors.ClientError as e:
+                if e.code == 429 and attempt < MAX_RETRIES - 1:
+                    # 無料枠のレート制限に達した。少し待って再試行する
+                    time.sleep(RETRY_WAIT_SECONDS)
+                    continue
+                raise
