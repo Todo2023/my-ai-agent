@@ -6,11 +6,12 @@
  *
  * ファイルを更新したときは CACHE の版数を上げること。
  */
-const CACHE = 'breakout-v1';
+const CACHE = 'breakout-v2';
 
 const ASSETS = [
   './',
   './index.html',
+  './game.html',
   './manifest.webmanifest',
   './icon-180.png',
   './icon-192.png',
