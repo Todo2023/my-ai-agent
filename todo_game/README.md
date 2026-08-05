@@ -11,10 +11,12 @@ python3 -m http.server 8000 --directory todo_game
 
 ## スマホに入れる
 
-**https://todo2023.github.io/my-ai-agent/todo_game/** を開いて、
+**https://todo2023.github.io/my-ai-agent/todo_game/** を開くと、まずインストール画面が出る。
 
-- **Android（Chrome）**: メニュー → 「アプリをインストール」／「ホーム画面に追加」
-- **iPhone（Safari）**: 共有 → 「ホーム画面に追加」
+- **Android（Chrome）**: 「📲 アプリとして入れる」ボタンをタップ
+- **iPhone（Safari）**: 画面の案内どおり、共有 → 「ホーム画面に追加」
+
+ボタンは `beforeinstallprompt` を受け取ったときだけ出る。来ない端末には端末別の手順文を出す。ホーム画面のアイコンから起動したときは、この画面を挟まず `game.html` へ転送する（manifest の `start_url` も `game.html`）。
 
 どちらもアドレスバーなしの全画面で起動する。一度開けばオフラインでも遊べる（`sw.js` が一式をキャッシュする）。QRは `qr-app.png`。
 
@@ -39,7 +41,8 @@ python3 -m http.server 8000 --directory todo_game
 
 | | |
 | --- | --- |
-| `index.html` | 本体。PWA の設定はここ |
+| `index.html` | インストール案内画面。QRやURLはここに着く |
+| `game.html` | ゲーム本体。PWA の設定はここと index の両方 |
 | `game.css` / `game.js` | 見た目とゲーム本体 |
 | `manifest.webmanifest` / `sw.js` | インストールとオフライン |
 | `icon-*.png` / `apple-touch-icon.png` | アイコン（`_icon.html` を Canvas で描いて書き出したもの） |
