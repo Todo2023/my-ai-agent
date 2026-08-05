@@ -10,6 +10,8 @@ import time
 from google import genai
 from google.genai import errors, types
 
+from search import web_search
+
 DEFAULT_MODEL = "gemma-4-26b-a4b-it"
 MAX_RETRIES = 5
 RETRY_WAIT_SECONDS = 20
@@ -31,9 +33,11 @@ SYSTEM_PROMPT = """あなたは経験豊富な旅行プランナー「トラベ�
 - 移動手段や滞在エリアの提案
 - 注意点やおすすめの持ち物・ベストシーズンなどの補足
 
-現時点では外部の検索APIには接続していないため、具体的な店名やホテル名を断定せず、
-「〇〇エリアのホテル」「地元で人気のレストラン」のように一般的な提案をし、
-最新の価格・空室状況はユーザー自身の確認が必要である旨を伝えてください。
+web_search ツールでウェブ検索ができます。具体的な店名の営業時間・料金・予約可否・
+アクセス方法など、学習データだけでは古い/不確かな情報については、断定する前に
+web_search で調べてから答えてください。調べた場合は、情報源（サイト名やURL）を
+簡潔に添えてください。検索しても分からなかった場合は、正直にその旨を伝え、
+ユーザー自身での確認を促してください。
 常に親しみやすく、簡潔で分かりやすい日本語で応答してください。"""
 
 
@@ -45,7 +49,10 @@ class TravelAgent:
         self.client = genai.Client(api_key=api_key or os.environ["GEMINI_API_KEY"])
         self.chat = self.client.chats.create(
             model=self.model,
-            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                tools=[web_search],
+            ),
         )
 
     def send(self, user_message: str) -> str:
