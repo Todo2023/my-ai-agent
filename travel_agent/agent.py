@@ -10,7 +10,7 @@ import time
 from google import genai
 from google.genai import errors, types
 
-DEFAULT_MODEL = "gemini-2.0-flash"
+DEFAULT_MODEL = "gemma-4-26b-a4b-it"
 MAX_RETRIES = 5
 RETRY_WAIT_SECONDS = 20
 
@@ -40,8 +40,10 @@ SYSTEM_PROMPT = """あなたは経験豊富な旅行プランナー「トラベ�
 class TravelAgent:
     def __init__(self, model: str = None, api_key: str = None):
         self.model = model or os.environ.get("GEMINI_MODEL", DEFAULT_MODEL)
-        client = genai.Client(api_key=api_key or os.environ["GEMINI_API_KEY"])
-        self.chat = client.chats.create(
+        # keep a reference to the client: genai.Client closes its httpx
+        # connection pool on GC, which would kill self.chat if unreferenced
+        self.client = genai.Client(api_key=api_key or os.environ["GEMINI_API_KEY"])
+        self.chat = self.client.chats.create(
             model=self.model,
             config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
         )
