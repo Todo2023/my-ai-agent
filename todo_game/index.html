@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>トドの晩酌</title>
-<meta name="description" content="回転レーンの皿の蓋を開けて、ご注文と同じ品をトドに食べさせるゲーム。" />
+<title>トドの晩酌 — アプリとして入れる</title>
+<meta name="description" content="回転レーンの皿の蓋を開けて、ご注文と同じ品をトドに食べさせるゲーム。ホーム画面に入れて遊べます。" />
 <meta name="theme-color" content="#0b1220" />
 <meta name="color-scheme" content="dark" />
 <link rel="manifest" href="./manifest.webmanifest" />
@@ -14,54 +14,147 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="晩酌" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="stylesheet" href="./game.css" />
+<meta property="og:title" content="トドの晩酌" />
+<meta property="og:description" content="回転レーンの皿の蓋を開けて、ご注文どおりの品をトドに食べさせる。" />
+<meta property="og:image" content="./icon-512.png" />
+<script>
+  // ホーム画面のアイコンから開いたときは、案内を挟まずゲームへ
+  if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
+    location.replace("./game.html");
+  }
+</script>
+<style>
+  :root {
+    --sea-900: #0b1220;
+    --sea-800: #101b2e;
+    --sea-700: #16273f;
+    --ice: #d8e8f2;
+    --ice-dim: #8ea6bb;
+    --lantern: #f0a63c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(28px, env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(120% 70% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 62%),
+      radial-gradient(90% 50% at 50% 106%, rgba(240,166,60,0.16) 0%, rgba(240,166,60,0) 55%),
+      var(--sea-900);
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mark {
+    width: 128px;
+    height: 128px;
+    border-radius: 28px;
+    box-shadow: 0 0 0 1px rgba(216,232,242,0.12), 0 24px 50px -22px rgba(0,0,0,0.9), 0 0 70px -28px rgba(240,166,60,0.7);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: clamp(28px, 8vw, 40px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+    color: #fbe3bd;
+    text-shadow: 0 0 24px rgba(240,166,60,0.45);
+  }
+
+  .lead {
+    margin: -14px 0 0;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ice-dim);
+    max-width: 22em;
+  }
+
+  .step {
+    margin: 0;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ice);
+    max-width: 24em;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: rgba(216,232,242,0.05);
+    border: 1px solid rgba(216,232,242,0.12);
+  }
+
+  .step b { color: #fbe3bd; }
+
+  button {
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: #241713;
+    background: linear-gradient(180deg, #f6c377, var(--lantern));
+    border: none;
+    border-radius: 999px;
+    padding: 15px 34px;
+    cursor: pointer;
+    box-shadow: 0 14px 30px -14px rgba(240,166,60,0.9);
+  }
+
+  button:disabled { opacity: 0.55; cursor: default; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--lantern); outline-offset: 3px; }
+
+  a.play {
+    color: var(--ice-dim);
+    font-size: 13px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(216,232,242,0.25);
+    padding-bottom: 2px;
+  }
+
+  a.play:hover { color: #fbe3bd; }
+
+  .free { font-size: 11px; color: rgba(216,232,242,0.45); letter-spacing: 0.06em; }
+
+  [hidden] { display: none !important; }
+</style>
 </head>
 <body>
-<div class="sign">
-  <h1>トドの晩酌</h1>
-  <p>手前に来た皿の蓋を開ける</p>
-</div>
 
-<div class="cabinet">
-  <canvas id="game" width="460" height="720" tabindex="0"
-    aria-label="回転レーンを流れてくる皿の蓋を開け、ご注文と同じ品ならトドが食べる。手前の皿をタップ、またはスペースキー。"></canvas>
-</div>
+<img class="mark" src="./icon-192.png" width="128" height="128" alt="" />
 
-<div class="bar">
-  <button id="howBtn" type="button">あそびかた</button>
-  <button id="againBtn" type="button">はじめから</button>
-  <button id="muteBtn" type="button">🔊 音あり</button>
-</div>
+<h1>トドの晩酌</h1>
+<p class="lead">回転レーンの皿の蓋を開けて、<br />ご注文どおりの品をトドに食べさせる。</p>
 
-<div class="install" id="install" hidden>
-  <button id="installBtn" type="button" class="primary" hidden>📲 アプリとして入れる</button>
-  <p id="installHow" hidden></p>
-</div>
+<button id="installBtn" type="button" hidden>📲 アプリとして入れる</button>
+<p class="step" id="step" hidden></p>
 
-<script src="./game.js" defer></script>
+<a class="play" href="./game.html">このままブラウザで遊ぶ</a>
+<p class="free">無料・広告なし・アカウント不要</p>
+
 <script>
-  // オフラインでも遊べるように。file:// で開いたときは何もしない。
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   }
 
-  // ホーム画面へ入れる導線。
-  // Android/Chrome は beforeinstallprompt を捕まえてボタンを出す。
-  // iOS Safari には手順を書く（あちらは API が無い）。
   (() => {
-    const box = document.getElementById("install");
     const btn = document.getElementById("installBtn");
-    const how = document.getElementById("installHow");
-    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-    if (standalone) return;                       // すでにアプリとして開いている
-
+    const step = document.getElementById("step");
     let deferred = null;
+
+    // Android / デスクトップ Chrome：この合図が来たらワンタップで入る
     addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferred = e;
-      box.hidden = false;
       btn.hidden = false;
-      how.hidden = true;
+      step.hidden = true;
     });
 
     btn.addEventListener("click", async () => {
@@ -71,31 +164,33 @@
       const { outcome } = await deferred.userChoice;
       deferred = null;
       btn.disabled = false;
-      if (outcome !== "accepted") { btn.hidden = true; showHow(); }
+      if (outcome === "accepted") return;         // appinstalled 側で表示を変える
+      btn.hidden = true;
+      showSteps();
     });
 
     addEventListener("appinstalled", () => {
       btn.hidden = true;
-      how.hidden = false;
-      how.textContent = "入りました。ホーム画面のアイコンから開けます。";
-      box.hidden = false;
+      step.hidden = false;
+      step.innerHTML = "入りました。<b>ホーム画面のアイコン</b>から開けます。";
     });
 
-    function showHow() {
+    function showSteps() {
       const ua = navigator.userAgent;
       const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const safari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
-      how.textContent = ios
-        ? (safari
-            ? "Safari の共有ボタン → 「ホーム画面に追加」でアプリになります。"
-            : "Safari で開き直してから、共有 → 「ホーム画面に追加」。")
-        : "ブラウザの ⋮ メニュー →「アプリをインストール」／「ホーム画面に追加」でアプリになります。";
-      how.hidden = false;
-      box.hidden = false;
+      const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+      if (iosSafari) {
+        step.innerHTML = "下の<b>共有ボタン</b>（□に↑）を押して、<br />「<b>ホーム画面に追加</b>」を選んでください。";
+      } else if (ios) {
+        step.innerHTML = "このページを <b>Safari</b> で開き直してから、<br />共有 →「<b>ホーム画面に追加</b>」。";
+      } else {
+        step.innerHTML = "ブラウザの <b>⋮ メニュー</b> を開いて、<br />「<b>アプリをインストール</b>」または「ホーム画面に追加」。";
+      }
+      step.hidden = false;
     }
 
-    // 出ないまま数秒たったら、手動の入れ方を案内する
-    setTimeout(() => { if (btn.hidden && how.hidden) showHow(); }, 2500);
+    // 合図が来ない環境（iOS、すでに入っている、条件未達）には手順を出す
+    setTimeout(() => { if (btn.hidden && step.hidden) showSteps(); }, 2000);
   })();
 </script>
 </body>
