@@ -32,12 +32,71 @@
   <button id="againBtn" type="button">はじめから</button>
   <button id="muteBtn" type="button">🔊 音あり</button>
 </div>
+
+<div class="install" id="install" hidden>
+  <button id="installBtn" type="button" class="primary" hidden>📲 アプリとして入れる</button>
+  <p id="installHow" hidden></p>
+</div>
+
 <script src="./game.js" defer></script>
 <script>
   // オフラインでも遊べるように。file:// で開いたときは何もしない。
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   }
+
+  // ホーム画面へ入れる導線。
+  // Android/Chrome は beforeinstallprompt を捕まえてボタンを出す。
+  // iOS Safari には手順を書く（あちらは API が無い）。
+  (() => {
+    const box = document.getElementById("install");
+    const btn = document.getElementById("installBtn");
+    const how = document.getElementById("installHow");
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    if (standalone) return;                       // すでにアプリとして開いている
+
+    let deferred = null;
+    addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferred = e;
+      box.hidden = false;
+      btn.hidden = false;
+      how.hidden = true;
+    });
+
+    btn.addEventListener("click", async () => {
+      if (!deferred) return;
+      btn.disabled = true;
+      deferred.prompt();
+      const { outcome } = await deferred.userChoice;
+      deferred = null;
+      btn.disabled = false;
+      if (outcome !== "accepted") { btn.hidden = true; showHow(); }
+    });
+
+    addEventListener("appinstalled", () => {
+      btn.hidden = true;
+      how.hidden = false;
+      how.textContent = "入りました。ホーム画面のアイコンから開けます。";
+      box.hidden = false;
+    });
+
+    function showHow() {
+      const ua = navigator.userAgent;
+      const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const safari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+      how.textContent = ios
+        ? (safari
+            ? "Safari の共有ボタン → 「ホーム画面に追加」でアプリになります。"
+            : "Safari で開き直してから、共有 → 「ホーム画面に追加」。")
+        : "ブラウザの ⋮ メニュー →「アプリをインストール」／「ホーム画面に追加」でアプリになります。";
+      how.hidden = false;
+      box.hidden = false;
+    }
+
+    // 出ないまま数秒たったら、手動の入れ方を案内する
+    setTimeout(() => { if (btn.hidden && how.hidden) showHow(); }, 2500);
+  })();
 </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 // オフラインでも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "todo-banshaku-v1";
+const CACHE = "todo-banshaku-v2";
 const ASSETS = [
   "./",
   "./index.html",
