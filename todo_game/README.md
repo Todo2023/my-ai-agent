@@ -11,12 +11,14 @@ python3 -m http.server 8000 --directory todo_game
 
 ## スマホに入れる
 
-GitHub Pages に出してある URL を開いて、
+**https://todo2023.github.io/my-ai-agent/todo_game/** を開いて、
 
 - **Android（Chrome）**: メニュー → 「アプリをインストール」／「ホーム画面に追加」
 - **iPhone（Safari）**: 共有 → 「ホーム画面に追加」
 
-どちらもアドレスバーなしの全画面で起動する。一度開けばオフラインでも遊べる（`sw.js` が一式をキャッシュする）。
+どちらもアドレスバーなしの全画面で起動する。一度開けばオフラインでも遊べる（`sw.js` が一式をキャッシュする）。QRは `qr-app.png`。
+
+公開は `main` の `todo_game/` を GitHub Pages がそのまま配信している（リポジトリ直下の別ゲームとは URL もキャッシュも分かれている）。ゲームを直したら `main` の `todo_game/` を更新すれば反映される。無料の範囲で動いていて、サーバも外部APIも使っていない。
 
 ## ルール
 
