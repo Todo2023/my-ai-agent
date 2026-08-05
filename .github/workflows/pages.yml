@@ -2,10 +2,9 @@
 # 初回だけリポジトリの Settings → Pages → Source を "GitHub Actions" にする必要がある。
 name: Deploy todo_game to Pages
 
+# 既定ブランチ以外からは github-pages 環境に配信できず必ず失敗するので、
+# 自動起動はしない。配信先が決まったら手動で回すか、main に載せる。
 on:
-  push:
-    branches: [claude/new-game-project-vkjz3a, main]
-    paths: ["todo_game/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
