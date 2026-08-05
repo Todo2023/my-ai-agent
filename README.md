@@ -33,14 +33,52 @@ npx serve .
 PC の IP アドレス（`ipconfig` / `ifconfig` で確認）を使って、スマホのブラウザで
 `http://<PCのIPアドレス>:8000` を開きます。
 
-### 公開したい場合
+## 他の人に共有する（GitHub Pages）
 
-GitHub Pages が手軽です。リポジトリの Settings → Pages で、
-ブランチを選んで公開すると `https://<ユーザー名>.github.io/my-ai-agent/` で遊べます。
+このリポジトリは public なので、GitHub Pages を有効にすれば
+**URL を送るだけで誰でもスマホから遊べます**。サーバー代も申し込みも不要です。
+
+### 手順（1回だけ）
+
+1. https://github.com/Todo2023/my-ai-agent/settings/pages を開く
+2. **Source** で `Deploy from a branch` を選ぶ
+3. **Branch** に `claude/simple-game-creation-0zhi4z`、フォルダは `/ (root)` を選んで **Save**
+4. 1〜2分待つと公開される
+
+公開URL: **https://todo2023.github.io/my-ai-agent/**
+
+この URL を LINE やメールで送れば、相手はアプリのインストールなしにブラウザで遊べます。
+`qr.png` を見せれば、相手はカメラで読み取るだけで開けます。
+
+### ホーム画面に追加すると、アプリのように遊べます
+
+公開URLをスマホで開いたあと、
+
+- **iPhone (Safari)**: 共有ボタン → 「ホーム画面に追加」
+- **Android (Chrome)**: 右上のメニュー → 「アプリをインストール」／「ホーム画面に追加」
+
+アイコンが並び、次からはアドレスバーなしの全画面で起動します（`manifest.webmanifest` の設定）。
+
+### 更新したいとき
+
+このブランチに push すれば、1〜2分で公開中のページに反映されます。
+
+> **メモ**: Pages の公開元を `claude/simple-game-creation-0zhi4z` のような作業ブランチに
+> 置いたままだと後で分かりにくくなります。落ち着いたら `main` ブランチを作ってそこへ移し、
+> Settings → Pages の Branch を `main` に切り替えるのがおすすめです。
+
+## ファイル
+
+| ファイル | 中身 |
+| --- | --- |
+| `index.html` | ゲーム本体。HTML・CSS・JavaScript がすべてこの1枚に入っています |
+| `manifest.webmanifest` | ホーム画面に追加したときの名前・アイコン・全画面設定 |
+| `icon-180/192/512.png` | ホーム画面用アイコン |
+| `qr.png` | 公開URLのQRコード（スマホで開くとき・人に見せるとき用） |
 
 ## コードの構成
 
-`index.html` の中で完結しています。JavaScript 部分はこの順番で読むと分かりやすいです。
+ゲームのロジックは `index.html` の中で完結しています。JavaScript 部分はこの順番で読むと分かりやすいです。
 
 | ブロック | やっていること |
 | --- | --- |
