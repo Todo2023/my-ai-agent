@@ -620,6 +620,13 @@
     requestAnimationFrame(frame);
   }
 
+  // オフラインでも起動できるようにキャッシュを登録する（file:// で開いた場合は失敗するが無害）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
   resize();
   resetGame();
   showOverlay('ブロック崩し', '指でドラッグしてパドルを動かそう', '画面をタップしてスタート');
