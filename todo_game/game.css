@@ -107,5 +107,34 @@
     cursor: pointer;
   }
 
+  .install {
+    width: min(100%, 470px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .install p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--ice-dim);
+    max-width: 34em;
+  }
+
+  button.primary {
+    border-color: rgba(240,166,60,0.6);
+    background: linear-gradient(180deg, rgba(240,166,60,0.22), rgba(240,166,60,0.08));
+    color: #fbe3bd;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 22px;
+  }
+
+  button.primary:hover { border-color: var(--lantern); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
   button:hover { color: #fbe3bd; border-color: rgba(240,166,60,0.5); }
   button:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
