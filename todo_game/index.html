@@ -1,0 +1,778 @@
+<title>トドの晩酌</title>
+<style>
+  :root {
+    --sea-900: #0b1220;
+    --sea-800: #101b2e;
+    --sea-700: #16273f;
+    --sea-600: #24384f;
+    --ice: #d8e8f2;
+    --ice-dim: #8ea6bb;
+    --lantern: #f0a63c;
+    --lantern-deep: #c8761c;
+    --sumi: #060a12;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 60%),
+      radial-gradient(90% 60% at 50% 108%, rgba(240,166,60,0.18) 0%, rgba(240,166,60,0) 55%),
+      var(--sea-900);
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 16px 40px;
+  }
+
+  .sign {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sign h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: clamp(30px, 8vw, 44px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+    color: #fbe3bd;
+    text-shadow: 0 0 22px rgba(240,166,60,0.45);
+  }
+
+  .sign p {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    color: var(--ice-dim);
+  }
+
+  .cabinet {
+    position: relative;
+    width: min(100%, 460px);
+    border-radius: 20px;
+    padding: 10px;
+    background: linear-gradient(180deg, var(--sea-700), var(--sea-800));
+    box-shadow:
+      0 0 0 1px rgba(216,232,242,0.10),
+      0 26px 60px -24px rgba(0,0,0,0.9),
+      0 0 70px -30px rgba(240,166,60,0.55);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    background: var(--sumi);
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  canvas:focus-visible {
+    outline: 2px solid var(--lantern);
+    outline-offset: 3px;
+  }
+
+  .hud {
+    width: min(100%, 460px);
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .chip {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(216,232,242,0.05);
+    border: 1px solid rgba(216,232,242,0.10);
+  }
+
+  .chip span {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    color: var(--ice-dim);
+  }
+
+  .chip strong {
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  #wantChip strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+  }
+
+  #wantDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 0 12px currentColor;
+    background: currentColor;
+  }
+
+  .keys {
+    width: min(100%, 460px);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--ice-dim);
+  }
+
+  .keys b {
+    color: #fbe3bd;
+    font-weight: 600;
+  }
+
+  button.mute {
+    align-self: flex-start;
+    background: none;
+    border: 1px solid rgba(216,232,242,0.18);
+    color: var(--ice-dim);
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  button.mute:hover { color: #fbe3bd; border-color: rgba(240,166,60,0.5); }
+  button.mute:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+</style>
+
+<div class="sign">
+  <h1>トドの晩酌</h1>
+  <p>同じ色の酒だけを飲め</p>
+</div>
+
+<div class="cabinet">
+  <canvas id="game" width="460" height="640" tabindex="0" aria-label="トドを左右に動かして、飲みたい色の酒だけを口で受けるゲーム"></canvas>
+</div>
+
+<div class="hud">
+  <div class="chip" id="wantChip">
+    <span>いま飲みたい</span>
+    <strong><i id="wantDot"></i><em id="wantName" style="font-style:normal">—</em></strong>
+  </div>
+  <div class="chip">
+    <span>てんすう</span>
+    <strong id="scoreOut">0</strong>
+  </div>
+  <div class="chip">
+    <span>さいこう</span>
+    <strong id="bestOut">0</strong>
+  </div>
+</div>
+
+<div class="keys">
+  <div>← → / A D で移動<br />ドラッグでも動きます</div>
+  <div style="text-align:right">同じ色 = <b>のむ</b><br />ちがう色 = <b>吐く（残機−1）</b></div>
+</div>
+
+<button class="mute" id="muteBtn" type="button">🔊 音あり</button>
+
+<script>
+(() => {
+  "use strict";
+
+  const W = 460, H = 640;
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  // --- お品書き ---------------------------------------------------------
+  const SAKE = [
+    { id: "ume",   name: "梅酒",     mark: "梅", color: "#e9a13b", deep: "#a96b18" },
+    { id: "ramune",name: "ラムネ酒", mark: "ラ", color: "#46a8e5", deep: "#1c6ea3" },
+    { id: "aka",   name: "赤ワイン", mark: "赤", color: "#d24960", deep: "#8d2436" },
+    { id: "matcha",name: "抹茶酒",   mark: "茶", color: "#62b96b", deep: "#2f7a39" },
+  ];
+  const GOLD = { id: "gold", name: "大吟醸", mark: "大", color: "#f6e7a8", deep: "#c9a53c" };
+
+  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // --- 状態 -------------------------------------------------------------
+  const state = {
+    phase: "title",      // title | play | over
+    t: 0,
+    score: 0,
+    best: 0,
+    lives: 4,
+    combo: 0,
+    want: SAKE[0],
+    served: 0,           // いまの色で飲んだ数
+    drunk: 0,            // 酔い（0..1）操作が揺れる
+    glasses: [],
+    puffs: [],
+    spawnIn: 0.9,
+    todo: { x: W / 2, vx: 0, tilt: 0, chew: 0, spit: 0, face: 0 },
+    flash: 0,
+    shake: 0,
+    banner: null,
+  };
+
+  try { state.best = Number(localStorage.getItem("todo-banshaku-best")) || 0; } catch (e) {}
+
+  // --- 音（合成／アセットなし） ------------------------------------------
+  let audio = null, muted = false;
+  function beep(freq, dur, type = "sine", gain = 0.06, slideTo = null) {
+    if (muted) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === "suspended") audio.resume();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, audio.currentTime);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, audio.currentTime + dur);
+      g.gain.setValueAtTime(gain, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
+      o.connect(g).connect(audio.destination);
+      o.start();
+      o.stop(audio.currentTime + dur + 0.02);
+    } catch (e) {}
+  }
+  const muteBtn = document.getElementById("muteBtn");
+  muteBtn.addEventListener("click", () => {
+    muted = !muted;
+    muteBtn.textContent = muted ? "🔇 音なし" : "🔊 音あり";
+  });
+
+  // --- 入力 -------------------------------------------------------------
+  const held = { left: false, right: false };
+  let pointerX = null;
+
+  addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === "arrowleft" || k === "a") { held.left = true; e.preventDefault(); }
+    if (k === "arrowright" || k === "d") { held.right = true; e.preventDefault(); }
+    if (k === " " || k === "enter") { e.preventDefault(); startOrRestart(); }
+  });
+  addEventListener("keyup", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === "arrowleft" || k === "a") held.left = false;
+    if (k === "arrowright" || k === "d") held.right = false;
+  });
+
+  function canvasX(ev) {
+    const r = canvas.getBoundingClientRect();
+    return (ev.clientX - r.left) * (W / r.width);
+  }
+  canvas.addEventListener("pointerdown", (ev) => {
+    canvas.setPointerCapture(ev.pointerId);
+    pointerX = canvasX(ev);
+    canvas.focus();
+    if (state.phase !== "play") startOrRestart();
+  });
+  canvas.addEventListener("pointermove", (ev) => {
+    if (pointerX !== null) pointerX = canvasX(ev);
+  });
+  const release = () => { pointerX = null; };
+  canvas.addEventListener("pointerup", release);
+  canvas.addEventListener("pointercancel", release);
+
+  function startOrRestart() {
+    if (state.phase === "play") return;
+    state.phase = "play";
+    state.score = 0; state.lives = 4; state.combo = 0; state.served = 0;
+    state.drunk = 0; state.glasses = []; state.puffs = [];
+    state.spawnIn = 0.6; state.todo.x = W / 2; state.todo.vx = 0;
+    state.want = SAKE[(Math.random() * SAKE.length) | 0];
+    say(`${state.want.name} をくれ`);
+    syncHud();
+    beep(420, 0.12, "triangle", 0.05, 640);
+  }
+
+  function say(text) { state.banner = { text, life: 1.6 }; }
+
+  // --- 進行 -------------------------------------------------------------
+  function difficulty() { return Math.min(1, state.score / 1200); }
+
+  function spawn() {
+    const d = difficulty();
+    const bonus = Math.random() < 0.05;
+    // 欲しい色が出なさすぎると理不尽なので、4割は当たり色を混ぜる
+    let kind;
+    if (bonus) kind = GOLD;
+    else if (Math.random() < 0.5) kind = state.want;
+    else kind = SAKE[(Math.random() * SAKE.length) | 0];
+    state.glasses.push({
+      x: 34 + Math.random() * (W - 68),
+      y: -30,
+      vy: 112 + d * 195 + Math.random() * 40,
+      spin: (Math.random() - 0.5) * 1.4,
+      rot: 0,
+      kind,
+      dead: false,
+    });
+    state.spawnIn = Math.max(0.34, 1.15 - d * 0.7) * (0.75 + Math.random() * 0.6);
+  }
+
+  function nextWant() {
+    const others = SAKE.filter((s) => s.id !== state.want.id);
+    state.want = others[(Math.random() * others.length) | 0];
+    state.served = 0;
+    state.flash = 1;
+    say(`つぎは ${state.want.name}`);
+    syncHud();
+    beep(300, 0.18, "triangle", 0.05, 520);
+  }
+
+  function drink(g) {
+    const gold = g.kind.id === "gold";
+    state.combo++;
+    const gain = (gold ? 50 : 10) * Math.min(5, 1 + Math.floor(state.combo / 5));
+    state.score += gain;
+    state.drunk = Math.min(1, state.drunk + (gold ? 0.16 : 0.07));
+    state.todo.chew = 0.34;
+    state.todo.face = 1;
+    puff(g.x, g.y, g.kind.color, 12);
+    beep(gold ? 880 : 620 + Math.min(6, state.combo) * 40, 0.1, "triangle", 0.06, gold ? 1320 : null);
+    if (!gold) {
+      state.served++;
+      if (state.served >= 5) nextWant();
+    }
+    syncHud();
+  }
+
+  function spitOut(g) {
+    state.combo = 0;
+    state.lives--;
+    state.todo.spit = 0.5;
+    state.todo.face = -1;
+    state.shake = 1;
+    puff(g.x, g.y, g.kind.color, 18);
+    beep(180, 0.28, "sawtooth", 0.05, 70);
+    syncHud();
+    if (state.lives <= 0) gameOver();
+  }
+
+  function gameOver() {
+    state.phase = "over";
+    if (state.score > state.best) {
+      state.best = state.score;
+      try { localStorage.setItem("todo-banshaku-best", String(state.best)); } catch (e) {}
+    }
+    syncHud();
+    beep(320, 0.5, "sine", 0.05, 110);
+  }
+
+  function puff(x, y, color, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 150;
+      state.puffs.push({
+        x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60,
+        r: 2 + Math.random() * 4, life: 1, color,
+      });
+    }
+  }
+
+  function syncHud() {
+    document.getElementById("scoreOut").textContent = state.score;
+    document.getElementById("bestOut").textContent = state.best;
+    document.getElementById("wantName").textContent = state.phase === "title" ? "—" : state.want.name;
+    document.getElementById("wantDot").style.color = state.phase === "title" ? "#8ea6bb" : state.want.color;
+  }
+
+  // --- 更新 -------------------------------------------------------------
+  function update(dt) {
+    state.t += dt;
+    state.flash = Math.max(0, state.flash - dt * 2);
+    state.shake = Math.max(0, state.shake - dt * 3);
+    if (state.banner) {
+      state.banner.life -= dt;
+      if (state.banner.life <= 0) state.banner = null;
+    }
+
+    const todo = state.todo;
+    todo.chew = Math.max(0, todo.chew - dt);
+    todo.spit = Math.max(0, todo.spit - dt);
+    todo.face *= Math.pow(0.2, dt);
+
+    if (state.phase === "play") {
+      // 移動：酔うほど効きが遅れて、勝手に揺れる
+      const speed = 430;
+      const drag = 1 - state.drunk * 0.45;
+      let target = null;
+      if (pointerX !== null) target = pointerX;
+      let ax = 0;
+      if (held.left) ax -= 1;
+      if (held.right) ax += 1;
+      if (target !== null) ax = Math.max(-1, Math.min(1, (target - todo.x) / 60));
+      todo.vx += ax * speed * drag * dt * 8;
+      todo.vx *= Math.pow(0.0015, dt);
+      todo.x += todo.vx * dt;
+      const sway = REDUCED ? 0 : Math.sin(state.t * 2.1) * 26 * state.drunk;
+      todo.x += sway * dt;
+      todo.x = Math.max(46, Math.min(W - 46, todo.x));
+      todo.tilt = Math.max(-0.3, Math.min(0.3, todo.vx / 900)) + (REDUCED ? 0 : Math.sin(state.t * 1.7) * 0.06 * state.drunk);
+
+      state.drunk = Math.max(0, state.drunk - dt * 0.035);
+
+      state.spawnIn -= dt;
+      if (state.spawnIn <= 0) spawn();
+
+      const mouthY = H - 116, mouthX = todo.x;
+      for (const g of state.glasses) {
+        g.y += g.vy * dt;
+        g.rot += g.spin * dt;
+        if (g.dead) continue;
+        if (g.y > mouthY - 26 && g.y < mouthY + 44 && Math.abs(g.x - mouthX) < 46) {
+          g.dead = true;
+          if (g.kind.id === state.want.id || g.kind.id === "gold") drink(g);
+          else spitOut(g);
+        } else if (g.y > H + 40) {
+          g.dead = true;
+          if (g.kind.id === state.want.id) { state.combo = 0; syncHud(); }
+        }
+      }
+      state.glasses = state.glasses.filter((g) => !g.dead && g.y < H + 60);
+    }
+
+    for (const p of state.puffs) {
+      p.vy += 520 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt * 1.7;
+    }
+    state.puffs = state.puffs.filter((p) => p.life > 0);
+  }
+
+  // --- 描画 -------------------------------------------------------------
+  function bg() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#0a111d");
+    g.addColorStop(0.55, "#122238");
+    g.addColorStop(1, "#1b2f45");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // 提灯の灯り
+    const lamp = ctx.createRadialGradient(W / 2, H - 90, 10, W / 2, H - 90, 260);
+    lamp.addColorStop(0, "rgba(240,166,60,0.20)");
+    lamp.addColorStop(1, "rgba(240,166,60,0)");
+    ctx.fillStyle = lamp;
+    ctx.fillRect(0, 0, W, H);
+
+    // 遠くの氷
+    ctx.fillStyle = "rgba(216,232,242,0.05)";
+    for (let i = 0; i < 5; i++) {
+      const x = ((i * 137 + state.t * 6) % (W + 160)) - 80;
+      const y = 120 + i * 46;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 46, y - 16 - (i % 3) * 8);
+      ctx.lineTo(x + 96, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 水面
+    ctx.fillStyle = "rgba(216,232,242,0.07)";
+    ctx.beginPath();
+    ctx.moveTo(0, H - 58);
+    for (let x = 0; x <= W; x += 12) {
+      ctx.lineTo(x, H - 58 + Math.sin((x / 40) + state.t * 1.4) * 3);
+    }
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawGlass(g) {
+    const k = g.kind;
+    ctx.save();
+    ctx.translate(g.x, g.y);
+    ctx.rotate(Math.sin(g.rot) * 0.22);
+
+    // ぐい呑みの中身
+    ctx.fillStyle = k.deep;
+    ctx.beginPath();
+    ctx.moveTo(-15, -14); ctx.lineTo(15, -14); ctx.lineTo(11, 15); ctx.lineTo(-11, 15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = k.color;
+    ctx.beginPath();
+    ctx.moveTo(-14, -12); ctx.lineTo(14, -12); ctx.lineTo(11, 12); ctx.lineTo(-11, 12);
+    ctx.closePath();
+    ctx.fill();
+
+    // 液面のつや
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.ellipse(0, -12, 14, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ふち
+    ctx.strokeStyle = "rgba(255,255,255,0.75)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-15, -13); ctx.lineTo(15, -13);
+    ctx.stroke();
+
+    // 色が見えない人向けの銘柄
+    ctx.fillStyle = "rgba(6,10,18,0.85)";
+    ctx.font = "600 13px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(k.mark, 0, 2);
+    ctx.restore();
+  }
+
+  function drawTodo() {
+    const t = state.todo;
+    const x = t.x, y = H - 92;
+    const open = 1 - t.chew * 1.6;
+    const mouthOpen = Math.max(0.2, Math.min(1, open));
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(t.tilt);
+
+    // 影
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath();
+    ctx.ellipse(0, 60, 62, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // からだ
+    const body = ctx.createLinearGradient(0, -50, 0, 62);
+    body.addColorStop(0, "#9c8577");
+    body.addColorStop(1, "#6a564c");
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(0, 18, 58, 44, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ひれ
+    ctx.fillStyle = "#5d4a41";
+    ctx.beginPath(); ctx.ellipse(-52, 40, 20, 10, -0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(52, 40, 20, 10, 0.5, 0, Math.PI * 2); ctx.fill();
+
+    // あたま
+    ctx.fillStyle = "#a68e7e";
+    ctx.beginPath();
+    ctx.ellipse(0, -22, 44, 38, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 口（＝当たり判定。中身が今飲みたい色）
+    const mh = 15 + 17 * mouthOpen;
+    ctx.fillStyle = "#2a1a18";
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 27, mh, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const want = state.phase === "title" ? { color: "#8ea6bb", mark: "？" } : state.want;
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = want.color;
+    ctx.shadowColor = want.color;
+    ctx.shadowBlur = 22;
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 19, Math.max(6, mh - 9), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "rgba(6,10,18,0.8)";
+    ctx.font = "600 15px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(want.mark, 0, -2);
+
+    // きば
+    ctx.fillStyle = "#f2ead9";
+    ctx.beginPath(); ctx.moveTo(-16, 6); ctx.lineTo(-9, 6); ctx.lineTo(-12, 30); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(9, 6); ctx.lineTo(16, 6); ctx.lineTo(12, 30); ctx.closePath(); ctx.fill();
+
+    // ひげ
+    ctx.strokeStyle = "rgba(242,234,217,0.5)";
+    ctx.lineWidth = 1.4;
+    for (let i = 0; i < 3; i++) {
+      const yy = -10 + i * 7;
+      ctx.beginPath(); ctx.moveTo(-26, yy); ctx.lineTo(-42, yy - 4 + i * 3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(26, yy); ctx.lineTo(42, yy - 4 + i * 3); ctx.stroke();
+    }
+
+    // 目：ふつう／うっとり／うげっ
+    const happy = t.face > 0.3, bad = t.face < -0.3;
+    ctx.lineCap = "round";
+    for (const ex of [-27, 27]) {
+      if (happy || bad) {
+        ctx.strokeStyle = "#2a1a18";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (happy) ctx.arc(ex, -36, 6.5, Math.PI * 1.08, Math.PI * 1.92);
+        else { ctx.moveTo(ex - 5, -40); ctx.lineTo(ex + 5, -32); ctx.moveTo(ex + 5, -40); ctx.lineTo(ex - 5, -32); }
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = "#f2ead9";
+        ctx.beginPath(); ctx.ellipse(ex, -36, 7, 8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#2a1a18";
+        ctx.beginPath(); ctx.arc(ex + (t.vx > 40 ? 2 : t.vx < -40 ? -2 : 0), -35, 3.6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.beginPath(); ctx.arc(ex - 1.6, -38, 1.4, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // ほろ酔いのほお
+    if (state.drunk > 0.05) {
+      ctx.globalAlpha = Math.min(0.55, state.drunk);
+      ctx.fillStyle = "#e8687a";
+      ctx.beginPath(); ctx.ellipse(-30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(30, -18, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.restore();
+  }
+
+  function drawOverlay(title, lines, sub) {
+    ctx.fillStyle = "rgba(6,10,18,0.78)";
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fbe3bd";
+    ctx.font = "600 34px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    ctx.fillText(title, W / 2, H / 2 - 60);
+    ctx.fillStyle = "#d8e8f2";
+    ctx.font = "14px 'Hiragino Sans', system-ui, sans-serif";
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 16 + i * 24));
+    if (sub) {
+      const pulse = REDUCED ? 1 : 0.6 + Math.sin(state.t * 3) * 0.4;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = "#f0a63c";
+      ctx.font = "600 16px 'Hiragino Sans', system-ui, sans-serif";
+      ctx.fillText(sub, W / 2, H / 2 + 24 + lines.length * 24);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function draw() {
+    ctx.save();
+    if (state.shake > 0 && !REDUCED) {
+      ctx.translate((Math.random() - 0.5) * 10 * state.shake, (Math.random() - 0.5) * 10 * state.shake);
+    }
+    bg();
+    for (const g of state.glasses) drawGlass(g);
+    drawTodo();
+
+    for (const p of state.puffs) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // 色替わりのフラッシュ
+    if (state.flash > 0) {
+      ctx.globalAlpha = state.flash * 0.25;
+      ctx.fillStyle = state.want.color;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+
+    // 画面内HUD
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(216,232,242,0.9)";
+    ctx.font = "600 15px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillText(String(state.score), 16, 28);
+    ctx.font = "11px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.fillStyle = "rgba(216,232,242,0.55)";
+    ctx.fillText("てんすう", 16, 44);
+
+    ctx.textAlign = "right";
+    for (let i = 0; i < 4; i++) {
+      ctx.globalAlpha = i < state.lives ? 1 : 0.2;
+      ctx.fillStyle = "#e8687a";
+      ctx.beginPath();
+      ctx.arc(W - 22 - i * 21, 24, 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (state.combo >= 3) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#f0a63c";
+      ctx.font = "600 14px 'Hiragino Sans', system-ui, sans-serif";
+      ctx.fillText(`${state.combo} 杯つづけて`, W - 16, 52);
+    }
+
+    // 酔いメーター
+    ctx.fillStyle = "rgba(216,232,242,0.12)";
+    ctx.fillRect(16, H - 26, 120, 6);
+    ctx.fillStyle = state.drunk > 0.7 ? "#e8687a" : "#f0a63c";
+    ctx.fillRect(16, H - 26, 120 * state.drunk, 6);
+    ctx.fillStyle = "rgba(216,232,242,0.55)";
+    ctx.font = "10px 'Hiragino Sans', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("酔い", 16, H - 32);
+
+    if (state.banner) {
+      ctx.globalAlpha = Math.min(1, state.banner.life * 1.6);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fbe3bd";
+      ctx.font = "600 22px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+      ctx.fillText(state.banner.text, W / 2, 120);
+      ctx.globalAlpha = 1;
+    }
+
+    if (state.phase === "title") {
+      drawOverlay("トドの晩酌", [
+        "口の色と同じ酒だけを飲ませる。",
+        "ちがう色を飲むと吐いて、残機が減る。",
+        "5杯ごとに飲みたい色が変わる。",
+        "飲むほど酔って、動きがふらつく。",
+      ], "タップ / スペースではじめる");
+    } else if (state.phase === "over") {
+      drawOverlay("おあいそ", [
+        `${state.score} てん`,
+        `さいこう ${state.best} てん`,
+      ], "タップ / スペースでもう一杯");
+    }
+
+    ctx.restore();
+  }
+
+  // --- ループ -----------------------------------------------------------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  // 高DPI
+  function fit() {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  fit();
+  addEventListener("resize", fit);
+
+  syncHud();
+  requestAnimationFrame(frame);
+})();
+</script>
