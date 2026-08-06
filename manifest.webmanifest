@@ -3,15 +3,15 @@
   "short_name": "ブロック崩し",
   "description": "指でドラッグして遊ぶブロック崩し。HTML1枚・インストール不要。",
   "id": "./",
-  "start_url": "./game.html",
-  "scope": "./",
+  "start_url": "./breakout/game.html",
+  "scope": "./breakout/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
   "orientation": "portrait",
   "background_color": "#0d1020",
   "theme_color": "#0d1020",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "breakout/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "breakout/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

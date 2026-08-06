@@ -1,338 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1020">
-<meta name="description" content="指でドラッグして遊ぶブロック崩し。インストールは無料、オフラインでも遊べます。">
-<title>ブロック崩し｜インストール</title>
-
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ブロック崩し">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" href="icon-192.png" type="image/png">
-
-<meta property="og:title" content="ブロック崩し">
-<meta property="og:description" content="指でドラッグして遊ぶブロック崩し。インストールは無料、オフラインでも遊べます。">
-<meta property="og:type" content="website">
-<meta property="og:image" content="icon-512.png">
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>アプリ置き場</title>
+<meta name="description" content="このサイトに置いてあるアプリの一覧。どれもインストール無料・アカウント不要。" />
+<meta name="theme-color" content="#0d1020" />
+<meta name="color-scheme" content="dark" />
+<!--
+  ここには manifest も Service Worker も置かない。
+  直下にアプリを置くと担当範囲がサイト全体に広がり、
+  下の階層のアプリのリンクまで横取りしてしまうため。
+  アプリは1つずつフォルダに分けて、それぞれの中で完結させる。
+-->
 <style>
+  :root { --bg: #0d1020; --text: #e8ecf8; --dim: #8d97b8; --line: rgba(232,236,248,0.12); }
   * { box-sizing: border-box; }
-
-  html, body {
-    margin: 0;
-    min-height: 100%;
-    background: #0d1020;
-    color: #e8ecff;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
-    -webkit-text-size-adjust: 100%;
-  }
-
   body {
-    background: radial-gradient(120% 60% at 50% 0%, #1b2450 0%, #0d1020 55%, #080b16 100%);
-    display: flex;
-    justify-content: center;
-    padding:
-      calc(env(safe-area-inset-top, 0px) + 32px)
-      20px
-      calc(env(safe-area-inset-bottom, 0px) + 40px);
-  }
-
-  main {
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .icon {
-    width: 104px;
-    height: 104px;
-    border-radius: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  }
-
-  h1 {
-    margin: 18px 0 4px;
-    font-size: 26px;
-    letter-spacing: 0.04em;
-  }
-
-  .sub {
     margin: 0;
-    font-size: 14px;
-    line-height: 1.6;
-    opacity: 0.6;
+    min-height: 100dvh;
+    padding: max(36px, env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
+    background: radial-gradient(120% 70% at 50% -10%, #1b2240 0%, rgba(27,34,64,0) 60%), var(--bg);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 26px;
+    -webkit-tap-highlight-color: transparent;
   }
-
-  .specs {
-    display: flex;
-    gap: 0;
-    width: 100%;
-    margin: 24px 0 4px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+  h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: 0.14em; }
+  .lead { margin: -16px 0 0; font-size: 12.5px; line-height: 1.9; color: var(--dim); text-align: center; max-width: 24em; }
+  ul { list-style: none; margin: 0; padding: 0; width: min(100%, 460px); display: flex; flex-direction: column; gap: 12px; }
+  a.app {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; border-radius: 16px;
+    background: rgba(232,236,248,0.05); border: 1px solid var(--line);
+    color: inherit; text-decoration: none;
   }
-
-  .specs div {
-    flex: 1;
-    padding: 12px 6px;
-  }
-
-  .specs div + div { border-left: 1px solid rgba(255, 255, 255, 0.07); }
-
-  .specs b {
-    display: block;
-    font-size: 15px;
-    margin-bottom: 3px;
-  }
-
-  .specs span {
-    font-size: 10px;
-    opacity: 0.5;
-    letter-spacing: 0.04em;
-  }
-
-  .panel {
-    width: 100%;
-    margin-top: 28px;
-  }
-
-  button.primary {
-    width: 100%;
-    border: 0;
-    border-radius: 14px;
-    padding: 17px;
-    font-size: 17px;
-    font-weight: 700;
-    font-family: inherit;
-    color: #06203a;
-    background: linear-gradient(180deg, #6fd3ff, #3fb2f5);
-    box-shadow: 0 8px 24px rgba(77, 195, 255, 0.3);
-  }
-
-  button.primary:active { transform: translateY(1px); }
-
-  .steps {
-    text-align: left;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 14px;
-    padding: 18px 18px 16px;
-  }
-
-  .steps h2 {
-    margin: 0 0 12px;
-    font-size: 14px;
-    letter-spacing: 0.04em;
-  }
-
-  .steps ol {
-    margin: 0;
-    padding-left: 1.3em;
-    font-size: 14px;
-    line-height: 1.9;
-  }
-
-  .steps .share {
-    display: inline-block;
-    vertical-align: -4px;
-    margin: 0 2px;
-  }
-
-  .note {
-    margin: 12px 0 0;
-    font-size: 12px;
-    line-height: 1.6;
-    opacity: 0.5;
-  }
-
-  .play {
-    display: inline-block;
-    margin-top: 22px;
-    padding: 10px 4px;
-    font-size: 14px;
-    color: #9fb2e8;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(159, 178, 232, 0.35);
-  }
-
-  .others {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 26px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(159, 178, 232, 0.16);
-  }
-
-  .others a {
-    font-size: 13px;
-    line-height: 1.6;
-    color: rgba(159, 178, 232, 0.8);
-    text-decoration: none;
-  }
-
-  .others a:hover { color: #9fb2e8; }
-
-  .done {
-    background: rgba(107, 217, 104, 0.12);
-    border: 1px solid rgba(107, 217, 104, 0.4);
-    border-radius: 14px;
-    padding: 18px;
-    font-size: 15px;
-    line-height: 1.7;
-  }
-
-  [hidden] { display: none !important; }
+  a.app:active { background: rgba(232,236,248,0.09); }
+  a.app img { width: 52px; height: 52px; border-radius: 13px; flex: 0 0 auto; }
+  a.app .t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  a.app .n { font-size: 15px; font-weight: 700; }
+  a.app .d { font-size: 12px; line-height: 1.6; color: var(--dim); }
+  footer { font-size: 11px; line-height: 1.9; color: rgba(141,151,184,0.7); text-align: center; max-width: 26em; }
 </style>
 </head>
 <body>
-<main>
-  <img class="icon" src="icon-192.png" width="104" height="104" alt="">
-  <h1>ブロック崩し</h1>
-  <p class="sub">指でドラッグして遊ぶ、シンプルなブロック崩し</p>
 
-  <div class="specs">
-    <div><b>無料</b><span>広告なし</span></div>
-    <div><b>約100KB</b><span>すぐ入る</span></div>
-    <div><b>オフライン</b><span>圏外でも遊べる</span></div>
-  </div>
+<h1>アプリ置き場</h1>
+<p class="lead">スマホのホーム画面に入れて使えます。<br />インストールは無料、アカウントも審査もありません。</p>
 
-  <div class="panel">
-    <!-- Android / デスクトップ Chrome: ブラウザがインストールを提供できる場合 -->
-    <button id="install" class="primary" type="button" hidden>アプリをインストール</button>
+<ul>
+  <li>
+    <a class="app" href="meshi/">
+      <img src="meshi/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">スクショ飯</span>
+        <span class="d">行きたい店のスクショを貯めて、行ったらチェック</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="todo_game/">
+      <img src="todo_game/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">トドの晩酌</span>
+        <span class="d">回転レーンの皿を開けて、注文どおりの品を食べさせる</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="breakout/">
+      <img src="breakout/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">ブロック崩し</span>
+        <span class="d">指でドラッグして遊ぶ、シンプルなブロック崩し</span>
+      </span>
+    </a>
+  </li>
+</ul>
 
-    <!-- iOS Safari: API が無いので手順を案内する -->
-    <div id="ios" class="steps" hidden>
-      <h2>ホーム画面に追加してアプリとして使う</h2>
-      <ol>
-        <li>画面下の共有ボタン
-          <svg class="share" width="15" height="19" viewBox="0 0 15 19" fill="none" aria-hidden="true">
-            <path d="M7.5 1v11M7.5 1L4 4.5M7.5 1L11 4.5" stroke="#9fb2e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 8.5H1v9.5h13V8.5h-1" stroke="#9fb2e8" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-          をタップ
-        </li>
-        <li>メニューを下にスクロール</li>
-        <li><b>「ホーム画面に追加」</b>をタップ</li>
-        <li>右上の<b>「追加」</b>をタップ</li>
-      </ol>
-      <p class="note">ホーム画面にアイコンが並び、次からは全画面で起動します。</p>
-    </div>
+<footer>どれも通信なしで動きます（保存も端末の中だけ）。<br />アプリごとにフォルダを分けてあるので、1つ入れても他の邪魔をしません。</footer>
 
-    <!-- iOS の Safari 以外 -->
-    <div id="iosOther" class="steps" hidden>
-      <h2>Safari で開いてください</h2>
-      <p class="note" style="opacity:.75;font-size:14px;margin-top:0">
-        iPhone にアプリとして追加できるのは Safari だけです。
-        このページのURLを Safari で開き直すと、追加の手順が表示されます。
-      </p>
-    </div>
-
-    <!-- インストール非対応のブラウザ -->
-    <div id="fallback" class="steps" hidden>
-      <h2>このブラウザではインストールできません</h2>
-      <p class="note" style="opacity:.75;font-size:14px;margin-top:0">
-        下の「ブラウザでそのまま遊ぶ」から、インストールなしで遊べます。
-        スマホの Safari（iPhone）や Chrome（Android）で開くとアプリとして追加できます。
-      </p>
-    </div>
-
-    <!-- インストール完了 -->
-    <div id="done" class="done" hidden>
-      インストールが完了しました。<br>
-      ホーム画面のアイコンから起動できます。
-    </div>
-  </div>
-
-  <a class="play" href="game.html">ブラウザでそのまま遊ぶ →</a>
-
-  <!-- このサイトには別のアプリも置いてある。ここに迷い込んだ人の行き先 -->
-  <nav class="others">
-    <a href="meshi/">🍜 スクショ飯（行きたい店をスクショで貯める）</a>
-    <a href="todo_game/">🦭 トドの晩酌</a>
-  </nav>
-</main>
-
-<script>
-(() => {
-  'use strict';
-
-  const el = {
-    install:  document.getElementById('install'),
-    ios:      document.getElementById('ios'),
-    iosOther: document.getElementById('iosOther'),
-    fallback: document.getElementById('fallback'),
-    done:     document.getElementById('done'),
-  };
-
-  const ua = navigator.userAgent;
-  const isIOS = /iphone|ipad|ipod/i.test(ua) ||
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  // iOS では Chrome も Firefox も中身は WebKit だが、追加できるのは Safari だけ
-  const isIOSSafari = isIOS && !/crios|fxios|edgios|opt\//i.test(ua);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                       window.matchMedia('(display-mode: fullscreen)').matches ||
-                       window.navigator.standalone === true;
-
-  // ホーム画面のアイコンから起動された場合は、この画面を見せずにゲームへ
-  if (isStandalone) {
-    location.replace('game.html');
-    return;
-  }
-
-  function show(node) {
-    for (const k of Object.keys(el)) el[k].hidden = true;
-    if (node) node.hidden = false;
-  }
-
-  let deferredPrompt = null;
-
-  // Chrome 系はこのイベントでインストールの主導権をこちらに渡してくる
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    show(el.install);
-  });
-
-  el.install.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    if (outcome !== 'accepted') show(el.install); // 断られたらボタンを残す
-  });
-
-  window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    show(el.done);
-  });
-
-  // 初期表示。beforeinstallprompt は少し遅れて飛んでくるので、
-  // Android では待ってからフォールバックを出す
-  if (isIOSSafari) {
-    show(el.ios);
-  } else if (isIOS) {
-    show(el.iosOther);
-  } else {
-    setTimeout(() => {
-      if (!deferredPrompt && el.done.hidden) show(el.fallback);
-    }, 1800);
-  }
-
-  // インストール可能と判定されるにはサービスワーカーの登録が必要
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
-})();
-</script>
 </body>
 </html>
