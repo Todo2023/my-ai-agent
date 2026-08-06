@@ -97,8 +97,10 @@
   </ol>
 </div>
 
-<button id="installBtn" type="button">📲 アプリとして入れる</button>
-<p class="step" id="step" hidden></p>
+<!-- ボタンは「押せば本当に入る」ときだけ出す。出しっぱなしだと、押しても何も
+     起きない端末（iPhone や、すでに入っている場合）で必ず行き止まりになる -->
+<button id="installBtn" type="button" hidden>📲 アプリとして入れる</button>
+<div class="step" id="step" hidden></div>
 
 <a class="plain" href="./app.html">このままブラウザで使う</a>
 <p class="free">無料・広告なし・アカウント不要。保存はこの端末の中だけ</p>
@@ -124,50 +126,67 @@
   (() => {
     const btn = document.getElementById("installBtn");
     const step = document.getElementById("step");
-    let deferred = null, ready = false;
+    let deferred = null;
 
-    // Android / デスクトップ Chrome：この合図が来たらワンタップで入る
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+
+    // Android / デスクトップ Chrome：この合図が来たときだけボタンを出す。
+    // 合図が来ない端末でボタンを押させると、押しても何も起きない
     addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferred = e;
       btn.hidden = false;
       step.hidden = true;
-      ready = true;
     });
 
     btn.addEventListener("click", async () => {
-      if (!deferred) { showSteps(); return; }
+      if (!deferred) { btn.hidden = true; showSteps(); return; }
       btn.disabled = true;
       deferred.prompt();
       const { outcome } = await deferred.userChoice;
       deferred = null;
       btn.disabled = false;
-      if (outcome === "accepted") return;
+      if (outcome === "accepted") return;   // 入ったら appinstalled 側で表示を変える
       btn.hidden = true;
-      showSteps();
+      showSteps("ダイアログを閉じたようです。あとからでも入れられます。");
     });
 
     addEventListener("appinstalled", () => {
       btn.hidden = true;
       step.hidden = false;
-      step.innerHTML = "入りました。<b>ホーム画面のアイコン</b>から開けます。<br />写真の<b>共有</b>メニューにも「スクショ飯」が出るようになります。";
+      step.innerHTML = "<b>入りました。</b>ホーム画面のアイコンから開けます。<br />写真の<b>共有</b>メニューにも「スクショ飯」が出るようになります。";
     });
 
-    function showSteps() {
-      const ua = navigator.userAgent;
-      const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+    function showSteps(prefix) {
+      // 「ダウンロード」を待ってしまう人が多いので、そこを最初に打ち消す
+      const head = prefix ? `${prefix}<br />` : "";
+      const noDL = "<b>ストアからのダウンロードはありません。</b>数秒でホーム画面にアイコンが並びます。<br /><br />";
       if (iosSafari) {
-        step.innerHTML = "下の<b>共有ボタン</b>（□に↑）を押して、<br />「<b>ホーム画面に追加</b>」を選んでください。";
+        step.innerHTML = head + noDL +
+          "画面下の<b>共有ボタン</b>（□の中に↑）をタップ<br />" +
+          "→ メニューを下にスクロール<br />" +
+          "→「<b>ホーム画面に追加</b>」をタップ<br />" +
+          "→ 右上の「<b>追加</b>」<br /><br />" +
+          "<span style=\"opacity:.7\">iPhone にはボタン1つで入れる仕組みがないため、この手順が唯一の方法です。</span>";
       } else if (ios) {
-        step.innerHTML = "このページを <b>Safari</b> で開き直してから、<br />共有 →「<b>ホーム画面に追加</b>」。";
+        step.innerHTML = head +
+          "iPhone でホーム画面に追加できるのは <b>Safari</b> だけです。<br />" +
+          "このページを Safari で開き直してから、共有 →「<b>ホーム画面に追加</b>」。";
       } else {
-        step.innerHTML = "ブラウザの <b>⋮ メニュー</b> を開いて、<br />「<b>アプリをインストール</b>」または「ホーム画面に追加」。";
+        step.innerHTML = head + noDL +
+          "ブラウザの <b>⋮ メニュー</b> を開いて、<br />「<b>アプリをインストール</b>」または「ホーム画面に追加」を選んでください。<br /><br />" +
+          "<span style=\"opacity:.7\">項目が無いときは、すでに入っているか、ブラウザが対応していません。" +
+          "<a href=\"./check.html\" style=\"color:#f6c377\">診断ページ</a>で確かめられます。</span>";
       }
       step.hidden = false;
     }
 
-    setTimeout(() => { if (!ready && step.hidden) showSteps(); }, 2500);
+    // iOS はボタンで入れられないので、最初から手順を出す。
+    // それ以外は合図を少し待って、来なければ手順に切り替える
+    if (ios) showSteps();
+    else setTimeout(() => { if (!deferred) showSteps(); }, 2000);
   })();
 </script>
 </body>
