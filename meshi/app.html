@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>スクショ飯</title>
+<meta name="description" content="スクショを撮っておくだけで、行きたい店が貯まっていく。行った店はチェックして記録に残る。" />
+<meta name="theme-color" content="#12100e" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="スクショ飯" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+
+<header class="bar">
+  <h1 class="brand">スクショ飯</h1>
+  <div class="bar-actions">
+    <button type="button" class="icon-btn" id="searchBtn" aria-label="さがす" aria-expanded="false">🔍</button>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="設定">⚙</button>
+  </div>
+</header>
+
+<div class="searchwrap" id="searchWrap" hidden>
+  <input type="search" id="search" placeholder="店名・メモ・タグでさがす" autocomplete="off" />
+</div>
+
+<nav class="tabs" role="tablist">
+  <button type="button" class="tab is-on" id="tabWant" role="tab" aria-selected="true" data-status="want">
+    行きたい <span class="count" id="countWant">0</span>
+  </button>
+  <button type="button" class="tab" id="tabBeen" role="tab" aria-selected="false" data-status="been">
+    行った <span class="count" id="countBeen">0</span>
+  </button>
+</nav>
+
+<div class="chips" id="tagbar" hidden></div>
+
+<main id="grid" class="grid" aria-live="polite"></main>
+
+<p class="empty" id="empty" hidden></p>
+
+<div class="fab-wrap">
+  <button type="button" class="fab" id="addBtn">
+    <span class="fab-plus">＋</span> スクショを取り込む
+  </button>
+</div>
+
+<input type="file" id="picker" accept="image/*" multiple hidden />
+
+<!-- 1件の詳細。全画面のシートで開く -->
+<section class="sheet" id="detail" hidden aria-modal="true" role="dialog" aria-label="お店の詳細">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" id="detailClose" aria-label="閉じる">✕</button>
+    <span class="sheet-title" id="detailStatus"></span>
+    <button type="button" class="icon-btn" id="detailDelete" aria-label="削除">🗑</button>
+  </div>
+  <div class="sheet-body">
+    <div class="shots" id="detailShots"></div>
+
+    <label class="field">
+      <span class="label">店名</span>
+      <input type="text" id="fName" placeholder="スクショを見ながら入力" autocomplete="off" />
+    </label>
+
+    <label class="field">
+      <span class="label">タグ（スペース区切り／例: 渋谷 ラーメン 昼）</span>
+      <input type="text" id="fTags" placeholder="エリア ジャンル" autocomplete="off" />
+    </label>
+
+    <label class="field">
+      <span class="label">メモ</span>
+      <textarea id="fMemo" rows="3" placeholder="誰と／何を食べたい／予約の要否など"></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label">リンク（食べログ・地図・Instagram など）</span>
+      <input type="url" id="fUrl" placeholder="https://" autocomplete="off" inputmode="url" />
+    </label>
+
+    <div class="field visited-only" id="visitedFields">
+      <span class="label">行った日と評価</span>
+      <input type="date" id="fVisited" />
+      <div class="stars" id="fStars" role="group" aria-label="評価"></div>
+    </div>
+
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="detailMap">🗺 地図で開く</button>
+      <button type="button" class="btn ghost" id="detailLink" hidden>🔗 リンクを開く</button>
+      <button type="button" class="btn ghost" id="detailAddShot">🖼 スクショを足す</button>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" id="detailToggle"></button>
+  </div>
+</section>
+
+<input type="file" id="pickerMore" accept="image/*" multiple hidden />
+
+<!-- 設定・バックアップ -->
+<section class="sheet" id="settings" hidden aria-modal="true" role="dialog" aria-label="設定">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" id="settingsClose" aria-label="閉じる">✕</button>
+    <span class="sheet-title">設定</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note" id="usage"></p>
+
+    <h2 class="sec">共有から直接ストックする</h2>
+    <p class="note" id="shareNote"></p>
+
+    <h2 class="sec">バックアップ</h2>
+    <p class="note">データはこの端末のブラウザの中だけにあります。機種変更の前や、消える前に書き出しておいてください。</p>
+    <div class="sheet-actions col">
+      <button type="button" class="btn ghost" id="exportAll">⬇ 書き出す（画像ごと）</button>
+      <button type="button" class="btn ghost" id="exportText">⬇ 書き出す（文字だけ・軽い）</button>
+      <button type="button" class="btn ghost" id="importBtn">⬆ 読み込む</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden />
+
+    <h2 class="sec">全部消す</h2>
+    <p class="note">この端末に貯めたお店とスクショを、まとめて消します。取り消せません。</p>
+    <div class="sheet-actions col">
+      <button type="button" class="btn danger" id="wipe">すべて削除</button>
+    </div>
+
+    <p class="note dim">スクショ飯 — 保存はこの端末の中だけ。サーバーにも外部にも送っていません。</p>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="./db.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

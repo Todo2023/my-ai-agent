@@ -1,0 +1,109 @@
+<!-- アイコンの元絵。_build_icons.js が Chromium で開いて PNG に書き出す -->
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const ctx = document.getElementById("c").getContext("2d");
+
+// maskable は端が丸く切られるので、絵を内側に寄せる
+window.render = (maskable) => {
+  const S = 512;
+  ctx.clearRect(0, 0, S, S);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, S);
+  bg.addColorStop(0, "#2a2118");
+  bg.addColorStop(1, "#12100e");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, S, S);
+
+  const glow = ctx.createRadialGradient(S / 2, S * 0.66, 16, S / 2, S * 0.66, S * 0.62);
+  glow.addColorStop(0, "rgba(240,166,60,0.30)");
+  glow.addColorStop(1, "rgba(240,166,60,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, S, S);
+
+  ctx.save();
+  const k = maskable ? 0.78 : 1;
+  ctx.translate(S / 2, S / 2);
+  ctx.scale(k, k);
+  ctx.translate(-S / 2, -S / 2);
+
+  // スクショの枠（＝撮った1枚）
+  const fx = 118, fy = 92, fw = S - 236, fh = S - 184, r = 40;
+  ctx.strokeStyle = "rgba(246,195,119,0.85)";
+  ctx.lineWidth = 14;
+  ctx.lineJoin = "round";
+  roundRect(fx, fy, fw, fh, r);
+  ctx.stroke();
+
+  // 枠の中を少し明るく
+  ctx.fillStyle = "rgba(246,195,119,0.07)";
+  roundRect(fx, fy, fw, fh, r);
+  ctx.fill();
+
+  // 湯気
+  ctx.strokeStyle = "rgba(244,236,226,0.55)";
+  ctx.lineWidth = 11;
+  ctx.lineCap = "round";
+  for (const dx of [-52, 0, 52]) {
+    ctx.beginPath();
+    ctx.moveTo(S / 2 + dx, 214);
+    ctx.bezierCurveTo(S / 2 + dx - 20, 190, S / 2 + dx + 20, 178, S / 2 + dx, 154);
+    ctx.stroke();
+  }
+
+  // どんぶり
+  const bowl = ctx.createLinearGradient(0, 250, 0, 360);
+  bowl.addColorStop(0, "#f6c377");
+  bowl.addColorStop(1, "#e08f28");
+  ctx.fillStyle = bowl;
+  ctx.beginPath();
+  ctx.moveTo(S / 2 - 110, 262);
+  ctx.lineTo(S / 2 + 110, 262);
+  ctx.quadraticCurveTo(S / 2 + 96, 372, S / 2, 372);
+  ctx.quadraticCurveTo(S / 2 - 96, 372, S / 2 - 110, 262);
+  ctx.closePath();
+  ctx.fill();
+
+  // 縁
+  ctx.fillStyle = "#fbe3bd";
+  roundRect(S / 2 - 124, 246, 248, 26, 13);
+  ctx.fill();
+
+  ctx.restore();
+
+  // 行った印のチェック（右下に小さく）
+  ctx.save();
+  ctx.translate(S / 2 + (maskable ? 74 : 96), S / 2 + (maskable ? 96 : 124));
+  ctx.fillStyle = "#7cc79a";
+  ctx.beginPath();
+  ctx.arc(0, 0, maskable ? 46 : 54, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#12100e";
+  ctx.lineWidth = maskable ? 12 : 14;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const s = maskable ? 0.85 : 1;
+  ctx.beginPath();
+  ctx.moveTo(-22 * s, 2 * s);
+  ctx.lineTo(-6 * s, 18 * s);
+  ctx.lineTo(24 * s, -18 * s);
+  ctx.stroke();
+  ctx.restore();
+};
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+window.toPNG = (size) => {
+  const out = document.createElement("canvas");
+  out.width = out.height = size;
+  out.getContext("2d").drawImage(document.getElementById("c"), 0, 0, size, size);
+  return out.toDataURL("image/png");
+};
+</script>
