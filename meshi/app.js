@@ -11,6 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
+const VERSION = "2026-08-06 読み取り版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -214,6 +215,20 @@ const ocrQueue = [];
 let ocrRunning = false;
 
 const ocrEnabled = () => localStorage.getItem("meshi-ocr") !== "off";
+
+/**
+ * 起動時に、名前が空のまま残っている店を拾って読む。
+ * 読み取りを入れる前に取り込んだぶんは、これがないと永久に空のままになる。
+ * 一度に抱えすぎないよう上限を置き、残りは次回の起動か設定のボタンで進める。
+ */
+function queueLeftovers() {
+  if (!ocrEnabled()) return;
+  const left = state.places
+    .filter((p) => !p.name && !p.ocrDone && shotsOf(p.id).length)
+    .slice(0, 30)
+    .map((p) => p.id);
+  if (left.length) queueOCR(left);
+}
 
 function queueOCR(placeIds) {
   if (!ocrEnabled()) return;
@@ -637,6 +652,8 @@ async function showUsage() {
       if (usage) size = ` ・ 約${(usage / 1024 / 1024).toFixed(usage > 100 * 1024 * 1024 ? 0 : 1)}MB`;
     } catch (_) { /* 出せない端末はそのまま */ }
   }
+  const ocrReady = typeof self.MeshiOCR !== "undefined";
+  $("version").innerHTML = `版: ${esc(VERSION)} ・ 読み取り: ${ocrReady ? "使えます" : "<b>入っていません（更新待ち）</b>"}`;
   $("usage").innerHTML = `<b>${state.places.length}軒</b>（行きたい ${state.places.filter((p) => p.status === "want").length} / 行った ${state.places.filter((p) => p.status === "been").length}） ・ スクショ ${shots}枚${esc(size)}`;
 
   const androidish = "share" in navigator && !/iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -836,6 +853,7 @@ function healForeignController() {
     history.replaceState(null, "", location.pathname);
   }
   await drainInbox();
+  setTimeout(queueLeftovers, 1500);   // 画面が出てから静かに始める
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     healForeignController();
