@@ -11,6 +11,11 @@ DEMO_BANNER = (
     "※ デモモードです。カレンダー・Chatworkはダミーデータで、実際には何も送信されません。\n"
 )
 
+# エージェントの報告に頼らず、CLI側で必ず表示する（LLMが誤報告しても状態が分かるように）
+DRY_RUN_BANNER = (
+    "※ ドライランです（CHATWORK_DRY_RUN=1）。Chatworkへは実際には送信されません。\n"
+)
+
 GREETING = (
     "こんにちは！GoogleカレンダーのMeet URLをChatworkに共有するAIエージェントです。\n"
     "例:「明日15時からA社と打ち合わせ。Meetを作って山田さんのルームに送って」\n"
@@ -51,6 +56,8 @@ def main():
     agent = MeetingShareAgent()
     if fakes.is_demo():
         print(DEMO_BANNER)
+    elif os.environ.get("CHATWORK_DRY_RUN") == "1":
+        print(DRY_RUN_BANNER)
     print(GREETING)
 
     while True:

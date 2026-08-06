@@ -79,6 +79,11 @@ def _get_service():
     return _service
 
 
+def current_datetime() -> datetime.datetime:
+    """設定タイムゾーンでの現在日時。LLMに「今日」を教えるために使う。"""
+    return datetime.datetime.now(tz=_tz())
+
+
 def _target_calendar_ids(calendar_ids: str = "") -> list:
     """書き込み先カレンダーIDのリスト。未指定なら環境変数の設定を使う。"""
     source = calendar_ids.strip() or DEFAULT_CALENDAR_IDS

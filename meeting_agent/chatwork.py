@@ -112,11 +112,18 @@ def send_chatwork_message(room_id: int, message: str) -> str:
     if fakes.is_demo():
         fakes.sent_messages.append({"room_id": int(room_id), "body": message})
         return (
-            f"[デモ] room_id={room_id} に送信しました（実際には送られていません）。\n{message}"
+            f"[デモ] 送信していません。デモモードのため、room_id={room_id} への送信は"
+            f"行われませんでした。ユーザーには「実際には送信していない」ことを必ず"
+            f"伝えてください。\n{message}"
         )
 
     if os.environ.get("CHATWORK_DRY_RUN") == "1":
-        return f"[DRY RUN] room_id={room_id} に送信したつもりの本文:\n{message}"
+        return (
+            f"[DRY RUN] 送信していません。CHATWORK_DRY_RUN=1 のため、"
+            f"room_id={room_id} への送信はスキップされました。"
+            f"ユーザーには「実際には送信していない」ことを必ず伝えてください。\n"
+            f"送信されるはずだった本文:\n{message}"
+        )
 
     response = requests.post(
         f"{API_BASE}/rooms/{room_id}/messages",

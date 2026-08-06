@@ -180,6 +180,27 @@ def test_dry_run_does_not_send(monkeypatch):
     chatwork.set_confirm_hook(lambda room_id, message: True)
     result = chatwork.send_chatwork_message(11110001, "テスト")
     assert "DRY RUN" in result
+    # LLMが「送信しました」と誤報告しないよう、送っていないことを明示する
+    assert "送信していません" in result
+
+
+def test_demo_send_result_states_it_was_not_sent():
+    chatwork.set_confirm_hook(lambda room_id, message: True)
+    result = chatwork.send_chatwork_message(11110001, "テスト")
+    assert "送信していません" in result
+
+
+# --- LLMに渡す前提情報 -------------------------------------------------------
+
+
+def test_system_instruction_tells_the_model_todays_date():
+    # 今日の日付が無いと、LLMは「明日」を勝手な日付に解釈してしまう
+    import agent
+
+    now = gcal.current_datetime()
+    instruction = agent._system_instruction()
+    assert f"{now:%Y-%m-%d}" in instruction
+    assert "月火水木金土日"[now.weekday()] in instruction
 
 
 # --- Chatwork のルーム/メンバー取得 -----------------------------------------

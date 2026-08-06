@@ -15,7 +15,10 @@ from chatwork import (
     list_chatwork_rooms,
     send_chatwork_message,
 )
+import gcal
 from gcal import create_meeting, list_calendars, list_meetings
+
+WEEKDAYS = "月火水木金土日"
 
 DEFAULT_MODEL = "gemini-3.6-flash"
 MAX_RETRIES = 5
@@ -41,7 +44,10 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
    候補が複数あって絞り切れないときは、勝手に決めずユーザーに確認する。
 3. 送信する本文を必ず先にユーザーに見せ、送ってよいか確認してから
    send_chatwork_message を呼ぶ。
-4. 送信後は、どのルームに何を送ったかを簡潔に報告する。
+4. 送信後は、send_chatwork_message が返した結果をそのまま踏まえて報告する。
+   結果に [DRY RUN] や [デモ] が含まれる場合は、実際には送信されていないことを
+   必ず明記する。「送信しました」と報告してよいのは、本当に送信された場合だけ。
+   送信が拒否された場合も、送っていないことをはっきり伝える。
 
 本文の作り方:
 - 日本語のビジネスチャットとして自然な、簡潔な文面にする
@@ -51,7 +57,21 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
 - Chatworkでは Markdown は使えないため、装飾記法は使わない
 
 推測で日時や送信先を埋めないこと。分からないことはユーザーに聞いてください。
+ただし「明日」「来週火曜」などの相対的な日付は、冒頭に示された現在日時を基準に
+自分で計算すること（今日が何日かをユーザーに聞き返さない）。
 常に簡潔で分かりやすい日本語で応答してください。"""
+
+
+def _system_instruction() -> str:
+    """現在日時を添えたシステムプロンプト。
+
+    LLMは今日の日付を知らないため、これが無いと「明日」を勝手な日付に解釈する。
+    """
+    now = gcal.current_datetime()
+    return (
+        f"現在日時: {now:%Y-%m-%d}({WEEKDAYS[now.weekday()]}) {now:%H:%M} "
+        f"({gcal.TIMEZONE})\n\n" + SYSTEM_PROMPT
+    )
 
 TOOLS = [
     list_meetings,
@@ -72,7 +92,7 @@ class MeetingShareAgent:
         self.chat = self.client.chats.create(
             model=self.model,
             config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
+                system_instruction=_system_instruction(),
                 tools=TOOLS,
             ),
         )
