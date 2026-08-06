@@ -252,7 +252,6 @@ async function runOCR() {
       if (found && found.area && !(place.tags || []).includes(found.area)) {
         place.tags = [...(place.tags || []), found.area].slice(0, 8);
       }
-      if (found && found.tabelog) place.tabelog = true;
       await DB.put("places", place);
       render();
       if (state.openId === id) fillDetail(place);

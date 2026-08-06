@@ -2,7 +2,7 @@
  * スクショから店名と場所を読み取る。
  *
  * tesseract.js と日本語データを `ocr/` に同梱してあるので、外部に画像を送らない。
- * ただし合計16MBあるので、**実際に使うときだけ**読み込む（起動時には触らない）。
+ * ただし合計6MBあるので、**実際に使うときだけ**読み込む（起動時には触らない）。
  *
  * 読み取り結果からの店名の当て方は、次の考えに沿っている。
  *   スクショの中でいちばん大きい文字は、たいてい店名。
@@ -33,9 +33,18 @@
         if (!scope.Tesseract) await loadScript(BASE + "tesseract.min.js");
         return scope.Tesseract.createWorker("jpn", 1, {
           workerPath: BASE + "worker.min.js",
-          corePath: BASE,
+          // ファイル名まで指定すると tesseract はそれをそのまま使う。
+          // 既定のままだと端末の対応に合わせて別名（relaxedsimd 版など）を取りに行き、
+          // 同梱していないものを要求して失敗する。中身の wasm はこの .js に入っている
+          corePath: BASE + "tesseract-core-simd-lstm.wasm.js",
           langPath: BASE + "lang",
           gzip: true,
+        }).then(async (worker) => {
+          // 既定（1つの文章として読む）だと、いちばん大きい見出し＝店名を丸ごと
+          // 落とすことがある。スクショは文章ではなく散らばった短い文字の集まりなので、
+          // 「まばらな文字」モードで読む
+          await worker.setParameters({ tessedit_pageseg_mode: "11" });
+          return worker;
         });
       })().catch((e) => { workerPromise = null; throw e; });
     }
@@ -101,9 +110,14 @@
     };
   }
 
+  const JP = "[぀-ヿ一-龥ｦ-ﾟ]";
+  const BETWEEN_JP = new RegExp(`(${JP}) +(?=${JP})`, "g");
+
   function clean(s) {
     return String(s || "")
-      .replace(/\s+/g, " ")            // 日本語の途中に入る空白は誤検出が多い
+      .replace(/\s+/g, " ")
+      .replace(BETWEEN_JP, "$1")       // 「渋谷 駅」「ラー メン」のような、読み取りが挟む空白を詰める
+      .replace(BETWEEN_JP, "$1")       // 1文字ずつ分かれた並びは2回かける必要がある
       .replace(/[|｜'"`^~*_=<>\\]/g, "")
       .trim();
   }
@@ -112,8 +126,8 @@
   const NOISE = /^(食べログ|ホーム|検索|メニュー|地図|写真|口コミ|レビュー|予約|保存|共有|電話|経路|営業時間|定休日|予算|席|地図を見る|ネット予約|クーポン|ランチ|ディナー|もっと見る|すべて見る|閉じる|お店の公式|投稿|フォロー|いいね|コメント|営業中|閉店|準備中|本日|今すぐ|空席|人気|おすすめ|新着|ページ|詳細|情報|アクセス|公式|写真をもっと見る)/;
   const ONLY_SYMBOLS = /^[\d\s.,:;/()（）%¥￥★☆♪→←↑↓+\-–—・､、。]*$/;
 
-  /** 行の一覧から、店名・場所・食べログかどうかを推し量る */
-  function guess({ lines, text }) {
+  /** 行の一覧から、店名と場所を推し量る */
+  function guess({ lines }) {
     const usable = lines.filter((l) =>
       l.text.length >= 2 && l.text.length <= 28 &&
       !NOISE.test(l.text) &&
@@ -142,16 +156,11 @@
       }
     }
 
-    return {
-      name,
-      area,
-      tabelog: /食べログ/.test(text),
-      candidates: bySize.slice(0, 5).map((l) => l.text),
-    };
+    return { name, area, candidates: bySize.slice(0, 5).map((l) => l.text) };
   }
 
   scope.MeshiOCR = {
-    /** 画像1枚から { name, area, tabelog, candidates } を返す。読めなければ null */
+    /** 画像1枚から { name, area, candidates } を返す。読めなければ null */
     async read(blob) {
       try {
         const found = await readLines(blob);
