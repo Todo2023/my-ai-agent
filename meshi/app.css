@@ -472,3 +472,27 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     to { opacity: 1; transform: translate(-50%, 0); }
   }
 }
+
+/* 設定の入切 */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.switch input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--amber);
+  flex: 0 0 auto;
+}
+
+/* 自動で入れた店名は、確かめる前だと分かるように少しだけ弱く出す */
+.card .name.guessed::after {
+  content: " 自動";
+  font-size: 9.5px;
+  color: var(--dim);
+  vertical-align: 2px;
+}

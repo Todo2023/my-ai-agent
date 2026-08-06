@@ -129,6 +129,7 @@ async function makeThumb(blob) {
 async function importImages(files, placeId) {
   const list = [...files].filter((f) => f && f.size && (!f.type || f.type.startsWith("image/")));
   let added = 0, dup = 0, failed = 0;
+  const ids = [];   // 新しくできた店。あとで店名を読み取る
 
   for (const file of list) {
     try {
@@ -147,6 +148,7 @@ async function importImages(files, placeId) {
           id: pid, status: "want", name: "", memo: "", tags: [], url: "",
           rating: 0, visitedAt: "", createdAt: takenAt, addedAt: Date.now(),
         });
+        ids.push(pid);
       }
 
       const shot = { id: uid(), placeId: pid, hash, type: file.type || "image/jpeg", w, h, takenAt, thumb };
@@ -158,7 +160,7 @@ async function importImages(files, placeId) {
       failed++;
     }
   }
-  return { added, dup, failed };
+  return { added, dup, failed, ids };
 }
 
 /** 共有された文字・URL から1軒つくる（画像なしのストック） */
@@ -191,13 +193,79 @@ async function drainInbox() {
     if (it.kind === "file" && it.blob) files.push(it.blob);
     else if (it.kind === "text" && (await importLink(it))) links++;
   }
-  const res = files.length ? await importImages(files) : { added: 0, dup: 0, failed: 0 };
+  const res = files.length ? await importImages(files) : { added: 0, dup: 0, failed: 0, ids: [] };
   await DB.del("inbox", ...items.map((i) => i.id));
 
   await load();
   const added = res.added + links;
   if (added) toast(`${added}件ストックしました`);
   else if (res.dup) toast("もうストックしてあります");
+  queueOCR(res.ids || []);
+}
+
+/* ---------------- スクショから店名を読む ---------------- */
+
+/**
+ * 取り込みのあと、名前が空の店を順に読み取って埋めていく。
+ * 取り込み自体は止めない（十数枚まとめて入れたときに待たせないため）。
+ * 1枚ずつ処理して、読めたそばから画面に出す。
+ */
+const ocrQueue = [];
+let ocrRunning = false;
+
+const ocrEnabled = () => localStorage.getItem("meshi-ocr") !== "off";
+
+function queueOCR(placeIds) {
+  if (!ocrEnabled()) return;
+  for (const id of placeIds) if (!ocrQueue.includes(id)) ocrQueue.push(id);
+  runOCR();
+}
+
+async function runOCR() {
+  if (ocrRunning || !ocrQueue.length) return;
+  ocrRunning = true;
+  const total = ocrQueue.length;
+  let done = 0, filled = 0;
+
+  while (ocrQueue.length) {
+    const id = ocrQueue.shift();
+    done++;
+    const place = state.places.find((p) => p.id === id);
+    if (!place || place.name || place.ocrDone) continue;
+
+    const shot = shotsOf(id)[0];
+    if (!shot) continue;
+
+    if (total > 1) toast(`店名を読み取り中… ${done}/${total}`);
+
+    try {
+      const rec = shot.fullData ? { data: shot.fullData, type: shot.type } : await DB.get("blobs", shot.id);
+      if (!rec) continue;
+      const found = await MeshiOCR.read(new Blob([rec.data], { type: rec.type || shot.type || "image/jpeg" }));
+
+      place.ocrDone = true;   // 二度読まない。読めなかった場合も含めて1回だけ
+      if (found && found.name) {
+        place.name = found.name;
+        place.nameFromShot = true;   // 自動で入れた印。手で直されたら消える
+        filled++;
+      }
+      if (found && found.area && !(place.tags || []).includes(found.area)) {
+        place.tags = [...(place.tags || []), found.area].slice(0, 8);
+      }
+      if (found && found.tabelog) place.tabelog = true;
+      await DB.put("places", place);
+      render();
+      if (state.openId === id) fillDetail(place);
+    } catch (e) {
+      // 読み取り機を読み込めないなど。以降の待ち行列ごとあきらめる
+      ocrQueue.length = 0;
+      toast("店名の読み取りが使えませんでした。手で入れてください");
+      break;
+    }
+  }
+
+  ocrRunning = false;
+  if (filled) toast(`${filled}件の店名を読み取りました。違っていたら直してください`);
 }
 
 /* ---------------- 読み込みと並べ替え ---------------- */
@@ -286,7 +354,7 @@ function render() {
 
     open.insertAdjacentHTML("beforeend", `
       <div class="meta">
-        <div class="name${p.name ? "" : " unnamed"}">${esc(p.name || "名前をつける")}</div>
+        <div class="name${p.name ? (p.nameFromShot ? " guessed" : "") : " unnamed"}">${esc(p.name || "名前をつける")}</div>
         ${p.status === "been" && p.rating ? `<div class="stars-mini">${"★".repeat(p.rating)}${"☆".repeat(5 - p.rating)}</div>` : ""}
         <div class="sub">${esc(sub)}${(p.tags || []).length ? ` ・ ${esc(p.tags.join(" "))}` : ""}</div>
       </div>`);
@@ -455,7 +523,9 @@ function fillDetail(p) {
 async function saveDetail() {
   const p = state.places.find((x) => x.id === state.openId);
   if (!p) return;
-  p.name = $("fName").value.trim();
+  const typed = $("fName").value.trim();
+  if (typed !== p.name) p.nameFromShot = false;   // 手で直したら自動の印を外す
+  p.name = typed;
   p.tags = $("fTags").value.split(/[\s,、]+/).map((t) => t.trim()).filter(Boolean).slice(0, 8);
   p.memo = $("fMemo").value.trim();
   p.url = $("fUrl").value.trim();
@@ -593,6 +663,7 @@ function bind() {
     if (res.dup) parts.push(`${res.dup}枚は取り込み済み`);
     if (res.failed) parts.push(`${res.failed}枚は読めず`);
     toast(parts.join(" ・ ") || "追加はありませんでした");
+    queueOCR(res.ids);
   });
 
   el.pickerMore.addEventListener("change", async () => {
@@ -647,12 +718,23 @@ function bind() {
     open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, "_blank", "noopener");
   });
 
+  $("detailTabelog").addEventListener("click", () => {
+    const p = state.places.find((x) => x.id === state.openId);
+    if (!p) return;
+    // 共有で受け取った食べログのリンクがあれば、その店のページを直接開く
+    if (p.url && /tabelog\.com/.test(p.url)) { open(p.url, "_blank", "noopener"); return; }
+    if (!p.name) { toast("先に店名を入れてください"); return; }
+    const q = [p.name, ...(p.tags || [])].filter(Boolean).join(" ");
+    open(`https://tabelog.com/rstLst/?sw=${encodeURIComponent(q)}`, "_blank", "noopener");
+  });
+
   $("detailLink").addEventListener("click", () => {
     const p = state.places.find((x) => x.id === state.openId);
     if (p && p.url) open(p.url, "_blank", "noopener");
   });
 
   $("settingsBtn").addEventListener("click", async () => {
+    $("ocrToggle").checked = ocrEnabled();
     await showUsage();
     el.settings.hidden = false;
     document.body.style.overflow = "hidden";
@@ -661,6 +743,22 @@ function bind() {
   $("settingsClose").addEventListener("click", () => {
     el.settings.hidden = true;
     document.body.style.overflow = state.openId ? "hidden" : "";
+  });
+
+  $("ocrToggle").addEventListener("change", () => {
+    localStorage.setItem("meshi-ocr", $("ocrToggle").checked ? "on" : "off");
+    toast($("ocrToggle").checked ? "取り込んだら読み取ります" : "読み取りを止めました");
+  });
+
+  $("ocrRedo").addEventListener("click", () => {
+    const targets = state.places.filter((p) => !p.name && shotsOf(p.id).length).map((p) => p.id);
+    if (!targets.length) { toast("名前が空の店はありません"); return; }
+    for (const p of state.places) if (targets.includes(p.id)) p.ocrDone = false;
+    localStorage.setItem("meshi-ocr", "on");
+    $("ocrToggle").checked = true;
+    $("settingsClose").click();
+    toast(`${targets.length}件を読み取ります…`);
+    queueOCR(targets);
   });
 
   $("exportAll").addEventListener("click", () => exportData(true));

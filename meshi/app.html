@@ -90,6 +90,7 @@
     </div>
 
     <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="detailTabelog">🍽 食べログで開く</button>
       <button type="button" class="btn ghost" id="detailMap">🗺 地図で開く</button>
       <button type="button" class="btn ghost" id="detailLink" hidden>🔗 リンクを開く</button>
       <button type="button" class="btn ghost" id="detailAddShot">🖼 スクショを足す</button>
@@ -115,6 +116,17 @@
     <h2 class="sec">共有から直接ストックする</h2>
     <p class="note" id="shareNote"></p>
 
+    <h2 class="sec">スクショから店名を読む</h2>
+    <p class="note">取り込んだ写真の中でいちばん大きい文字を店名として入れ、「〜駅」などがあればタグにします。
+      端末の中だけで処理していて、写真はどこにも送りません。外れることもあるので、違っていたら手で直してください。</p>
+    <label class="switch">
+      <input type="checkbox" id="ocrToggle" />
+      <span>取り込んだら自動で読み取る</span>
+    </label>
+    <div class="sheet-actions col">
+      <button type="button" class="btn ghost" id="ocrRedo">名前が空の店をまとめて読み取る</button>
+    </div>
+
     <h2 class="sec">バックアップ</h2>
     <p class="note">データはこの端末のブラウザの中だけにあります。機種変更の前や、消える前に書き出しておいてください。</p>
     <div class="sheet-actions col">
@@ -137,6 +149,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="./db.js"></script>
+<script src="./ocr.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
