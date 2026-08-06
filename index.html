@@ -164,6 +164,24 @@
     border-bottom: 1px solid rgba(159, 178, 232, 0.35);
   }
 
+  .others {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(159, 178, 232, 0.16);
+  }
+
+  .others a {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(159, 178, 232, 0.8);
+    text-decoration: none;
+  }
+
+  .others a:hover { color: #9fb2e8; }
+
   .done {
     background: rgba(107, 217, 104, 0.12);
     border: 1px solid rgba(107, 217, 104, 0.4);
@@ -236,6 +254,12 @@
   </div>
 
   <a class="play" href="game.html">ブラウザでそのまま遊ぶ →</a>
+
+  <!-- このサイトには別のアプリも置いてある。ここに迷い込んだ人の行き先 -->
+  <nav class="others">
+    <a href="meshi/">🍜 スクショ飯（行きたい店をスクショで貯める）</a>
+    <a href="todo_game/">🦭 トドの晩酌</a>
+  </nav>
 </main>
 
 <script>

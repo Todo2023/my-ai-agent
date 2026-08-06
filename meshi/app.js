@@ -711,6 +711,26 @@ function bind() {
 
 /* ---------------- 起動 ---------------- */
 
+/**
+ * 同じサイトの1つ上の階層に別アプリ（ブロック崩し）が住んでいて、その
+ * Service Worker の担当範囲がこの階層まで及んでいる端末がある。その状態だと
+ * 最悪、こちらを開いたのに向こうの画面が出る。自前の sw.js が主導権を
+ * 取った時点で一度だけ読み直し、正しい方に乗り換える。
+ */
+function healForeignController() {
+  const home = new URL("./", location.href).href;
+  const c = navigator.serviceWorker.controller;
+  if (!c || c.scriptURL.startsWith(home)) return;   // 制御なし or もう自前なら何もしない
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    const now = navigator.serviceWorker.controller;
+    if (!now || !now.scriptURL.startsWith(home)) return;
+    if (sessionStorage.getItem("meshi-sw-heal")) return;   // 読み直しは1回だけ
+    sessionStorage.setItem("meshi-sw-heal", "1");
+    location.reload();
+  });
+}
+
 (async function start() {
   bind();
   await load();
@@ -721,6 +741,7 @@ function bind() {
   await drainInbox();
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    healForeignController();
     navigator.serviceWorker.register("./sw.js").catch(() => {});
     // 共有シートから開かれたとき、Service Worker 側からも合図が来る
     navigator.serviceWorker.addEventListener("message", (e) => {

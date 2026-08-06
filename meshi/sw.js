@@ -11,11 +11,12 @@
  */
 importScripts("./db.js");
 
-const CACHE = "sukusho-meshi-v1";
+const CACHE = "sukusho-meshi-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./app.html",
+  "./check.html",
   "./app.css",
   "./app.js",
   "./db.js",

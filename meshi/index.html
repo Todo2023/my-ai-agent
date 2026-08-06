@@ -105,6 +105,19 @@
 
 <script>
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    // 1つ上の階層の別アプリ（ブロック崩し）の Service Worker がここまで
+    // 面倒を見てしまっている端末がある。自前のが主導権を取ったら読み直す
+    const home = new URL("./", location.href).href;
+    const c = navigator.serviceWorker.controller;
+    if (c && !c.scriptURL.startsWith(home)) {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        const now = navigator.serviceWorker.controller;
+        if (now && now.scriptURL.startsWith(home) && !sessionStorage.getItem("meshi-sw-heal")) {
+          sessionStorage.setItem("meshi-sw-heal", "1");
+          location.reload();
+        }
+      });
+    }
     addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   }
 
