@@ -18,6 +18,9 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+import fakes
 
 # 予定の読み取りと作成の両方を行うため events スコープを使う
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
@@ -62,6 +65,23 @@ def _get_service():
     return _service
 
 
+def _explain_http_error(e: HttpError) -> str:
+    """Calendar API のエラーを、セットアップのどこを直せばよいかが分かる文言にする。"""
+    status = getattr(e.resp, "status", None)
+    if status == 403:
+        return (
+            "Googleカレンダーにアクセスできませんでした（403）。"
+            "Google Cloud コンソールで対象プロジェクトの Google Calendar API が"
+            "「有効」になっているか確認してください。"
+        )
+    if status == 401:
+        return (
+            "Googleの認証が切れています（401）。"
+            f"{TOKEN_FILE} を削除してから再実行し、認可をやり直してください。"
+        )
+    return f"Googleカレンダーの操作に失敗しました: {e}"
+
+
 def _parse_datetime(value: str) -> datetime.datetime:
     """"2026-08-07 15:00" / ISO8601 のどちらでも受け付ける。"""
     text = value.strip().replace("/", "-")
@@ -101,23 +121,28 @@ def list_meetings(days: int = 7) -> str:
     Args:
         days: 今日から何日先までの予定を取得するか（既定7日）
     """
-    service = _get_service()
-    now = datetime.datetime.now(tz=_tz())
-    time_max = now + datetime.timedelta(days=days)
-
-    events = (
-        service.events()
-        .list(
-            calendarId="primary",
-            timeMin=now.isoformat(),
-            timeMax=time_max.isoformat(),
-            singleEvents=True,
-            orderBy="startTime",
-            maxResults=20,
-        )
-        .execute()
-        .get("items", [])
-    )
+    if fakes.is_demo():
+        events = fakes.demo_events(days, _tz())
+    else:
+        now = datetime.datetime.now(tz=_tz())
+        time_max = now + datetime.timedelta(days=days)
+        try:
+            events = (
+                _get_service()
+                .events()
+                .list(
+                    calendarId="primary",
+                    timeMin=now.isoformat(),
+                    timeMax=time_max.isoformat(),
+                    singleEvents=True,
+                    orderBy="startTime",
+                    maxResults=20,
+                )
+                .execute()
+                .get("items", [])
+            )
+        except HttpError as e:
+            return _explain_http_error(e)
 
     if not events:
         return f"今後{days}日間に予定はありません。"
@@ -142,7 +167,6 @@ def create_meeting(
         attendees: 招待するメールアドレスをカンマ区切りで（任意）
         description: 予定の説明（任意）
     """
-    service = _get_service()
     start_dt = _parse_datetime(start)
     end_dt = start_dt + datetime.timedelta(minutes=duration_minutes)
 
@@ -163,16 +187,23 @@ def create_meeting(
     if emails:
         body["attendees"] = [{"email": e} for e in emails]
 
-    event = (
-        service.events()
-        .insert(
-            calendarId="primary",
-            body=body,
-            conferenceDataVersion=1,
-            sendUpdates="all" if emails else "none",
-        )
-        .execute()
-    )
+    if fakes.is_demo():
+        event = fakes.create_demo_event(body)
+    else:
+        try:
+            event = (
+                _get_service()
+                .events()
+                .insert(
+                    calendarId="primary",
+                    body=body,
+                    conferenceDataVersion=1,
+                    sendUpdates="all" if emails else "none",
+                )
+                .execute()
+            )
+        except HttpError as e:
+            return _explain_http_error(e)
 
     meet_url = event.get("hangoutLink", "")
     return (

@@ -4,7 +4,12 @@ import sys
 from dotenv import load_dotenv
 
 import chatwork
+import fakes
 from agent import MeetingShareAgent
+
+DEMO_BANNER = (
+    "※ デモモードです。カレンダー・Chatworkはダミーデータで、実際には何も送信されません。\n"
+)
 
 GREETING = (
     "こんにちは！GoogleカレンダーのMeet URLをChatworkに共有するAIエージェントです。\n"
@@ -31,11 +36,12 @@ def confirm_send(room_id: int, message: str) -> bool:
 def main():
     load_dotenv()
 
-    missing = [
-        name
-        for name in ("GEMINI_API_KEY", "CHATWORK_API_TOKEN")
-        if not os.environ.get(name)
-    ]
+    required = ["GEMINI_API_KEY"]
+    if not fakes.is_demo():
+        # デモモードでは Chatwork も Google も叩かないのでトークン不要
+        required.append("CHATWORK_API_TOKEN")
+
+    missing = [name for name in required if not os.environ.get(name)]
     if missing:
         print(f"エラー: 環境変数 {', '.join(missing)} が設定されていません。")
         print(".env ファイルを作成するか、環境変数を設定してください（.env.example を参照）。")
@@ -43,6 +49,8 @@ def main():
 
     chatwork.set_confirm_hook(confirm_send)
     agent = MeetingShareAgent()
+    if fakes.is_demo():
+        print(DEMO_BANNER)
     print(GREETING)
 
     while True:

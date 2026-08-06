@@ -18,6 +18,19 @@ https://meet.google.com/xxx-yyyy-zzz
 `travel_agent` と同様、無料枠のあるGemini APIとFunction Callingを使い、
 外部ツール（Googleカレンダー / Chatwork）をエージェント自身に呼ばせる構成です。
 
+## まず動かしてみる（APIキー不要）
+
+セットアップの前に、動きだけ確認できます。GoogleもChatworkもGeminiも叩きません。
+
+```bash
+cd meeting_agent
+pip install -r requirements.txt
+python demo.py
+```
+
+カレンダー参照 → Meet付き予定の作成 → 送信先の特定 → 文面の確認 → 送信 の流れを、
+ダミーデータで一通り再現します。実際のメッセージは送信されません。
+
 ## 設計の考え方
 
 - **判断はLLM、送信は人間の承認を通す**。予定の特定・文面の作成・宛先の推定はLLMに任せますが、
@@ -26,6 +39,7 @@ https://meet.google.com/xxx-yyyy-zzz
 - **推測させない**。送信先ルームが特定できないときや日時が曖昧なときは、
   勝手に決めずユーザーに聞き返すようシステムプロンプトで指示しています。
 - 文面の下書きだけ試したいときは `CHATWORK_DRY_RUN=1` で送信をスキップできます。
+- 外部APIを差し替えられるようにしてあるので（`DEMO_MODE=1`）、キー無しでテストが回ります。
 
 ## セットアップ
 
@@ -81,6 +95,28 @@ python cli.py
 | `list_chatwork_members(room_id)` | メンバー一覧（`[To:account_id]` メンション用） |
 | `send_chatwork_message(room_id, message)` | メッセージ送信（送信前に人間の確認） |
 
+## 動作モード
+
+| モード | 設定 | Googleカレンダー | Chatwork | 用途 |
+| --- | --- | --- | --- | --- |
+| デモ | `DEMO_MODE=1` | ダミー | ダミー（送信しない） | キー無しで動きを見る |
+| ドライラン | `CHATWORK_DRY_RUN=1` | 本物 | 送信のみスキップ | 本物の予定で文面を確認 |
+| 本番 | なし | 本物 | 本物 | 実際に共有する |
+
+`DEMO_MODE=1` を付ければ、Chatworkトークンや `credentials.json` が無くても
+`python cli.py`（LLMとの対話つき）を試せます。この場合Gemini APIキーだけ必要です。
+
+## テスト
+
+ネットワークもAPIキーも使わずに実行できます。
+
+```bash
+pytest
+```
+
+日時解釈・文面整形といった決定的な処理に加えて、
+「人間が承認しない限り送信されない」ことを重点的に確認しています。
+
 ## 構成
 
 ```
@@ -88,6 +124,9 @@ agent.py       # Gemini API とのやり取り・ツール定義・会話履歴�
 gcal.py        # Googleカレンダー連携（OAuth、予定一覧、Meet付き予定作成）
 chatwork.py    # Chatwork API 連携（ルーム/メンバー取得、送信＋確認フック）
 cli.py         # コマンドラインの対話ループ（エントリーポイント）
+demo.py        # APIキー不要のデモ（LLMも外部APIも使わない）
+fakes.py       # デモ／テスト用のダミーデータ
+test_meeting_agent.py
 requirements.txt
 .env.example
 ```
