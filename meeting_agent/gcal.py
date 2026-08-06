@@ -12,7 +12,7 @@ OAuth（インストール済みアプリのフロー）でユーザー自身の
 import datetime
 import os
 import uuid
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -40,7 +40,14 @@ _service = None
 
 
 def _tz() -> ZoneInfo:
-    return ZoneInfo(TIMEZONE)
+    try:
+        return ZoneInfo(TIMEZONE)
+    except ZoneInfoNotFoundError:
+        # WindowsにはIANAのタイムゾーンDBが無いため、tzdataパッケージが必要になる
+        raise RuntimeError(
+            f"タイムゾーン '{TIMEZONE}' を解決できませんでした。"
+            "`pip install tzdata` を実行してください（Windowsで必要です）。"
+        ) from None
 
 
 def _get_service():

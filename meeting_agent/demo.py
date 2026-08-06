@@ -12,7 +12,6 @@ LLMが組み立てるはずの手順を決め打ちでなぞる。
 import datetime
 import os
 import sys
-from zoneinfo import ZoneInfo
 
 os.environ["DEMO_MODE"] = "1"
 # デモでは2つのカレンダーに同じ予定を入れる様子を見せる
@@ -47,7 +46,7 @@ def step(number: int, title: str):
 
 def main():
     chatwork.set_confirm_hook(confirm)
-    tz = ZoneInfo(gcal.TIMEZONE)
+    tz = gcal._tz()
 
     print("Meet URL共有エージェントのデモ（実際の送信は行いません）")
 

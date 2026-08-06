@@ -28,6 +28,9 @@ pip install -r requirements.txt
 python demo.py
 ```
 
+> Windowsの場合、タイムゾーン解決に `tzdata` が必要です（requirements.txt に含めています）。
+> `No time zone found with key Asia/Tokyo` と出たら `pip install tzdata` を実行してください。
+
 カレンダー参照 → Meet付き予定の作成 → 送信先の特定 → 文面の確認 → 送信 の流れを、
 ダミーデータで一通り再現します。実際のメッセージは送信されません。
 
