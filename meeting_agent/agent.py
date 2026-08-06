@@ -17,7 +17,7 @@ from chatwork import (
 )
 from gcal import create_meeting, list_calendars, list_meetings
 
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-3.6-flash"
 MAX_RETRIES = 5
 RETRY_WAIT_SECONDS = 20
 
@@ -87,4 +87,11 @@ class MeetingShareAgent:
                     # 無料枠のレート制限に達した。少し待って再試行する
                     time.sleep(RETRY_WAIT_SECONDS)
                     continue
+                if e.code == 404:
+                    # モデルは提供終了になることがある。使えるモデルの調べ方を案内する
+                    raise RuntimeError(
+                        f"モデル '{self.model}' が使えません。"
+                        "環境変数 GEMINI_MODEL で別のモデルを指定してください。"
+                        "使えるモデルは `python list_models.py` で確認できます。"
+                    ) from e
                 raise

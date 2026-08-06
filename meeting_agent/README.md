@@ -88,6 +88,13 @@ python cli.py
 無料枠のレート制限（429）に頻繁に当たる場合は、環境変数 `GEMINI_MODEL` で別モデルに
 切り替えると改善することがあります（`travel_agent` / `invoice_agent` と同様）。
 
+Geminiのモデルは提供終了になることがあります。`404 NOT_FOUND ... no longer available`
+と出たら、使えるモデルを確認して `GEMINI_MODEL` で指定し直してください。
+
+```bash
+python list_models.py
+```
+
 ## エージェントが使えるツール
 
 | ツール | 説明 |
