@@ -15,6 +15,8 @@ import sys
 from zoneinfo import ZoneInfo
 
 os.environ["DEMO_MODE"] = "1"
+# デモでは2つのカレンダーに同じ予定を入れる様子を見せる
+os.environ.setdefault("CALENDAR_IDS", "primary,work@example.com")
 
 import chatwork  # noqa: E402  DEMO_MODE を立ててから読み込む
 import fakes  # noqa: E402
@@ -49,10 +51,12 @@ def main():
 
     print("Meet URL共有エージェントのデモ（実際の送信は行いません）")
 
-    step(1, "カレンダーの予定を確認する")
+    step(1, "使えるカレンダーと、今後の予定を確認する")
+    print(gcal.list_calendars())
+    print()
     print(gcal.list_meetings(days=7))
 
-    step(2, "新しい打ち合わせを作ってMeet URLを発行する")
+    step(2, "予定を作成する（設定した2つのカレンダー両方に入る／Meet URLは1つ）")
     start = (datetime.datetime.now(tz=tz) + datetime.timedelta(days=1)).replace(
         hour=15, minute=0, second=0, microsecond=0
     )

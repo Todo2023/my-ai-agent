@@ -21,6 +21,7 @@ import gcal
 def demo_mode(monkeypatch):
     monkeypatch.setenv("DEMO_MODE", "1")
     monkeypatch.delenv("CHATWORK_DRY_RUN", raising=False)
+    monkeypatch.setattr(gcal, "DEFAULT_CALENDAR_IDS", "primary")
     chatwork.set_confirm_hook(None)
     fakes.reset()
     yield
@@ -89,6 +90,58 @@ def test_created_meeting_appears_in_list():
     start = datetime.datetime.now(tz=tz) + datetime.timedelta(days=2)
     gcal.create_meeting("新規MTG", start.strftime("%Y-%m-%d %H:%M"))
     assert "新規MTG" in gcal.list_meetings(days=7)
+
+
+# --- 複数カレンダーへの登録 -------------------------------------------------
+
+
+def test_create_meeting_writes_to_all_configured_calendars(monkeypatch):
+    monkeypatch.setattr(gcal, "DEFAULT_CALENDAR_IDS", "primary,work@example.com")
+    result = gcal.create_meeting("A社 定例MTG", "2026-08-07 15:00")
+
+    created = fakes.created_events()
+    assert [e["_calendar_id"] for e in created] == ["primary", "work@example.com"]
+    assert "primary: 作成しました" in result
+    assert "work@example.com: 作成しました" in result
+
+
+def test_meet_url_is_issued_once_and_shared_by_both_calendars(monkeypatch):
+    monkeypatch.setattr(gcal, "DEFAULT_CALENDAR_IDS", "primary,work@example.com")
+    gcal.create_meeting("A社 定例MTG", "2026-08-07 15:00")
+
+    primary_event, copied_event = fakes.created_events()
+    meet_url = primary_event["hangoutLink"]
+    # 2つ目のカレンダーで別のMeetを発行してしまうと、相手に渡すURLが割れる
+    assert "hangoutLink" not in copied_event
+    assert copied_event["location"] == meet_url
+    assert meet_url in copied_event["description"]
+
+
+def test_copied_event_shows_meet_url_in_listing(monkeypatch):
+    monkeypatch.setattr(gcal, "DEFAULT_CALENDAR_IDS", "primary,work@example.com")
+    tz = ZoneInfo(gcal.TIMEZONE)
+    start = datetime.datetime.now(tz=tz) + datetime.timedelta(days=2)
+    # デモの既存予定と紛れないよう固有のタイトルにする
+    gcal.create_meeting("B社 キックオフ", start.strftime("%Y-%m-%d %H:%M"))
+
+    listing = gcal.list_meetings(days=7)
+    # 両方のカレンダーに出て、どちらも同じMeet URLが見えること
+    assert listing.count("B社 キックオフ") == 2
+    assert "Meetリンクなし" not in listing
+
+
+def test_explicit_calendar_ids_override_the_default(monkeypatch):
+    monkeypatch.setattr(gcal, "DEFAULT_CALENDAR_IDS", "primary")
+    gcal.create_meeting(
+        "臨時MTG", "2026-08-07 15:00", calendar_ids="work@example.com"
+    )
+    assert [e["_calendar_id"] for e in fakes.created_events()] == ["work@example.com"]
+
+
+def test_list_calendars_marks_writable_ones():
+    text = gcal.list_calendars()
+    assert "仕事用カレンダー" in text and "書き込み可" in text
+    assert "日本の祝日" in text and "閲覧のみ" in text
 
 
 # --- 送信の承認ゲート -------------------------------------------------------

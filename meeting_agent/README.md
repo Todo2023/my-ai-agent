@@ -90,7 +90,8 @@ python cli.py
 | ツール | 説明 |
 | --- | --- |
 | `list_meetings(days)` | 今後N日間のカレンダー予定をMeet URL付きで一覧 |
-| `create_meeting(title, start, duration_minutes, attendees, description)` | Meet付き予定を作成しURLを返す |
+| `list_calendars()` | 使えるカレンダーの一覧（IDと書き込み可否） |
+| `create_meeting(title, start, duration_minutes, attendees, description, calendar_ids)` | 設定した全カレンダーにMeet付き予定を作成しURLを返す |
 | `list_chatwork_rooms()` | チャットルーム一覧（room_id の特定用） |
 | `list_chatwork_members(room_id)` | メンバー一覧（`[To:account_id]` メンション用） |
 | `send_chatwork_message(room_id, message)` | メッセージ送信（送信前に人間の確認） |
@@ -105,6 +106,30 @@ python cli.py
 
 `DEMO_MODE=1` を付ければ、Chatworkトークンや `credentials.json` が無くても
 `python cli.py`（LLMとの対話つき）を試せます。この場合Gemini APIキーだけ必要です。
+
+## 複数のカレンダーに同じ予定を入れる
+
+`.env` の `CALENDAR_IDS` にカンマ区切りで並べると、そのすべてに同じ予定が入ります。
+
+```
+CALENDAR_IDS=primary,work@example.com
+```
+
+**Meet URL は1つだけ発行**し、2つ目以降のカレンダーには同じURLを持つ予定を複製します
+（カレンダーごとにMeetを作ると相手に渡すURLが割れてしまうため）。
+複製側は場所（location）と本文にURLが入るので、どちらのカレンダーから開いても同じ会議に入れます。
+
+カレンダーIDが分からないときは、エージェントに「カレンダー一覧を見せて」と聞けば
+`list_calendars` が「書き込み可／閲覧のみ」付きで一覧します。
+
+### 別々のGoogleアカウントのカレンダーを対象にしたい場合
+
+このエージェントは1つのアカウントで認可します。会社アカウントと個人アカウントのように
+アカウント自体が分かれている場合は、**片方のカレンダーをもう片方に共有**してください。
+
+Googleカレンダーの設定 →「特定のユーザーとの共有」→ 相手のアドレスを追加 →
+権限を「**予定の変更**」にする。これで共有先のアカウントから書き込めるようになり、
+`list_calendars` にもそのカレンダーIDが出てきます。
 
 ## テスト
 

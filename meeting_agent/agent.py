@@ -15,7 +15,7 @@ from chatwork import (
     list_chatwork_rooms,
     send_chatwork_message,
 )
-from gcal import create_meeting, list_meetings
+from gcal import create_meeting, list_calendars, list_meetings
 
 DEFAULT_MODEL = "gemini-2.5-flash"
 MAX_RETRIES = 5
@@ -26,6 +26,7 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
 
 使えるツール:
 - list_meetings: 今後の予定とMeet URLを一覧する
+- list_calendars: 予定を入れられるカレンダーの一覧（カレンダーID）を確認する
 - create_meeting: Google Meet付きの予定を新規作成し、Meet URLを得る
 - list_chatwork_rooms: Chatworkのチャットルーム一覧（room_id）を取得する
 - list_chatwork_members: ルームのメンバー一覧（account_id）を取得する
@@ -34,6 +35,8 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
 進め方:
 1. どの予定を共有するのかを確定する。既存の予定なら list_meetings で探し、
    まだ無ければ日時・タイトル・所要時間を確認してから create_meeting で作る。
+   create_meeting は設定されたすべてのカレンダーに同じ予定を入れる（Meet URLは1つ）。
+   どのカレンダーに入るか聞かれたら list_calendars で現在の設定を確認して答える。
 2. 送信先が名前でしか分からない場合は list_chatwork_rooms で room_id を特定する。
    候補が複数あって絞り切れないときは、勝手に決めずユーザーに確認する。
 3. 送信する本文を必ず先にユーザーに見せ、送ってよいか確認してから
@@ -52,6 +55,7 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
 
 TOOLS = [
     list_meetings,
+    list_calendars,
     create_meeting,
     list_chatwork_rooms,
     list_chatwork_members,

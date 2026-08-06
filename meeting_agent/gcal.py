@@ -22,12 +22,19 @@ from googleapiclient.errors import HttpError
 
 import fakes
 
-# 予定の読み取りと作成の両方を行うため events スコープを使う
-SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
+# events: 予定の読み取りと作成 / readonly: カレンダー一覧（IDの確認）の取得
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/calendar.readonly",
+]
 
 CREDENTIALS_FILE = os.environ.get("GOOGLE_CREDENTIALS_FILE", "credentials.json")
 TOKEN_FILE = os.environ.get("GOOGLE_TOKEN_FILE", "token.json")
 TIMEZONE = os.environ.get("TIMEZONE", "Asia/Tokyo")
+
+# 予定を入れる先。複数指定するとすべてのカレンダーに同じ予定が入る
+# 例: CALENDAR_IDS=primary,work@example.com
+DEFAULT_CALENDAR_IDS = os.environ.get("CALENDAR_IDS", "primary")
 
 _service = None
 
@@ -65,6 +72,12 @@ def _get_service():
     return _service
 
 
+def _target_calendar_ids(calendar_ids: str = "") -> list:
+    """書き込み先カレンダーIDのリスト。未指定なら環境変数の設定を使う。"""
+    source = calendar_ids.strip() or DEFAULT_CALENDAR_IDS
+    return [c.strip() for c in source.split(",") if c.strip()]
+
+
 def _explain_http_error(e: HttpError) -> str:
     """Calendar API のエラーを、セットアップのどこを直せばよいかが分かる文言にする。"""
     status = getattr(e.resp, "status", None)
@@ -72,7 +85,13 @@ def _explain_http_error(e: HttpError) -> str:
         return (
             "Googleカレンダーにアクセスできませんでした（403）。"
             "Google Cloud コンソールで対象プロジェクトの Google Calendar API が"
-            "「有効」になっているか確認してください。"
+            "「有効」になっているか、また対象カレンダーに「予定の変更権限」があるか"
+            "確認してください。"
+        )
+    if status == 404:
+        return (
+            "指定したカレンダーが見つかりませんでした（404）。"
+            "list_calendars でカレンダーIDを確認してください。"
         )
     if status == 401:
         return (
@@ -99,7 +118,10 @@ def _parse_datetime(value: str) -> datetime.datetime:
 
 def _format_event(event: dict) -> str:
     start = event["start"].get("dateTime", event["start"].get("date", ""))
+    # 複製した予定は hangoutLink を持たないので、場所に入れたURLを拾う
     meet_url = event.get("hangoutLink", "")
+    if not meet_url and "meet.google.com" in event.get("location", ""):
+        meet_url = event["location"]
     attendees = ", ".join(
         a.get("email", "") for a in event.get("attendees", []) if a.get("email")
     )
@@ -113,6 +135,51 @@ def _format_event(event: dict) -> str:
     return "\n".join(parts)
 
 
+def _insert(calendar_id: str, body: dict, with_conference: bool, notify: bool) -> dict:
+    """1つのカレンダーに予定を作成する。デモモードではダミーに書き込む。"""
+    if fakes.is_demo():
+        return fakes.create_demo_event(body, calendar_id, with_conference)
+    return (
+        _get_service()
+        .events()
+        .insert(
+            calendarId=calendar_id,
+            body=body,
+            conferenceDataVersion=1 if with_conference else 0,
+            sendUpdates="all" if notify else "none",
+        )
+        .execute()
+    )
+
+
+def list_calendars() -> str:
+    """アクセスできるGoogleカレンダーの一覧（カレンダーIDと名前）を返す。
+
+    予定を入れる先のカレンダーIDを調べたいときに使う。
+    「書き込み可」と表示されたカレンダーにだけ予定を作成できる。
+    """
+    if fakes.is_demo():
+        items = fakes.DEMO_CALENDARS
+    else:
+        try:
+            items = _get_service().calendarList().list().execute().get("items", [])
+        except HttpError as e:
+            return _explain_http_error(e)
+
+    if not items:
+        return "カレンダーが取得できませんでした。"
+
+    lines = []
+    for c in items:
+        writable = c.get("accessRole") in ("owner", "writer")
+        mark = "書き込み可" if writable else "閲覧のみ"
+        default = "（既定）" if c.get("primary") else ""
+        lines.append(f"- {c.get('summary', '')}{default} [{mark}]\n  calendar_id: {c['id']}")
+    current = ", ".join(_target_calendar_ids())
+    lines.append(f"\n現在の書き込み先設定（CALENDAR_IDS）: {current}")
+    return "\n".join(lines)
+
+
 def list_meetings(days: int = 7) -> str:
     """今日から指定日数ぶんのGoogleカレンダーの予定を、Google Meet URL付きで一覧する。
 
@@ -121,32 +188,43 @@ def list_meetings(days: int = 7) -> str:
     Args:
         days: 今日から何日先までの予定を取得するか（既定7日）
     """
-    if fakes.is_demo():
-        events = fakes.demo_events(days, _tz())
-    else:
-        now = datetime.datetime.now(tz=_tz())
-        time_max = now + datetime.timedelta(days=days)
-        try:
-            events = (
-                _get_service()
-                .events()
-                .list(
-                    calendarId="primary",
-                    timeMin=now.isoformat(),
-                    timeMax=time_max.isoformat(),
-                    singleEvents=True,
-                    orderBy="startTime",
-                    maxResults=20,
-                )
-                .execute()
-                .get("items", [])
-            )
-        except HttpError as e:
-            return _explain_http_error(e)
+    calendar_ids = _target_calendar_ids()
+    now = datetime.datetime.now(tz=_tz())
+    time_max = now + datetime.timedelta(days=days)
 
-    if not events:
-        return f"今後{days}日間に予定はありません。"
-    return "\n".join(_format_event(e) for e in events)
+    sections = []
+    for calendar_id in calendar_ids:
+        if fakes.is_demo():
+            events = fakes.demo_events(days, _tz(), calendar_id)
+        else:
+            try:
+                events = (
+                    _get_service()
+                    .events()
+                    .list(
+                        calendarId=calendar_id,
+                        timeMin=now.isoformat(),
+                        timeMax=time_max.isoformat(),
+                        singleEvents=True,
+                        orderBy="startTime",
+                        maxResults=20,
+                    )
+                    .execute()
+                    .get("items", [])
+                )
+            except HttpError as e:
+                sections.append(f"[{calendar_id}] {_explain_http_error(e)}")
+                continue
+
+        body = (
+            "\n".join(_format_event(e) for e in events)
+            if events
+            else f"今後{days}日間に予定はありません。"
+        )
+        # カレンダーが1つだけのときは見出しを付けない
+        sections.append(body if len(calendar_ids) == 1 else f"[{calendar_id}]\n{body}")
+
+    return "\n\n".join(sections)
 
 
 def create_meeting(
@@ -155,10 +233,13 @@ def create_meeting(
     duration_minutes: int = 60,
     attendees: str = "",
     description: str = "",
+    calendar_ids: str = "",
 ) -> str:
     """Google Meet 付きの予定をGoogleカレンダーに作成し、Meet URL を返す。
 
     新しく打ち合わせを設定してURLを共有したいときに使う。
+    書き込み先カレンダーが複数設定されている場合は、そのすべてに同じ予定を入れる。
+    Meet URL は1つだけ発行し、どのカレンダーからも同じURLになる。
 
     Args:
         title: 予定のタイトル（例: "A社 定例MTG"）
@@ -166,7 +247,9 @@ def create_meeting(
         duration_minutes: 所要時間（分、既定60）
         attendees: 招待するメールアドレスをカンマ区切りで（任意）
         description: 予定の説明（任意）
+        calendar_ids: 書き込み先カレンダーIDをカンマ区切りで（任意、既定は設定値）
     """
+    targets = _target_calendar_ids(calendar_ids)
     start_dt = _parse_datetime(start)
     end_dt = start_dt + datetime.timedelta(minutes=duration_minutes)
 
@@ -187,29 +270,35 @@ def create_meeting(
     if emails:
         body["attendees"] = [{"email": e} for e in emails]
 
-    if fakes.is_demo():
-        event = fakes.create_demo_event(body)
-    else:
-        try:
-            event = (
-                _get_service()
-                .events()
-                .insert(
-                    calendarId="primary",
-                    body=body,
-                    conferenceDataVersion=1,
-                    sendUpdates="all" if emails else "none",
-                )
-                .execute()
-            )
-        except HttpError as e:
-            return _explain_http_error(e)
+    # 1つ目のカレンダーで Meet を発行し、2つ目以降はそのURLを持つ予定を複製する。
+    # カレンダーごとに Meet を作ると URL が複数できてしまうため。
+    try:
+        event = _insert(targets[0], body, with_conference=True, notify=bool(emails))
+    except HttpError as e:
+        return _explain_http_error(e)
 
     meet_url = event.get("hangoutLink", "")
+    results = [f"- {targets[0]}: 作成しました（event_id: {event['id']}）"]
+
+    for calendar_id in targets[1:]:
+        copy_body = {
+            "summary": title,
+            # 同じ Meet に参加できるよう、URLを場所と本文の両方に入れる
+            "location": meet_url,
+            "description": "\n".join(filter(None, [description, meet_url])),
+            "start": body["start"],
+            "end": body["end"],
+        }
+        try:
+            copy = _insert(calendar_id, copy_body, with_conference=False, notify=False)
+            results.append(f"- {calendar_id}: 作成しました（event_id: {copy['id']}）")
+        except HttpError as e:
+            results.append(f"- {calendar_id}: 失敗しました。{_explain_http_error(e)}")
+
     return (
         f"予定を作成しました。\n"
-        f"タイトル: {event.get('summary', '')}\n"
+        f"タイトル: {title}\n"
         f"日時: {start_dt:%Y-%m-%d %H:%M} - {end_dt:%H:%M} ({TIMEZONE})\n"
         f"Meet URL: {meet_url or '（発行されませんでした）'}\n"
-        f"event_id: {event['id']}"
+        f"書き込み先カレンダー:\n" + "\n".join(results)
     )
