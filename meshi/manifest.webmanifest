@@ -3,7 +3,6 @@
   "short_name": "スクショ飯",
   "description": "スクショを撮っておくだけで行きたい店が貯まる。行った店はチェックして記録に残る。",
   "lang": "ja",
-  "id": "./app.html",
   "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",

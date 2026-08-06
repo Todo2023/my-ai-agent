@@ -28,7 +28,14 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // addAll は1つでも取れないと全部が失敗する。Service Worker が入らないと
+  // Chrome は「インストールできるアプリ」と見なさない（＝入れるボタンが出ない）。
+  // 1枚欠けたくらいで丸ごと諦めないよう、1つずつ入れて結果は問わない
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await Promise.allSettled(ASSETS.map((url) => cache.add(url)));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (e) => {
