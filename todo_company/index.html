@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>合同会社To do の脳内マップ</title>
-<meta name="description" content="合同会社To doが何を考え、どこに手を動かしているかを、動かせる地図にした1枚。" />
+<title>辰巳彩香の脳内マップ</title>
+<meta name="description" content="辰巳彩香の頭の中にあるものを、動かせる地図にした1枚。いまは合同会社To doのぶんが埋まっている。" />
 <meta name="theme-color" content="#0a100e" />
 <meta name="color-scheme" content="dark" />
 <!-- このページは _body.html から build_artifact.py が作っている。直接さわらない -->
@@ -15,18 +15,20 @@
 <div class="wrap">
 
   <header class="head">
-    <h1>合同会社To do の脳内マップ</h1>
+    <h1>辰巳彩香の脳内マップ</h1>
     <p class="lead">
-      ホームページから抜き出した思考ノード。●をドラッグで動かし、クリックで中身と投稿文を開く。
+      頭の中にあるものを並べた地図。いまは合同会社To doのぶんだけが埋まっていて、そのほかは空のまま。
+      ●をドラッグで動かし、クリックで中身と投稿文を開く。
     </p>
     <p class="hint">drag to move &middot; click a node &middot; click empty space to deselect</p>
 
     <ul class="legend">
-      <li data-cat="center"><i style="--dot: var(--c-center)"></i>真ん中</li>
+      <li data-cat="center"><i style="--dot: var(--c-center)"></i>私</li>
+      <li data-cat="co"><i style="--dot: var(--c-co)"></i>会社</li>
       <li data-cat="biz"><i style="--dot: var(--c-biz)"></i>事業</li>
       <li data-cat="think"><i style="--dot: var(--c-think)"></i>考え方</li>
-      <li data-cat="fact"><i style="--dot: var(--c-fact)"></i>会社の形</li>
-      <li data-cat="blank"><i></i>まだ白い（請求書待ち）</li>
+      <li data-cat="fact"><i style="--dot: var(--c-fact)"></i>会社のこと</li>
+      <li data-cat="blank"><i></i>まだ白い（これから埋めるところ）</li>
       <li data-cat="src"><i style="--dot: var(--c-src)"></i>出どころ</li>
     </ul>
   </header>
@@ -34,7 +36,7 @@
   <div class="stage">
     <div class="board">
       <canvas id="map"
-        aria-label="合同会社To doの事業・考え方・会社の形をつないだ地図。下の索引から同じ内容を開けます。"></canvas>
+        aria-label="辰巳彩香の頭の中にあるものをつないだ地図。真ん中に本人、その下に合同会社To doとその事業・考え方・会社の形。下の索引から同じ内容を開けます。"></canvas>
       <button type="button" class="board__reset" id="reset">並べ直す</button>
     </div>
 
