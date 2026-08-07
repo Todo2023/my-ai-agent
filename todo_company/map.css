@@ -144,6 +144,8 @@ body {
   margin: 0.6em 0 0.4em;
 }
 .essence__body { margin: 0; font-size: 0.9rem; line-height: 1.9; color: #cfdcd8; }
+.essence__link { margin: 12px 0 0; font-size: 0.85rem; }
+.essence__link a { color: var(--c-biz); overflow-wrap: anywhere; }
 .essence__src {
   margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
   font-size: 0.78rem; color: var(--dim);
@@ -174,13 +176,23 @@ body {
 .post__count[data-over="true"] { color: var(--c-blank); }
 
 .btn {
+  display: inline-block;
   font: inherit; font-size: 0.83rem; font-weight: 700;
   color: #08110e; background: var(--c-biz);
   border: 0; border-radius: 999px;
   padding: 9px 20px; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
 }
-.btn:hover { background: #75d7b6; }
+.btn:hover { background: #75d7b6; color: #08110e; }
 .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* 添えるほうのボタン */
+.btn--quiet {
+  color: var(--ink); background: transparent;
+  border: 1px solid var(--line); font-weight: 600;
+  padding: 8px 15px;
+}
+.btn--quiet:hover { background: transparent; color: var(--ink); border-color: var(--muted); }
 
 .post__note { margin: 12px 0 0; font-size: 0.75rem; line-height: 1.75; color: var(--dim); }
 

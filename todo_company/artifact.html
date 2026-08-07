@@ -146,6 +146,8 @@ body {
   margin: 0.6em 0 0.4em;
 }
 .essence__body { margin: 0; font-size: 0.9rem; line-height: 1.9; color: #cfdcd8; }
+.essence__link { margin: 12px 0 0; font-size: 0.85rem; }
+.essence__link a { color: var(--c-biz); overflow-wrap: anywhere; }
 .essence__src {
   margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
   font-size: 0.78rem; color: var(--dim);
@@ -176,13 +178,23 @@ body {
 .post__count[data-over="true"] { color: var(--c-blank); }
 
 .btn {
+  display: inline-block;
   font: inherit; font-size: 0.83rem; font-weight: 700;
   color: #08110e; background: var(--c-biz);
   border: 0; border-radius: 999px;
   padding: 9px 20px; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
 }
-.btn:hover { background: #75d7b6; }
+.btn:hover { background: #75d7b6; color: #08110e; }
 .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* 添えるほうのボタン */
+.btn--quiet {
+  color: var(--ink); background: transparent;
+  border: 1px solid var(--line); font-weight: 600;
+  padding: 8px 15px;
+}
+.btn--quiet:hover { background: transparent; color: var(--ink); border-color: var(--muted); }
 
 .post__note { margin: 12px 0 0; font-size: 0.75rem; line-height: 1.75; color: var(--dim); }
 
@@ -283,6 +295,10 @@ body {
       TEL <a href="tel:07091364879">070-9136-4879</a>　/
       <a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a>
     </p>
+    <p>
+      <a href="https://www.facebook.com/profile.php?id=61553259485518"
+        target="_blank" rel="noopener noreferrer">Facebookページ ↗</a>
+    </p>
     <p>© 2026 合同会社To do</p>
   </footer>
 
@@ -303,6 +319,9 @@ body {
  */
 (function () {
   'use strict';
+
+  // 会社のFacebookページ。いまのところ、ここが発信の場所
+  var FB_URL = 'https://www.facebook.com/profile.php?id=61553259485518';
 
   // 丸の種類。色は CSS 変数から取る（凡例と必ず同じ色になる）
   var CATS = {
@@ -379,6 +398,9 @@ body {
     { id: 'contact', cat: 'fact', r: 12, label: '連絡先',
       body: 'TEL 070-9136-4879 ／ todo.inc.2023.10.13@gmail.com。相談と見積りは無料で、2営業日以内に返信。打ち合わせはオンラインでも。',
       src: 'お問い合わせ', post: true },
+    { id: 'fb', cat: 'fact', r: 12, label: 'Facebookページ',
+      body: '会社のFacebookページ。いまのところ、発信の出口はここ。丸から作った投稿文をコピーして、ここに貼る。',
+      link: FB_URL, linkLabel: 'Facebookページを開く' },
     { id: 'news', cat: 'fact', r: 10, label: 'サイトを新しくした',
       body: '2026年8月7日、ホームページをリニューアル。事業内容を4つに整理し、それぞれ何を引き受けられるのかを具体的に書いた。',
       src: 'お知らせ', post: true },
@@ -416,6 +438,7 @@ body {
 
     ['shape', 'f1'], ['shape', 'f2'], ['shape', 'f3'], ['shape', 'f4'],
     ['shape', 'contact'], ['shape', 'news'],
+    ['brain', 'fb'], ['fb', 'contact'], ['fb', 'news'],
 
     ['blank', 'b1'], ['blank', 'b2'], ['blank', 'b3'], ['blank', 'b4'],
 
@@ -868,6 +891,10 @@ body {
     html += '<span class="essence__cat" style="--cat-color:' + esc(color) + '">' + esc(CATS[n.cat].label) + '</span>';
     html += '<h2>' + esc(n.label) + '</h2>';
     html += '<p class="essence__body">' + esc(n.body || 'この丸には、まだ短い言葉しか入っていません。') + '</p>';
+    if (n.link) {
+      html += '<p class="essence__link"><a href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">'
+        + esc(n.linkLabel || n.link) + ' ↗</a></p>';
+    }
     if (n.src) html += '<p class="essence__src">出どころ：' + esc(n.src) + '</p>';
 
     if (n.post) {
@@ -875,11 +902,13 @@ body {
         + '<h3>投稿文の下ごしらえ</h3>'
         + '<textarea id="post-text" aria-label="投稿文"></textarea>'
         + '<div class="post__row">'
-        + '<button type="button" class="btn" id="copy">投稿文をコピー</button>'
+        + '<a class="btn" id="go" href="' + esc(FB_URL) + '" target="_blank" rel="noopener noreferrer">'
+        + 'コピーしてFacebookを開く</a>'
+        + '<button type="button" class="btn btn--quiet" id="copy">コピーだけ</button>'
         + '<span class="post__count" id="count"></span>'
         + '</div>'
-        + '<p class="post__note">いまはコピーまで。X や Threads へそのまま発信するところは、'
-        + 'あとで投稿用のつなぎ込みを足す回で動くようにします。</p>'
+        + '<p class="post__note">コピーしたら、開いたFacebookページに貼り付けてください。'
+        + '押すだけで発信されるようにするには投稿用のつなぎ込みが要るので、そこはまだ手で貼る形です。</p>'
         + '</div>';
     } else if (n.cat === 'blank') {
       html += '<div class="post"><p class="post__note">この丸はまだ中身が無いので、投稿文は作っていません。'
@@ -893,7 +922,14 @@ body {
       ta.value = postText(n);
       count(ta);
       ta.addEventListener('input', function () { count(ta); });
-      document.getElementById('copy').addEventListener('click', function () { copy(ta); });
+
+      document.getElementById('copy').addEventListener('click', function () {
+        copy(ta, 'コピーしました');
+      });
+      // Facebook を開く前に、同じ指の動きの中でコピーまで済ませる
+      document.getElementById('go').addEventListener('click', function () {
+        copy(ta, 'コピーしました。Facebookに貼り付けてください');
+      });
     }
   }
 
@@ -901,22 +937,31 @@ body {
     var el = document.getElementById('count');
     if (!el) return;
     var len = Array.from(ta.value).length;   // 絵文字も1文字で数える
-    el.textContent = len + ' 文字 / 140';
+    el.textContent = len + ' 文字';
     el.setAttribute('data-over', String(len > 140));
+    el.title = len > 140
+      ? 'Facebookはこの長さでも大丈夫。Xにも出すなら140文字まで'
+      : 'Xにも出せる長さ（140文字まで）';
   }
 
-  function copy(ta) {
-    function done() { toast('投稿文をコピーしました'); }
-    function manual() {
-      ta.focus();
-      ta.select();
-      toast('選びました。長押し／Ctrl+C でコピーしてください');
-    }
+  function copy(ta, msg) {
+    // 新しいやり方 → 古いやり方 → 手で、の順に落とす
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ta.value).then(done, manual);
-    } else {
-      manual();
+      navigator.clipboard.writeText(ta.value).then(
+        function () { toast(msg); },
+        function () { legacy(ta, msg); }
+      );
+      return;
     }
+    legacy(ta, msg);
+  }
+
+  function legacy(ta, msg) {
+    ta.focus();
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    toast(ok ? msg : '選びました。長押し／Ctrl+C でコピーしてください');
   }
 
   var toastTimer = null;
