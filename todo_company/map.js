@@ -26,11 +26,18 @@
     src:    { name: 'src',     label: '出どころ' }
   };
 
+  // どこまで確かな話か。丸の sure に入れる（省略時は src があれば site、無ければ guess）
+  var SURE = {
+    site:  { label: 'サイトから', note: 'ホームページの文言をもとにしています' },
+    chat:  { label: '直接きいた', note: 'やりとりの中で本人から聞いたことです' },
+    guess: { label: 'こちらの補い', note: 'まだ確かめていません。違っていたら直します' }
+  };
+
   // ---------------------------------------------------------------
   // 地図の中身
   // ---------------------------------------------------------------
   var NODES = [
-    { id: 'me', cat: 'center', r: 28, label: '辰巳彩香',
+    { id: 'me', sure: 'chat', cat: 'center', r: 28, label: '辰巳彩香',
       body: 'この地図の真ん中。頭の中にあるものを、丸にして並べています。いまは合同会社To doと、これからやってみたいこと（こども教育）が入っている。そのほかはまだ空のまま。丸はドラッグで動かせます。' },
 
     { id: 'todo', cat: 'co', r: 22, label: '合同会社To do',
@@ -38,27 +45,27 @@
       src: '新サイトの文言確認用プレビュー', post: true },
 
     /* 会社のほかにあるところ。まだ何も聞いていないので、空のまま置いてある */
-    { id: 'q1', cat: 'blank', r: 12, label: '仕事のほかに時間を使っていること',
+    { id: 'q1', sure: 'guess', cat: 'blank', r: 12, label: '仕事のほかに時間を使っていること',
       body: 'まだ聞いていません。教えてもらえれば、ここが埋まって、下に丸が増えます。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。教えてもらえれば、ここが埋まって、下に丸が増えます。' },
-    { id: 'q2', cat: 'next', r: 15, label: 'これからやってみたいこと',
+    { id: 'q2', sure: 'chat', cat: 'next', r: 15, label: 'これからやってみたいこと',
       body: 'いま出ているのは、こども（幼児）教育の事業。ほかにも出てくれば、ここに並べていける。' },
-    { id: 'q3', cat: 'blank', r: 12, label: 'いま気になっていること',
+    { id: 'q3', sure: 'guess', cat: 'blank', r: 12, label: 'いま気になっていること',
       body: 'まだ聞いていません。頭の隅に居座っていることがあれば、ここに置けます。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。教えてもらえれば、ここが埋まって、下に丸が増えます。' },
 
     /* これからやってみたいこと。まだ「やってみたい」以上のことは聞いていない */
-    { id: 'kids', cat: 'next', r: 18, label: 'こども（幼児）教育',
+    { id: 'kids', sure: 'chat', cat: 'next', r: 18, label: 'こども（幼児）教育',
       body: '幼児向けの教育を、合同会社To doでやってみたい。いま出ているのはここまでで、'
         + '誰にどんな形で届けるかは、これから決めるところ。',
       waiting: '形が決まっていないので、投稿文はまだ作っていません。中身が決まれば、ここからも発信できます。' },
-    { id: 'k1', cat: 'blank', r: 10, label: '誰に届けるか',
+    { id: 'k1', sure: 'guess', cat: 'blank', r: 10, label: '誰に届けるか',
       body: 'こども本人か、保護者か、園や施設か。相手が決まると、形も値段も決まってくる。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。決めるところから。決まれば、ここに書けます。' },
-    { id: 'k2', cat: 'blank', r: 10, label: 'どんな形で届けるか',
+    { id: 'k2', sure: 'guess', cat: 'blank', r: 10, label: 'どんな形で届けるか',
       body: '教室、教材、アプリ、園向けの研修。どれで出すかはまだ決まっていない。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。決めるところから。決まれば、ここに書けます。' },
-    { id: 'k3', cat: 'blank', r: 10, label: 'いまの4事業のどれを使うか',
+    { id: 'k3', sure: 'guess', cat: 'blank', r: 10, label: 'いまの4事業のどれを使うか',
       body: '資料づくり・デザイン・事務・AI活用のうち、どれがそのまま活きるか。ゼロから始めるのか、'
         + '今ある手を伸ばすのかで、進め方が変わる。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。決めるところから。決まれば、ここに書けます。' },
@@ -110,7 +117,7 @@
     { id: 'ai3', cat: 'biz', r: 7, label: '人が見る線引きの設計' },
 
     /* 会社の形 -------------------------------------------------- */
-    { id: 'shape', cat: 'fact', r: 14, label: '会社の形',
+    { id: 'shape', sure: 'guess', cat: 'fact', r: 14, label: '会社の形',
       body: '地図の縮尺にあたるところ。会社概要から。', src: '会社概要' },
     { id: 'f1', cat: 'fact', r: 9, label: '創業 2023年10月' },
     { id: 'f2', cat: 'fact', r: 9, label: '札幌市厚別区' },
@@ -120,7 +127,7 @@
     { id: 'contact', cat: 'fact', r: 12, label: '連絡先',
       body: 'TEL 070-9136-4879 ／ todo.inc.2023.10.13@gmail.com。相談と見積りは無料で、2営業日以内に返信。打ち合わせはオンラインでも。',
       src: 'お問い合わせ', post: true },
-    { id: 'fb', cat: 'fact', r: 12, label: 'Facebookページ',
+    { id: 'fb', sure: 'chat', cat: 'fact', r: 12, label: 'Facebookページ',
       body: '会社のFacebookページ。いまのところ、発信の出口はここ。丸から作った投稿文をコピーして、ここに貼る。',
       link: FB_URL, linkLabel: 'Facebookページを開く' },
     { id: 'news', cat: 'fact', r: 10, label: 'サイトを新しくした',
@@ -128,19 +135,19 @@
       src: 'お知らせ', post: true },
 
     /* まだ白いところ -------------------------------------------- */
-    { id: 'blank', cat: 'blank', r: 15, label: 'まだ白いところ',
+    { id: 'blank', sure: 'guess', cat: 'blank', r: 15, label: 'まだ白いところ',
       body: 'ホームページには書かれていない部分。ここは請求書を読まないと埋まらない。請求書（発行したぶんの一覧でも可）が入れば、下の4つが数字で埋まり、地図の丸の大きさも実際の比率に描き直せる。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。請求書が入れば、ここも発信できる中身になります。' },
-    { id: 'b1', cat: 'blank', r: 10, label: '取引先の顔ぶれ',
+    { id: 'b1', sure: 'guess', cat: 'blank', r: 10, label: '取引先の顔ぶれ',
       body: 'どんな業種・規模の会社と、何社くらい続いているか。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。請求書が入れば、ここも発信できる中身になります。' },
-    { id: 'b2', cat: 'blank', r: 10, label: '継続とスポットの割合',
+    { id: 'b2', sure: 'guess', cat: 'blank', r: 10, label: '継続とスポットの割合',
       body: '月額の継続支援と、単発の制作。どちらが体重を支えているか。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。請求書が入れば、ここも発信できる中身になります。' },
-    { id: 'b3', cat: 'blank', r: 10, label: '忙しくなる月',
+    { id: 'b3', sure: 'guess', cat: 'blank', r: 10, label: '忙しくなる月',
       body: '請求の波。手が足りなくなる時期がいつ来るか。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。請求書が入れば、ここも発信できる中身になります。' },
-    { id: 'b4', cat: 'blank', r: 10, label: '事業ごとの実際の大きさ',
+    { id: 'b4', sure: 'guess', cat: 'blank', r: 10, label: '事業ごとの実際の大きさ',
       body: '売上で見たとき、この地図の4つの丸はどんな大きさになるか。',
       waiting: 'まだ中身が無いので、投稿文は作っていません。請求書が入れば、ここも発信できる中身になります。' },
 
@@ -610,11 +617,89 @@
     if (still.matches) draw(); else wake();
   }
 
-  function postText(n) {
+  // ---------------------------------------------------------------
+  // 配信するところ
+  //
+  // 配信先ごとの違いは、この CHANNELS だけに閉じ込めてある。
+  // 自動投稿をつなぐときも、触るのは各 channel の deliver() だけ。
+  // ---------------------------------------------------------------
+  var CHANNELS = {
+    fb: {
+      label: 'Facebook',
+      limit: 0,                     // 実用上、長さで困らない
+      open: 'コピーしてFacebookを開く',
+      note: 'Facebookは文章を先に入れた状態で開けないので、コピー → 貼り付け、の順になります。',
+      // Facebookページを開くだけ。文章は持ち込めないので、先にコピーする
+      deliver: function (text) {
+        return { copy: true, url: FB_URL };
+      }
+    },
+    x: {
+      label: 'X',
+      limit: 140,                   // 日本語は1文字2カウント。280の半分
+      open: 'Xの投稿画面をひらく',
+      note: 'Xは文章を入れた状態で投稿画面がひらきます。中身を確かめて、投稿を押してください。',
+      // 投稿画面に文章を載せて開く。押すのは人。ここは今日から動く
+      deliver: function (text) {
+        return { copy: false, url: 'https://x.com/intent/post?text=' + encodeURIComponent(text) };
+      }
+    }
+  };
+
+  /*
+   * 押すだけで飛ぶ「自動配信」にするときは、上の deliver() を
+   * 投稿を受け取る置き場へ送る形に差し替える。例：
+   *
+   *   deliver: function (text) {
+   *     return fetch(ENDPOINT, {
+   *       method: 'POST',
+   *       headers: { 'content-type': 'application/json' },
+   *       body: JSON.stringify({ channel: 'fb', text: text })
+   *     }).then(...);
+   *   }
+   *
+   * ここ（見る人のブラウザ）にトークンを置いてはいけない。ページを開いた人
+   * 全員に読めてしまい、会社のアカウントを触られる。トークンは必ず置き場側で
+   * 預かり、このページからは文章だけを渡す。
+   */
+
+  var TAGS = '#合同会社Todo #札幌';
+
+  // 長い版。Facebook はこれをそのまま出す
+  function longText(n) {
     var body = n.body || n.label;
     // 会社そのものの丸だけは、見出しに会社名を重ねない
     var head = n.id === 'todo' ? n.label : n.label + '｜合同会社To do';
-    return head + '\n\n' + body + '\n\n#合同会社Todo #札幌';
+    return head + '\n\n' + body + '\n\n' + TAGS;
+  }
+
+  // 上限のある配信先用。文の途中で切らず、入る文だけを残す
+  function fitText(n, limit) {
+    var head = n.id === 'todo' ? n.label : n.label + '｜合同会社To do';
+    var tail = '\n\n' + TAGS;
+    var room = limit - len(head) - len(tail) - 2;   // 2 は本文前の改行ぶん
+    var body = n.short || n.body || '';
+
+    if (len(body) > room) {
+      var kept = '';
+      // 「。」で区切って、入るところまで足す
+      var parts = body.split('。');
+      for (var i = 0; i < parts.length; i++) {
+        if (!parts[i]) continue;
+        var next = kept + parts[i] + '。';
+        if (len(next) > room) break;
+        kept = next;
+      }
+      body = kept || body.slice(0, Math.max(0, room - 1)) + '…';
+    }
+    return head + '\n\n' + body + tail;
+  }
+
+  function len(s) { return Array.from(s).length; }   // 絵文字も1文字で数える
+
+  function draftFor(n, ch) {
+    var c = CHANNELS[ch];
+    return c.limit ? fitText(n, c.limit) : longText(n);
   }
 
   function renderPanel(n) {
@@ -632,20 +717,26 @@
       html += '<p class="essence__link"><a href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">'
         + esc(n.linkLabel || n.link) + ' ↗</a></p>';
     }
-    if (n.src) html += '<p class="essence__src">出どころ：' + esc(n.src) + '</p>';
+    // どこまで確かな話なのかを、丸ごとに出す
+    var s = SURE[n.sure || (n.src ? 'site' : 'guess')];
+    html += '<p class="essence__src"><span class="sure" data-sure="' + esc(n.sure || (n.src ? 'site' : 'guess')) + '">'
+      + esc(s.label) + '</span>' + esc(s.note)
+      + (n.src ? '（' + esc(n.src) + '）' : '') + '</p>';
 
     if (n.post) {
       html += '<div class="post">'
-        + '<h3>投稿文の下ごしらえ</h3>'
+        + '<h3>配信</h3>'
+        + '<div class="post__tabs" role="tablist" aria-label="配信先">'
+        + '<button type="button" role="tab" class="post__tab" data-ch="fb" aria-selected="true">Facebook</button>'
+        + '<button type="button" role="tab" class="post__tab" data-ch="x" aria-selected="false">X</button>'
+        + '</div>'
         + '<textarea id="post-text" aria-label="投稿文"></textarea>'
         + '<div class="post__row">'
-        + '<a class="btn" id="go" href="' + esc(FB_URL) + '" target="_blank" rel="noopener noreferrer">'
-        + 'コピーしてFacebookを開く</a>'
+        + '<a class="btn" id="go" target="_blank" rel="noopener noreferrer"></a>'
         + '<button type="button" class="btn btn--quiet" id="copy">コピーだけ</button>'
         + '<span class="post__count" id="count"></span>'
         + '</div>'
-        + '<p class="post__note">コピーしたら、開いたFacebookページに貼り付けてください。'
-        + '押すだけで発信されるようにするには投稿用のつなぎ込みが要るので、そこはまだ手で貼る形です。</p>'
+        + '<p class="post__note" id="note"></p>'
         + '</div>';
     } else if (n.waiting) {
       html += '<div class="post"><p class="post__note">' + esc(n.waiting) + '</p></div>';
@@ -654,30 +745,54 @@
     panel.innerHTML = html;
 
     var ta = document.getElementById('post-text');
-    if (ta) {
-      ta.value = postText(n);
-      count(ta);
-      ta.addEventListener('input', function () { count(ta); });
+    if (!ta) return;
 
-      document.getElementById('copy').addEventListener('click', function () {
-        copy(ta, 'コピーしました');
+    // 配信先ごとの下書きを持っておく。切り替えても書き直しが消えない
+    var drafts = { fb: draftFor(n, 'fb'), x: draftFor(n, 'x') };
+    var cur = 'fb';
+
+    function show(ch) {
+      cur = ch;
+      ta.value = drafts[ch];
+      Array.prototype.forEach.call(document.querySelectorAll('.post__tab'), function (t) {
+        t.setAttribute('aria-selected', String(t.dataset.ch === ch));
       });
-      // Facebook を開く前に、同じ指の動きの中でコピーまで済ませる
-      document.getElementById('go').addEventListener('click', function () {
-        copy(ta, 'コピーしました。Facebookに貼り付けてください');
-      });
+      document.getElementById('go').textContent = CHANNELS[ch].open;
+      document.getElementById('note').textContent = CHANNELS[ch].note;
+      sync();
     }
-  }
 
-  function count(ta) {
-    var el = document.getElementById('count');
-    if (!el) return;
-    var len = Array.from(ta.value).length;   // 絵文字も1文字で数える
-    el.textContent = len + ' 文字';
-    el.setAttribute('data-over', String(len > 140));
-    el.title = len > 140
-      ? 'Facebookはこの長さでも大丈夫。Xにも出すなら140文字まで'
-      : 'Xにも出せる長さ（140文字まで）';
+    // 文字数と、ひらく先のアドレスを、いまの文章に合わせる
+    function sync() {
+      var text = ta.value;
+      drafts[cur] = text;
+
+      var c = CHANNELS[cur];
+      var el = document.getElementById('count');
+      var n2 = len(text);
+      el.textContent = c.limit ? n2 + ' / ' + c.limit + ' 文字' : n2 + ' 文字';
+      el.setAttribute('data-over', String(!!c.limit && n2 > c.limit));
+
+      var out = c.deliver(text);
+      var go = document.getElementById('go');
+      go.href = out.url;
+      go.dataset.copy = String(!!out.copy);
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('.post__tab'), function (t) {
+      t.addEventListener('click', function () { show(t.dataset.ch); });
+    });
+    ta.addEventListener('input', sync);
+
+    document.getElementById('copy').addEventListener('click', function () {
+      copy(ta, 'コピーしました');
+    });
+    document.getElementById('go').addEventListener('click', function () {
+      // 文章を持ち込めない配信先だけ、開く前にコピーしておく
+      if (this.dataset.copy === 'true') copy(ta, 'コピーしました。貼り付けてください');
+    });
+
+    show('fb');
   }
 
   function copy(ta, msg) {
