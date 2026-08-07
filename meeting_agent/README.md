@@ -95,8 +95,12 @@ python cli.py
 Geminiのモデルは提供終了になることがあります。`404 NOT_FOUND ... no longer available`
 と出たら、使えるモデルを確認して `GEMINI_MODEL` で指定し直してください。
 
+モデル一覧に出ていても無料枠の対象外だったり、その日の上限を使い切っていたりします。
+名前では判断できないため、実際に極小のリクエストを投げて確認できます。
+
 ```bash
-python list_models.py
+python check_models.py   # いま実際に使えるモデルを判定
+python list_models.py    # APIが返すモデル名の一覧
 ```
 
 ## エージェントが使えるツール

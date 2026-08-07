@@ -85,6 +85,7 @@ def _system_instruction() -> str:
         f"({gcal.TIMEZONE})\n\n" + SYSTEM_PROMPT
     )
 
+
 TOOLS = [
     list_meetings,
     list_calendars,
@@ -121,8 +122,7 @@ class MeetingShareAgent:
                         f"モデル '{self.model}' の無料枠の1日あたり上限に達しました。"
                         "別のモデルに切り替えると、そのモデルの枠でまた使えます"
                         "（上限はモデルごとに別枠です）。\n"
-                        "例: GEMINI_MODEL=gemini-2.0-flash\n"
-                        "使えるモデルは `python list_models.py` で確認できます。"
+                        "いま使えるモデルは `python check_models.py` で確認できます。"
                     ) from e
                 if e.code == 429 and attempt < MAX_RETRIES - 1:
                     # 分あたりのレート制限。少し待って再試行する
@@ -133,6 +133,6 @@ class MeetingShareAgent:
                     raise RuntimeError(
                         f"モデル '{self.model}' が使えません。"
                         "環境変数 GEMINI_MODEL で別のモデルを指定してください。"
-                        "使えるモデルは `python list_models.py` で確認できます。"
+                        "いま使えるモデルは `python check_models.py` で確認できます。"
                     ) from e
                 raise
