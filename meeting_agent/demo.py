@@ -26,7 +26,7 @@ WEEKDAYS = "月火水木金土日"
 
 def confirm(room_id: int, message: str) -> bool:
     print("\n--- Chatwork送信の確認 ---")
-    print(f"送信先 room_id: {room_id}")
+    print(f"送信先: {chatwork.room_label(room_id)}")
     print("本文:")
     print(message)
     print("--------------------------")

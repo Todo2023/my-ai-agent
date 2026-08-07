@@ -60,6 +60,22 @@ def _get(path: str) -> list:
     return response.json()
 
 
+def room_label(room_id) -> str:
+    """確認表示用に「ルーム名（room_id: N）」を返す。
+
+    room_id の数字だけでは送信先が人間に判断できず、取り違えに気づけないため。
+    名前が引けなかった場合もIDだけは返し、確認自体は止めない。
+    """
+    try:
+        rooms = fakes.DEMO_ROOMS if fakes.is_demo() else _get("/rooms")
+        for room in rooms:
+            if int(room["room_id"]) == int(room_id):
+                return f"{room['name']}（room_id: {room_id}）"
+    except Exception:
+        pass
+    return f"room_id: {room_id}"
+
+
 def list_chatwork_rooms() -> str:
     """Chatworkのチャットルーム一覧（room_idと名前）を返す。
 

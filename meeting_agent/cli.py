@@ -26,7 +26,7 @@ GREETING = (
 def confirm_send(room_id: int, message: str) -> bool:
     """Chatwork送信の直前に人間へ確認する（LLMの判断だけでは送らせない）。"""
     print("\n--- Chatwork送信の確認 ---")
-    print(f"送信先 room_id: {room_id}")
+    print(f"送信先: {chatwork.room_label(room_id)}")
     print("本文:")
     print(message)
     print("--------------------------")

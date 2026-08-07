@@ -212,6 +212,15 @@ def test_list_rooms_and_members():
     assert "9001" in members and "山田 太郎" in members
 
 
+def test_room_label_shows_the_room_name():
+    # room_id の数字だけでは、送信先の取り違えに人間が気づけない
+    assert chatwork.room_label(11110001) == "A社_定例プロジェクト（room_id: 11110001）"
+
+
+def test_room_label_falls_back_to_id_when_name_is_unknown():
+    assert chatwork.room_label(99999999) == "room_id: 99999999"
+
+
 def test_missing_token_raises_clear_error(monkeypatch):
     monkeypatch.delenv("DEMO_MODE", raising=False)
     monkeypatch.delenv("CHATWORK_API_TOKEN", raising=False)
