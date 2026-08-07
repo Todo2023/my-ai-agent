@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.mjs';
+
+const { tel, email, hours, address, formUrl } = site.contact;
+---
+
+<Base
+  title="お問い合わせ"
+  description="合同会社To doへのお問い合わせ先。お電話またはメールでご連絡ください。ご相談・お見積りは無料です。"
+>
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">Contact</span>
+      <h1>お問い合わせ</h1>
+      <p>
+        ご相談とお見積りは無料です。「これは頼めるだろうか」という段階でも構いません。
+        2営業日以内にご返信します。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid grid--2">
+        <article class="card">
+          <h3>お電話</h3>
+          <p style="font-size:1.5rem;font-weight:700">
+            <a href={`tel:${tel.replace(/-/g, '')}`}>{tel}</a>
+          </p>
+          <p>受付時間：{hours}</p>
+        </article>
+        <article class="card">
+          <h3>メール</h3>
+          <p style="font-size:1.15rem;font-weight:700">
+            <a href={`mailto:${email}`}>{email}</a>
+          </p>
+          <p>会社名・お名前・ご相談内容をお書き添えください。</p>
+        </article>
+      </div>
+
+      {formUrl && (
+        <div class="btn-row" style="margin-top:32px">
+          <a class="btn btn--primary" href={formUrl} target="_blank" rel="noopener">
+            フォームから問い合わせる
+          </a>
+        </div>
+      )}
+
+      <div class="prose" style="margin-top:48px">
+        <h2>所在地</h2>
+        <p>{address}</p>
+        <p>
+          ※お打ち合わせはオンライン（Google Meet 等）でも対応しています。
+          ご来社の際は、事前にご連絡をお願いいたします。
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

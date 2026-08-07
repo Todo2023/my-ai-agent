@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+// src/content/news/ の .md ファイル1つにつき1ページを作る。
+export async function getStaticPaths() {
+  const posts = await getCollection('news', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const d = post.data.date;
+const fmt = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+---
+
+<Base title={post.data.title} description={post.data.summary ?? post.data.title}>
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">News</span>
+      <h1>{post.data.title}</h1>
+      <p><time datetime={d.toISOString().slice(0, 10)}>{fmt}</time></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <Content />
+      <p style="margin-top:48px"><a href="/news/">← お知らせ一覧へ</a></p>
+    </div>
+  </section>
+</Base>

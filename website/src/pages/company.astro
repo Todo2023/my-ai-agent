@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.mjs';
+---
+
+<Base
+  title="会社概要"
+  description="合同会社To doの会社概要。北海道札幌市厚別区を拠点に、資料作成・デザイン・秘書代行・AI活用支援を行っています。"
+>
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">Company</span>
+      <h1>会社概要</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <dl class="deflist">
+        {site.company.map((row) => (
+          <div>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="wrap prose">
+      <span class="eyebrow">About</span>
+      <h2>大きくないことを、そのまま強みにしています</h2>
+      <p>
+        合同会社To doは、資料づくり・デザイン・事務・AI活用といった、
+        会社の中で「誰の担当でもないまま溜まっていく仕事」を引き受けています。
+      </p>
+      <p>
+        規模が小さいぶん、窓口が分かれません。
+        同じ相手に一度説明すれば、資料の話も事務の話もそのまま進みます。
+        取引先の事情を覚えたまま続けられることを、いちばんの価値だと考えています。
+      </p>
+      <p>
+        AIの活用についても、売るために勉強したのではなく、
+        自社の請求書発行や議事録共有を実際に自動化するところから始めました。
+        使ってみて手応えのあったものだけをお伝えしています。
+      </p>
+    </div>
+  </section>
+</Base>

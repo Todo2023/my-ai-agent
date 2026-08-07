@@ -1,0 +1,29 @@
+---
+import { site } from '../data/site.mjs';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__cols">
+    <div>
+      <h2>{site.name}</h2>
+      <p>{site.contact.address}</p>
+      <p>
+        TEL:&nbsp;<a href={`tel:${site.contact.tel.replace(/-/g, '')}`}>{site.contact.tel}</a>
+        <br />
+        受付時間:&nbsp;{site.contact.hours}
+      </p>
+    </div>
+    <div>
+      <h2>メニュー</h2>
+      <ul>
+        <li><a href="/">ホーム</a></li>
+        {site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+  <div class="wrap site-footer__legal">
+    <p>© {year} {site.name}</p>
+  </div>
+</footer>

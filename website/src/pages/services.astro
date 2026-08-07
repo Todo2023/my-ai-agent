@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.mjs';
+---
+
+<Base
+  title="事業内容"
+  description="合同会社To doの事業内容。営業・販促資料の作成、ロゴ・名刺のデザイン、秘書・バックオフィス代行、AI活用と業務自動化の支援を行っています。"
+>
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">Services</span>
+      <h1>事業内容</h1>
+      <p>
+        専任で人を雇うほどではないけれど、社内でやるには手が足りない。
+        そうした仕事を、必要な分だけお引き受けします。
+      </p>
+    </div>
+  </section>
+
+  {site.services.map((s, i) => (
+    <section class={i % 2 === 1 ? 'section section--soft' : 'section'} id={s.id}>
+      <div class="wrap prose">
+        <h2>{s.title}</h2>
+        <p><strong>{s.summary}</strong></p>
+        <p>{s.body}</p>
+        <ul class="checklist">
+          {s.points.map((p) => <li>{p}</li>)}
+        </ul>
+      </div>
+    </section>
+  ))}
+
+  <section class="section">
+    <div class="wrap">
+      <h2>ご依頼の流れ</h2>
+      <div class="grid grid--3">
+        <article class="card">
+          <h3>1. ご相談</h3>
+          <p>お電話またはメールでご連絡ください。困っている内容と、今どこまで決まっているかをうかがいます。</p>
+        </article>
+        <article class="card">
+          <h3>2. ご提案・お見積り</h3>
+          <p>対応できる範囲、進め方、費用と期間をお出しします。ここまでは費用をいただきません。</p>
+        </article>
+        <article class="card">
+          <h3>3. 着手・納品</h3>
+          <p>たたき台をお出しし、すり合わせながら仕上げます。継続支援の場合は月ごとに内容を見直します。</p>
+        </article>
+      </div>
+      <div class="btn-row" style="margin-top:32px">
+        <a class="btn btn--primary" href="/contact/">お問い合わせ</a>
+      </div>
+    </div>
+  </section>
+</Base>
