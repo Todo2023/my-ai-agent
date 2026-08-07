@@ -1,159 +1,38 @@
-<p class="note">
-  ホームページに書いてある内容から起こした下書きです。<br />
-  請求書はまだ読み込んでいないので、そのぶんの区画は空けてあります。
-</p>
-
 <div class="wrap">
 
   <header class="head">
-    <span class="eyebrow">Brain map</span>
     <h1>合同会社To do の脳内マップ</h1>
-    <p>
-      何をやっている会社なのかを、事業の一覧ではなく「頭の中で何がどこにあるか」として並べ直した地図。
-      幹をたどると、真ん中にある考えから、実際に手が動いているところまで下りていきます。
+    <p class="lead">
+      ホームページから抜き出した思考ノード。●をドラッグで動かし、クリックで中身と投稿文を開く。
     </p>
+    <p class="hint">drag to move &middot; click a node &middot; click empty space to deselect</p>
+
+    <ul class="legend">
+      <li data-cat="center"><i style="--dot: var(--c-center)"></i>真ん中</li>
+      <li data-cat="biz"><i style="--dot: var(--c-biz)"></i>事業</li>
+      <li data-cat="think"><i style="--dot: var(--c-think)"></i>考え方</li>
+      <li data-cat="fact"><i style="--dot: var(--c-fact)"></i>会社の形</li>
+      <li data-cat="blank"><i></i>まだ白い（請求書待ち）</li>
+      <li data-cat="src"><i style="--dot: var(--c-src)"></i>出どころ</li>
+    </ul>
   </header>
 
-  <section class="core" aria-labelledby="core-h">
-    <span class="eyebrow">中心にあるもの</span>
-    <h2 id="core-h" class="visually-hidden">中心にある考え</h2>
-    <blockquote>
-      会社の中で「誰の担当でもないまま溜まっていく仕事」を引き受けています。
-    </blockquote>
-    <cite>— 会社概要「大きくないことを、そのまま強みにしています」より</cite>
-  </section>
+  <div class="stage">
+    <div class="board">
+      <canvas id="map"
+        aria-label="合同会社To doの事業・考え方・会社の形をつないだ地図。下の索引から同じ内容を開けます。"></canvas>
+      <button type="button" class="board__reset" id="reset">並べ直す</button>
+    </div>
 
-  <div class="map">
-
-    <section class="region" aria-labelledby="r1">
-      <span class="eyebrow">Area 01</span>
-      <h2 id="r1">手が動いているところ</h2>
-      <p class="lead">専任で雇うほどではないけれど、社内でやるには手が足りない仕事。その4つの入り口。</p>
-
-      <div class="cards cards--2">
-        <article class="card">
-          <h3>営業・販促資料の作成</h3>
-          <p>伝わらない資料を、意思決定が進む資料に作り直す。「何を載せるか決まっていない」段階から入る。</p>
-          <ul class="chips">
-            <li>構成案の設計から</li>
-            <li>既存資料の作り直し</li>
-            <li>PowerPoint等で納品</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>ロゴ・名刺などのデザイン</h3>
-          <p>会社の顔になるものを、一式そろえて整える。ロゴと名刺をセットで頼まれることが多い。</p>
-          <ul class="chips">
-            <li>ロゴ・名刺・印刷物</li>
-            <li>複数案の提示</li>
-            <li>入稿データで納品</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>秘書・バックオフィス代行</h3>
-          <p>月額で、事務まわりを継続的に預かる。単発の外注ではなく、社内の一員として動くことを重んじる。</p>
-          <ul class="chips">
-            <li>日程調整・連絡代行</li>
-            <li>資料整理</li>
-            <li>請求書発行などの経理事務</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>AI活用・業務自動化の支援</h3>
-          <p>「AIで何ができるか」を、その会社の業務に当てはめて考える。入れて終わりにせず、業務フローに載るまで付き添う。</p>
-          <ul class="chips">
-            <li>生成AIの導入と使い方の整理</li>
-            <li>定型業務の自動化</li>
-            <li>人が見る線引きの設計</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="region" aria-labelledby="r2">
-      <span class="eyebrow">Area 02</span>
-      <h2 id="r2">いつも考えていること</h2>
-      <p class="lead">頼む側が引っかかりやすいところを、先に外しておく。</p>
-
-      <div class="cards">
-        <article class="card">
-          <h3>小さく始められるようにしておく</h3>
-          <p>月に数時間ぶんの依頼から受ける。まず1つ困っていることを預かって、合いそうなら範囲を広げる。</p>
-        </article>
-        <article class="card">
-          <h3>窓口をひとつにまとめておく</h3>
-          <p>資料もデザインも事務もAIも同じ窓口。複数の外注先に同じ背景を説明し直す手間を、相手に持たせない。</p>
-        </article>
-        <article class="card">
-          <h3>売る前に、自分たちで使ってみる</h3>
-          <p>請求書の自動作成や議事録の共有は、まず自社の業務で仕組みを作った。使えたものだけを人に勧める。</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="region" aria-labelledby="r3">
-      <span class="eyebrow">Area 03</span>
-      <h2 id="r3">体の形</h2>
-      <p class="lead">地図の縮尺にあたるところ。会社概要から。</p>
-
-      <dl class="facts">
-        <div>
-          <dt>商号</dt>
-          <dd>合同会社To do</dd>
-        </div>
-        <div>
-          <dt>創業</dt>
-          <dd>2023年10月</dd>
-        </div>
-        <div>
-          <dt>所在地</dt>
-          <dd>〒004-0022　北海道札幌市厚別区厚別南1-4-3　Asterope厚別南101</dd>
-        </div>
-        <div>
-          <dt>受付時間</dt>
-          <dd>平日 9:00〜18:00（打ち合わせはオンラインでも）</dd>
-        </div>
-        <div>
-          <dt>登録番号</dt>
-          <dd class="num">T4011603004093</dd>
-        </div>
-      </dl>
-    </section>
-
-    <section class="region region--blank" aria-labelledby="r4">
-      <span class="eyebrow">Area 04</span>
-      <h2 id="r4">まだ白いところ</h2>
-      <p class="lead">ホームページには書かれていない部分。ここは請求書を読まないと埋まらない。</p>
-
-      <ul class="blanks">
-        <li>
-          <b>取引先の顔ぶれ</b>
-          <span>どんな業種・規模の会社と、何社くらい続いているか</span>
-        </li>
-        <li>
-          <b>続く仕事とスポットの割合</b>
-          <span>月額の継続支援と、単発の制作。どちらが体重を支えているか</span>
-        </li>
-        <li>
-          <b>忙しくなる月</b>
-          <span>請求の波。手が足りなくなる時期がいつ来るか</span>
-        </li>
-        <li>
-          <b>4つの事業の実際の大きさ</b>
-          <span>売上で見たとき、この地図の区画はどんな面積になるか</span>
-        </li>
-      </ul>
-
-      <p class="blank-note">
-        請求書（発行したぶんの一覧でも可）を渡してもらえれば、この4区画を数字で埋めて、
-        上の地図の大きさもそれに合わせて描き直せます。
-      </p>
-    </section>
-
+    <aside class="essence" id="essence" aria-live="polite">
+      <p class="essence__empty">丸を押すと、その中身と、そこから作った投稿文がここに出ます。</p>
+    </aside>
   </div>
+
+  <details class="index">
+    <summary>丸の索引（キーボードや読み上げから開く）</summary>
+    <ul class="index__list" id="index-list"></ul>
+  </details>
 
   <footer class="foot">
     <p class="name">合同会社To do</p>
@@ -166,3 +45,5 @@
   </footer>
 
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

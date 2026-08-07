@@ -2,459 +2,279 @@
 <style>
 /*
  * 合同会社To do の脳内マップ。
- * 色を変えたいときは :root の値を触る。ホームページと同じ緑・差し色を使っている。
+ * 夜空に見立てた1枚なので、明暗の切り替えは持たせず暗い側に決め打ちしている。
+ * （どんな地の色の上に置かれても崩れないよう、色はすべてここで塗っている）
  */
 
 :root {
-  --paper: #eef2ef;      /* 地の色。緑に寄せた紙 */
-  --card: #ffffff;
-  --card-soft: #f6f9f7;
-  --ink: #14201d;
-  --muted: #5d6b67;
-  --brand: #1f5d50;
-  --brand-deep: #12362f;
-  --accent: #c9744a;     /* 差し色。空いている区画にだけ使う */
-  --line: #cfdbd7;
-  --trunk: #b6c8c2;
-  --core-bg: #12362f;    /* 中心の札。明暗どちらでも濃い緑のまま */
-  --core-ink: #eef5f3;
-  --core-cite: #a9c6bd;
-  --core-eyebrow: #e5a884;
+  color-scheme: dark;
+
+  --ground: #0a100e;      /* 地の色。緑に寄せた黒 */
+  --ground-2: #101a17;
+  --panel: #14201d;
+  --ink: #e8f0ed;
+  --muted: #93a6a0;
+  --dim: #63756f;
+  --line: rgba(232, 240, 237, 0.14);
+
+  /* 丸の種類ごとの色 */
+  --c-center: #f2fbf8;
+  --c-biz: #5cc9a5;       /* 事業。会社の緑を夜空用に上げたもの */
+  --c-think: #b49ae8;     /* 考え方 */
+  --c-fact: #62b2e0;      /* 会社の形 */
+  --c-blank: #e08a5a;     /* まだ白いところ。会社の差し色 */
+  --c-src: #7f96a0;       /* 出どころ */
 
   --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
     "Noto Sans JP", Meiryo, system-ui, sans-serif;
   --font-display: "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
     "Noto Serif JP", "Times New Roman", serif;
   --font-util: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-
-  --maxw: 760px;
-}
-
-/* システム設定が暗いとき（テーマ未指定のときはここだけが効く） */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0d1513;
-    --card: #15201d;
-    --card-soft: #111a18;
-    --ink: #e6ede9;
-    --muted: #97a6a1;
-    --brand: #74bda9;
-    --brand-deep: #a8d6c8;
-    --accent: #e0966b;
-    --line: rgba(230, 237, 233, 0.14);
-    --trunk: rgba(230, 237, 233, 0.22);
-    --core-bg: #10322b;
-    --core-ink: #e8f2ef;
-    --core-cite: #8fb5aa;
-    --core-eyebrow: #e0966b;
-  }
-}
-
-/* 明示的に暗いテーマを選んだとき */
-:root[data-theme="dark"] {
-  --paper: #0d1513;
-  --card: #15201d;
-  --card-soft: #111a18;
-  --ink: #e6ede9;
-  --muted: #97a6a1;
-  --brand: #74bda9;
-  --brand-deep: #a8d6c8;
-  --accent: #e0966b;
-  --line: rgba(230, 237, 233, 0.14);
-  --trunk: rgba(230, 237, 233, 0.22);
-  --core-bg: #10322b;
-  --core-ink: #e8f2ef;
-  --core-cite: #8fb5aa;
-  --core-eyebrow: #e0966b;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--ground);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.9;
+  line-height: 1.85;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .wrap {
   width: 100%;
-  max-width: var(--maxw);
+  max-width: 1180px;
   margin-inline: auto;
-  padding-inline: 22px;
-}
-
-/* 小さい英字ラベル。区画の通し番号にも使う */
-.eyebrow {
-  font-family: var(--font-util);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* 但し書き -------------------------------------------------------- */
-.note {
-  background: var(--card-soft);
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.75;
-  padding: 12px 22px;
-  text-align: center;
+  padding-inline: 20px;
 }
 
 /* 見出し ---------------------------------------------------------- */
-.head { padding: clamp(44px, 9vw, 84px) 0 clamp(28px, 5vw, 44px); }
+.head { padding: clamp(26px, 5vw, 44px) 0 18px; }
 .head h1 {
   font-family: var(--font-display);
-  font-size: clamp(1.7rem, 5.6vw, 2.5rem);
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
   font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-  text-wrap: balance;
-  margin: 0.5em 0 0.6em;
-}
-.head p {
-  margin: 0;
-  max-width: 34em;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-/* 中心にあること --------------------------------------------------- */
-.core {
-  background: var(--core-bg);
-  color: var(--core-ink);
-  border-radius: 18px;
-  padding: clamp(28px, 6vw, 44px);
-  margin-bottom: 8px;
-}
-.core .eyebrow { color: var(--core-eyebrow); }
-.core blockquote {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 3.6vw, 1.5rem);
-  line-height: 1.75;
-  font-weight: 500;
-  margin: 0.7em 0 0.8em;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  margin: 0 0 0.45em;
   text-wrap: balance;
 }
-.core cite {
-  display: block;
-  font-style: normal;
-  font-size: 0.8rem;
-  color: var(--core-cite);
-}
-
-/* 幹と区画 -------------------------------------------------------- */
-.map {
-  border-left: 2px solid var(--trunk);
-  margin-left: 9px;
-  padding: 10px 0 10px 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 34px;
-}
-@media (max-width: 560px) {
-  .map { padding-left: 20px; }
-}
-
-.region { position: relative; }
-
-/* 幹から生えている点 */
-.region::before {
-  content: "";
-  position: absolute;
-  left: -38px;
-  top: 0.72em;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--brand);
-  border: 2px solid var(--paper);
-}
-@media (max-width: 560px) {
-  .region::before { left: -27px; }
-}
-
-.region > h2 {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--brand-deep);
-  margin: 0.35em 0 0.15em;
-  letter-spacing: 0.02em;
-}
-.region > .lead {
-  margin: 0 0 18px;
+.head .lead {
+  margin: 0 0 0.7em;
+  max-width: 40em;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.94rem;
 }
-
-/* 区画の中身 ------------------------------------------------------- */
-.cards { display: grid; gap: 14px; }
-@media (min-width: 620px) { .cards--2 { grid-template-columns: 1fr 1fr; } }
-.cards > * { min-width: 0; }
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  padding: 20px 20px 18px;
-}
-.card h3 {
-  margin: 0 0 0.35em;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.6;
-}
-.card p {
+.head .hint {
   margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.85;
-  color: var(--muted);
+  font-family: var(--font-util);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--dim);
 }
 
-/* 中身の小さい札 */
-.chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; padding: 0; list-style: none; }
-.chips li {
-  font-size: 0.76rem;
-  line-height: 1.6;
-  color: var(--brand);
-  background: var(--card-soft);
+/* 凡例 ------------------------------------------------------------ */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  margin: 16px 0 0; padding: 0; list-style: none;
+  font-size: 0.78rem; color: var(--muted);
+}
+.legend li { display: flex; align-items: center; gap: 7px; }
+.legend i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--dot, var(--c-src)); flex: 0 0 auto;
+}
+.legend li[data-cat="blank"] i { background: transparent; border: 1.5px dashed var(--c-blank); }
+
+/* 地図と札 --------------------------------------------------------- */
+.stage { display: grid; gap: 16px; margin-top: 20px; }
+@media (min-width: 900px) { .stage { grid-template-columns: 1fr 340px; align-items: start; } }
+.stage > * { min-width: 0; }
+
+.board {
+  position: relative;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #16241f 0%, rgba(22, 36, 31, 0) 62%),
+    var(--ground-2);
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px 11px;
-}
-
-/* 会社の骨格（定義リスト） ------------------------------------------ */
-.facts { margin: 0; border-top: 1px solid var(--line); }
-.facts > div {
-  display: grid;
-  gap: 2px 20px;
-  padding: 13px 2px;
-  border-bottom: 1px solid var(--line);
-}
-@media (min-width: 620px) { .facts > div { grid-template-columns: 11em 1fr; } }
-.facts dt { margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--brand-deep); }
-.facts dd { margin: 0; font-size: 0.92rem; overflow-wrap: anywhere; }
-.facts .num { font-family: var(--font-util); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
-
-/* まだ白いところ --------------------------------------------------- */
-.region--blank::before { background: var(--accent); }
-.region--blank > h2 { color: var(--accent); }
-
-.blanks { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
-@media (min-width: 620px) { .blanks { grid-template-columns: 1fr 1fr; } }
-.blanks li {
-  border: 1px dashed var(--accent);
-  border-radius: 13px;
-  padding: 16px 18px;
-  background: transparent;
-}
-.blanks b { display: block; font-size: 0.92rem; color: var(--ink); }
-.blanks span { display: block; font-size: 0.82rem; line-height: 1.8; color: var(--muted); margin-top: 3px; }
-
-.blank-note {
-  margin: 18px 0 0;
-  font-size: 0.86rem;
-  color: var(--muted);
-}
-
-/* 足もと -------------------------------------------------------- */
-.foot {
-  margin-top: clamp(48px, 8vw, 80px);
-  border-top: 1px solid var(--line);
-  padding: 30px 0 46px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.foot a { color: var(--brand); overflow-wrap: anywhere; }
-.foot p { margin: 0 0 0.5em; }
-.foot .name { font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
-
-/* 画面には出さないが読み上げには残す見出し */
-.visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
+  border-radius: 16px;
   overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+}
+.board canvas {
+  display: block;
+  width: 100%;
+  height: clamp(400px, 60vh, 660px);
+  touch-action: none;   /* 指のドラッグを地図側で受け取る */
+  cursor: grab;
+}
+.board canvas.is-grabbing { cursor: grabbing; }
+.board canvas:focus-visible { outline: 2px solid var(--c-biz); outline-offset: -3px; }
+
+.board__reset {
+  position: absolute; right: 10px; bottom: 10px;
+  font: inherit; font-size: 0.76rem;
+  color: var(--muted); background: rgba(10, 16, 14, 0.8);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 13px; cursor: pointer;
+}
+.board__reset:hover { color: var(--ink); border-color: var(--muted); }
+
+/* 開いた丸の中身 --------------------------------------------------- */
+.essence {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 20px;
+}
+.essence__empty { color: var(--muted); font-size: 0.88rem; margin: 0; }
+
+.essence__cat {
+  display: inline-block;
+  font-family: var(--font-util);
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--cat-color, var(--muted));
+  border: 1px solid currentColor; border-radius: 999px;
+  padding: 1px 10px;
+}
+.essence h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem; font-weight: 600; line-height: 1.55;
+  margin: 0.6em 0 0.4em;
+}
+.essence__body { margin: 0; font-size: 0.9rem; line-height: 1.9; color: #cfdcd8; }
+.essence__src {
+  margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 0.78rem; color: var(--dim);
 }
 
-a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+/* 投稿の下ごしらえ -------------------------------------------------- */
+.post { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.post h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-util);
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600;
 }
+.post textarea {
+  width: 100%; min-height: 118px; resize: vertical;
+  font: inherit; font-size: 0.85rem; line-height: 1.8;
+  color: var(--ink); background: var(--ground);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 13px;
+}
+.post textarea:focus-visible { outline: 2px solid var(--c-biz); outline-offset: 1px; }
 
-/* 出てくるときの動き。設定で切っている人には出さない */
-@media (prefers-reduced-motion: no-preference) {
-  .region, .core { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
-  .region.is-in, .core.is-in { opacity: 1; transform: none; }
+.post__row { display: flex; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.post__count {
+  font-family: var(--font-util); font-size: 0.74rem;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.post__count[data-over="true"] { color: var(--c-blank); }
+
+.btn {
+  font: inherit; font-size: 0.83rem; font-weight: 700;
+  color: #08110e; background: var(--c-biz);
+  border: 0; border-radius: 999px;
+  padding: 9px 20px; cursor: pointer;
+}
+.btn:hover { background: #75d7b6; }
+.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.post__note { margin: 12px 0 0; font-size: 0.75rem; line-height: 1.75; color: var(--dim); }
+
+/* 押したときの知らせ */
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(10px);
+  background: var(--ink); color: #0a100e;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 9px 20px; border-radius: 999px;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30;
+}
+.toast.is-on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 丸の索引（キーボードでも開けるように） ---------------------------- */
+.index { margin-top: 34px; }
+.index > summary {
+  cursor: pointer; font-size: 0.86rem; color: var(--muted);
+  padding: 8px 0; list-style: none;
+}
+.index > summary::-webkit-details-marker { display: none; }
+.index > summary::before { content: "▸ "; color: var(--dim); }
+.index[open] > summary::before { content: "▾ "; }
+.index > summary:focus-visible { outline: 2px solid var(--c-biz); outline-offset: 2px; }
+
+.index__list {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin: 10px 0 0; padding: 0; list-style: none;
+}
+.index__list button {
+  font: inherit; font-size: 0.78rem;
+  color: var(--ink); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 13px; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+}
+.index__list button:hover { border-color: var(--muted); }
+.index__list button:focus-visible { outline: 2px solid var(--c-biz); outline-offset: 2px; }
+.index__list i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot); flex: 0 0 auto; }
+
+/* 足もと ---------------------------------------------------------- */
+.foot {
+  margin-top: clamp(40px, 7vw, 68px);
+  border-top: 1px solid var(--line);
+  padding: 26px 0 44px;
+  font-size: 0.82rem; color: var(--muted);
+}
+.foot a { color: var(--c-biz); overflow-wrap: anywhere; }
+.foot p { margin: 0 0 0.4em; }
+.foot .name { font-family: var(--font-display); font-size: 0.98rem; color: var(--ink); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
 </style>
-
-<p class="note">
-  ホームページに書いてある内容から起こした下書きです。<br />
-  請求書はまだ読み込んでいないので、そのぶんの区画は空けてあります。
-</p>
 
 <div class="wrap">
 
   <header class="head">
-    <span class="eyebrow">Brain map</span>
     <h1>合同会社To do の脳内マップ</h1>
-    <p>
-      何をやっている会社なのかを、事業の一覧ではなく「頭の中で何がどこにあるか」として並べ直した地図。
-      幹をたどると、真ん中にある考えから、実際に手が動いているところまで下りていきます。
+    <p class="lead">
+      ホームページから抜き出した思考ノード。●をドラッグで動かし、クリックで中身と投稿文を開く。
     </p>
+    <p class="hint">drag to move &middot; click a node &middot; click empty space to deselect</p>
+
+    <ul class="legend">
+      <li data-cat="center"><i style="--dot: var(--c-center)"></i>真ん中</li>
+      <li data-cat="biz"><i style="--dot: var(--c-biz)"></i>事業</li>
+      <li data-cat="think"><i style="--dot: var(--c-think)"></i>考え方</li>
+      <li data-cat="fact"><i style="--dot: var(--c-fact)"></i>会社の形</li>
+      <li data-cat="blank"><i></i>まだ白い（請求書待ち）</li>
+      <li data-cat="src"><i style="--dot: var(--c-src)"></i>出どころ</li>
+    </ul>
   </header>
 
-  <section class="core" aria-labelledby="core-h">
-    <span class="eyebrow">中心にあるもの</span>
-    <h2 id="core-h" class="visually-hidden">中心にある考え</h2>
-    <blockquote>
-      会社の中で「誰の担当でもないまま溜まっていく仕事」を引き受けています。
-    </blockquote>
-    <cite>— 会社概要「大きくないことを、そのまま強みにしています」より</cite>
-  </section>
+  <div class="stage">
+    <div class="board">
+      <canvas id="map"
+        aria-label="合同会社To doの事業・考え方・会社の形をつないだ地図。下の索引から同じ内容を開けます。"></canvas>
+      <button type="button" class="board__reset" id="reset">並べ直す</button>
+    </div>
 
-  <div class="map">
-
-    <section class="region" aria-labelledby="r1">
-      <span class="eyebrow">Area 01</span>
-      <h2 id="r1">手が動いているところ</h2>
-      <p class="lead">専任で雇うほどではないけれど、社内でやるには手が足りない仕事。その4つの入り口。</p>
-
-      <div class="cards cards--2">
-        <article class="card">
-          <h3>営業・販促資料の作成</h3>
-          <p>伝わらない資料を、意思決定が進む資料に作り直す。「何を載せるか決まっていない」段階から入る。</p>
-          <ul class="chips">
-            <li>構成案の設計から</li>
-            <li>既存資料の作り直し</li>
-            <li>PowerPoint等で納品</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>ロゴ・名刺などのデザイン</h3>
-          <p>会社の顔になるものを、一式そろえて整える。ロゴと名刺をセットで頼まれることが多い。</p>
-          <ul class="chips">
-            <li>ロゴ・名刺・印刷物</li>
-            <li>複数案の提示</li>
-            <li>入稿データで納品</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>秘書・バックオフィス代行</h3>
-          <p>月額で、事務まわりを継続的に預かる。単発の外注ではなく、社内の一員として動くことを重んじる。</p>
-          <ul class="chips">
-            <li>日程調整・連絡代行</li>
-            <li>資料整理</li>
-            <li>請求書発行などの経理事務</li>
-          </ul>
-        </article>
-
-        <article class="card">
-          <h3>AI活用・業務自動化の支援</h3>
-          <p>「AIで何ができるか」を、その会社の業務に当てはめて考える。入れて終わりにせず、業務フローに載るまで付き添う。</p>
-          <ul class="chips">
-            <li>生成AIの導入と使い方の整理</li>
-            <li>定型業務の自動化</li>
-            <li>人が見る線引きの設計</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="region" aria-labelledby="r2">
-      <span class="eyebrow">Area 02</span>
-      <h2 id="r2">いつも考えていること</h2>
-      <p class="lead">頼む側が引っかかりやすいところを、先に外しておく。</p>
-
-      <div class="cards">
-        <article class="card">
-          <h3>小さく始められるようにしておく</h3>
-          <p>月に数時間ぶんの依頼から受ける。まず1つ困っていることを預かって、合いそうなら範囲を広げる。</p>
-        </article>
-        <article class="card">
-          <h3>窓口をひとつにまとめておく</h3>
-          <p>資料もデザインも事務もAIも同じ窓口。複数の外注先に同じ背景を説明し直す手間を、相手に持たせない。</p>
-        </article>
-        <article class="card">
-          <h3>売る前に、自分たちで使ってみる</h3>
-          <p>請求書の自動作成や議事録の共有は、まず自社の業務で仕組みを作った。使えたものだけを人に勧める。</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="region" aria-labelledby="r3">
-      <span class="eyebrow">Area 03</span>
-      <h2 id="r3">体の形</h2>
-      <p class="lead">地図の縮尺にあたるところ。会社概要から。</p>
-
-      <dl class="facts">
-        <div>
-          <dt>商号</dt>
-          <dd>合同会社To do</dd>
-        </div>
-        <div>
-          <dt>創業</dt>
-          <dd>2023年10月</dd>
-        </div>
-        <div>
-          <dt>所在地</dt>
-          <dd>〒004-0022　北海道札幌市厚別区厚別南1-4-3　Asterope厚別南101</dd>
-        </div>
-        <div>
-          <dt>受付時間</dt>
-          <dd>平日 9:00〜18:00（打ち合わせはオンラインでも）</dd>
-        </div>
-        <div>
-          <dt>登録番号</dt>
-          <dd class="num">T4011603004093</dd>
-        </div>
-      </dl>
-    </section>
-
-    <section class="region region--blank" aria-labelledby="r4">
-      <span class="eyebrow">Area 04</span>
-      <h2 id="r4">まだ白いところ</h2>
-      <p class="lead">ホームページには書かれていない部分。ここは請求書を読まないと埋まらない。</p>
-
-      <ul class="blanks">
-        <li>
-          <b>取引先の顔ぶれ</b>
-          <span>どんな業種・規模の会社と、何社くらい続いているか</span>
-        </li>
-        <li>
-          <b>続く仕事とスポットの割合</b>
-          <span>月額の継続支援と、単発の制作。どちらが体重を支えているか</span>
-        </li>
-        <li>
-          <b>忙しくなる月</b>
-          <span>請求の波。手が足りなくなる時期がいつ来るか</span>
-        </li>
-        <li>
-          <b>4つの事業の実際の大きさ</b>
-          <span>売上で見たとき、この地図の区画はどんな面積になるか</span>
-        </li>
-      </ul>
-
-      <p class="blank-note">
-        請求書（発行したぶんの一覧でも可）を渡してもらえれば、この4区画を数字で埋めて、
-        上の地図の大きさもそれに合わせて描き直せます。
-      </p>
-    </section>
-
+    <aside class="essence" id="essence" aria-live="polite">
+      <p class="essence__empty">丸を押すと、その中身と、そこから作った投稿文がここに出ます。</p>
+    </aside>
   </div>
+
+  <details class="index">
+    <summary>丸の索引（キーボードや読み上げから開く）</summary>
+    <ul class="index__list" id="index-list"></ul>
+  </details>
 
   <footer class="foot">
     <p class="name">合同会社To do</p>
@@ -468,26 +288,691 @@ a:focus-visible, button:focus-visible {
 
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-/* 区画をスクロールに合わせて出す。動きを減らす設定の人には何もしない。 */
+/*
+ * 脳内マップ本体。
+ *
+ *   NODES / LINKS ... 地図に出す中身。ここだけ直せば地図が変わる
+ *   simulation   ... 丸どうしが押し合い、線が引き合う簡単な力学
+ *   draw         ... canvas に線と丸と札を描く
+ *   panel        ... 丸を押したときに横に出る「エッセンス」と投稿文
+ *
+ * 外部のライブラリは使っていない（読み込みが塞がれている場所でも動くように）。
+ */
 (function () {
-  var blocks = document.querySelectorAll('.core, .region');
+  'use strict';
+
+  // 丸の種類。色は CSS 変数から取る（凡例と必ず同じ色になる）
+  var CATS = {
+    center: { name: 'brain',   label: '真ん中' },
+    biz:    { name: 'biz',     label: '事業' },
+    think:  { name: 'think',   label: '考え方' },
+    fact:   { name: 'fact',    label: '会社の形' },
+    blank:  { name: 'blank',   label: 'まだ白い' },
+    src:    { name: 'src',     label: '出どころ' }
+  };
+
+  // ---------------------------------------------------------------
+  // 地図の中身
+  // ---------------------------------------------------------------
+  var NODES = [
+    { id: 'brain', cat: 'center', r: 26, label: '合同会社To doの脳内',
+      body: 'この会社の頭の中を、事業の一覧ではなく地図として並べたもの。丸をドラッグで動かせます。押すと、その丸の中身と、そこから作った投稿文が出ます。',
+      src: '新サイトの文言確認用プレビュー' },
+
+    /* 考え方 ---------------------------------------------------- */
+    { id: 'core', cat: 'think', r: 19, label: '誰の担当でもない仕事',
+      body: '会社の中で「誰の担当でもないまま溜まっていく仕事」を引き受けている。地図のいちばん真ん中にあるのはこれ。',
+      src: '会社概要', post: true },
+    { id: 'small-start', cat: 'think', r: 13, label: '小さく始められる',
+      body: '月に数時間ぶんの依頼から受ける。まず1つ困っていることを預かって、合いそうなら範囲を広げる。',
+      src: 'トップ「依頼しやすい理由」', post: true },
+    { id: 'one-door', cat: 'think', r: 13, label: '窓口はひとつ',
+      body: '資料もデザインも事務もAIも同じ窓口。複数の外注先に同じ背景を説明し直す手間を、相手に持たせない。',
+      src: 'トップ「依頼しやすい理由」', post: true },
+    { id: 'dogfood', cat: 'think', r: 14, label: '自分たちで使ってから勧める',
+      body: '請求書の自動作成や議事録の共有は、まず自社の業務で仕組みを作った。使ってみて手応えのあったものだけを人に勧める。',
+      src: 'トップ・会社概要', post: true },
+    { id: 'small-strong', cat: 'think', r: 13, label: '大きくないことが強み',
+      body: '規模が小さいぶん窓口が分かれない。取引先の事情を覚えたまま続けられることを、いちばんの価値だと考えている。',
+      src: '会社概要', post: true },
+
+    /* 事業 ------------------------------------------------------ */
+    { id: 'doc', cat: 'biz', r: 18, label: '営業・販促資料の作成',
+      body: '伝わらない資料を、意思決定が進む資料に作り直す。たたき台 → 打ち合わせ → 納品。「何を載せるか決まっていない」段階から入れる。',
+      src: '事業内容', post: true },
+    { id: 'doc1', cat: 'biz', r: 7, label: '構成案の設計から' },
+    { id: 'doc2', cat: 'biz', r: 7, label: '既存資料の作り直し' },
+    { id: 'doc3', cat: 'biz', r: 7, label: 'PowerPoint等で納品' },
+
+    { id: 'design', cat: 'biz', r: 18, label: 'ロゴ・名刺などのデザイン',
+      body: '会社の顔になるものを、一式そろえて整える。ロゴと名刺をセットで頼まれることが多く、トーンを揃えたまま他のツールへ広げられる。',
+      src: '事業内容', post: true },
+    { id: 'des1', cat: 'biz', r: 7, label: 'ロゴ・名刺・印刷物' },
+    { id: 'des2', cat: 'biz', r: 7, label: '複数案の提示' },
+    { id: 'des3', cat: 'biz', r: 7, label: '入稿データで納品' },
+
+    { id: 'back', cat: 'biz', r: 18, label: '秘書・バックオフィス代行',
+      body: '月額で、事務まわりを継続的に預かる。単発の外注ではなく、社内の一員として動くことを重んじている。',
+      src: '事業内容', post: true },
+    { id: 'bk1', cat: 'biz', r: 7, label: '日程調整・連絡代行' },
+    { id: 'bk2', cat: 'biz', r: 7, label: '資料整理' },
+    { id: 'bk3', cat: 'biz', r: 8, label: '請求書発行などの経理事務' },
+
+    { id: 'ai', cat: 'biz', r: 18, label: 'AI活用・業務自動化の支援',
+      body: '「AIで何ができるか」を、その会社の業務に当てはめて考える。ツールを入れて終わりにせず、実際の業務フローに載るところまで付き添う。',
+      src: '事業内容', post: true },
+    { id: 'ai1', cat: 'biz', r: 7, label: '生成AIの導入と使い方の整理' },
+    { id: 'ai2', cat: 'biz', r: 7, label: '定型業務の自動化' },
+    { id: 'ai3', cat: 'biz', r: 7, label: '人が見る線引きの設計' },
+
+    /* 会社の形 -------------------------------------------------- */
+    { id: 'shape', cat: 'fact', r: 14, label: '体の形',
+      body: '地図の縮尺にあたるところ。会社概要から。', src: '会社概要' },
+    { id: 'f1', cat: 'fact', r: 9, label: '創業 2023年10月' },
+    { id: 'f2', cat: 'fact', r: 9, label: '札幌市厚別区' },
+    { id: 'f3', cat: 'fact', r: 9, label: 'T4011603004093',
+      body: '適格請求書発行事業者の登録番号。', src: '会社概要' },
+    { id: 'f4', cat: 'fact', r: 9, label: '平日 9:00〜18:00' },
+    { id: 'contact', cat: 'fact', r: 12, label: '連絡先',
+      body: 'TEL 070-9136-4879 ／ todo.inc.2023.10.13@gmail.com。相談と見積りは無料で、2営業日以内に返信。打ち合わせはオンラインでも。',
+      src: 'お問い合わせ', post: true },
+    { id: 'news', cat: 'fact', r: 10, label: 'サイトを新しくした',
+      body: '2026年8月7日、ホームページをリニューアル。事業内容を4つに整理し、それぞれ何を引き受けられるのかを具体的に書いた。',
+      src: 'お知らせ', post: true },
+
+    /* まだ白いところ -------------------------------------------- */
+    { id: 'blank', cat: 'blank', r: 15, label: 'まだ白いところ',
+      body: 'ホームページには書かれていない部分。ここは請求書を読まないと埋まらない。請求書（発行したぶんの一覧でも可）が入れば、下の4つが数字で埋まり、地図の丸の大きさも実際の比率に描き直せる。' },
+    { id: 'b1', cat: 'blank', r: 10, label: '取引先の顔ぶれ',
+      body: 'どんな業種・規模の会社と、何社くらい続いているか。' },
+    { id: 'b2', cat: 'blank', r: 10, label: '継続とスポットの割合',
+      body: '月額の継続支援と、単発の制作。どちらが体重を支えているか。' },
+    { id: 'b3', cat: 'blank', r: 10, label: '忙しくなる月',
+      body: '請求の波。手が足りなくなる時期がいつ来るか。' },
+    { id: 'b4', cat: 'blank', r: 10, label: '事業ごとの実際の大きさ',
+      body: '売上で見たとき、この地図の4つの丸はどんな大きさになるか。' },
+
+    /* 出どころ -------------------------------------------------- */
+    { id: 's-top', cat: 'src', r: 8, label: 'トップ' },
+    { id: 's-biz', cat: 'src', r: 8, label: '事業内容' },
+    { id: 's-com', cat: 'src', r: 8, label: '会社概要' },
+    { id: 's-news', cat: 'src', r: 7, label: 'お知らせ' },
+    { id: 's-ct', cat: 'src', r: 7, label: 'お問い合わせ' }
+  ];
+
+  var LINKS = [
+    ['brain', 'core'], ['brain', 'doc'], ['brain', 'design'], ['brain', 'back'],
+    ['brain', 'ai'], ['brain', 'shape'], ['brain', 'blank'],
+
+    ['core', 'small-start'], ['core', 'one-door'], ['core', 'dogfood'], ['core', 'small-strong'],
+
+    ['doc', 'doc1'], ['doc', 'doc2'], ['doc', 'doc3'],
+    ['design', 'des1'], ['design', 'des2'], ['design', 'des3'],
+    ['back', 'bk1'], ['back', 'bk2'], ['back', 'bk3'],
+    ['ai', 'ai1'], ['ai', 'ai2'], ['ai', 'ai3'],
+
+    ['shape', 'f1'], ['shape', 'f2'], ['shape', 'f3'], ['shape', 'f4'],
+    ['shape', 'contact'], ['shape', 'news'],
+
+    ['blank', 'b1'], ['blank', 'b2'], ['blank', 'b3'], ['blank', 'b4'],
+
+    /* 意味のつながり。請求書は、まだ白いところの入口でもある */
+    ['bk3', 'blank'], ['bk3', 'f3'],
+    ['dogfood', 'ai'], ['one-door', 'back'], ['small-start', 'doc'],
+
+    /* 出どころ */
+    ['s-top', 'small-start'], ['s-top', 'one-door'], ['s-top', 'dogfood'],
+    ['s-biz', 'doc'], ['s-biz', 'design'], ['s-biz', 'back'], ['s-biz', 'ai'],
+    ['s-com', 'core'], ['s-com', 'small-strong'], ['s-com', 'shape'],
+    ['s-news', 'news'], ['s-ct', 'contact']
+  ];
+
+  // ---------------------------------------------------------------
+  // 下ごしらえ
+  // ---------------------------------------------------------------
+  var byId = {};
+  NODES.forEach(function (n) { byId[n.id] = n; });
+
+  var links = LINKS.map(function (l) { return { a: byId[l[0]], b: byId[l[1]] }; })
+    .filter(function (l) { return l.a && l.b; });
+
+  // 隣り合っている丸を覚えておく（選んだときに線を光らせる）
+  links.forEach(function (l) {
+    (l.a.near || (l.a.near = [])).push(l.b.id);
+    (l.b.near || (l.b.near = [])).push(l.a.id);
+  });
+
+  var canvas = document.getElementById('map');
+  var panel = document.getElementById('essence');
+  var indexList = document.getElementById('index-list');
+  var resetBtn = document.getElementById('reset');
+  var toastEl = document.getElementById('toast');
+  if (!canvas || !panel) return;
+
+  var ctx = canvas.getContext('2d');
   var still = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // 動きを切っている場合と、IntersectionObserver がない場合は、そのまま出す
-  if (still.matches || !('IntersectionObserver' in window)) {
-    blocks.forEach(function (el) { el.classList.add('is-in'); });
-    return;
+  // CSS 変数から色を取る
+  var css = getComputedStyle(document.documentElement);
+  var COLOR = {};
+  Object.keys(CATS).forEach(function (k) {
+    COLOR[k] = css.getPropertyValue('--c-' + k).trim() || '#8fa3ad';
+  });
+  var LINE = css.getPropertyValue('--line').trim() || 'rgba(232,240,237,0.14)';
+  var INK = css.getPropertyValue('--ink').trim() || '#e8f0ed';
+  var MUTED = css.getPropertyValue('--muted').trim() || '#93a6a0';
+
+  var W = 0, H = 0, dpr = 1;
+  var selected = null, hovered = null, dragging = null;
+  var pointerDown = null, moved = false;
+
+  // ---------------------------------------------------------------
+  // 置きはじめの位置。中心から放射状に散らしておくとほどけやすい
+  // ---------------------------------------------------------------
+  function seed() {
+    var i = 0;
+    NODES.forEach(function (n) {
+      if (n.id === 'brain') { n.x = 0; n.y = 0; }
+      else {
+        var ang = (i * 2.399963); // 黄金角。重ならないように散る
+        var rad = 60 + Math.sqrt(i) * 34;
+        n.x = Math.cos(ang) * rad;
+        n.y = Math.sin(ang) * rad;
+        i++;
+      }
+      n.vx = 0; n.vy = 0;
+    });
   }
 
-  var seen = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-in');
-      seen.unobserve(entry.target);
-    });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  // ---------------------------------------------------------------
+  // 力学ひと押しぶん
+  // ---------------------------------------------------------------
+  function step() {
+    var i, j, a, b, dx, dy, d, f;
 
-  blocks.forEach(function (el) { seen.observe(el); });
+    // 板が広いときは、そのぶん広がるようにする
+    var spread = Math.max(0.85, Math.min(1.7, Math.min(W, H) / 520));
+
+    // 押し合う
+    for (i = 0; i < NODES.length; i++) {
+      a = NODES[i];
+      for (j = i + 1; j < NODES.length; j++) {
+        b = NODES[j];
+        dx = b.x - a.x; dy = b.y - a.y;
+        d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        f = (620 + a.r * b.r * 2.2) * spread * spread / (d * d);
+        if (f > 2.2) f = 2.2;
+        dx /= d; dy /= d;
+        a.vx -= dx * f; a.vy -= dy * f;
+        b.vx += dx * f; b.vy += dy * f;
+
+        // 重なったぶんは、その場で引き離す
+        var min = a.r + b.r + 9;
+        if (d < min) {
+          var push = (min - d) * 0.5;
+          a.x -= dx * push; a.y -= dy * push;
+          b.x += dx * push; b.y += dy * push;
+        }
+      }
+    }
+
+    // 線が引き合う
+    for (i = 0; i < links.length; i++) {
+      a = links[i].a; b = links[i].b;
+      dx = b.x - a.x; dy = b.y - a.y;
+      d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      var rest = (a.r + b.r + 58) * spread;
+      f = (d - rest) * 0.012;
+      dx /= d; dy /= d;
+      a.vx += dx * f; a.vy += dy * f;
+      b.vx -= dx * f; b.vy -= dy * f;
+    }
+
+    // 真ん中へゆるく寄せる
+    for (i = 0; i < NODES.length; i++) {
+      a = NODES[i];
+      a.vx -= a.x * 0.0016;
+      a.vy -= a.y * 0.0016;
+    }
+
+    // 動かして、減衰させて、枠の中に収める
+    var mx = W / 2 - 16, my = H / 2 - 16;
+    for (i = 0; i < NODES.length; i++) {
+      a = NODES[i];
+      if (a === dragging) { a.vx = 0; a.vy = 0; continue; }
+      a.vx *= 0.84; a.vy *= 0.84;
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < -mx + a.r) { a.x = -mx + a.r; a.vx *= -0.4; }
+      if (a.x > mx - a.r) { a.x = mx - a.r; a.vx *= -0.4; }
+      if (a.y < -my + a.r) { a.y = -my + a.r; a.vy *= -0.4; }
+      if (a.y > my - a.r) { a.y = my - a.r; a.vy *= -0.4; }
+    }
+  }
+
+  function energy() {
+    var e = 0;
+    for (var i = 0; i < NODES.length; i++) e += NODES[i].vx * NODES[i].vx + NODES[i].vy * NODES[i].vy;
+    return e;
+  }
+
+  // ---------------------------------------------------------------
+  // 描く
+  // ---------------------------------------------------------------
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+
+    var focus = selected || hovered;
+
+    // 線
+    for (var i = 0; i < links.length; i++) {
+      var l = links[i];
+      var on = focus && (l.a === focus || l.b === focus);
+      ctx.beginPath();
+      ctx.moveTo(l.a.x, l.a.y);
+      ctx.lineTo(l.b.x, l.b.y);
+      ctx.strokeStyle = on ? withAlpha(COLOR[focus.cat], 0.55) : LINE;
+      ctx.lineWidth = on ? 1.6 : 1;
+      ctx.stroke();
+    }
+
+    // 丸
+    for (i = 0; i < NODES.length; i++) {
+      var n = NODES[i];
+      var dim = focus && n !== focus && focus.near && focus.near.indexOf(n.id) < 0;
+      var col = COLOR[n.cat] || MUTED;
+
+      ctx.globalAlpha = dim ? 0.3 : 1;
+
+      if (n === focus || n.cat === 'center') {
+        ctx.shadowColor = withAlpha(col, 0.85);
+        ctx.shadowBlur = n === focus ? 22 : 16;
+      }
+
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+
+      if (n.cat === 'blank') {
+        // 中身がまだ無いので、塗らずに点線の輪だけ
+        ctx.fillStyle = withAlpha(col, 0.1);
+        ctx.fill();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.fillStyle = col;
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      if (n === selected) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = withAlpha(INK, 0.8);
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    drawLabels(focus);
+    ctx.restore();
+  }
+
+  // 札。大きい丸から順に置いて、ぶつかるものは出さない
+  function drawLabels(focus) {
+    // 選んだ丸と真ん中は先に置いて、必ず名前を出す。残りは大きい順に、空いていれば置く
+    function rank(n) {
+      return (n === focus ? 200 : 0) + (n.cat === 'center' ? 100 : 0) + n.r;
+    }
+    var order = NODES.slice().sort(function (p, q) { return rank(q) - rank(p); });
+    var placed = [];
+    ctx.textBaseline = 'middle';
+
+    for (var i = 0; i < order.length; i++) {
+      var n = order[i];
+      var big = n.r >= 12;
+      // 小さい丸の札は、選ばれているか隣り合っているときだけ出す
+      if (!big && !(focus && (n === focus || (focus.near && focus.near.indexOf(n.id) >= 0)))) continue;
+
+      var size = n.cat === 'center' ? 14 : (big ? 12.5 : 11);
+      ctx.font = '600 ' + size + 'px ' + bodyFont();
+      var w = ctx.measureText(n.label).width;
+      var h = size + 7;
+      var gap = n.r + 8;
+
+      // 右→左→下→上の順に置き場所を探す。どこにも置けなければ札を出さない
+      var spots = [
+        { x: n.x + gap, y: n.y },
+        { x: n.x - gap - w, y: n.y },
+        { x: n.x - w / 2, y: n.y + gap + h * 0.4 },
+        { x: n.x - w / 2, y: n.y - gap - h * 0.4 }
+      ];
+
+      // 選んだ丸と真ん中の札は、多少ぶつかっても必ず出す
+      var must = n === focus || n.cat === 'center';
+
+      var box = null, fallback = null, fewest = Infinity;
+      for (var s = 0; s < spots.length; s++) {
+        var cand = { x: spots[s].x - 3, y: spots[s].y - h / 2, w: w + 6, h: h };
+        // 板からはみ出す置き方は、必ず出す札でも使わない
+        if (cand.x < -W / 2 + 6 || cand.x + cand.w > W / 2 - 6) continue;
+        if (cand.y < -H / 2 + 4 || cand.y + cand.h > H / 2 - 4) continue;
+
+        var clash = countNodes(cand, n) + (hits(cand, placed) ? 1 : 0);
+        if (clash === 0) { box = cand; break; }
+        // どこも空いていなかったとき用に、いちばんぶつかりの少ない置き方を覚えておく
+        if (clash < fewest) { fewest = clash; fallback = cand; }
+      }
+      if (!box && must) box = fallback;
+      if (!box) continue;
+
+      var x = box.x + 3;
+      var y = box.y + h / 2;
+      placed.push(box);
+
+      ctx.fillStyle = n === focus ? INK : (n.r >= 14 ? INK : MUTED);
+      ctx.globalAlpha = focus && n !== focus && focus.near && focus.near.indexOf(n.id) < 0 ? 0.35 : 1;
+      // 線の上でも読めるように、うしろを暗く縁取る
+      ctx.strokeStyle = 'rgba(10,16,14,0.9)';
+      ctx.lineWidth = 3.4;
+      ctx.lineJoin = 'round';
+      ctx.strokeText(n.label, x, y);
+      ctx.fillText(n.label, x, y);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // 札が、自分以外のいくつの丸に乗っているか
+  function countNodes(box, self) {
+    var hit = 0;
+    for (var i = 0; i < NODES.length; i++) {
+      var n = NODES[i];
+      if (n === self) continue;
+      // 丸に一番近い札の点との距離で見る
+      var cx = Math.max(box.x, Math.min(n.x, box.x + box.w));
+      var cy = Math.max(box.y, Math.min(n.y, box.y + box.h));
+      var dx = n.x - cx, dy = n.y - cy;
+      if (dx * dx + dy * dy < (n.r + 2) * (n.r + 2)) hit++;
+    }
+    return hit;
+  }
+
+  function hits(box, list) {
+    for (var i = 0; i < list.length; i++) {
+      var o = list[i];
+      if (box.x < o.x + o.w && box.x + box.w > o.x && box.y < o.y + o.h && box.y + box.h > o.y) return true;
+    }
+    return false;
+  }
+
+  function bodyFont() {
+    return '"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,system-ui,sans-serif';
+  }
+
+  function withAlpha(c, a) {
+    c = (c || '').trim();
+    if (c.charAt(0) === '#') {
+      var hex = c.length === 4
+        ? c[1] + c[1] + c[2] + c[2] + c[3] + c[3]
+        : c.slice(1);
+      var num = parseInt(hex, 16);
+      return 'rgba(' + ((num >> 16) & 255) + ',' + ((num >> 8) & 255) + ',' + (num & 255) + ',' + a + ')';
+    }
+    return c;
+  }
+
+  // ---------------------------------------------------------------
+  // 動かし続ける
+  // ---------------------------------------------------------------
+  var raf = null, quiet = 0;
+
+  function loop() {
+    raf = null;
+    step();
+    draw();
+    if (energy() < 0.02 && !dragging) {
+      if (++quiet > 30) return;   // 落ち着いたら止める（電池のため）
+    } else { quiet = 0; }
+    raf = requestAnimationFrame(loop);
+  }
+
+  function wake() {
+    quiet = 0;
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  function settle(times) {
+    for (var i = 0; i < times; i++) step();
+    draw();
+  }
+
+  // ---------------------------------------------------------------
+  // 大きさ合わせ
+  // ---------------------------------------------------------------
+  function resize() {
+    var rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = rect.width; H = rect.height;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (still.matches) { settle(1); } else { wake(); }
+  }
+
+  // ---------------------------------------------------------------
+  // 指とマウス
+  // ---------------------------------------------------------------
+  function at(ev) {
+    var rect = canvas.getBoundingClientRect();
+    return { x: ev.clientX - rect.left - W / 2, y: ev.clientY - rect.top - H / 2 };
+  }
+
+  function pick(p) {
+    var best = null, bestD = Infinity;
+    for (var i = 0; i < NODES.length; i++) {
+      var n = NODES[i];
+      var dx = n.x - p.x, dy = n.y - p.y;
+      var d = Math.sqrt(dx * dx + dy * dy);
+      if (d < n.r + 9 && d < bestD) { best = n; bestD = d; }
+    }
+    return best;
+  }
+
+  canvas.addEventListener('pointerdown', function (ev) {
+    var p = at(ev);
+    var n = pick(p);
+    pointerDown = p; moved = false;
+    if (n) {
+      dragging = n;
+      canvas.classList.add('is-grabbing');
+      canvas.setPointerCapture(ev.pointerId);
+    }
+  });
+
+  canvas.addEventListener('pointermove', function (ev) {
+    var p = at(ev);
+    if (dragging) {
+      dragging.x = p.x; dragging.y = p.y;
+      dragging.vx = 0; dragging.vy = 0;
+      if (pointerDown && Math.abs(p.x - pointerDown.x) + Math.abs(p.y - pointerDown.y) > 4) moved = true;
+      if (still.matches) settle(1); else wake();
+      return;
+    }
+    if (ev.pointerType === 'mouse') {
+      var n = pick(p);
+      if (n !== hovered) {
+        hovered = n;
+        canvas.style.cursor = n ? 'pointer' : 'grab';
+        if (still.matches) draw(); else wake();
+      }
+    }
+  });
+
+  function release(ev) {
+    if (dragging && !moved) select(dragging);
+    else if (!dragging && !moved && pointerDown) select(null);
+    dragging = null; pointerDown = null;
+    canvas.classList.remove('is-grabbing');
+    if (ev && ev.pointerId != null && canvas.hasPointerCapture && canvas.hasPointerCapture(ev.pointerId)) {
+      canvas.releasePointerCapture(ev.pointerId);
+    }
+    if (still.matches) draw(); else wake();
+  }
+
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
+
+  // キーボードでも順に見ていけるように
+  canvas.setAttribute('tabindex', '0');
+  canvas.addEventListener('keydown', function (ev) {
+    var pickable = NODES.filter(function (n) { return n.r >= 9; });
+    if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft' && ev.key !== 'Enter') return;
+    ev.preventDefault();
+    var i = pickable.indexOf(selected);
+    if (ev.key === 'ArrowRight') i = (i + 1) % pickable.length;
+    else if (ev.key === 'ArrowLeft') i = (i - 1 + pickable.length) % pickable.length;
+    else if (i < 0) i = 0;
+    select(pickable[i]);
+  });
+
+  // ---------------------------------------------------------------
+  // エッセンスの札
+  // ---------------------------------------------------------------
+  function select(n) {
+    selected = n;
+    renderPanel(n);
+    if (still.matches) draw(); else wake();
+  }
+
+  function postText(n) {
+    var body = n.body || n.label;
+    return n.label + '｜合同会社To do\n\n' + body + '\n\n#合同会社Todo #札幌';
+  }
+
+  function renderPanel(n) {
+    if (!n) {
+      panel.innerHTML = '<p class="essence__empty">丸を押すと、その中身と、そこから作った投稿文がここに出ます。</p>';
+      return;
+    }
+
+    var color = COLOR[n.cat] || MUTED;
+    var html = '';
+    html += '<span class="essence__cat" style="--cat-color:' + esc(color) + '">' + esc(CATS[n.cat].label) + '</span>';
+    html += '<h2>' + esc(n.label) + '</h2>';
+    html += '<p class="essence__body">' + esc(n.body || 'この丸には、まだ短い言葉しか入っていません。') + '</p>';
+    if (n.src) html += '<p class="essence__src">出どころ：' + esc(n.src) + '</p>';
+
+    if (n.post) {
+      html += '<div class="post">'
+        + '<h3>投稿文の下ごしらえ</h3>'
+        + '<textarea id="post-text" aria-label="投稿文"></textarea>'
+        + '<div class="post__row">'
+        + '<button type="button" class="btn" id="copy">投稿文をコピー</button>'
+        + '<span class="post__count" id="count"></span>'
+        + '</div>'
+        + '<p class="post__note">いまはコピーまで。X や Threads へそのまま発信するところは、'
+        + 'あとで投稿用のつなぎ込みを足す回で動くようにします。</p>'
+        + '</div>';
+    } else if (n.cat === 'blank') {
+      html += '<div class="post"><p class="post__note">この丸はまだ中身が無いので、投稿文は作っていません。'
+        + '請求書が入れば、ここも発信できる中身になります。</p></div>';
+    }
+
+    panel.innerHTML = html;
+
+    var ta = document.getElementById('post-text');
+    if (ta) {
+      ta.value = postText(n);
+      count(ta);
+      ta.addEventListener('input', function () { count(ta); });
+      document.getElementById('copy').addEventListener('click', function () { copy(ta); });
+    }
+  }
+
+  function count(ta) {
+    var el = document.getElementById('count');
+    if (!el) return;
+    var len = Array.from(ta.value).length;   // 絵文字も1文字で数える
+    el.textContent = len + ' 文字 / 140';
+    el.setAttribute('data-over', String(len > 140));
+  }
+
+  function copy(ta) {
+    function done() { toast('投稿文をコピーしました'); }
+    function manual() {
+      ta.focus();
+      ta.select();
+      toast('選びました。長押し／Ctrl+C でコピーしてください');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(done, manual);
+    } else {
+      manual();
+    }
+  }
+
+  var toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 2200);
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 索引（指でもキーボードでも開ける入口）
+  // ---------------------------------------------------------------
+  if (indexList) {
+    NODES.forEach(function (n) {
+      if (n.r < 9) return;
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<i style="--dot:' + esc(COLOR[n.cat]) + '"></i>';
+      b.appendChild(document.createTextNode(n.label));
+      b.addEventListener('click', function () {
+        select(n);
+        canvas.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'center' });
+      });
+      li.appendChild(b);
+      indexList.appendChild(li);
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      seed();
+      if (still.matches) settle(260); else wake();
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 出発
+  // ---------------------------------------------------------------
+  seed();
+  renderPanel(null);
+  resize();
+  if (still.matches) settle(260);
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(resize).observe(canvas.parentNode);
+  } else {
+    window.addEventListener('resize', resize);
+  }
 })();
 </script>
