@@ -69,6 +69,11 @@ Googleカレンダーの予定（Google Meet URL付き）を確認・作成し�
 常に簡潔で分かりやすい日本語で応答してください。"""
 
 
+def _is_daily_quota(error) -> bool:
+    """429が「1日あたりの上限」によるものか（分あたりの制限ではないか）を判定する。"""
+    return "PerDay" in str(error)
+
+
 def _system_instruction() -> str:
     """現在日時を添えたシステムプロンプト。
 
@@ -110,8 +115,17 @@ class MeetingShareAgent:
                 response = self.chat.send_message(user_message)
                 return response.text
             except errors.ClientError as e:
+                if e.code == 429 and _is_daily_quota(e):
+                    # 1日あたりの上限。待っても当日中は空かないので即座に案内する
+                    raise RuntimeError(
+                        f"モデル '{self.model}' の無料枠の1日あたり上限に達しました。"
+                        "別のモデルに切り替えると、そのモデルの枠でまた使えます"
+                        "（上限はモデルごとに別枠です）。\n"
+                        "例: GEMINI_MODEL=gemini-2.0-flash\n"
+                        "使えるモデルは `python list_models.py` で確認できます。"
+                    ) from e
                 if e.code == 429 and attempt < MAX_RETRIES - 1:
-                    # 無料枠のレート制限に達した。少し待って再試行する
+                    # 分あたりのレート制限。少し待って再試行する
                     time.sleep(RETRY_WAIT_SECONDS)
                     continue
                 if e.code == 404:

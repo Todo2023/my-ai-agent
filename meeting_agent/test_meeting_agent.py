@@ -193,6 +193,22 @@ def test_demo_send_result_states_it_was_not_sent():
 # --- LLMに渡す前提情報 -------------------------------------------------------
 
 
+def test_daily_quota_is_distinguished_from_rate_limit():
+    import agent
+
+    daily = (
+        "429 RESOURCE_EXHAUSTED ... 'quotaId': "
+        "'GenerateRequestsPerDayPerProjectPerModel-Free Tier'"
+    )
+    per_minute = (
+        "429 RESOURCE_EXHAUSTED ... 'quotaId': "
+        "'GenerateRequestsPerMinutePerProjectPerModel-Free Tier'"
+    )
+    # 1日単位の上限は待っても空かないので、リトライせず案内に回す必要がある
+    assert agent._is_daily_quota(daily)
+    assert not agent._is_daily_quota(per_minute)
+
+
 def test_system_instruction_tells_the_model_todays_date():
     # 今日の日付が無いと、LLMは「明日」を勝手な日付に解釈してしまう
     import agent
