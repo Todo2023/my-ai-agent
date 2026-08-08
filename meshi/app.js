@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-06 読み取り版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-08 読み取り改良版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -740,8 +740,10 @@ function bind() {
     // 共有で受け取った食べログのリンクがあれば、その店のページを直接開く
     if (p.url && /tabelog\.com/.test(p.url)) { open(p.url, "_blank", "noopener"); return; }
     if (!p.name) { toast("先に店名を入れてください"); return; }
+    // 食べログ内の検索URLは形が変わることがあり、店のページに着かず入口に飛ばされる。
+    // 検索エンジンに食べログ内だけを探させたほうが、その店のページに確実に届く
     const q = [p.name, ...(p.tags || [])].filter(Boolean).join(" ");
-    open(`https://tabelog.com/rstLst/?sw=${encodeURIComponent(q)}`, "_blank", "noopener");
+    open(`https://www.google.com/search?q=${encodeURIComponent(q + " site:tabelog.com")}`, "_blank", "noopener");
   });
 
   $("detailLink").addEventListener("click", () => {
