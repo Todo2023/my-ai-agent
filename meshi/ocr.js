@@ -12,12 +12,26 @@
  * 完璧は狙わない。外したら手で直せばいい
  * （直すのは一瞬だが、全部を手で打つのは続かない）。
  *
- * 測ったこと（食べログ／地図／Instagram／暗い背景に寄せた8枚で比較）:
- *   はじめの版                6件一致・1件惜しい・1件外れ
- *   英語モデルを足す          5件一致（漢字がラテン文字に化けて悪化。やめた）
- *   高精度モデル(16MB)        5件一致（重いうえに悪化。やめた）
- *   いまの版                  7件一致・1件惜しい・外れなし
+ * 測ったこと。合成画像8枚（食べログ／地図／Instagram／暗い背景に寄せたもの）と、
+ * 実機で撮った Google マップのスクショ4枚（暗いテーマ）で比べた:
+ *
+ *                            合成8枚      実機4枚
+ *   はじめの版               6件一致      0件一致   ← 合成だけ見て良しとしていた
+ *   英語モデルを足す         5件一致      -         （漢字がラテン文字に化ける。やめた）
+ *   高精度モデル(16MB)       5件一致      -         （重いうえに悪化。やめた）
+ *   選び方を作り直した       7件一致      4件一致
+ *
+ * 実機を見て分かった、合成では絶対に出なかったこと:
+ *   - **いちばん大きい文字はあてにならない**。地図の道路や記号を文字と
+ *     誤検出した塊が最大になる。ただしそれらは確信度が 0〜25 と低い
+ *   - 店名は確信度が高い（70前後）。だから**確信度を土台にする**
+ *   - Google マップは検索窓とカードの2箇所に店名が出る。
+ *     **同じ文字が2回出たら店名**、という信号がとても強い
+ *   - カードの中では店名が2行に折れることがある（「STEAMAN（スチー」）。
+ *     検索窓には全体が入っているので、長いほうを採る
+ *
  * 日本語データは軽い方(2MB)のほうが、この用途では素直に当たる。
+ * 検証に使った実機のスクショは個人の記録なので、リポジトリには置いていない。
  */
 (function (scope) {
   const BASE = new URL("./ocr/", location.href).href;
@@ -201,28 +215,86 @@
   const NOISE = /^(食べログ|ホーム|検索|メニュー|地図|写真|口コミ|レビュー|予約|保存|共有|電話|経路|営業時間|定休日|予算|席|地図を見る|ネット予約|クーポン|ランチ|ディナー|もっと見る|すべて見る|閉じる|お店の公式|投稿|フォロー|いいね|コメント|営業中|閉店|準備中|本日|今すぐ|空席|人気|おすすめ|新着|ページ|詳細|情報|アクセス|公式|写真をもっと見る)/;
   const ONLY_SYMBOLS = /^[\d\s.,:;/()（）%¥￥★☆♪→←↑↓+\-–—・､、。]*$/;
 
-  /** 行の一覧から、店名と場所を推し量る */
+  /**
+   * 行の一覧から店名を推し量る。
+   *
+   * 本物の Google マップのスクショで測って分かったこと:
+   *   - 「いちばん大きい文字」はあてにならない。地図の道路や記号を
+   *     文字と誤検出した塊が、いちばん大きく出る（確信度は 0〜25 と低い）
+   *   - 店名は**確信度が高い**。そして Google マップでは
+   *     上の検索窓と下のカードの2箇所に出るので、**同じ文字が2回**現れる
+   *   - 点数・価格・ジャンル・営業時間の行のすぐ上が店名（食べログも同じ）
+   * この3つを足し合わせて選ぶ。大きさは補助でしかない。
+   */
+
+  // 店名の下によく置かれる行。これを見つけたら、そのすぐ上が店名
+  const ANCHOR = /(★|☆|\d\.\d\s*[★☆(（]|\(\d+\)|（\d+）|[¥￥]\s*[\d,]|営業中|営業時間外|営業終了|営業開始|定休日|口コミ|レビュー|料理店|レストラン|居酒屋|焼肉店|和食店|喫茶|ラーメン|カフェ|バー|徒歩\d|\d+\s*分)/;
+
+  const MEANINGFUL = /[぀-ヿ一-龥ｦ-ﾟ々A-Za-z0-9]/g;
+
+  /** 記号や誤検出のかけらを落とす。地図の上の塊はここでほぼ消える */
+  function looksLikeText(t) {
+    const chars = [...t.replace(/\s/g, "")];
+    if (chars.length < 2) return false;
+    const good = (t.match(MEANINGFUL) || []).length;
+    return good >= 2 && good / chars.length >= 0.6;
+  }
+
   function guess({ lines }) {
+    const norm = (t) => t.replace(/\s/g, "");
+
     const usable = lines.filter((l) =>
-      l.text.length >= 2 && l.text.length <= 28 &&
+      l.text.length >= 2 && l.text.length <= 30 &&
       !NOISE.test(l.text) &&
       !ONLY_SYMBOLS.test(l.text) &&
-      l.confidence >= 35
+      looksLikeText(l.text) &&
+      l.confidence >= 55        // ここを上げるのが効く。地図の誤検出は軒並み低い
     );
 
-    // いちばん大きい文字＝店名。ただし大きさが近いものが複数あるときは、
-    // 上にあるほうを採る（店名は画面の上のほうに出ることが多く、
-    // 下のほうの大きい文字はたいてい説明文や口コミ）
-    const tallest = usable.reduce((m, l) => Math.max(m, l.height), 0) || 1;
-    const score = (l) => (l.height / tallest) - l.top * 0.28;
-    const bySize = [...usable].sort((a, b) => score(b) - score(a));
-    const best = bySize[0] || null;
+    // 同じ文字が何回出たか（検索窓とカードの両方に出る＝店名の可能性が高い）
+    const seen = new Map();
+    for (const l of usable) seen.set(norm(l.text), (seen.get(norm(l.text)) || 0) + 1);
 
-    // 場所は「〜駅」を最優先。無ければ都道府県や市区町村を含む短い行
+    // 点数や営業時間の行の位置。そのすぐ上を店名とみなす
+    const anchors = lines.filter((l) => ANCHOR.test(l.text) && l.bbox);
+
+    const tallest = usable.reduce((m, l) => Math.max(m, l.height), 0) || 1;
+
+    const score = (l) => {
+      let v = l.confidence;                       // 確信度が土台
+      v += (l.height / tallest) * 35;             // 大きさは補助
+      if ((seen.get(norm(l.text)) || 0) > 1) v += 45;   // 2回出たら店名らしい
+      if (l.top < 0.08) v += 20;                  // いちばん上＝検索窓に入れた言葉
+      for (const a of anchors) {
+        if (!l.bbox) break;
+        const gap = a.bbox.y0 - l.bbox.y1;        // 点数行のすぐ上か
+        // 店名は、点数や営業時間の行より**目に見えて大きい**。
+        // 同じ大きさなら、それは駅名や説明の行なので数えない
+        if (gap >= -5 && gap < l.height * 2.2 && l.height >= a.height * 1.25) { v += 55; break; }
+      }
+      if (/^[ぁ-ん]{2,4}$/.test(norm(l.text))) v -= 25;   // 「るぷき」のような、ひらがなだけの短い誤読
+      return v;
+    };
+
+    const ranked = [...usable].sort((a, b) => score(b) - score(a));
+    let best = ranked[0] || null;
+
+    // カードの中で店名が2行に折り返されていると、切れた片方が選ばれてしまう
+    // （「STEAMAN（スチー」）。検索窓には全体が入っているので、
+    // 上位の候補に「選んだ文字を含む、もっと長いもの」があればそちらを採る
+    if (best) {
+      const short = norm(best.text);
+      const fuller = ranked.slice(0, 5).find((l) => {
+        const t = norm(l.text);
+        return t.length > short.length && t.includes(short);
+      });
+      if (fuller) best = fuller;
+    }
+
+    // 場所は「〜駅」を最優先。無ければ市区町村
     let area = "";
     const all = lines.map((l) => l.text);
     for (const t of all) {
-      // 「代々木上原駅」の々、「ヶ丘」のヶ、伸ばし棒も駅名の一部になる
       const st = t.match(/([一-龥ぁ-んァ-ヶA-Za-z0-9々ヶヵ〆ー・]{1,12}駅)/);
       if (st) { area = st[1]; break; }
     }
@@ -236,12 +308,18 @@
       }
     }
 
+    // 候補は重複を除いて、選ばれた順に
+    const cands = [];
+    for (const l of ranked) {
+      if (!cands.some((c) => norm(c) === norm(l.text))) cands.push(l.text);
+      if (cands.length >= 6) break;
+    }
+
     return {
       name: best ? best.text : "",
       nameBox: best ? best.bbox : null,
       area,
-      // 店名らしい順に。押して選べるようにするので、多少多めに返す
-      candidates: bySize.slice(0, 6).map((l) => l.text),
+      candidates: cands,
     };
   }
 
