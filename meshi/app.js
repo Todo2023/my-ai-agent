@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-08b 食べログ修正版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-08c 一覧表示版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -19,6 +19,7 @@ const DB = self.MeshiDB;
 
 const state = {
   tab: "want",       // want | been
+  view: localStorage.getItem("meshi-view") === "list" ? "list" : "grid",   // 写真 | 一覧
   q: "",
   tags: new Set(),   // 絞り込み中のタグ
   places: [],
@@ -34,7 +35,7 @@ const el = {
   tabWant: $("tabWant"), tabBeen: $("tabBeen"), countWant: $("countWant"), countBeen: $("countBeen"),
   search: $("search"), searchWrap: $("searchWrap"), searchBtn: $("searchBtn"),
   picker: $("picker"), pickerMore: $("pickerMore"), addBtn: $("addBtn"),
-  detail: $("detail"), settings: $("settings"),
+  detail: $("detail"), settings: $("settings"), viewBtn: $("viewBtn"),
 };
 
 /* ---------------- 小物 ---------------- */
@@ -362,15 +363,17 @@ function render() {
       open.appendChild(ph);
     }
 
-    const sub = p.status === "been"
-      ? `${fmtDate(p.visitedAt) || "行った"}${shots.length > 1 ? ` ・ ${shots.length}枚` : ""}`
-      : `${fmtDate(p.createdAt)}${shots.length > 1 ? ` ・ ${shots.length}枚` : ""}`;
+    const date = p.status === "been" ? (fmtDate(p.visitedAt) || "行った") : fmtDate(p.createdAt);
+    const sub = state.view === "list"
+      // 一覧は横に長いので、タグ→日付の順に読ませる（探すときはタグを先に見る）
+      ? [(p.tags || []).join(" "), date, shots.length > 1 ? `${shots.length}枚` : ""].filter(Boolean).join(" ・ ")
+      : `${date}${shots.length > 1 ? ` ・ ${shots.length}枚` : ""}`;
 
     open.insertAdjacentHTML("beforeend", `
       <div class="meta">
         <div class="name${p.name ? (p.nameFromShot ? " guessed" : "") : " unnamed"}">${esc(p.name || "名前をつける")}</div>
         ${p.status === "been" && p.rating ? `<div class="stars-mini">${"★".repeat(p.rating)}${"☆".repeat(5 - p.rating)}</div>` : ""}
-        <div class="sub">${esc(sub)}${(p.tags || []).length ? ` ・ ${esc(p.tags.join(" "))}` : ""}</div>
+        <div class="sub">${esc(sub)}${state.view === "list" || !(p.tags || []).length ? "" : ` ・ ${esc(p.tags.join(" "))}`}</div>
       </div>`);
 
     const check = document.createElement("button");
@@ -384,6 +387,9 @@ function render() {
     frag.appendChild(card);
   }
 
+  el.grid.classList.toggle("list", state.view === "list");
+  el.viewBtn.textContent = state.view === "list" ? "🖼" : "☰";
+  el.viewBtn.setAttribute("aria-label", state.view === "list" ? "写真で見る" : "一覧で見る");
   el.grid.replaceChildren(frag);
 
   const filtering = state.q || state.tags.size;
@@ -705,6 +711,13 @@ function bind() {
       scrollTo({ top: 0 });
     });
   }
+
+  el.viewBtn.addEventListener("click", () => {
+    state.view = state.view === "list" ? "grid" : "list";
+    localStorage.setItem("meshi-view", state.view);
+    render();
+    scrollTo({ top: 0 });
+  });
 
   el.searchBtn.addEventListener("click", () => {
     const show = el.searchWrap.hidden;

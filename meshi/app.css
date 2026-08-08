@@ -496,3 +496,55 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   color: var(--dim);
   vertical-align: 2px;
 }
+
+/* ---------- 一覧表示（文字で縦に並べる） ---------- */
+
+.grid.list {
+  grid-template-columns: 1fr;
+  gap: 8px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.grid.list .card {
+  flex-direction: row;
+  align-items: center;
+  border-radius: 12px;
+}
+
+.grid.list .card > .open {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px 8px 8px;
+  min-width: 0;
+}
+
+.grid.list .thumb,
+.grid.list .noshot {
+  width: 50px;
+  height: 66px;
+  aspect-ratio: auto;
+  border-radius: 8px;
+  flex: 0 0 auto;
+  font-size: 20px;
+}
+
+.grid.list .meta {
+  padding: 0;
+  min-height: 0;
+  gap: 2px;
+  min-width: 0;
+}
+
+.grid.list .name {
+  -webkit-line-clamp: 1;
+  font-size: 14.5px;
+}
+
+/* 一覧では ✓ を右端に置く。写真の上ではなく、行の一部として並べる */
+.grid.list .check {
+  position: static;
+  margin: 0 10px 0 4px;
+  flex: 0 0 auto;
+}
