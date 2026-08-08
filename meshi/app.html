@@ -130,16 +130,20 @@
     <p class="note" id="shareNote"></p>
 
     <h2 class="sec">スクショから店名を読む</h2>
-    <p class="note">取り込んだ写真の中でいちばん大きい文字を店名として入れ、「〜駅」などがあればタグにします。
+    <p class="note">取り込んだ写真から店名を読み、「〜駅」などがあればタグにします。
       <b>端末に文字認識の仕組みがあればそれを使い</b>、無ければ同梱のものを使います（どちらも端末の中だけで処理し、写真はどこにも送りません）。
-      外れたときは、詳細画面の<b>「スクショから読めた文字」</b>から押して選べます。</p>
+      外れたときは、詳細画面の<b>「スクショから読めた文字」</b>から押して選べます。
+      読み取りの精度を直しても<b>すでに読んだ店は読み直されない</b>ので、そのときは「⟳ 全部読み取り直す」を押してください
+      （自動で入った名前だけ入れ替わり、手で直した名前はそのまま残ります）。</p>
     <label class="switch">
       <input type="checkbox" id="ocrToggle" />
       <span>取り込んだら自動で読み取る</span>
     </label>
     <div class="sheet-actions col">
-      <button type="button" class="btn ghost" id="ocrRedo">名前が空の店をまとめて読み取る</button>
+      <button type="button" class="btn ghost" id="ocrRedoAll">⟳ 全部読み取り直す</button>
+      <button type="button" class="btn ghost" id="ocrRedo">名前が空の店だけ読み取る</button>
     </div>
+    <p class="note dim" id="ocrCounts"></p>
 
     <h2 class="sec">バックアップ</h2>
     <p class="note">データはこの端末のブラウザの中だけにあります。機種変更の前や、消える前に書き出しておいてください。</p>

@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-08f 共有リンク紐づけ版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-08g 読み取り直し版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -772,6 +772,12 @@ async function showUsage() {
   }
   const ocrReady = typeof self.MeshiOCR !== "undefined";
   $("version").innerHTML = `版: ${esc(VERSION)} ・ 読み取り: ${ocrReady ? "使えます" : "<b>入っていません（更新待ち）</b>"}`;
+  const withShots = state.places.filter((p) => shotsOf(p.id).length);
+  const auto = withShots.filter((p) => p.nameFromShot).length;
+  const named = withShots.filter((p) => p.name && !p.nameFromShot).length;
+  const blank = withShots.filter((p) => !p.name).length;
+  $("ocrCounts").textContent = `スクショのある ${withShots.length}軒 — 自動で入った名前 ${auto} ・ 手で入れた名前 ${named} ・ 名前なし ${blank}`;
+
   $("usage").innerHTML = `<b>${state.places.length}軒</b>（行きたい ${state.places.filter((p) => p.status === "want").length} / 行った ${state.places.filter((p) => p.status === "been").length}） ・ スクショ ${shots}枚${esc(size)}`;
 
   const androidish = "share" in navigator && !/iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -898,6 +904,27 @@ function bind() {
   $("ocrToggle").addEventListener("change", () => {
     localStorage.setItem("meshi-ocr", $("ocrToggle").checked ? "on" : "off");
     toast($("ocrToggle").checked ? "取り込んだら読み取ります" : "読み取りを止めました");
+  });
+
+  // 読み取りの直し方を良くしても、すでに読んだ店は二度と読み直さない作りだった。
+  // 古い誤読が残り続けてしまうので、まとめてやり直せるようにする。
+  // 手で直した名前（nameFromShot でないもの）には触らない
+  $("ocrRedoAll").addEventListener("click", async () => {
+    const targets = state.places.filter((p) => shotsOf(p.id).length && (p.nameFromShot || !p.name));
+    if (!targets.length) { toast("読み取り直す対象がありません"); return; }
+    if (!confirm(`${targets.length}件を読み取り直します。\n自動で入った店名は入れ替わります（手で直した名前はそのままです）。`)) return;
+
+    for (const p of targets) {
+      p.ocrDone = false;
+      if (p.nameFromShot) { p.name = ""; p.nameFromShot = false; }
+      await DB.put("places", p);
+    }
+    localStorage.setItem("meshi-ocr", "on");
+    $("ocrToggle").checked = true;
+    $("settingsClose").click();
+    render();
+    toast(`${targets.length}件を読み取り直します…`);
+    queueOCR(targets.map((p) => p.id));
   });
 
   $("ocrRedo").addEventListener("click", () => {
