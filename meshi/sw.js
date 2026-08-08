@@ -11,7 +11,7 @@
  */
 importScripts("./db.js");
 
-const CACHE = "sukusho-meshi-v10";
+const CACHE = "sukusho-meshi-v11";
 const ASSETS = [
   "./",
   "./index.html",

@@ -318,6 +318,9 @@
     return {
       name: best ? best.text : "",
       nameBox: best ? best.bbox : null,
+      // どれくらい自信があるか。低いときは店名を入れず、候補だけ出す
+      // （見たことのない画面で、それらしい別の行を店名にしてしまうのを防ぐ）
+      strength: best ? score(best) : 0,
       area,
       candidates: cands,
     };

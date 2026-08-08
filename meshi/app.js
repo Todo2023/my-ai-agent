@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-08e 読み取り作り直し版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-08f 共有リンク紐づけ版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -165,7 +165,39 @@ async function importImages(files, placeId) {
   return { added, dup, failed, ids };
 }
 
-/** 共有された文字・URL から1軒つくる（画像なしのストック） */
+const normName = (t) => String(t || "").replace(/[\s　・,，、。.]/g, "").toLowerCase();
+
+/**
+ * 共有された題名が、すでに貯めてある店のどれかを指していないか探す。
+ *
+ * 食べログの題名は「ささや (二子玉川/日本料理)」のように飾りが付くので、
+ * 完全一致では当たらない。短いほうが長いほうに含まれていれば同じ店とみなす。
+ */
+function findPlaceByName(places, title) {
+  const t = normName(title);
+  if (t.length < 2) return null;
+
+  const hit = places
+    .filter((p) => p.name && normName(p.name).length >= 2)
+    .map((p) => {
+      const n = normName(p.name);
+      if (n === t) return { p, rank: 3 };
+      if (t.includes(n)) return { p, rank: 2 };      // 「ささや」⊂「ささや (二子玉川…)」
+      if (n.includes(t)) return { p, rank: 1 };
+      return null;
+    })
+    .filter(Boolean)
+    // 同じくらい当てはまるなら、リンクをまだ持っていない店を先に埋める
+    .sort((a, b) => (b.rank - a.rank) || ((a.p.url ? 1 : 0) - (b.p.url ? 1 : 0)));
+
+  return hit.length ? hit[0].p : null;
+}
+
+/**
+ * 共有された文字・URL を受け取る。
+ * すでに同じ名前の店があればそこにリンクを足し、無ければ1軒つくる。
+ * （店のページに一度たどり着いたら、次からは直接開けるようにするため）
+ */
 async function importLink({ title, text, url }) {
   const body = [title, text, url].filter(Boolean).join("\n");
   const found = body.match(/https?:\/\/\S+/);
@@ -174,13 +206,26 @@ async function importLink({ title, text, url }) {
   if (!name) {
     name = body.split("\n").map((s) => s.trim()).filter((s) => s && !/^https?:\/\//.test(s))[0] || "";
   }
-  if (!name && !link) return false;
+  if (!name && !link) return null;
+
+  if (link && name) {
+    const target = findPlaceByName(await DB.all("places"), name);
+    if (target) {
+      target.url = link;                       // 新しいほうで上書きする
+      if (target.nameFromShot) {
+        target.name = name.slice(0, 120);      // 読み取りで入れた名前より、共有された題名のほうが正しい
+        target.nameFromShot = false;
+      }
+      await DB.put("places", target);
+      return { attached: target.name };
+    }
+  }
 
   await DB.put("places", {
-    id: uid(), status: "want", name: name.slice(0, 120), memo: link && name ? "" : "",
+    id: uid(), status: "want", name: name.slice(0, 120), memo: "",
     tags: [], url: link, rating: 0, visitedAt: "", createdAt: Date.now(), addedAt: Date.now(),
   });
-  return true;
+  return { created: name };
 }
 
 /** 共有シートから Service Worker が置いていったものを引き取る */
@@ -190,17 +235,23 @@ async function drainInbox() {
   if (!items.length) return;
 
   const files = [];
-  let links = 0;
+  let created = 0;
+  let attachedTo = "";
   for (const it of items) {
-    if (it.kind === "file" && it.blob) files.push(it.blob);
-    else if (it.kind === "text" && (await importLink(it))) links++;
+    if (it.kind === "file" && it.blob) { files.push(it.blob); continue; }
+    if (it.kind !== "text") continue;
+    const r = await importLink(it);
+    if (!r) continue;
+    if (r.attached) attachedTo = r.attached;
+    else created++;
   }
   const res = files.length ? await importImages(files) : { added: 0, dup: 0, failed: 0, ids: [] };
   await DB.del("inbox", ...items.map((i) => i.id));
 
   await load();
-  const added = res.added + links;
-  if (added) toast(`${added}件ストックしました`);
+  const added = res.added + created;
+  if (attachedTo) toast(`「${attachedTo}」にリンクを追加しました`);
+  else if (added) toast(`${added}件ストックしました`);
   else if (res.dup) toast("もうストックしてあります");
   queueOCR(res.ids || []);
 }
@@ -214,6 +265,9 @@ async function drainInbox() {
  */
 const ocrQueue = [];
 let ocrRunning = false;
+
+// これを下回る読み取りは、店名に入れず候補どまりにする
+const OCR_SURE = 100;
 
 const ocrEnabled = () => localStorage.getItem("meshi-ocr") !== "off";
 
@@ -262,7 +316,12 @@ async function runOCR() {
       place.ocrDone = true;   // 二度読まない。読めなかった場合も含めて1回だけ
       // 候補を残しておく。外したときに打ち直さず選べるようにするため
       if (found && found.candidates) place.ocrCandidates = found.candidates.slice(0, 6);
-      if (found && found.name) {
+
+      // 自信が足りないときは名前を入れない。
+      // 見たことのない画面で、それらしい別の行を店名にしてしまうと、
+      // 空欄より始末が悪い（消してから打ち直すことになる）。
+      // 実測では、当たっているものは 117 以上、誤読は 94 だった
+      if (found && found.name && found.strength >= OCR_SURE) {
         place.name = found.name;
         place.nameFromShot = true;   // 自動で入れた印。手で直されたら消える
         filled++;
@@ -283,6 +342,7 @@ async function runOCR() {
 
   ocrRunning = false;
   if (filled) toast(`${filled}件の店名を読み取りました。違っていたら直してください`);
+  else if (done) toast("店名は読み取れませんでした。詳細から候補を選べます");
 }
 
 /* ---------------- 読み込みと並べ替え ---------------- */
@@ -887,9 +947,12 @@ function bind() {
       return;
     }
     const text = e.clipboardData?.getData("text/plain") || "";
-    if (/^https?:\/\//.test(text.trim()) && await importLink({ url: text.trim() })) {
-      await load();
-      toast("リンクからストックしました");
+    if (/^https?:\/\//.test(text.trim())) {
+      const r = await importLink({ url: text.trim() });
+      if (r) {
+        await load();
+        toast(r.attached ? `「${r.attached}」にリンクを追加しました` : "リンクからストックしました");
+      }
     }
   });
 
