@@ -548,3 +548,38 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   margin: 0 10px 0 4px;
   flex: 0 0 auto;
 }
+
+/* ---------- よく使う種類のタグ ---------- */
+
+.quicktags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quicktags button {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--dim);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quicktags button.is-on {
+  background: rgba(240, 166, 60, 0.18);
+  border-color: rgba(240, 166, 60, 0.55);
+  color: #fbe3bd;
+}
+
+/* 読み取りの候補。店名として選べる */
+.quicktags.cands button {
+  font-weight: 400;
+  font-size: 13px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

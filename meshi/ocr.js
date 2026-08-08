@@ -110,6 +110,44 @@
     return new Promise((res) => canvas.toBlob((b) => res(b || blob), "image/png"));
   }
 
+  /**
+   * 端末が持っている文字認識（Shape Detection API）。
+   * Android Chrome では Google Play の仕組みが後ろにいて、
+   * 同梱の tesseract より日本語がよく当たる。使えるなら先にこちらを使う。
+   * 使えない端末（iPhone や PC）では静かに false を返し、tesseract に回す。
+   */
+  let deviceOCR = null;   // null = 未確認 / false = 使えない / それ以外 = 使える
+
+  async function readWithDevice(blob) {
+    if (deviceOCR === false) return null;
+    if (!("TextDetector" in scope)) { deviceOCR = false; return null; }
+    try {
+      if (!deviceOCR) deviceOCR = new scope.TextDetector();
+      const bmp = await createImageBitmap(blob);
+      const found = await deviceOCR.detect(bmp);
+      const pageHeight = bmp.height || 1;
+      if (bmp.close) bmp.close();
+      if (!found || !found.length) return null;
+
+      const lines = found.map((r) => {
+        const b = r.boundingBox;
+        return {
+          text: clean(r.rawValue),
+          height: b ? b.height : 0,
+          top: b ? b.y / pageHeight : 0.5,
+          bbox: b ? { x0: b.x, y0: b.y, x1: b.x + b.width, y1: b.y + b.height } : null,
+          confidence: 90,   // この API は確信度を返さないので、高めに扱う
+        };
+      }).filter((l) => l.text);
+
+      if (!lines.length) return null;
+      return { lines, text: lines.map((l) => l.text).join("\n"), source: "device" };
+    } catch (_) {
+      deviceOCR = false;   // 一度失敗したら以降は tesseract に任せる
+      return null;
+    }
+  }
+
   /** 画像 → 行の一覧（文字の高さつき）。読めなければ空 */
   async function readLines(blob, prep, psm) {
     const worker = await getWorker();
@@ -202,7 +240,8 @@
       name: best ? best.text : "",
       nameBox: best ? best.bbox : null,
       area,
-      candidates: bySize.slice(0, 5).map((l) => l.text),
+      // 店名らしい順に。押して選べるようにするので、多少多めに返す
+      candidates: bySize.slice(0, 6).map((l) => l.text),
     };
   }
 
@@ -252,9 +291,15 @@
     /** 画像1枚から { name, area, candidates } を返す。読めなければ null */
     async read(blob) {
       try {
-        const found = await readLines(blob);
+        // まず端末の文字認識。だめなら同梱の tesseract
+        const found = (await readWithDevice(blob)) || await readLines(blob);
         if (!found.lines.length) return null;
         const out = guess(found);
+        out.source = found.source || "tesseract";
+        out.confidence = (found.lines.find((l) => l.text === out.name) || {}).confidence || 0;
+
+        // 端末側で読めたなら、拡大して読み直す必要はない（もともと精度が高い）
+        if (found.source === "device") { delete out.nameBox; return out; }
 
         // 見つけた店名を、その場所だけ拡大して読み直す。良くなったほうを採る
         if (out.nameBox) {

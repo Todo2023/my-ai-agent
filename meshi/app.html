@@ -69,6 +69,17 @@
       <input type="text" id="fName" placeholder="スクショを見ながら入力" autocomplete="off" />
     </label>
 
+    <!-- 読み取りが外したときに、打ち直さず選べるようにする -->
+    <div class="field" id="candField" hidden>
+      <span class="label">スクショから読めた文字（押すと店名に入ります）</span>
+      <div class="quicktags cands" id="candidates"></div>
+    </div>
+
+    <div class="field">
+      <span class="label">種類（押すと付く・もう一度押すと外れる）</span>
+      <div class="quicktags" id="quickTags"></div>
+    </div>
+
     <label class="field">
       <span class="label">タグ（スペース区切り／例: 渋谷 ラーメン 昼）</span>
       <input type="text" id="fTags" placeholder="エリア ジャンル" autocomplete="off" />
@@ -120,7 +131,8 @@
 
     <h2 class="sec">スクショから店名を読む</h2>
     <p class="note">取り込んだ写真の中でいちばん大きい文字を店名として入れ、「〜駅」などがあればタグにします。
-      端末の中だけで処理していて、写真はどこにも送りません。外れることもあるので、違っていたら手で直してください。</p>
+      <b>端末に文字認識の仕組みがあればそれを使い</b>、無ければ同梱のものを使います（どちらも端末の中だけで処理し、写真はどこにも送りません）。
+      外れたときは、詳細画面の<b>「スクショから読めた文字」</b>から押して選べます。</p>
     <label class="switch">
       <input type="checkbox" id="ocrToggle" />
       <span>取り込んだら自動で読み取る</span>

@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-08c 一覧表示版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-08d 種類タグ・候補選択版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -260,6 +260,8 @@ async function runOCR() {
       const found = await MeshiOCR.read(new Blob([rec.data], { type: rec.type || shot.type || "image/jpeg" }));
 
       place.ocrDone = true;   // 二度読まない。読めなかった場合も含めて1回だけ
+      // 候補を残しておく。外したときに打ち直さず選べるようにするため
+      if (found && found.candidates) place.ocrCandidates = found.candidates.slice(0, 6);
       if (found && found.name) {
         place.name = found.name;
         place.nameFromShot = true;   // 自動で入れた印。手で直されたら消える
@@ -458,6 +460,52 @@ async function toggleStatus(id, withUndo) {
 
 /* ---------------- 詳細 ---------------- */
 
+// よく使う種類。1タップで付け外しできるようにしておく（毎回打つのは続かない）
+const QUICK_TAGS = ["食事", "カフェ", "テイクアウト"];
+
+function renderCandidates(p) {
+  const box = $("candidates");
+  const list = (p.ocrCandidates || []).filter((t) => t && t !== p.name);
+  $("candField").hidden = list.length === 0;
+  box.replaceChildren(...list.map((t) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = t;
+    b.addEventListener("click", async () => {
+      p.name = t;
+      p.nameFromShot = false;   // 自分で選んだので、確かめ済みとして扱う
+      await DB.put("places", p);
+      $("fName").value = t;
+      renderCandidates(p);
+      render();
+      toast("店名にしました");
+    });
+    return b;
+  }));
+}
+
+function renderQuickTags(p) {
+  const box = $("quickTags");
+  box.replaceChildren(...QUICK_TAGS.map((t) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    const on = (p.tags || []).includes(t);
+    b.className = on ? "is-on" : "";
+    b.textContent = t;
+    b.setAttribute("aria-pressed", String(on));
+    b.addEventListener("click", async () => {
+      const tags = new Set(p.tags || []);
+      tags.has(t) ? tags.delete(t) : tags.add(t);
+      p.tags = [...tags].slice(0, 8);
+      await DB.put("places", p);
+      $("fTags").value = p.tags.join(" ");
+      renderQuickTags(p);
+      render();
+    });
+    return b;
+  }));
+}
+
 let saveTimer = null;
 
 function openDetail(id) {
@@ -521,6 +569,9 @@ function fillDetail(p) {
   toggle.textContent = p.status === "been" ? "↩ 行きたいに戻す" : "✓ 行った";
   toggle.classList.toggle("back", p.status === "been");
 
+  renderQuickTags(p);
+  renderCandidates(p);
+
   const stars = $("fStars");
   stars.replaceChildren(...[1, 2, 3, 4, 5].map((n) => {
     const b = document.createElement("button");
@@ -552,6 +603,7 @@ async function saveDetail() {
   p.visitedAt = $("fVisited").value;
   await DB.put("places", p);
   render();
+  renderQuickTags(p);
   $("detailLink").hidden = !p.url;
 }
 
