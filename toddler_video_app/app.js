@@ -90,6 +90,7 @@ function buildFilmstrips() {
   if (all.length === 0) return;
 
   const fill = (track, list) => {
+    if (!track) return; // 帯のない古い画面が残っていても、ここで止まらないように
     track.textContent = '';
     // 帯が短いと隙間ができるので、最低12コマになるまで繰り返す
     const row = [];

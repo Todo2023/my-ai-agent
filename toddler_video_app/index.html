@@ -130,7 +130,13 @@
   setTimeout(showManualSteps, 1200);
 
   if ('serviceWorker' in navigator) {
-    addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    // updateViaCache: 'none' … sw.js 自体をブラウザのキャッシュから読ませない。
+    // 読ませると、直したことに端末が気づかず古い画面のままになる。
+    addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+        .then((reg) => reg.update())
+        .catch(() => {});
+    });
   }
 </script>
 </body>

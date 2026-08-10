@@ -1,5 +1,5 @@
 // 画面まわりの一式をキャッシュする。動画（YouTube）は毎回ネットから取る。
-const CACHE = "todo-wanwan-v8";
+const CACHE = "todo-wanwan-v9";
 const ASSETS = [
   "./",
   "./index.html",
@@ -26,20 +26,46 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-// まずキャッシュ、裏で更新（次に開いたときに新しくなる）
+/*
+ * 画面を作るファイル（HTML / JS / CSS / manifest）は「まずネット」。
+ * キャッシュを先に返すと、直したものが端末に届かず古い画面のままになる。
+ * つながらないときだけキャッシュを使うので、オフラインでも開ける。
+ *
+ * 絵（アイコンなど）は変わらないので「まずキャッシュ」で速さを優先し、裏で更新する。
+ */
+const isShell = (request, url) =>
+  request.mode === "navigate" || /\.(html|js|css|webmanifest)$/.test(url.pathname);
+
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+
+  const url = new URL(e.request.url);
   // YouTube など外部への通信には手を出さない（キャッシュもしない）
-  if (new URL(e.request.url).origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) return;
+
+  const put = (res) => {
+    if (res && res.ok) {
+      const copy = res.clone();
+      caches.open(CACHE).then((c) => c.put(e.request, copy));
+    }
+    return res;
+  };
+
+  if (isShell(e.request, url)) {
+    e.respondWith(
+      // cache: "no-store" … ブラウザのキャッシュを通さず、必ずサーバーまで取りに行く。
+      // GitHub Pages は10分間のキャッシュ指定を付けてくるので、これがないと
+      // ネット優先にしても古いHTMLやJSがそのまま返ってくる。
+      fetch(url.href, { cache: "no-store" })
+        .then(put)
+        .catch(() => caches.match(e.request).then((hit) => hit || caches.match("./app.html")))
+    );
+    return;
+  }
 
   e.respondWith(
     caches.match(e.request).then((hit) => {
-      const net = fetch(e.request)
-        .then((res) => {
-          if (res && res.ok) caches.open(CACHE).then((c) => c.put(e.request, res.clone()));
-          return res;
-        })
-        .catch(() => hit);
+      const net = fetch(e.request).then(put).catch(() => hit);
       return hit || net;
     })
   );
