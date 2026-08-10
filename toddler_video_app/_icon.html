@@ -77,6 +77,37 @@ function drawIcon(ctx, size, maskable) {
   }
 }
 
+/*
+ * 用意した絵（icon-source.png）からアイコンを作る場合はこちら。
+ * maskable は端が丸く切られるので、絵を小さめに置いて周りに余白の色を敷く。
+ */
+window.renderFromImage = function (srcDataUrl, size, maskable) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onerror = () => reject(new Error('画像を読み込めませんでした'));
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#fff7ed';
+      ctx.fillRect(0, 0, size, size);
+
+      const inner = maskable ? size * 0.78 : size; // maskable は安全域の内側に収める
+      const off = (size - inner) / 2;
+      // 正方形に切り出して敷きつめる（縦横比は崩さない）
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, off, off, inner, inner);
+
+      document.getElementById('out').appendChild(c);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.src = srcDataUrl;
+  });
+};
+
 // 書き出し用：サイズとmaskableを指定して data URL を返す
 window.renderIcon = function (size, maskable) {
   const c = document.createElement('canvas');
