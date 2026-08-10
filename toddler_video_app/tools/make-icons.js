@@ -16,12 +16,15 @@ const SOURCE = ['icon-source.png', 'icon-source.jpg', 'icon-source.jpeg', 'icon-
 
 /*
  * shape は絵から作るときだけ使う。
+ *   fill   … 正方形いっぱいに敷く。丸く切るのは端末にまかせる
  *   circle … 円形にくり抜く（外側は透明）
- *   fill   … 正方形いっぱい。端末側が丸く／角丸に切るので、切られる前提で敷く
+ *
+ * すべて fill にしてある。circle にすると外側が透明になり、ホーム画面が
+ * その後ろに白い板を敷くので、アイコンの周りに白いふちが出てしまう。
  */
 const TARGETS = [
-  { file: 'icon-192.png', size: 192, maskable: false, shape: 'circle' },
-  { file: 'icon-512.png', size: 512, maskable: false, shape: 'circle' },
+  { file: 'icon-192.png', size: 192, maskable: false, shape: 'fill' },
+  { file: 'icon-512.png', size: 512, maskable: false, shape: 'fill' },
   { file: 'icon-maskable-512.png', size: 512, maskable: true, shape: 'fill' },
   { file: 'apple-touch-icon.png', size: 180, maskable: false, shape: 'fill' },
 ];

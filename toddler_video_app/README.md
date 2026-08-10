@@ -12,7 +12,7 @@ python3 -m http.server 8000
 
 ## スマホに入れる
 
-公開URL（Pages を有効にすると使えるようになる）を開くと、まずインストール画面が出る。
+**https://todo2023.github.io/todo-wanwan/** を開くと、まずインストール画面が出る。
 
 - **Android（Chrome）**: 「📲 アプリとして入れる」ボタンをタップ
 - **iPhone（Safari）**: 画面の案内どおり、共有 → 「ホーム画面に追加」
@@ -24,9 +24,17 @@ python3 -m http.server 8000
 一度開けば、通信がなくても画面自体は開く（`sw.js` が一式をキャッシュする）。
 ただし**動画の再生には通信が必要**。YouTube への通信は Service Worker では触らない。
 
-> 別の PWA と同じパスに置くと `scope` が重なってインストールできなくなる。
-> 専用リポジトリに移すときは、このディレクトリの中身をそのままリポジトリ直下に置けばよい
-> （パスはすべて `./` 相対にしてある）。
+公開は `Todo2023/todo-wanwan` の `main` を GitHub Pages がそのまま配信している。
+専用リポジトリに分けてあるのは、同じサイトに別の PWA があると `scope` が重なって
+インストールできなくなるため。このディレクトリはその写し。
+
+## 人に渡す
+
+**https://todo2023.github.io/todo-wanwan/** を送るだけ。QRは `qr.png`（URLを変えたら
+`pip install segno && python3 tools/make-qr.py` で作り直す）。
+
+LINE などアプリ内のブラウザで開かれるとホーム画面に追加できないので、
+その場合は案内画面が「まず Safari で開いてください」と出す。
 
 ## できること
 
@@ -63,7 +71,7 @@ python3 -m http.server 8000
 | `wheelSlots` | `8` | ルーレットのマス数 |
 | `haruWeight` | `3` | はるちゃん回の当たりやすさ（倍率） |
 
-`videos.js` を変えたら `sw.js` の `CACHE` の版番号（`todo-wanwan-v1`）を1つ上げる。
+`videos.js` を変えたら `sw.js` の `CACHE` の版番号（`todo-wanwan-v6`）を1つ上げる。
 上げないと、すでに入れた端末で古いリストが残る。
 
 ## ファイル
@@ -75,8 +83,10 @@ python3 -m http.server 8000
 | `style.css` / `app.js` | 見た目とルーレット・プレイヤー制御 |
 | `videos.js` | 動画リストと設定（普段さわるのはここだけ） |
 | `manifest.webmanifest` / `sw.js` | インストールとオフライン |
-| `icon-*.png` / `apple-touch-icon.png` | アイコン（`_icon.html` を Canvas で描いて書き出したもの） |
+| `icon-*.png` / `apple-touch-icon.png` | アイコン（`icon-source.png` から円形に切り出したもの） |
 | `_icon.html` / `tools/make-icons.js` | アイコンの元と書き出しスクリプト |
+| `icon-source.png` | アイコンの元にした絵 |
+| `qr.png` / `tools/make-qr.py` | 共有用QRと、その作り直しスクリプト |
 | `demo.html` | 1ファイル完結の簡易版。開くだけで動くが自動スキップ・一時停止はない |
 
 アイコンを描き直したら次を実行する。

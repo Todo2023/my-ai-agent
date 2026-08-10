@@ -29,8 +29,8 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 20px; padding: 32px 20px calc(32px + env(safe-area-inset-bottom)); text-align: center;
   }
-  /* アイコンは円形にくり抜いてあるので、影も丸くつくように drop-shadow を使う */
-  img.icon { width: 128px; height: 128px; filter: drop-shadow(0 8px 16px rgba(0,0,0,.2)); }
+  /* アイコン画像は四角。この画面では円形に見せる（切り抜きはCSSで行う） */
+  img.icon { width: 128px; height: 128px; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,.2); }
   h1 { margin: 0; font-size: clamp(24px, 6vw, 34px); }
   p { margin: 0; max-width: 32em; line-height: 1.7; }
   .lead { font-size: clamp(15px, 4vw, 18px); }
@@ -47,6 +47,8 @@
   }
   .steps h2 { margin: 0 0 8px; font-size: 17px; }
   .steps ol { margin: 0; padding-left: 1.3em; }
+  .steps p { margin: 0; }
+  .warn { background: #ffe9ec; box-shadow: 0 4px 0 rgba(224,82,99,.25); }
   .note { font-size: 13px; opacity: .7; max-width: 32em; }
   .hidden { display: none; }
 </style>
@@ -56,6 +58,13 @@
 <img class="icon" src="./icon-192.png" alt="">
 <h1>わんわん るーれっと</h1>
 <p class="lead">ルーレットを回すと、止まったマスの動画が始まります。<br>ホーム画面に入れると、全画面で使えます。</p>
+
+<div id="inapp" class="steps warn hidden">
+  <h2>まず Safari で開いてください</h2>
+  <p>LINE などのアプリの中のブラウザからは、ホーム画面に追加できません。<br>
+  画面の右上（または右下）の <b>…</b> や <b>矢印</b> のボタンから
+  <b>「Safariで開く」</b>（Android は<b>「ブラウザで開く」</b>）を選んでください。</p>
+</div>
 
 <button id="installBtn" class="btn hidden">📲 アプリとして入れる</button>
 
@@ -95,9 +104,13 @@
 
   addEventListener('appinstalled', () => installBtn.classList.add('hidden'));
 
+  // LINE などアプリ内ブラウザだと、そもそもホーム画面に追加できない
+  const isInApp = /Line\/|FBAN|FBAV|Instagram|Twitter|MicroMessenger/.test(navigator.userAgent);
+  if (isInApp) document.getElementById('inapp').classList.remove('hidden');
+
   // イベントが来ない端末（iPhone など）には、手順を文章で出す
   function showManualSteps() {
-    if (!installBtn.classList.contains('hidden')) return;
+    if (!installBtn.classList.contains('hidden') || isInApp) return;
     const ua = navigator.userAgent;
     const isIOS = /iPhone|iPad|iPod/.test(ua) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
