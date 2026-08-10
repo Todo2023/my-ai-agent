@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>わんわん るーれっと（デモ）</title>
+<!--
+  デモ版：このファイル1つだけで動きます（サーバー不要）。
+  ダブルクリックしてブラウザで開いてください。
+  ※製品版（index.html ほか）は YouTube の API を使い、再生できない動画の自動スキップや
+    一時停止ボタンにも対応しています。こちらは動作を試すための簡易版です。
+-->
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; background: #fff7ed; color: #4a3b2f;
+    font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", sans-serif;
+    user-select: none; overscroll-behavior: none;
+  }
+  .screen { display: none; }
+  .screen.is-active { display: flex; }
+
+  #home { flex-direction: column; align-items: center; justify-content: center; gap: 2vmin; min-height: 100%; padding: 3vmin; }
+  .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 2vmin; }
+  .tab {
+    display: flex; align-items: center; gap: 1vmin; padding: 1.6vmin 3.4vmin;
+    border: none; border-radius: 999px; background: #fff; color: inherit;
+    font: inherit; font-size: clamp(15px, 3vmin, 26px); font-weight: 700;
+    white-space: pre-line; line-height: 1.15; text-align: center;
+    box-shadow: 0 4px 0 rgba(0,0,0,.15); cursor: pointer;
+  }
+  .tab__emoji { font-size: 1.5em; }
+  .tab.is-on { background: var(--tab-color, #ffd166); transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.15), 0 0 0 4px rgba(0,0,0,.1); }
+
+  .wheel-wrap { position: relative; width: min(86vw, 62vh); aspect-ratio: 1; display: grid; place-items: center; }
+  .wheel {
+    width: 100%; height: 100%; border-radius: 50%; background: #fff;
+    box-shadow: 0 10px 0 rgba(0,0,0,.15), inset 0 0 0 1.5vmin #fff;
+    transition: transform 4.2s cubic-bezier(.12,.72,.12,1); will-change: transform;
+  }
+  .wheel svg { width: 100%; height: 100%; display: block; }
+  .wheel .slice { cursor: pointer; }
+  .wheel .slice__label { pointer-events: none; font-weight: 700; }
+  .wheel__pointer {
+    position: absolute; top: -1.5vmin; z-index: 3; line-height: 1; color: #e05263;
+    font-size: clamp(28px, 7vmin, 56px); filter: drop-shadow(0 2px 2px rgba(0,0,0,.3));
+  }
+  .spin {
+    position: absolute; z-index: 2; width: 30%; aspect-ratio: 1; border: none; border-radius: 50%;
+    background: #ffd166; color: inherit; font: inherit; font-weight: 700;
+    font-size: clamp(16px, 3.6vmin, 30px); box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 0 0 1.4vmin #fff; cursor: pointer;
+  }
+  .spin:active { transform: translateY(4px); }
+  .spin[disabled] { opacity: .6; }
+  .hint { margin: 0; font-size: clamp(12px, 2.4vmin, 18px); opacity: .65; text-align: center; }
+
+  .player { flex-direction: column; height: 100%; background: #000; }
+  .player__stage { position: relative; flex: 1; overflow: hidden; }
+  #frame { width: 100%; height: 100%; border: 0; display: block; }
+  .player__shield { position: absolute; inset: 0 0 12% 0; } /* 上部のロゴ等を触れなくする */
+  .player__controls { display: flex; gap: 2vmin; padding: 2vmin; background: #1b1b1b; padding-bottom: max(2vmin, env(safe-area-inset-bottom)); }
+  .ctrl {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: .4vmin;
+    padding: 2vmin 1vmin; border: none; border-radius: 4vmin; background: #ffd166; color: #4a3b2f;
+    font: inherit; font-size: clamp(24px, 6vmin, 44px); box-shadow: 0 6px 0 rgba(0,0,0,.18); cursor: pointer;
+  }
+  .ctrl span { font-size: clamp(13px, 2.6vmin, 20px); font-weight: 700; }
+  .ctrl:active { transform: translateY(4px); box-shadow: none; }
+  .ctrl--main { flex: 1.4; background: #ff8fab; }
+
+  .timeup { flex-direction: column; align-items: center; justify-content: center; gap: 4vmin; height: 100%; padding: 6vmin; background: #2b2b45; color: #fff; text-align: center; }
+  .timeup__emoji { font-size: clamp(72px, 22vmin, 180px); }
+  .timeup__text { margin: 0; font-size: clamp(22px, 6vmin, 44px); line-height: 1.5; }
+  .unlock { padding: 2.5vmin 5vmin; border: 2px solid rgba(255,255,255,.5); border-radius: 999px; background: transparent; color: rgba(255,255,255,.75); font: inherit; font-size: clamp(13px, 2.6vmin, 18px); cursor: pointer; }
+  .unlock.is-holding { background: rgba(255,255,255,.25); color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) { .wheel { transition-duration: .6s; } }
+</style>
+</head>
+<body>
+
+<main id="home" class="screen is-active">
+  <div id="tabs" class="tabs"></div>
+  <div class="wheel-wrap">
+    <div class="wheel__pointer">▼</div>
+    <div id="wheel" class="wheel"><svg id="wheelSvg" viewBox="-100 -100 200 200"></svg></div>
+    <button id="spinBtn" class="spin"><span>まわす</span></button>
+  </div>
+  <p class="hint">まんなかを おして！ すきなえを おしても みられるよ</p>
+</main>
+
+<section id="player" class="screen player">
+  <div class="player__stage">
+    <iframe id="frame" allow="autoplay; encrypted-media" allowfullscreen title="どうが"></iframe>
+    <div class="player__shield" aria-hidden="true"></div>
+  </div>
+  <div class="player__controls">
+    <button id="homeBtn" class="ctrl">🎡<span>るーれっと</span></button>
+    <button id="nextBtn" class="ctrl ctrl--main">⏭<span>つぎ</span></button>
+  </div>
+</section>
+
+<section id="timeup" class="screen timeup">
+  <div class="timeup__emoji">🌙</div>
+  <p class="timeup__text">きょうは おしまい！<br>またあそぼうね</p>
+  <button id="unlockBtn" class="unlock">おうちのかた：長押しでつづける</button>
+</section>
+
+<script>
+/* ---------- 設定と どうがリスト（ここを書きかえれば差しかえられます） ---------- */
+const APP_CONFIG = { sessionMinutes: 20, wheelSlots: 8, haruWeight: 3 };
+
+const CATEGORIES = [
+  { key: 'wanwan', label: 'わんわん', emoji: '🐶', color: '#ff8fab', videos: [
+    { id: '0oc7_yryqYQ', short: 'わ〜お', emoji: '🙌', haru: true },
+    { id: 'JN_3klSVFTE', short: 'ピカピカブ〜', emoji: '✨', haru: true },
+    { id: 'BoGSO2CJ2XM', short: 'ダカランド', emoji: '🎪', haru: true },
+    { id: 'sA3G6NpMtqM', short: 'ドーナツ', emoji: '🍩', haru: true },
+    { id: '8qCRBTfjSTA', short: 'またね', emoji: '👋', haru: true },
+    { id: 'wJ9QPrFcFjA', short: 'ダンス', emoji: '💃' },
+    { id: 'vJzUGFZ1nL8', short: 'ワンワン25', emoji: '🎂' },
+    { id: 'Um2rvK39EbU', short: 'かんぱ〜い', emoji: '🥤' },
+    { id: 'ZH8HDsCETpo', short: 'むしとり', emoji: '🦋' },
+    { id: '1XJKhetJ61o', short: 'できた！', emoji: '🎶' },
+    { id: 'yGhEBaL954M', short: 'ジャ〜ン！', emoji: '🎺' },
+    { id: '11nyp5Un34o', short: 'まつりだ', emoji: '🏮' },
+  ]},
+  { key: 'okaasan', label: 'おかあさん\nといっしょ', emoji: '🎵', color: '#7fd1ff', videos: [
+    { id: '4ld10znrwpo', short: 'ダンダン', emoji: '💪' },
+    { id: 'F3loztzTpw4', short: 'パント！', emoji: '🎈' },
+  ]},
+  { key: 'taisou', label: 'たいそう', emoji: '🤸', color: '#ffd166', videos: [
+    { id: 'b4LbzldPOA0', short: 'ブンバボーン', emoji: '🐘' },
+    { id: 'mQKKx-QWVQM', short: 'ブンバ2', emoji: '🦁' },
+    { id: 'ucMBVuBCZRI', short: 'いっしょに', emoji: '🕺' },
+    { id: 'V59WTvUhkDc', short: 'おどってみた', emoji: '🎼' },
+  ]},
+];
+
+const SHUFFLE_WEIGHTS = { wanwan: 6, okaasan: 2, taisou: 2 };
+
+/* ---------- ここから下はしくみ ---------- */
+const $ = (s) => document.querySelector(s);
+const ALL_KEY = '__all__';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+const screens = { home: $('#home'), player: $('#player'), timeup: $('#timeup') };
+const els = {
+  tabs: $('#tabs'), wheel: $('#wheel'), wheelSvg: $('#wheelSvg'), spinBtn: $('#spinBtn'),
+  frame: $('#frame'), homeBtn: $('#homeBtn'), nextBtn: $('#nextBtn'), unlockBtn: $('#unlockBtn'),
+};
+const state = { slots: [], index: 0, rotation: 0, spinning: false, watchedMs: 0, lastTick: 0, tickTimer: null };
+
+function show(name) {
+  Object.entries(screens).forEach(([k, el]) => el.classList.toggle('is-active', k === name));
+}
+
+function shuffle(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// はるちゃんの回をさきに、のこりを埋める
+function take(cat, n) {
+  const withCat = (v) => ({ ...v, color: cat.color });
+  const haru = shuffle(cat.videos.filter((v) => v.haru)).map(withCat);
+  const rest = shuffle(cat.videos.filter((v) => !v.haru)).map(withCat);
+  return haru.concat(rest).slice(0, n);
+}
+
+function pickSlots(key) {
+  const max = APP_CONFIG.wheelSlots;
+  if (key === ALL_KEY) {
+    const cats = CATEGORIES.filter((c) => c.videos.length > 0);
+    const total = cats.reduce((s, c) => s + (SHUFFLE_WEIGHTS[c.key] ?? 1), 0);
+    const out = [];
+    cats.forEach((c) => out.push(...take(c, Math.max(1, Math.round(max * (SHUFFLE_WEIGHTS[c.key] ?? 1) / total)))));
+    return shuffle(out).slice(0, max);
+  }
+  const cat = CATEGORIES.find((c) => c.key === key);
+  return cat ? take(cat, max) : [];
+}
+
+function buildTabs() {
+  const tabs = CATEGORIES.filter((c) => c.videos.length > 0)
+    .map((c) => ({ key: c.key, label: c.label, emoji: c.emoji, color: c.color }));
+  tabs.push({ key: ALL_KEY, label: 'ぜんぶ', emoji: '🎲', color: '#c7f0d8' });
+  tabs.forEach((t) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab';
+    btn.dataset.key = t.key;
+    btn.style.setProperty('--tab-color', t.color);
+    btn.innerHTML = '<span class="tab__emoji"></span><span></span>';
+    btn.firstElementChild.textContent = t.emoji;
+    btn.lastElementChild.textContent = t.label;
+    btn.addEventListener('click', () => selectTab(t.key));
+    els.tabs.appendChild(btn);
+  });
+}
+
+function selectTab(key) {
+  if (state.spinning) return;
+  els.tabs.querySelectorAll('.tab').forEach((b) => b.classList.toggle('is-on', b.dataset.key === key));
+  state.slots = pickSlots(key);
+  drawWheel();
+}
+
+function polar(r, deg) { const rad = deg * Math.PI / 180; return { x: r * Math.cos(rad), y: r * Math.sin(rad) }; }
+
+function arcPath(r, a0, a1) {
+  const p0 = polar(r, a0), p1 = polar(r, a1);
+  return `M 0 0 L ${p0.x} ${p0.y} A ${r} ${r} 0 ${(a1 - a0) > 180 ? 1 : 0} 1 ${p1.x} ${p1.y} Z`;
+}
+
+function tint(hex, amount) {
+  const num = parseInt((hex || '#cccccc').slice(1), 16);
+  const ch = [(num >> 16) & 255, (num >> 8) & 255, num & 255].map((c) => {
+    const v = amount >= 0 ? c + (255 - c) * amount : c * (1 + amount);
+    return Math.round(Math.min(255, Math.max(0, v)));
+  });
+  return `rgb(${ch.join(',')})`;
+}
+
+function drawWheel() {
+  const svg = els.wheelSvg;
+  svg.textContent = '';
+  const n = state.slots.length;
+  if (!n) return;
+  const seg = 360 / n;
+
+  state.slots.forEach((video, i) => {
+    const a0 = i * seg - 90, a1 = (i + 1) * seg - 90, mid = (a0 + a1) / 2;
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('class', 'slice');
+
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', arcPath(98, a0, a1));
+    path.setAttribute('fill', tint(video.color, i % 2 ? -0.12 : 0.12));
+    path.setAttribute('stroke', '#fff');
+    path.setAttribute('stroke-width', '1.5');
+    g.appendChild(path);
+
+    const norm = ((mid % 360) + 360) % 360;
+    const flip = (norm > 90 && norm < 270) ? 180 : 0;
+    const text = document.createElementNS(SVG_NS, 'text');
+    text.setAttribute('class', 'slice__label');
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('transform', `rotate(${mid}) translate(62 0) rotate(${flip})`);
+    text.setAttribute('fill', '#4a3b2f');
+
+    const emoji = document.createElementNS(SVG_NS, 'tspan');
+    emoji.setAttribute('x', '0');
+    emoji.setAttribute('dy', '-2');
+    emoji.setAttribute('font-size', Math.min(15, 90 / n + 5));
+    emoji.textContent = video.emoji || '🎬';
+
+    const label = document.createElementNS(SVG_NS, 'tspan');
+    label.setAttribute('x', '0');
+    label.setAttribute('dy', '9');
+    label.setAttribute('font-size', Math.min(7, 50 / n + 3));
+    label.textContent = video.short || '';
+
+    text.append(emoji, label);
+    g.appendChild(text);
+    g.addEventListener('click', () => { if (!state.spinning) choose(i); });
+    svg.appendChild(g);
+  });
+}
+
+function weightedTargetIndex() {
+  const weights = state.slots.map((v) => (v.haru ? APP_CONFIG.haruWeight : 1));
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < weights.length; i++) { r -= weights[i]; if (r <= 0) return i; }
+  return weights.length - 1;
+}
+
+function spin() {
+  if (state.spinning || !state.slots.length) return;
+  state.spinning = true;
+  els.spinBtn.disabled = true;
+
+  const seg = 360 / state.slots.length;
+  const target = weightedTargetIndex();
+  const want = (360 - (target * seg + seg / 2)) % 360;
+  state.rotation += 5 * 360 + (((want - (state.rotation % 360)) + 360) % 360);
+  els.wheel.style.transform = `rotate(${state.rotation}deg)`;
+
+  const done = () => {
+    els.wheel.removeEventListener('transitionend', done);
+    state.spinning = false;
+    els.spinBtn.disabled = false;
+    choose(target);
+  };
+  els.wheel.addEventListener('transitionend', done);
+}
+
+function choose(index) {
+  state.index = index;
+  show('player');
+  play();
+  startTick();
+}
+
+function play() {
+  const video = state.slots[state.index];
+  if (!video) return goHome();
+  els.frame.src = 'https://www.youtube-nocookie.com/embed/' + video.id +
+    '?autoplay=1&rel=0&playsinline=1&modestbranding=1&iv_load_policy=3';
+}
+
+function playNext() {
+  state.index = (state.index + 1) % state.slots.length;
+  play();
+}
+
+function goHome() {
+  stopTick();
+  els.frame.src = 'about:blank'; // 音を止める
+  show('home');
+}
+
+/* みまもりタイマー（デモ版は再生画面にいる時間で数えます） */
+function startTick() {
+  if (!APP_CONFIG.sessionMinutes || state.tickTimer) return;
+  state.lastTick = Date.now();
+  state.tickTimer = setInterval(() => {
+    const now = Date.now();
+    state.watchedMs += now - state.lastTick;
+    state.lastTick = now;
+    if (state.watchedMs >= APP_CONFIG.sessionMinutes * 60000) timeUp();
+  }, 1000);
+}
+
+function stopTick() { clearInterval(state.tickTimer); state.tickTimer = null; }
+
+function timeUp() {
+  stopTick();
+  els.frame.src = 'about:blank';
+  show('timeup');
+}
+
+function setupUnlock() {
+  let timer = null;
+  els.unlockBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    els.unlockBtn.classList.add('is-holding');
+    timer = setTimeout(() => {
+      els.unlockBtn.classList.remove('is-holding');
+      state.watchedMs = 0;
+      show('home');
+    }, 1500);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) =>
+    els.unlockBtn.addEventListener(ev, () => { clearTimeout(timer); els.unlockBtn.classList.remove('is-holding'); }));
+}
+
+buildTabs();
+setupUnlock();
+selectTab(CATEGORIES[0].key);
+els.spinBtn.addEventListener('click', spin);
+els.homeBtn.addEventListener('click', goHome);
+els.nextBtn.addEventListener('click', playNext);
+</script>
+</body>
+</html>
