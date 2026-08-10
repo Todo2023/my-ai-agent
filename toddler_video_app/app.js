@@ -86,7 +86,7 @@ function selectTab(key) {
  * 通信できないときはサムネイルが出ないので、絵文字に差し替える。
  */
 function buildFilmstrips() {
-  const all = CATEGORIES.flatMap((c) => c.videos);
+  const all = alive(CATEGORIES.flatMap((c) => c.videos));
   if (all.length === 0) return;
 
   const fill = (track, list) => {
@@ -102,6 +102,49 @@ function buildFilmstrips() {
   fill(els.stripBottom, all.slice().reverse());
 }
 
+/*
+ * YouTube は、無くなった動画のサムネイルを頼まれると 120×90 の灰色の画像を返す。
+ * 生きている動画は 320×180 なので、幅で見分けられる。
+ * 見分けた動画はルーレットからもフィルムからも外す（黒い画面で待たされないように）。
+ */
+const DEAD_THUMB_WIDTH = 120;
+
+function isDeadThumb(img) {
+  return img.naturalWidth > 0 && img.naturalWidth <= DEAD_THUMB_WIDTH;
+}
+
+function checkVideosAlive() {
+  const all = CATEGORIES.flatMap((c) => c.videos);
+  let left = all.length;
+  if (left === 0) return;
+
+  const finish = () => {
+    if (--left > 0) return;
+
+    // videos.js から消すときの手がかりとして、見つけたものを残しておく
+    const dead = all.filter((v) => v.unavailable);
+    if (dead.length) {
+      console.info('見られない動画（videos.js から消してよい）:',
+        dead.map((v) => `${v.id} ${v.short || ''}`).join(', '));
+    }
+
+    // 見つかった分を反映しなおす（ホーム画面にいて、回している最中でないときだけ）
+    buildFilmstrips();
+    if (!state.spinning && screens.home.classList.contains('is-active')) selectTab(state.tabKey);
+  };
+
+  all.forEach((video) => {
+    const img = new Image();
+    img.onload = () => {
+      if (isDeadThumb(img)) video.unavailable = true;
+      finish();
+    };
+    // 読み込めないのは通信の都合かもしれないので、消さずにそのままにする
+    img.onerror = finish;
+    img.src = `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`;
+  });
+}
+
 function makeFrame(video) {
   const frame = document.createElement('div');
   frame.className = 'frame';
@@ -112,11 +155,14 @@ function makeFrame(video) {
   frame.appendChild(emoji);
 
   const img = document.createElement('img');
-  img.loading = 'lazy';
   img.decoding = 'async';
   img.alt = '';
   img.src = `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`;
   img.addEventListener('error', () => frame.classList.add('is-fallback'));
+  // 灰色の「サムネイルなし」画像は出さず、絵文字にする
+  img.addEventListener('load', () => {
+    if (isDeadThumb(img)) frame.classList.add('is-fallback');
+  });
 
   frame.appendChild(img);
   return frame;
@@ -138,7 +184,7 @@ function pickSlots(key) {
 
   if (key === ALL_KEY) {
     // カテゴリの重みに応じて席を配分する
-    const cats = CATEGORIES.filter((c) => c.videos.length > 0);
+    const cats = CATEGORIES.filter((c) => alive(c.videos).length > 0);
     const total = cats.reduce((s, c) => s + (SHUFFLE_WEIGHTS[c.key] ?? 1), 0);
     const out = [];
     cats.forEach((c) => {
@@ -152,11 +198,17 @@ function pickSlots(key) {
   return cat ? take(cat, max) : [];
 }
 
+// 見られないと分かった動画は外す
+function alive(list) {
+  return list.filter((v) => !v.unavailable);
+}
+
 // はるちゃんの回をさきに、のこりを埋める
 function take(cat, n) {
   const withCat = (v) => ({ ...v, color: cat.color });
-  const haru = shuffle(cat.videos.filter((v) => v.haru)).map(withCat);
-  const rest = shuffle(cat.videos.filter((v) => !v.haru)).map(withCat);
+  const videos = alive(cat.videos);
+  const haru = shuffle(videos.filter((v) => v.haru)).map(withCat);
+  const rest = shuffle(videos.filter((v) => !v.haru)).map(withCat);
   return haru.concat(rest).slice(0, n);
 }
 
@@ -505,3 +557,4 @@ els.homeBtn.addEventListener('click', goHome);
 els.nextBtn.addEventListener('click', playNext);
 els.playBtn.addEventListener('click', togglePlay);
 loadYouTubeApi();
+checkVideosAlive();
