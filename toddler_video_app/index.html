@@ -29,7 +29,8 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 20px; padding: 32px 20px calc(32px + env(safe-area-inset-bottom)); text-align: center;
   }
-  img.icon { width: 128px; height: 128px; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+  /* アイコンは円形にくり抜いてあるので、影も丸くつくように drop-shadow を使う */
+  img.icon { width: 128px; height: 128px; filter: drop-shadow(0 8px 16px rgba(0,0,0,.2)); }
   h1 { margin: 0; font-size: clamp(24px, 6vw, 34px); }
   p { margin: 0; max-width: 32em; line-height: 1.7; }
   .lead { font-size: clamp(15px, 4vw, 18px); }

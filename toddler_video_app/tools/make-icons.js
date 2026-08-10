@@ -14,11 +14,16 @@ const SOURCE = ['icon-source.png', 'icon-source.jpg', 'icon-source.jpeg', 'icon-
   .map((f) => path.join(ROOT, f))
   .find((f) => fs.existsSync(f));
 
+/*
+ * shape は絵から作るときだけ使う。
+ *   circle … 円形にくり抜く（外側は透明）
+ *   fill   … 正方形いっぱい。端末側が丸く／角丸に切るので、切られる前提で敷く
+ */
 const TARGETS = [
-  { file: 'icon-192.png', size: 192, maskable: false },
-  { file: 'icon-512.png', size: 512, maskable: false },
-  { file: 'icon-maskable-512.png', size: 512, maskable: true },
-  { file: 'apple-touch-icon.png', size: 180, maskable: false },
+  { file: 'icon-192.png', size: 192, maskable: false, shape: 'circle' },
+  { file: 'icon-512.png', size: 512, maskable: false, shape: 'circle' },
+  { file: 'icon-maskable-512.png', size: 512, maskable: true, shape: 'fill' },
+  { file: 'apple-touch-icon.png', size: 180, maskable: false, shape: 'fill' },
 ];
 
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
@@ -40,8 +45,8 @@ const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   for (const t of TARGETS) {
     const dataUrl = sourceDataUrl
       ? await page.evaluate(
-          ([src, size, maskable]) => window.renderFromImage(src, size, maskable),
-          [sourceDataUrl, t.size, t.maskable]
+          ([src, size, shape]) => window.renderFromImage(src, size, shape),
+          [sourceDataUrl, t.size, t.shape]
         )
       : await page.evaluate(
           ([size, maskable]) => window.renderIcon(size, maskable),

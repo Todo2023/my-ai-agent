@@ -78,10 +78,17 @@ function drawIcon(ctx, size, maskable) {
 }
 
 /*
- * 用意した絵（icon-source.png）からアイコンを作る場合はこちら。
- * maskable は端が丸く切られるので、絵を小さめに置いて周りに余白の色を敷く。
+ * 用意した絵（icon-source.png）からアイコンを作る。
+ *
+ * ZOOM で内側に寄せてから使う。絵のふちにある白いギザギザの枠を外に追い出すため。
+ * shape:
+ *   'circle' … 円形にくり抜く。外側は透明（ブラウザやインストール画面で使う）
+ *   'fill'   … 正方形いっぱいに敷く。端末側が丸く切るので、こちらは切られる前提
+ *              （Android の maskable と iPhone のホーム画面アイコン）
  */
-window.renderFromImage = function (srcDataUrl, size, maskable) {
+const ZOOM = 1.18;
+
+window.renderFromImage = function (srcDataUrl, size, shape) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onerror = () => reject(new Error('画像を読み込めませんでした'));
@@ -90,16 +97,21 @@ window.renderFromImage = function (srcDataUrl, size, maskable) {
       c.width = c.height = size;
       const ctx = c.getContext('2d');
 
-      ctx.fillStyle = '#fff7ed';
-      ctx.fillRect(0, 0, size, size);
-
-      const inner = maskable ? size * 0.78 : size; // maskable は安全域の内側に収める
-      const off = (size - inner) / 2;
-      // 正方形に切り出して敷きつめる（縦横比は崩さない）
-      const side = Math.min(img.width, img.height);
+      // 元絵の中央から、ZOOM の分だけ内側を正方形に切り出す
+      const side = Math.min(img.width, img.height) / ZOOM;
       const sx = (img.width - side) / 2;
       const sy = (img.height - side) / 2;
-      ctx.drawImage(img, sx, sy, side, side, off, off, inner, inner);
+
+      if (shape === 'circle') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        ctx.restore();
+      } else {
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      }
 
       document.getElementById('out').appendChild(c);
       resolve(c.toDataURL('image/png'));
