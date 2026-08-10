@@ -35,6 +35,7 @@ const state = {
   watchedMs: 0,
   lastTick: 0,
   tickTimer: null,
+  progressTimer: null,  // 再生が始まったかを見張る
 };
 
 /* ---------- 画面きりかえ ---------- */
@@ -247,11 +248,43 @@ function playCurrent() {
   const video = state.slots[state.index];
   if (!video) return goHome();
 
+  startProgressWatch();
+
   if (!state.apiReady || !state.player) {
     state.pendingVideo = video; // API が来たら再生する
     return;
   }
   state.player.loadVideoById(video.id);
+}
+
+/*
+ * 「よみこみちゅう」の覆いを外す判断を、プレイヤーからのイベントだけに頼らない。
+ * イベントが届かない環境でも、再生位置が進んでいれば映っているとみなして覆いを外す。
+ * いつまでも進まないときは、その動画が再生できないものとみなして次へ送る。
+ */
+function startProgressWatch() {
+  clearInterval(state.progressTimer);
+  let waited = 0;
+  state.progressTimer = setInterval(() => {
+    waited++;
+    let t = 0;
+    try { t = state.player && state.player.getCurrentTime ? state.player.getCurrentTime() : 0; } catch (_) { t = 0; }
+
+    if (t > 0) {
+      els.loading.classList.add('is-hidden');
+      clearInterval(state.progressTimer);
+      state.progressTimer = null;
+    } else if (waited >= 12) {
+      clearInterval(state.progressTimer);
+      state.progressTimer = null;
+      skipBroken();
+    }
+  }, 1000);
+}
+
+function stopProgressWatch() {
+  clearInterval(state.progressTimer);
+  state.progressTimer = null;
 }
 
 function playNext() {
@@ -273,6 +306,7 @@ function skipBroken() {
 
 function goHome() {
   stopTick();
+  stopProgressWatch();
   if (state.player && state.player.stopVideo) state.player.stopVideo();
   show('home');
 }
@@ -290,8 +324,10 @@ function loadYouTubeApi() {
 
 // API 側から呼ばれる
 window.onYouTubeIframeAPIReady = function () {
+  // host は既定（www.youtube.com）のままにする。youtube-nocookie を指定すると
+  // 再生などの命令は届くのに、プレイヤーからのイベントが別オリジン扱いで捨てられ、
+  // 「よみこみちゅう」の覆いが外れないまま音だけ鳴る状態になる。
   state.player = new YT.Player('ytplayer', {
-    host: 'https://www.youtube-nocookie.com',
     playerVars: {
       autoplay: 1,
       controls: 0,       // YouTube 側のUIは出さない（自前の大きなボタンを使う）
@@ -317,9 +353,12 @@ window.onYouTubeIframeAPIReady = function () {
 };
 
 function onPlayerStateChange(e) {
+  // 再生が始まっていなくても、動き出していれば覆いは外す
+  if (e.data !== YT.PlayerState.UNSTARTED) els.loading.classList.add('is-hidden');
+
   if (e.data === YT.PlayerState.PLAYING) {
     state.skipCount = 0;
-    els.loading.classList.add('is-hidden');
+    stopProgressWatch();
     setPlayButton(true);
   }
   if (e.data === YT.PlayerState.PAUSED) setPlayButton(false);
@@ -366,6 +405,7 @@ function stopTick() {
 
 function timeUp() {
   stopTick();
+  stopProgressWatch();
   if (state.player && state.player.pauseVideo) state.player.pauseVideo();
   show('timeup');
 }

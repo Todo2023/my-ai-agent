@@ -129,6 +129,7 @@ html, body {
   color: #fff;
   font-size: clamp(18px, 4vmin, 32px);
   background: #000;
+  pointer-events: none; /* 覆いが残ってもタップを飲み込まないように */
 }
 
 .player__loading.is-hidden { display: none; }
