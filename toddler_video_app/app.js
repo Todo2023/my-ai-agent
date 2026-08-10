@@ -272,6 +272,8 @@ function startProgressWatch() {
 
     if (t > 0) {
       els.loading.classList.add('is-hidden');
+      setPlayButton(true);
+      hideCaptions();
       clearInterval(state.progressTimer);
       state.progressTimer = null;
     } else if (waited >= 12) {
@@ -330,6 +332,7 @@ window.onYouTubeIframeAPIReady = function () {
   state.player = new YT.Player('ytplayer', {
     playerVars: {
       autoplay: 1,
+      cc_load_policy: 0, // 字幕は出さない
       controls: 0,       // YouTube 側のUIは出さない（自前の大きなボタンを使う）
       disablekb: 1,
       fs: 0,
@@ -341,6 +344,7 @@ window.onYouTubeIframeAPIReady = function () {
     events: {
       onReady: () => {
         state.apiReady = true;
+        hideCaptions();
         if (state.pendingVideo) {
           state.player.loadVideoById(state.pendingVideo.id);
           state.pendingVideo = null;
@@ -352,6 +356,18 @@ window.onYouTubeIframeAPIReady = function () {
   });
 };
 
+/*
+ * 字幕を消す。cc_load_policy だけでは、端末側で字幕を既定オンにしていると出てしまう。
+ * 字幕の部品は動画を読み込むたびに戻ってくるので、再生が始まるたびに外す。
+ */
+function hideCaptions() {
+  if (!state.player) return;
+  try {
+    state.player.unloadModule('captions'); // 古い名前
+    state.player.unloadModule('cc');       // 今の名前
+  } catch (_) { /* まだ用意できていないときは何もしない */ }
+}
+
 function onPlayerStateChange(e) {
   // 再生が始まっていなくても、動き出していれば覆いは外す
   if (e.data !== YT.PlayerState.UNSTARTED) els.loading.classList.add('is-hidden');
@@ -360,6 +376,7 @@ function onPlayerStateChange(e) {
     state.skipCount = 0;
     stopProgressWatch();
     setPlayButton(true);
+    hideCaptions();
   }
   if (e.data === YT.PlayerState.PAUSED) setPlayButton(false);
   if (e.data === YT.PlayerState.ENDED) {

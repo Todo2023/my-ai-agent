@@ -1,5 +1,5 @@
 // 画面まわりの一式をキャッシュする。動画（YouTube）は毎回ネットから取る。
-const CACHE = "todo-wanwan-v4";
+const CACHE = "todo-wanwan-v5";
 const ASSETS = [
   "./",
   "./index.html",
