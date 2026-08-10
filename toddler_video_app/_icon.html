@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>アイコン書き出し（わんわんルーレット）</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #fff7ed; padding: 24px; }
+  canvas { background: #fff; border-radius: 12px; margin-right: 12px; vertical-align: top; }
+  p { color: #4a3b2f; }
+</style>
+</head>
+<body>
+<p>アイコンをここで描いて PNG に書き出します（`node tools/make-icons.js` から使います）。</p>
+<div id="out"></div>
+
+<script>
+/* ルーレット＋肉球のアイコン。キャラクターの絵は使わず、図形だけで描く。 */
+function drawIcon(ctx, size, maskable) {
+  const s = size;
+  ctx.clearRect(0, 0, s, s);
+
+  // 背景（maskable は端が切られるので、余白を多めにとる）
+  ctx.fillStyle = '#fff7ed';
+  ctx.fillRect(0, 0, s, s);
+
+  const cx = s / 2, cy = s / 2;
+  const r = s * (maskable ? 0.34 : 0.40);
+
+  // ルーレットのマス目
+  const slices = 8;
+  const colors = ['#ff8fab', '#ffa8bf'];
+  for (let i = 0; i < slices; i++) {
+    const a0 = (i / slices) * Math.PI * 2 - Math.PI / 2;
+    const a1 = ((i + 1) / slices) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a0, a1);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % 2];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = s * 0.012;
+    ctx.stroke();
+  }
+
+  // まんなかの黄色い円
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd166';
+  ctx.fill();
+  ctx.lineWidth = s * 0.02;
+  ctx.strokeStyle = '#fff';
+  ctx.stroke();
+
+  // 肉球（まんなかに）
+  const pr = r * 0.42;
+  ctx.fillStyle = '#4a3b2f';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + pr * 0.22, pr * 0.46, pr * 0.40, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const toes = [[-0.52, -0.44, 0.20], [-0.20, -0.68, 0.19], [0.20, -0.68, 0.19], [0.52, -0.44, 0.20]];
+  toes.forEach(([dx, dy, rr]) => {
+    ctx.beginPath();
+    ctx.ellipse(cx + pr * dx, cy + pr * dy, pr * rr, pr * (rr * 1.15), 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // 上の針
+  if (!maskable) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r * 1.02);
+    ctx.lineTo(cx - r * 0.17, cy - r * 1.22);
+    ctx.lineTo(cx + r * 0.17, cy - r * 1.22);
+    ctx.closePath();
+    ctx.fillStyle = '#e05263';
+    ctx.fill();
+  }
+}
+
+// 書き出し用：サイズとmaskableを指定して data URL を返す
+window.renderIcon = function (size, maskable) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  drawIcon(c.getContext('2d'), size, maskable);
+  document.getElementById('out').appendChild(c);
+  return c.toDataURL('image/png');
+};
+
+// 目で見て確かめる用
+['192,false', '512,false', '512,true', '180,false'].forEach((spec) => {
+  const [size, maskable] = spec.split(',');
+  window.renderIcon(Number(size), maskable === 'true');
+});
+</script>
+</body>
+</html>

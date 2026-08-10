@@ -1,55 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<title>わんわん るーれっと</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>わんわん るーれっと — アプリとして入れる</title>
+<meta name="description" content="ルーレットを回すと、止まったマスの動画が始まる幼児向けアプリ。ホーム画面に入れて使えます。">
+<meta name="theme-color" content="#fff7ed">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="わんわん">
+<meta property="og:title" content="わんわん るーれっと">
+<meta property="og:description" content="ルーレットを回すと、止まったマスの動画が始まる幼児向けアプリ。">
+<meta property="og:image" content="./icon-512.png">
+<script>
+  // ホーム画面のアイコンから開いたときは、案内を挟まずアプリへ
+  if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
+    location.replace("./app.html");
+  }
+</script>
+<style>
+  :root { --bg: #fff7ed; --ink: #4a3b2f; --pink: #ff8fab; --yellow: #ffd166; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
+    font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; padding: 32px 20px calc(32px + env(safe-area-inset-bottom)); text-align: center;
+  }
+  img.icon { width: 128px; height: 128px; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+  h1 { margin: 0; font-size: clamp(24px, 6vw, 34px); }
+  p { margin: 0; max-width: 32em; line-height: 1.7; }
+  .lead { font-size: clamp(15px, 4vw, 18px); }
+  .btn {
+    display: inline-block; padding: 16px 32px; border: none; border-radius: 999px;
+    background: var(--pink); color: var(--ink); font: inherit; font-size: clamp(17px, 4.6vw, 21px);
+    font-weight: 700; box-shadow: 0 6px 0 rgba(0,0,0,.18); cursor: pointer; text-decoration: none;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+  .btn--sub { background: var(--yellow); }
+  .steps {
+    max-width: 32em; text-align: left; background: #fff; border-radius: 20px;
+    padding: 20px 24px; box-shadow: 0 4px 0 rgba(0,0,0,.1); line-height: 1.8;
+  }
+  .steps h2 { margin: 0 0 8px; font-size: 17px; }
+  .steps ol { margin: 0; padding-left: 1.3em; }
+  .note { font-size: 13px; opacity: .7; max-width: 32em; }
+  .hidden { display: none; }
+</style>
 </head>
 <body>
 
-<!-- ホーム画面（ルーレット） -->
-<main id="home" class="screen is-active">
-  <div id="tabs" class="tabs"><!-- videos.js から生成 --></div>
+<img class="icon" src="./icon-192.png" alt="">
+<h1>わんわん るーれっと</h1>
+<p class="lead">ルーレットを回すと、止まったマスの動画が始まります。<br>ホーム画面に入れると、全画面で使えます。</p>
 
-  <div class="wheel-wrap">
-    <div class="wheel__pointer">▼</div>
-    <div id="wheel" class="wheel">
-      <svg id="wheelSvg" viewBox="-100 -100 200 200"><!-- JSで描画 --></svg>
-    </div>
-    <button id="spinBtn" class="spin">
-      <span class="spin__label">まわす</span>
-    </button>
-  </div>
+<button id="installBtn" class="btn hidden">📲 アプリとして入れる</button>
 
-  <p class="hint">まんなかを おして！ すきなえを おしても みられるよ</p>
-</main>
+<div id="steps" class="steps hidden">
+  <h2 id="stepsTitle">ホーム画面に追加する</h2>
+  <ol id="stepsList"></ol>
+</div>
 
-<!-- 再生画面 -->
-<section id="player" class="screen player">
-  <div class="player__stage">
-    <div id="ytplayer"></div>
-    <!-- 子どもの誤タップが YouTube 側に届かないようにするフタ -->
-    <div class="player__shield" aria-hidden="true"></div>
-    <div id="loading" class="player__loading">よみこみちゅう…</div>
-  </div>
-  <div class="player__controls">
-    <button id="homeBtn" class="ctrl">🎡<span>るーれっと</span></button>
-    <button id="playBtn" class="ctrl ctrl--main">⏸<span>とめる</span></button>
-    <button id="nextBtn" class="ctrl">⏭<span>つぎ</span></button>
-  </div>
-</section>
+<a class="btn btn--sub" href="./app.html">▶ このまま はじめる</a>
 
-<!-- おしまい画面（時間制限） -->
-<section id="timeup" class="screen timeup">
-  <div class="timeup__emoji">🌙</div>
-  <p class="timeup__text">きょうは おしまい！<br>またあそぼうね</p>
-  <button id="unlockBtn" class="unlock">おうちのかた：長押しでつづける</button>
-</section>
+<p class="note">動画は YouTube の無料動画を再生します（通信が必要です）。見守りタイマーは20分で、解除は大人の長押しです。</p>
 
-<script src="videos.js"></script>
-<script src="app.js"></script>
+<script>
+  const installBtn = document.getElementById('installBtn');
+  const steps = document.getElementById('steps');
+  const stepsTitle = document.getElementById('stepsTitle');
+  const stepsList = document.getElementById('stepsList');
+
+  let deferred = null;
+
+  // Android Chrome などはインストール用のイベントが来る
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferred = e;
+    steps.classList.add('hidden');
+    installBtn.classList.remove('hidden');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferred) return;
+    installBtn.disabled = true;
+    deferred.prompt();
+    await deferred.userChoice;
+    deferred = null;
+    installBtn.classList.add('hidden');
+  });
+
+  addEventListener('appinstalled', () => installBtn.classList.add('hidden'));
+
+  // イベントが来ない端末（iPhone など）には、手順を文章で出す
+  function showManualSteps() {
+    if (!installBtn.classList.contains('hidden')) return;
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const list = isIOS
+      ? ['画面の下（または上）の <b>共有ボタン</b>（□に↑）を押す',
+         '<b>「ホーム画面に追加」</b>を選ぶ',
+         '右上の<b>「追加」</b>を押す']
+      : ['ブラウザのメニュー（︙ など）を開く',
+         '<b>「アプリをインストール」</b>または<b>「ホーム画面に追加」</b>を選ぶ',
+         '確認を押す'];
+    stepsTitle.textContent = isIOS ? 'iPhone・iPad（Safari）でホーム画面に追加' : 'ホーム画面に追加';
+    stepsList.innerHTML = list.map((s) => '<li>' + s + '</li>').join('');
+    steps.classList.remove('hidden');
+  }
+
+  // beforeinstallprompt が来るなら少し待てば来る
+  setTimeout(showManualSteps, 1200);
+
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  }
+</script>
 </body>
 </html>
