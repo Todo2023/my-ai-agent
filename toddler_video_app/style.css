@@ -22,12 +22,94 @@ html, body {
 /* ---------- ホーム（ルーレット） ---------- */
 #home {
   flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  min-height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.home__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2vmin;
-  min-height: 100%;
-  padding: 3vmin;
+  padding: 2vmin 3vmin;
+  min-height: 0;
 }
+
+/* ---------- 流れるフィルム ---------- */
+.filmstrip {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  height: 19vmin;
+  padding: 2.6vmin 0;      /* 上下は穴を並べるふち */
+  background: #2f2723;
+}
+
+/* フィルムの穴。帯の地の色をすかせて穴の間の黒を作る */
+.filmstrip::before,
+.filmstrip::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2.6vmin;
+  background-image: repeating-linear-gradient(to right,
+    transparent 0 0.9vmin,
+    #fff7ed 0.9vmin 2.7vmin,
+    transparent 2.7vmin 3.6vmin);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.filmstrip::before { top: 0; }
+.filmstrip::after { bottom: 0; }
+
+.filmstrip__track {
+  display: flex;
+  gap: 1vmin;
+  height: 100%;
+  width: max-content;
+  animation: film-slide 46s linear infinite;
+  will-change: transform;
+}
+
+.filmstrip--reverse .filmstrip__track { animation-direction: reverse; }
+
+@keyframes film-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); } /* 同じ並びを2回入れて継ぎ目を消す */
+}
+
+.frame {
+  position: relative;
+  flex: none;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1vmin;
+  overflow: hidden;
+  background: #6b5a50;
+  display: grid;
+  place-items: center;
+}
+
+/* サムネイルが出ないときに見える控えの絵 */
+.frame__emoji { font-size: 6vmin; line-height: 1; }
+
+.frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.frame.is-fallback img { display: none; }
 
 .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 2vmin; }
 
@@ -59,7 +141,7 @@ html, body {
 
 .wheel-wrap {
   position: relative;
-  width: min(86vw, 62vh);
+  width: min(84vw, 52vh);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -194,4 +276,5 @@ html, body {
 
 @media (prefers-reduced-motion: reduce) {
   .wheel { transition-duration: .6s; }
+  .filmstrip__track { animation: none; }
 }

@@ -10,6 +10,8 @@ const screens = {
 
 const els = {
   tabs: $('#tabs'),
+  stripTop: $('#stripTop'),
+  stripBottom: $('#stripBottom'),
   wheel: $('#wheel'),
   wheelSvg: $('#wheelSvg'),
   spinBtn: $('#spinBtn'),
@@ -74,6 +76,49 @@ function selectTab(key) {
   });
   state.slots = pickSlots(key);
   drawWheel();
+}
+
+/* ---------- 流れるフィルム（飾り） ---------- */
+
+/*
+ * 動画のサムネイルを並べた帯を、上下で逆向きに流す。
+ * 継ぎ目を出さないため、同じ並びを2回入れて -50% まで動かす。
+ * 通信できないときはサムネイルが出ないので、絵文字に差し替える。
+ */
+function buildFilmstrips() {
+  const all = CATEGORIES.flatMap((c) => c.videos);
+  if (all.length === 0) return;
+
+  const fill = (track, list) => {
+    track.textContent = '';
+    // 帯が短いと隙間ができるので、最低12コマになるまで繰り返す
+    const row = [];
+    while (row.length < Math.max(12, list.length)) row.push(...list);
+    [...row, ...row].forEach((v) => track.appendChild(makeFrame(v)));
+  };
+
+  fill(els.stripTop, all);
+  fill(els.stripBottom, all.slice().reverse());
+}
+
+function makeFrame(video) {
+  const frame = document.createElement('div');
+  frame.className = 'frame';
+
+  const emoji = document.createElement('span');
+  emoji.className = 'frame__emoji';
+  emoji.textContent = video.emoji || '🎬';
+  frame.appendChild(emoji);
+
+  const img = document.createElement('img');
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.alt = '';
+  img.src = `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`;
+  img.addEventListener('error', () => frame.classList.add('is-fallback'));
+
+  frame.appendChild(img);
+  return frame;
 }
 
 /* ---------- ルーレットに乗せる動画をえらぶ ---------- */
@@ -451,6 +496,7 @@ function setupUnlock() {
 /* ---------- 起動 ---------- */
 
 buildTabs();
+buildFilmstrips();
 setupUnlock();
 selectTab(state.tabKey);
 els.spinBtn.addEventListener('click', spin);

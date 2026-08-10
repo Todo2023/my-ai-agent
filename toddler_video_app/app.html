@@ -20,19 +20,30 @@
 
 <!-- ホーム画面（ルーレット） -->
 <main id="home" class="screen is-active">
-  <div id="tabs" class="tabs"><!-- videos.js から生成 --></div>
-
-  <div class="wheel-wrap">
-    <div class="wheel__pointer">▼</div>
-    <div id="wheel" class="wheel">
-      <svg id="wheelSvg" viewBox="-100 -100 200 200"><!-- JSで描画 --></svg>
-    </div>
-    <button id="spinBtn" class="spin">
-      <span class="spin__label">まわす</span>
-    </button>
+  <!-- 動画のサムネイルがフィルムのように流れる帯（飾り。押しても反応しない） -->
+  <div class="filmstrip" aria-hidden="true">
+    <div class="filmstrip__track" id="stripTop"></div>
   </div>
 
-  <p class="hint">まんなかを おして！ すきなえを おしても みられるよ</p>
+  <div class="home__center">
+    <div id="tabs" class="tabs"><!-- videos.js から生成 --></div>
+
+    <div class="wheel-wrap">
+      <div class="wheel__pointer">▼</div>
+      <div id="wheel" class="wheel">
+        <svg id="wheelSvg" viewBox="-100 -100 200 200"><!-- JSで描画 --></svg>
+      </div>
+      <button id="spinBtn" class="spin">
+        <span class="spin__label">まわす</span>
+      </button>
+    </div>
+
+    <p class="hint">まんなかを おして！ すきなえを おしても みられるよ</p>
+  </div>
+
+  <div class="filmstrip filmstrip--reverse" aria-hidden="true">
+    <div class="filmstrip__track" id="stripBottom"></div>
+  </div>
 </main>
 
 <!-- 再生画面 -->
