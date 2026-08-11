@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>家計のみらい</title>
+<meta name="description" content="毎月の収支を入れると、この先の残高が1本の線になる。いつまでもつのか、あと月いくら使えるのかが出る。" />
+<meta name="theme-color" content="#0c1416" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="家計のみらい" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+
+<!-- 合い言葉。開くまで中身は暗号文のままで、この端末には何も入っていない -->
+<section class="lock" id="lock" hidden>
+  <div class="lockbox">
+    <img src="./icon-192.png" width="76" height="76" alt="" />
+    <h1>家計のみらい</h1>
+    <p class="lead">この家の家計は、合い言葉で封をしてあります。</p>
+    <form id="lockForm" autocomplete="on">
+      <input type="password" id="pass" name="password" placeholder="合い言葉" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" />
+      <button type="submit" id="unlock">ひらく</button>
+    </form>
+    <p class="lockmsg" id="lockMsg" hidden></p>
+    <p class="lockhint">ひらがな・カタカナ・ローマ字、大文字小文字のどれでも通ります。</p>
+    <button type="button" class="plain" id="startBlank">合い言葉なしで、見本の家計を見る</button>
+  </div>
+</section>
+
+<header class="bar">
+  <h1 class="brand">家計のみらい</h1>
+  <div class="bar-actions">
+    <button type="button" class="icon-btn" id="plansBtn" aria-label="プラン">🗂</button>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="設定">⚙</button>
+  </div>
+</header>
+
+<main class="page">
+  <!-- いちばん知りたいこと（もつ／尽きる、あと月いくら）を最初の一文で言い切る -->
+  <p class="verdict" id="verdict"></p>
+
+  <!-- 毎月の収支。ここが手元の表と合っていないと、この先の線に意味がない -->
+  <button type="button" class="monthly" id="monthly">
+    <span class="m-row"><span>入ってくる</span><b id="mIn"></b></span>
+    <span class="m-row"><span>出ていく</span><b id="mOut"></b></span>
+    <span class="m-row save"><span>貯める（資産に残る）</span><b id="mSave"></b></span>
+    <span class="m-row total"><span>手元に残る現金</span><b id="mCash"></b></span>
+    <span class="m-note" id="mNote"></span>
+  </button>
+
+  <div class="tiles">
+    <div class="tile"><span class="tl" id="tile1l"></span><b class="tv" id="tile1v"></b></div>
+    <div class="tile"><span class="tl" id="tile2l"></span><b class="tv" id="tile2v"></b></div>
+    <div class="tile"><span class="tl" id="tile3l"></span><b class="tv" id="tile3v"></b></div>
+  </div>
+
+  <section class="chartwrap">
+    <p class="readout" id="readout"></p>
+    <canvas id="chart" height="240"></canvas>
+    <div class="legend" id="legend"></div>
+    <p class="hint">グラフを指でなぞると、その年の中身が出ます</p>
+  </section>
+
+  <section class="tablewrap">
+    <div class="rowhead">
+      <span>年・歳</span><span>入る</span><span>出る</span><span>残高</span>
+    </div>
+    <div class="rows" id="rows"></div>
+    <p class="unitnote">単位は万円。押すとその年の内訳が出ます</p>
+  </section>
+</main>
+
+<div class="fab-wrap">
+  <button type="button" class="fab" id="budgetBtn">💴 収支</button>
+  <button type="button" class="fab sub" id="assumeBtn">✎ 前提</button>
+  <button type="button" class="fab sub" id="eventsBtn">🎏 イベント</button>
+</div>
+
+<!-- ---------- 毎月の収支 ---------- -->
+<section class="sheet" id="budget" hidden aria-modal="true" role="dialog" aria-label="毎月の収支">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="budget" aria-label="閉じる">✕</button>
+    <span class="sheet-title">毎月の収支</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note">金額は<b>円／月</b>。年に一度のもの（ふるさと納税・車検など）は<b>12で割った額</b>で入れてください。
+      収入は<b>手取り</b>で。項目の <b>⌄</b> を押すと、いつから・いつまで・退職で止まるかを決められます。</p>
+
+    <div class="sumbar" id="sumIn"></div>
+    <h2 class="sec">入ってくるお金</h2>
+    <div class="items" id="incomeList"></div>
+    <button type="button" class="btn ghost" id="addIncomeItem">＋ 収入を足す</button>
+
+    <div class="sumbar" id="sumOut"></div>
+    <h2 class="sec">出ていくお金</h2>
+    <div class="items" id="spendList"></div>
+    <button type="button" class="btn ghost" id="addSpendItem">＋ 支出を足す</button>
+
+    <p class="note dim"><b>「貯める」に印を付けた項目は、出ていくお金に数えていません。</b>
+      つみたても共済も、財布からは出ていきますが自分の資産として残るからです。
+      支出に混ぜると「毎月ぜんぶ使い切っている」ように見えてしまいます。</p>
+    <datalist id="groupNames"></datalist>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" data-close="budget">グラフに戻る</button>
+  </div>
+</section>
+
+<!-- ---------- 前提 ---------- -->
+<section class="sheet" id="assume" hidden aria-modal="true" role="dialog" aria-label="前提">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="assume" aria-label="閉じる">✕</button>
+    <span class="sheet-title">前提</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note">毎月の収入と支出は「収支」に入れます。ここは、それ以外に将来を大きく動かすものだけ。</p>
+    <p class="note dim">名前と生年月日は決まっているので、入力欄はありません（年齢は生年月日から出ます）。
+      グラフと表の年齢は<b>その年に迎える年齢</b>で数えています（誕生日の前でも、その年の歳で並びます）。</p>
+
+    <!-- 名前と生年月日は変わらないので入力欄を作らない（preset.js に固定してある） -->
+    <h2 class="sec" id="meName"></h2>
+    <p class="note dim" id="meBorn"></p>
+    <div class="grid2">
+      <label class="field"><span class="label">仕事をやめる年齢</span><span class="unit"><input type="number" id="mRetire" inputmode="numeric" step="1" min="0" max="110" /><i>歳</i></span></label>
+      <label class="field"><span class="label">退職金</span><span class="unit"><input type="number" id="mSev" inputmode="decimal" step="50" min="0" /><i>万円</i></span></label>
+      <label class="field"><span class="label">年金（手取り・年）</span><span class="unit"><input type="number" id="mPension" inputmode="decimal" step="10" min="0" /><i>万円</i></span></label>
+    </div>
+    <p class="note dim">年金は65歳から。ねんきん定期便の見込額から1割ほど引くと手取りに近くなります。
+      小規模企業共済の共済金を一度に受け取るなら、退職金に足しておいてください。</p>
+
+    <h2 class="sec" id="pName"></h2>
+    <p class="note dim" id="pBorn"></p>
+    <div class="grid2">
+      <label class="field"><span class="label">仕事をやめる年齢</span><span class="unit"><input type="number" id="pRetire" inputmode="numeric" step="1" min="0" max="110" /><i>歳</i></span></label>
+      <label class="field"><span class="label">退職金</span><span class="unit"><input type="number" id="pSev" inputmode="decimal" step="50" min="0" /><i>万円</i></span></label>
+      <label class="field"><span class="label">年金（手取り・年）</span><span class="unit"><input type="number" id="pPension" inputmode="decimal" step="10" min="0" /><i>万円</i></span></label>
+    </div>
+    <p class="note dim">収入そのものは「収支」に項目として入れ、<b>だれの収入か</b>を選んでおくと、その人が仕事をやめた年に自動で止まります。</p>
+
+    <h2 class="sec">家族</h2>
+    <div class="table-mini" id="familyList"></div>
+    <p class="note dim">子どもの進路と教育費は「ライフイベント」で決めます。</p>
+
+    <h2 class="sec">お金の置き場</h2>
+    <div class="grid2">
+      <label class="field"><span class="label">いまの貯蓄・投資（全部）</span><span class="unit"><input type="number" id="assetNow" inputmode="decimal" step="50" /><i>万円</i></span></label>
+      <label class="field"><span class="label">運用の利回り</span><span class="unit"><input type="number" id="yieldRate" inputmode="decimal" step="0.5" /><i>%/年</i></span></label>
+      <label class="field"><span class="label">物価上昇率</span><span class="unit"><input type="number" id="inflation" inputmode="decimal" step="0.5" /><i>%/年</i></span></label>
+      <label class="field"><span class="label">退職後の生活費</span><span class="unit"><input type="number" id="oldRate" inputmode="numeric" step="5" min="0" max="200" /><i>%</i></span></label>
+      <label class="field"><span class="label" id="horizonLabel">何歳まで見るか</span><span class="unit"><input type="number" id="horizonAge" inputmode="numeric" step="5" min="20" max="120" /><i>歳</i></span></label>
+    </div>
+    <p class="note dim">「退職後の生活費」は、いまの支出に対する割合です（80% なら 2割減らす見込み）。
+      退職ではっきり止まるもの（通勤費・社宅）は、収支の項目側で「退職したら止まる」にしてください。<br />
+      利回りは、全額を預金にしているなら 0〜0.5%、つみたてで世界株なら 3〜5% が目安。
+      <b>低めに置いて、それでも足りるか</b>を見るのが安全です。</p>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" data-close="assume">グラフに戻る</button>
+  </div>
+</section>
+
+<!-- ---------- ライフイベント ---------- -->
+<section class="sheet" id="events" hidden aria-modal="true" role="dialog" aria-label="ライフイベント">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="events" aria-label="閉じる">✕</button>
+    <span class="sheet-title">ライフイベント</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note">毎月ではなく、<b>ある年にまとまって動くお金</b>はこちら。</p>
+
+    <h2 class="sec">子ども（教育費を自動で入れる）</h2>
+    <p class="note">生まれた年と進路を入れると、その年ごとの<b>教育費</b>が自動で計上されます。
+      すでに収支の項目として入れている養育費・生活費とは<b>二重にならないよう</b>気をつけてください。</p>
+    <div class="cards" id="childList"></div>
+    <button type="button" class="btn ghost" id="addChild">＋ 子どもを足す</button>
+    <label class="switch"><input type="checkbox" id="childAllowance" /><span>児童手当を収入に入れる</span></label>
+
+    <h2 class="sec">住まいを買う</h2>
+    <p class="note">買う年に頭金と諸費用が出て、そこから<b>返済と維持費</b>が始まります。
+      家賃は収支の項目なので、買う前年を「いつまで」に入れて止めてください。</p>
+    <div class="cards" id="homeBox"></div>
+    <button type="button" class="btn ghost" id="addHome">＋ 住宅購入を入れる</button>
+
+    <h2 class="sec">そのほか</h2>
+    <p class="note">車の買い替え・リフォーム・親の介護・まとまった臨時収入など。「続く年数」を2以上にすると、その年数だけ毎年くり返します。</p>
+    <div class="cards" id="eventList"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="addSpend">＋ 出ていくお金</button>
+      <button type="button" class="btn ghost" id="addIncome">＋ 入ってくるお金</button>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" data-close="events">グラフに戻る</button>
+  </div>
+</section>
+
+<!-- ---------- プラン ---------- -->
+<section class="sheet" id="plans" hidden aria-modal="true" role="dialog" aria-label="プラン">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="plans" aria-label="閉じる">✕</button>
+    <span class="sheet-title">プラン</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note">収支と前提をまるごと保存したものが「プラン」です。<b>複製して1か所だけ変えれば</b>、
+      買う・買わない、働き続ける・早く辞める、をグラフに重ねて比べられます。</p>
+    <div class="cards" id="planList"></div>
+    <button type="button" class="btn ghost" id="addPlan">＋ 最初の状態から新しく作る</button>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" data-close="plans">グラフに戻る</button>
+  </div>
+</section>
+
+<!-- ---------- 設定 ---------- -->
+<section class="sheet" id="settings" hidden aria-modal="true" role="dialog" aria-label="設定">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="settings" aria-label="閉じる">✕</button>
+    <span class="sheet-title">設定</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note" id="usage"></p>
+    <p class="note dim" id="version"></p>
+
+    <h2 class="sec">この計算の前提</h2>
+    <p class="note">教育費は文部科学省「子供の学習費調査」（学校教育費・給食費・学校外活動費）と、
+      大学の授業料・入学金のめやすから、1年あたりの額を置いています。</p>
+    <div class="table-mini" id="eduTable"></div>
+    <p class="note dim">児童手当は 2024年10月からの形（3歳未満 月1.5万／3歳〜高校生年代 月1万／第3子以降 月3万・所得制限なし）。
+      年金は物価スライドを見込まず、いまの金額のまま置いています（実質は目減りするため、少なめに見ています）。
+      仕送り・一人暮らしの費用・中学受験の塾代は入っていません。必要なら収支の項目かイベントで足してください。</p>
+
+    <h2 class="sec">バックアップ</h2>
+    <p class="note">入れた金額はこの端末のブラウザの中だけにあります。どこにも送っていません。機種変更の前に書き出してください。</p>
+    <div class="sheet-actions col">
+      <button type="button" class="btn ghost" id="exportBtn">⬇ 書き出す（JSON）</button>
+      <button type="button" class="btn ghost" id="importBtn">⬆ 読み込む（いまのプランに足す）</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden />
+
+    <h2 class="sec">合い言葉</h2>
+    <p class="note">別の端末で開くときは、その端末で合い言葉を1回入れてください。
+      いちど開けば、次からはそのまま開きます（この端末には家計がそのまま保存されます）。</p>
+    <div class="sheet-actions col">
+      <button type="button" class="btn ghost" id="relock">合い言葉を入れて読み込み直す</button>
+    </div>
+
+    <h2 class="sec">うまく動かないとき</h2>
+    <div class="sheet-actions col">
+      <a class="btn ghost" href="./check.html">インストール診断をひらく</a>
+    </div>
+
+    <h2 class="sec">全部消す</h2>
+    <p class="note">この端末に保存したプランを、まとめて消します。取り消せません（最初の収支表に戻ります）。</p>
+    <div class="sheet-actions col">
+      <button type="button" class="btn danger" id="wipe">すべて削除</button>
+    </div>
+
+    <p class="note dim">家計のみらい — 計算は端末の中だけ。入力した金額はサーバーにも外部にも送っていません。
+      出てくる数字は前提から機械的に出したもので、将来を約束するものではありません。</p>
+  </div>
+</section>
+
+<!-- ---------- 1年の内訳 ---------- -->
+<section class="sheet" id="year" hidden aria-modal="true" role="dialog" aria-label="この年の内訳">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="year" aria-label="閉じる">✕</button>
+    <span class="sheet-title" id="yearTitle"></span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body" id="yearBody"></div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="./sim.js"></script>
+<script src="./secret.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!-- アイコンの元絵。_build_icons.js が Chromium で開いて PNG に書き出す -->
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const ctx = document.getElementById("c").getContext("2d");
+
+// maskable は端が丸く切られるので、絵を内側に寄せる
+window.render = (maskable) => {
+  const S = 512;
+  ctx.clearRect(0, 0, S, S);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, S);
+  bg.addColorStop(0, "#16302b");
+  bg.addColorStop(1, "#0c1416");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, S, S);
+
+  const glow = ctx.createRadialGradient(S * 0.7, S * 0.3, 16, S * 0.7, S * 0.3, S * 0.7);
+  glow.addColorStop(0, "rgba(79,214,169,0.28)");
+  glow.addColorStop(1, "rgba(79,214,169,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, S, S);
+
+  ctx.save();
+  const k = maskable ? 0.76 : 1;
+  ctx.translate(S / 2, S / 2);
+  ctx.scale(k, k);
+  ctx.translate(-S / 2, -S / 2);
+
+  // 残高の線。いったん凹んで、そこから伸びる形にしてある（教育費や住宅で凹み、
+  // そのあと戻るのが、このアプリで見えるいちばん典型的な形）
+  const pts = [[86, 336], [166, 300], [246, 366], [326, 250], [426, 132]];
+
+  // 線の下の塗り
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], 430);
+  for (const [x, y] of pts) ctx.lineTo(x, y);
+  ctx.lineTo(pts[pts.length - 1][0], 430);
+  ctx.closePath();
+  const fill = ctx.createLinearGradient(0, 120, 0, 430);
+  fill.addColorStop(0, "rgba(79,214,169,0.42)");
+  fill.addColorStop(1, "rgba(79,214,169,0.02)");
+  ctx.fillStyle = fill;
+  ctx.fill();
+
+  // 地面（ゼロの線）
+  ctx.strokeStyle = "rgba(230,242,238,0.22)";
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(72, 430);
+  ctx.lineTo(440, 430);
+  ctx.stroke();
+
+  // 線そのもの
+  ctx.strokeStyle = "#4fd6a9";
+  ctx.lineWidth = 30;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.stroke();
+
+  // 先端の点
+  ctx.fillStyle = "#d5f5e7";
+  ctx.beginPath();
+  ctx.arc(426, 132, 26, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 円マーク。フォントに頼ると端末や環境で形が変わるので、線で引く
+  ctx.strokeStyle = "rgba(213,245,231,0.92)";
+  ctx.lineWidth = 20;
+  ctx.lineCap = "round";
+  const cx = 128, cy = 150, arm = 46;
+  ctx.beginPath();
+  ctx.moveTo(cx - arm, cy - arm);       // ＼
+  ctx.lineTo(cx, cy);
+  ctx.moveTo(cx + arm, cy - arm);       // ／
+  ctx.lineTo(cx, cy);
+  ctx.moveTo(cx, cy);                   // 縦棒
+  ctx.lineTo(cx, cy + 62);
+  ctx.moveTo(cx - 40, cy + 16);         // 横棒（上）
+  ctx.lineTo(cx + 40, cy + 16);
+  ctx.moveTo(cx - 40, cy + 44);         // 横棒（下）
+  ctx.lineTo(cx + 40, cy + 44);
+  ctx.stroke();
+
+  ctx.restore();
+};
+
+window.toPNG = (size) => {
+  const out = document.createElement("canvas");
+  out.width = out.height = size;
+  const c = out.getContext("2d");
+  c.imageSmoothingQuality = "high";
+  c.drawImage(document.getElementById("c"), 0, 0, size, size);
+  return out.toDataURL("image/png");
+};
+</script>
