@@ -149,6 +149,9 @@
     const partner = p.partner || {};
     const living = p.living || {};
     const assets = p.assets || {};
+    // 口座を1つでも入れてあれば、その合計がスタート地点。入れていなければ手打ちの額を使う
+    const accountYen = (p.accounts || []).reduce((s, a) => s + num(a.yen, 0), 0);
+    const startAssets = (p.accounts || []).length ? accountYen / 10000 : num(assets.now, 0);
     return {
       startYear: num(p.startYear, new Date().getFullYear()),
       horizonAge: num(p.horizonAge, 95),
@@ -168,12 +171,20 @@
         pension: num(partner.pension, 120),
       },
       living: { inflation: num(living.inflation, 1.5), oldRate: num(living.oldRate, 80) },
+      // いま持っているお金を口座ごとに。単位は円（残高は円で見るものなので）。
+      // asOf は「いつ時点の残高か」。古いまま置いておくと、この先の線が丸ごとずれる
+      accounts: (p.accounts || []).map((a, i) => ({
+        id: a.id || `a${i}`,
+        label: a.label || "",
+        yen: num(a.yen, 0),
+        asOf: typeof a.asOf === "string" ? a.asOf : "",
+      })),
       // 表に出す呼び名。画面側（preset.js）が入れる。無ければ役どころで呼ぶ
       people: {
         me: (p.people && p.people.me) || "あなた",
         partner: (p.people && p.people.partner) || "配偶者",
       },
-      assets: { now: num(assets.now, 0), yieldRate: num(assets.yieldRate, 1) },
+      assets: { now: startAssets, yieldRate: num(assets.yieldRate, 1) },
       income: (p.income || []).map((it, i) => normItem(it, i, "i")),
       spend: (p.spend || []).map((it, i) => normItem(it, i, "s")),
       childAllowance: p.childAllowance === true,

@@ -8,7 +8,7 @@
  * ファイルを更新したら CACHE の版数を上げること。上げないと古いまま開かれる。
  */
 
-const CACHE = "kakei-mirai-v5";
+const CACHE = "kakei-mirai-v6";
 const ASSETS = [
   "./",
   "./index.html",

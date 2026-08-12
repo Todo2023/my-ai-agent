@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-12 項目ごとの内訳";
+const VERSION = "2026-08-12 口座と内訳";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -745,7 +745,7 @@ const FIELDS = {
   mRetire: "me.retireAge", mSev: "me.severance", mPension: "me.pension",
   pRetire: "partner.retireAge", pSev: "partner.severance", pPension: "partner.pension",
   inflation: "living.inflation", oldRate: "living.oldRate",
-  assetNow: "assets.now", yieldRate: "assets.yieldRate", horizonAge: "horizonAge",
+  yieldRate: "assets.yieldRate", horizonAge: "horizonAge",
 };
 
 const dig = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
@@ -786,6 +786,42 @@ function readForm() {
     if (Number.isFinite(v) && $(id).value !== "") place(plan, path, v);
   }
   refresh();
+}
+
+/* ---------------- お金の置き場（口座） ---------------- */
+
+const todayISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+/** その残高がいつのものか。古くなったら、そう言う */
+function asOfText(asOf) {
+  if (!asOf) return "時点を入れてください";
+  const d = new Date(`${asOf}T00:00:00`);
+  if (isNaN(d)) return "";
+  const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  const when = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} 時点`;
+  if (days <= 0) return `${when}（今日）`;
+  if (days < 31) return `${when}（${days}日前）`;
+  const months = Math.floor(days / 30.4);
+  return `${when}（${months}か月前・そろそろ入れ直しどき）`;
+}
+
+function renderAccounts() {
+  const plan = active();
+  const list = plan.accounts || [];
+  const total = list.reduce((s, a) => s + (Number(a.yen) || 0), 0);
+
+  $("accountList").innerHTML = list.map((a) => `<div class="item account" data-account="${a.id}">
+    <input class="ilabel" type="text" data-k="label" value="${esc(a.label)}" placeholder="口座・サービスの名前" />
+    <span class="iamt"><input type="text" data-k="yen" inputmode="numeric" value="${Math.round(a.yen).toLocaleString("ja-JP")}" /><i>円</i></span>
+    <button type="button" class="del" data-del-account="${a.id}" aria-label="消す">🗑</button>
+    <span class="asof">
+      <input type="date" data-k="asOf" value="${esc(a.asOf || "")}" />
+      <em>${esc(asOfText(a.asOf))}${a.yen ? `・${yen(a.yen / 10000)}` : ""}</em>
+    </span>
+  </div>`).join("") || `<p class="note dim">まだ1つも入れていません。「＋ 口座を足す」から。</p>`;
+
+  $("sumAssets").innerHTML = `<span>合計（スタート地点）</span><b>${en(total)}</b>`
+    + `<span class="side">${yen(total / 10000)}</span>`;
 }
 
 /* ---------------- ライフイベント ---------------- */
@@ -975,7 +1011,45 @@ function bind() {
   const openBudget = () => { renderBudget(); openSheet("budget"); };
   $("budgetBtn").addEventListener("click", openBudget);
   $("monthly").addEventListener("click", openBudget);
-  $("assumeBtn").addEventListener("click", () => { fillForm(); openSheet("assume"); });
+  $("assumeBtn").addEventListener("click", () => { fillForm(); renderAccounts(); openSheet("assume"); });
+
+  /* --- お金の置き場（口座） --- */
+
+  $("addAccount").addEventListener("click", () => {
+    const plan = active();
+    plan.accounts = plan.accounts || [];
+    plan.accounts.push({ id: uid(), label: "", yen: 0, asOf: todayISO() });
+    renderAccounts();
+    refresh();
+  });
+
+  $("accountList").addEventListener("input", (e) => {
+    const card = e.target.closest("[data-account]");
+    const k = e.target.dataset.k;
+    if (!card || !k) return;
+    const a = active().accounts.find((x) => x.id === card.dataset.account);
+    if (!a) return;
+    if (k === "yen") a.yen = Number(String(e.target.value).replace(/[^\d.-]/g, "")) || 0;
+    else a[k] = e.target.value;
+    refresh();
+    // 名前を打っている最中に組み直すと入力が飛ぶ。合計だけ先に直す
+    const total = active().accounts.reduce((s, x) => s + (Number(x.yen) || 0), 0);
+    $("sumAssets").innerHTML = `<span>合計（スタート地点）</span><b>${en(total)}</b><span class="side">${yen(total / 10000)}</span>`;
+  });
+
+  $("accountList").addEventListener("change", (e) => {
+    if (e.target.dataset.k && e.target.dataset.k !== "label") renderAccounts();
+  });
+
+  $("accountList").addEventListener("click", (e) => {
+    const del = e.target.closest("[data-del-account]");
+    if (!del) return;
+    const a = active().accounts.find((x) => x.id === del.dataset.delAccount);
+    if (!confirm(`「${a && a.label ? a.label : "この口座"}」を消します。`)) return;
+    active().accounts = active().accounts.filter((x) => x.id !== del.dataset.delAccount);
+    renderAccounts();
+    refresh();
+  });
   $("eventsBtn").addEventListener("click", () => { renderEventSheet(); openSheet("events"); });
   $("plansBtn").addEventListener("click", () => { renderPlans(); openSheet("plans"); });
   $("settingsBtn").addEventListener("click", () => { renderSettings(); openSheet("settings"); });

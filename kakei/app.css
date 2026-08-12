@@ -604,6 +604,34 @@ select {
 
 .checks { display: flex; flex-direction: column; gap: 8px; }
 
+/* 口座。残高の下に「いつ時点か」を並べる */
+.item.account { align-items: center; }
+
+.item.account .asof {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 2px 2px 4px;
+}
+
+.item.account .asof input[type="date"] {
+  padding: 6px 9px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  color-scheme: dark;
+}
+
+.item.account .asof em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--dim);
+}
+
 /* ---------- カード（子ども・住まい・イベント・プラン） ---------- */
 
 .cards { display: flex; flex-direction: column; gap: 10px; }

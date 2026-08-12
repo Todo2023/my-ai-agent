@@ -151,8 +151,13 @@
     <p class="note dim">子どもの進路と教育費は「ライフイベント」で決めます。</p>
 
     <h2 class="sec">お金の置き場</h2>
+    <p class="note">いま持っている貯蓄・投資を、口座ごとに入れてください。<b>その合計がスタート地点</b>になります。
+      残高は<b>いつ時点のものか</b>も入れておくと、古くなったときに分かります。</p>
+    <div class="items" id="accountList"></div>
+    <button type="button" class="btn ghost" id="addAccount">＋ 口座を足す</button>
+    <div class="sumbar" id="sumAssets"></div>
+
     <div class="grid2">
-      <label class="field"><span class="label">いまの貯蓄・投資（全部）</span><span class="unit"><input type="number" id="assetNow" inputmode="decimal" step="50" /><i>万円</i></span></label>
       <label class="field"><span class="label">運用の利回り</span><span class="unit"><input type="number" id="yieldRate" inputmode="decimal" step="0.5" /><i>%/年</i></span></label>
       <label class="field"><span class="label">物価上昇率</span><span class="unit"><input type="number" id="inflation" inputmode="decimal" step="0.5" /><i>%/年</i></span></label>
       <label class="field"><span class="label">退職後の生活費</span><span class="unit"><input type="number" id="oldRate" inputmode="numeric" step="5" min="0" max="200" /><i>%</i></span></label>
