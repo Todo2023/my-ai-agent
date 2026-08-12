@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Someday｜つくってしまう部門</title>
+<meta name="description" content="思いついたものを、つくってしまう。AIを相棒に、スマホで動く小さなアプリと音楽をつくっています。公開中のアプリは4本、すべて実際に触れます。" />
+<meta name="theme-color" content="#0a0a0d" />
+<meta name="color-scheme" content="dark" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- 提案段階のため検索避け。公開時にこの行を消す -->
+
+<!-- OGP（公開時に URL と画像を差し替える） -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Someday" />
+<meta property="og:title" content="Someday｜つくってしまう部門" />
+<meta property="og:description" content="思いついたものを、つくってしまう。AIを相棒に、小さなアプリと音楽を。" />
+<meta property="og:locale" content="ja_JP" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<style>
+  /*
+    Someday ── 合同会社To do の、つくる部門
+    ブランド名は仮です。変えるときは、このファイル内の「Someday」を
+    すべて置き換えてください（タイトル・ロゴ・フッター）。
+  */
+  :root{
+    --void:#0a0a0d;          /* 地の色 */
+    --void-2:#121219;        /* 一段浮かせた面 */
+    --void-3:#1a1a24;
+    --paper:#f0eee8;         /* 文字 */
+    --muted:#8f8da0;         /* 補足 */
+    --lime:#ccf24a;          /* 主役の差し色 */
+    --violet:#a98bff;        /* 音楽まわり */
+    --line:rgba(240,238,232,.13);
+    --wrap:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%;}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+  body{
+    margin:0; background:var(--void); color:var(--paper);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+    font-size:15px; line-height:1.95; letter-spacing:.02em;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;
+  }
+  img{max-width:100%; display:block;}
+  h1,h2,h3{margin:0; line-height:1.42; letter-spacing:-.005em; font-weight:800;}
+  p{margin:0;}
+  ul,ol{margin:0; padding:0; list-style:none;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--lime); outline-offset:3px;}
+
+  .wrap{width:min(100% - 40px, var(--wrap)); margin-inline:auto;}
+  section{padding:clamp(64px,11vw,120px) 0;}
+  .eyebrow{
+    display:block; font-size:10.5px; font-weight:700; letter-spacing:.3em;
+    text-transform:uppercase; color:var(--lime); margin-bottom:20px;
+  }
+  .sec-title{font-size:clamp(24px,5.4vw,40px);}
+  .sec-lead{margin-top:20px; color:var(--muted); font-size:14.5px; max-width:36em;}
+
+  /* ── 提案中の告知バー ── */
+  .note-bar{
+    background:var(--lime); color:#0a0a0d; font-size:11.5px; line-height:1.7;
+    font-weight:600; padding:10px 20px; text-align:center;
+  }
+
+  /* ── ヘッダー ── */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,10,13,.82); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{display:flex; align-items:center; gap:16px; height:62px;}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none;}
+  .brand .mark{flex:0 0 auto;}
+  .brand .name{font-size:17px; font-weight:800; letter-spacing:.01em;}
+  .brand .sub{display:block; font-size:9px; font-weight:600; letter-spacing:.18em; color:var(--muted); margin-top:-2px;}
+  .bar nav{margin-left:auto; display:none; gap:26px;}
+  .bar nav a{font-size:13px; font-weight:600; text-decoration:none; color:var(--paper); opacity:.82;}
+  .bar nav a:hover{opacity:1; color:var(--lime);}
+  .bar .head-cta{display:none;}
+  .menu-btn{
+    margin-left:auto; width:42px; height:42px; display:grid; place-items:center;
+    background:none; border:1px solid var(--line); border-radius:11px; cursor:pointer;
+  }
+  .menu-btn span{display:block; width:17px; height:1.5px; background:var(--paper); position:relative;}
+  .menu-btn span::before,.menu-btn span::after{
+    content:""; position:absolute; left:0; width:17px; height:1.5px; background:var(--paper);
+  }
+  .menu-btn span::before{top:-5.5px;} .menu-btn span::after{top:5.5px;}
+  #drawer{display:none; border-top:1px solid var(--line); padding:6px 0 18px;}
+  #drawer.open{display:block;}
+  #drawer a{
+    display:block; padding:13px 2px; font-size:14px; font-weight:600;
+    text-decoration:none; border-bottom:1px solid var(--line);
+  }
+  #drawer .btn{margin-top:16px;}
+
+  /* ── ボタン ── */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    padding:15px 28px; border-radius:999px; font-size:14.5px; font-weight:700;
+    text-decoration:none; border:1.5px solid transparent; cursor:pointer; width:100%;
+  }
+  .btn-primary{background:var(--lime); color:#0a0a0d;}
+  .btn-primary:active{background:#b8dd38;}
+  .btn-line{background:transparent; color:var(--paper); border-color:rgba(240,238,232,.3);}
+  .btn-line:hover{border-color:var(--lime); color:var(--lime);}
+  .btn-row{display:flex; flex-direction:column; gap:11px; margin-top:32px;}
+
+  /* ── ヒーロー ── */
+  .hero{position:relative; padding:clamp(56px,13vw,120px) 0 clamp(56px,10vw,104px); overflow:hidden;}
+  .hero::before{
+    content:""; position:absolute; inset:-25% -20% auto auto;
+    width:min(680px,90vw); aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle, rgba(204,242,74,.15), transparent 62%);
+    pointer-events:none;
+  }
+  .hero .wrap{position:relative;}
+  .hero .rule{width:56px; height:2px; background:var(--lime); margin-bottom:32px;}
+  .hero h1{font-size:clamp(32px,8.4vw,66px); line-height:1.28; letter-spacing:-.02em;}
+  .hero h1 em{font-style:normal; color:var(--lime);}
+  .hero .lead{margin-top:28px; font-size:clamp(14.5px,1.8vw,17px); color:var(--muted); max-width:33em; line-height:1.95;}
+
+  /* 事実の帯 */
+  .facts{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    display:grid; gap:1px; background:var(--line);
+  }
+  .facts > div{background:var(--void); padding:26px 4px;}
+  .facts dt{font-size:10.5px; font-weight:700; letter-spacing:.2em; color:var(--lime); text-transform:uppercase;}
+  .facts dd{margin:8px 0 0; font-size:clamp(16px,2.4vw,20px); font-weight:800; line-height:1.5;}
+  .facts .s{display:block; font-size:12.5px; font-weight:500; color:var(--muted); margin-top:5px; line-height:1.75;}
+
+  /* ── つくったもの ── */
+  .works{margin-top:44px; display:grid; gap:14px;}
+  .work{
+    display:flex; gap:18px; align-items:flex-start; text-decoration:none;
+    background:var(--void-2); border:1px solid var(--line); border-radius:18px;
+    padding:22px 20px; transition:border-color .2s ease, background-color .2s ease;
+  }
+  .work:hover{border-color:rgba(204,242,74,.45); background:var(--void-3);}
+  .work img{width:58px; height:58px; border-radius:14px; flex:0 0 auto;}
+  .work .t{display:block; min-width:0;}
+  .work h3{font-size:17px;}
+  .work .d{display:block; margin-top:7px; font-size:13px; color:var(--muted); line-height:1.85;}
+  .work .go{
+    display:block; margin-top:12px; font-size:12px; font-weight:700; color:var(--lime);
+    letter-spacing:.04em;
+  }
+  .work .go::after{content:" →";}
+
+  /* これからの枠 */
+  .soon{
+    margin-top:14px; border:1px dashed rgba(169,139,255,.42); border-radius:18px;
+    padding:24px 22px; background:rgba(169,139,255,.05);
+  }
+  .soon .label{font-size:10.5px; font-weight:700; letter-spacing:.2em; color:var(--violet); text-transform:uppercase;}
+  .soon h3{margin-top:10px; font-size:17px;}
+  .soon p{margin-top:10px; font-size:13px; color:var(--muted); line-height:1.9;}
+
+  .works-note{
+    margin-top:26px; font-size:12.5px; color:var(--muted); line-height:1.9;
+  }
+
+  /* ── つくりかた ── */
+  .how{margin-top:44px; border-top:1px solid var(--line);}
+  .how li{
+    display:grid; gap:10px 44px; padding:clamp(26px,4vw,38px) 0;
+    border-bottom:1px solid var(--line); align-items:start;
+  }
+  .how .n{
+    font-size:26px; font-weight:300; color:var(--lime); line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .how h3{font-size:clamp(17px,2.4vw,21px);}
+  .how p{color:var(--muted); font-size:13.5px; line-height:1.95;}
+
+  /* ── できること ── */
+  .offer{margin-top:44px; display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden;}
+  .offer article{background:var(--void-2); padding:clamp(26px,3.6vw,36px) 24px;}
+  .offer .k{font-size:10.5px; font-weight:700; letter-spacing:.2em; color:var(--lime); text-transform:uppercase;}
+  .offer h3{margin-top:12px; font-size:19px;}
+  .offer p{margin-top:12px; font-size:13.5px; color:var(--muted); line-height:1.95;}
+  .offer .meta{
+    margin-top:18px; padding-top:16px; border-top:1px dashed var(--line);
+    font-size:12.5px; font-weight:700; color:var(--paper);
+  }
+  .offer .music .k{color:var(--violet);}
+
+  /* ── 運営会社 ── */
+  .parent{
+    background:var(--void-2); border:1px solid var(--line); border-radius:20px;
+    padding:clamp(28px,4.5vw,44px) 24px; margin-top:36px;
+  }
+  .parent dl{margin:0; border-top:1px solid var(--line);}
+  .parent dl > div{
+    display:grid; gap:3px; padding:16px 0; border-bottom:1px solid var(--line);
+  }
+  .parent dt{font-size:11.5px; font-weight:700; letter-spacing:.1em; color:var(--muted);}
+  .parent dd{margin:0; font-size:14px; line-height:1.8; overflow-wrap:anywhere;}
+  .parent a{color:var(--lime);}
+
+  /* ── お問い合わせ ── */
+  .mail{
+    margin-top:36px; border:1px solid var(--line); border-radius:20px;
+    background:var(--void-2); padding:clamp(28px,4.5vw,44px) 24px;
+  }
+  .mail .k{font-size:10.5px; font-weight:700; letter-spacing:.2em; color:var(--lime); text-transform:uppercase;}
+  .mail .addr{
+    margin-top:16px; font-size:clamp(16px,3.4vw,26px); font-weight:800; overflow-wrap:anywhere;
+  }
+  .mail .addr a{text-decoration:none; border-bottom:2px solid var(--line);}
+  .mail .addr a:hover{border-bottom-color:var(--lime); color:var(--lime);}
+  .mail .n{margin-top:20px; font-size:12.5px; color:var(--muted); line-height:1.9;}
+
+  footer{border-top:1px solid var(--line); padding:44px 0 40px; color:var(--muted); font-size:12px; line-height:1.9;}
+  footer .fb{display:flex; align-items:center; gap:11px; margin-bottom:16px;}
+  footer .fb .name{font-size:15px; font-weight:800; color:var(--paper);}
+  footer .fnav{margin-top:20px; display:flex; flex-wrap:wrap; gap:8px 20px;}
+  footer .fnav a{font-size:12.5px; text-decoration:none; color:var(--paper); opacity:.8;}
+  footer .fnav a:hover{opacity:1; color:var(--lime);}
+  footer .copy{margin-top:26px; padding-top:18px; border-top:1px solid var(--line); font-size:11px;}
+  footer .copy a{color:var(--muted);}
+
+  /* 下部固定CTA（スマホのみ） */
+  .sticky{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(10,10,13,.94); backdrop-filter:blur(12px); border-top:1px solid var(--line);
+  }
+  body{padding-bottom:82px;}
+
+  @media (min-width:700px){
+    .facts{grid-template-columns:repeat(3,1fr);}
+    .works{grid-template-columns:1fr 1fr;}
+    .offer{grid-template-columns:repeat(3,1fr);}
+    .parent dl > div{grid-template-columns:11em 1fr; gap:20px; align-items:baseline;}
+  }
+  @media (min-width:768px){
+    body{font-size:15.5px; padding-bottom:0;}
+    .bar{height:74px;}
+    .bar nav{display:flex;}
+    .bar .head-cta{display:inline-flex; width:auto; padding:11px 22px; font-size:13px; margin-left:20px;}
+    .menu-btn,#drawer,.sticky{display:none !important;}
+    .btn-row{flex-direction:row;}
+    .btn{width:auto;}
+    .how li{grid-template-columns:4.5rem 16rem 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="note-bar">
+  提案版：ブランド名「Someday」は仮です。まだ公開していません。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top">
+      <!-- ロゴ：まだチェックの入っていない箱。「いつかやる」の印 -->
+      <svg class="mark" width="30" height="30" viewBox="0 0 32 32" role="img" aria-label="Someday" fill="none">
+        <rect x="3.2" y="3.2" width="25.6" height="25.6" rx="7.5" stroke="#ccf24a" stroke-width="2.6"/>
+        <path d="M10 16.4 L14.3 20.6 L22.4 11.6" stroke="#ccf24a" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round" opacity=".28"/>
+      </svg>
+      <span>
+        <span class="name">Someday</span>
+        <span class="sub">BY TO DO LLC</span>
+      </span>
+    </a>
+    <nav>
+      <a href="#works">つくったもの</a>
+      <a href="#how">つくりかた</a>
+      <a href="#offer">できること</a>
+      <a href="#company">運営</a>
+    </nav>
+    <a class="btn btn-primary head-cta" href="#contact">相談する</a>
+    <button class="menu-btn" id="menu-btn" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span></button>
+  </div>
+  <div class="wrap" id="drawer">
+    <a href="#works">つくったもの</a>
+    <a href="#how">つくりかた</a>
+    <a href="#offer">できること</a>
+    <a href="#company">運営会社</a>
+    <a class="btn btn-primary" href="#contact">相談する</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ヒーロー -->
+  <div class="hero">
+    <div class="wrap">
+      <div class="rule"></div>
+      <h1>思いついたものを、<br /><em>つくってしまう。</em></h1>
+      <p class="lead">
+        「あったらいいのに」で止めない部門です。
+        AIを相棒にして、スマホで動く小さなアプリと、音楽をつくっています。
+        企画から公開まで、ひとりぶんの手数で。
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#works">つくったものを触る</a>
+        <a class="btn btn-line" href="#offer">依頼できることを見る</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事実の帯 -->
+  <div class="wrap">
+    <dl class="facts">
+      <div>
+        <dt>公開中</dt>
+        <dd>アプリ 4本<span class="s">すべて実際に動きます</span></dd>
+      </div>
+      <div>
+        <dt>使う前に</dt>
+        <dd>登録なし<span class="s">アカウントも審査もありません</span></dd>
+      </div>
+      <div>
+        <dt>動く場所</dt>
+        <dd>端末の中だけ<span class="s">通信なし。保存も手元に残ります</span></dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- つくったもの -->
+  <section id="works">
+    <div class="wrap">
+      <span class="eyebrow">Works</span>
+      <h2 class="sec-title">つくったもの</h2>
+      <p class="sec-lead">
+        画面写真ではありません。タップすると、その場で動きます。
+        どれもスマホのホーム画面に入れて使えます。
+      </p>
+
+      <div class="works">
+        <a class="work" href="../meshi/">
+          <img src="../meshi/icon-192.png" alt="" width="58" height="58" />
+          <span class="t">
+            <h3>スクショ飯</h3>
+            <span class="d">行きたい店のスクショを貯めて、行ったらチェック。地図アプリを開かなくても、行きたかった店を思い出せる。</span>
+            <span class="go">触ってみる</span>
+          </span>
+        </a>
+
+        <a class="work" href="../kakei/">
+          <img src="../kakei/icon-192.png" alt="" width="58" height="58" />
+          <span class="t">
+            <h3>家計のみらい</h3>
+            <span class="d">毎月の収支から、この先の残高を1本の線にする。今のままだと何年後にどうなるかが、グラフで分かる。</span>
+            <span class="go">触ってみる</span>
+          </span>
+        </a>
+
+        <a class="work" href="../todo_game/">
+          <img src="../todo_game/icon-192.png" alt="" width="58" height="58" />
+          <span class="t">
+            <h3>トドの晩酌</h3>
+            <span class="d">回転レーンの皿を開けて、注文どおりの品を食べさせる。記憶と手つきを試される、短いゲーム。</span>
+            <span class="go">遊んでみる</span>
+          </span>
+        </a>
+
+        <a class="work" href="../breakout/">
+          <img src="../breakout/icon-192.png" alt="" width="58" height="58" />
+          <span class="t">
+            <h3>ブロック崩し</h3>
+            <span class="d">指でドラッグして遊ぶ、シンプルなブロック崩し。片手で、待ち時間に。</span>
+            <span class="go">遊んでみる</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="soon">
+        <span class="label">Coming</span>
+        <h3>音楽</h3>
+        <p>
+          これから着手する領域です。まだ公開できるものがないので、ここは空けてあります。
+          1本目ができた時点で、上のアプリと同じように、その場で聴ける形で置きます。
+        </p>
+      </div>
+
+      <p class="works-note">
+        いずれもサーバーを持たない作りです。維持費がかからないので、
+        誰も使わなくなっても置いておけます。
+      </p>
+    </div>
+  </section>
+
+  <!-- つくりかた -->
+  <section id="how">
+    <div class="wrap">
+      <span class="eyebrow">How</span>
+      <h2 class="sec-title">なぜ、そんなに早いのか。</h2>
+      <p class="sec-lead">腕が特別なわけではありません。作り方を変えているだけです。</p>
+
+      <ol class="how">
+        <li>
+          <span class="n">01</span>
+          <h3>思いついた週に、動くものを出す</h3>
+          <p>
+            仕様書を書いてから作り始めません。AIに手を動かしてもらいながら、
+            まず触れるものを作って、触ってから直します。
+            議論の材料が「文章」ではなく「動くもの」になるので、判断が早くなります。
+          </p>
+        </li>
+        <li>
+          <span class="n">02</span>
+          <h3>ひとりで使っても成立する大きさにする</h3>
+          <p>
+            最初から多くの人に使われる前提で設計しません。
+            自分たちが毎日使いたいか、を基準に決めます。
+            小さいので、間違っていたと分かったときに捨てられます。
+          </p>
+        </li>
+        <li>
+          <span class="n">03</span>
+          <h3>サーバーを持たない</h3>
+          <p>
+            動作も保存も、使う人の端末の中で完結させます。
+            預かるデータがないので、止まらないし、維持費もかかりません。
+            公開したあとに手がかからないぶん、次のものを作れます。
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- できること -->
+  <section id="offer">
+    <div class="wrap">
+      <span class="eyebrow">What we can do</span>
+      <h2 class="sec-title">依頼できること</h2>
+      <p class="sec-lead">
+        大きなシステムは扱いません。小さく、早く、実際に動くものを出すことに寄せています。
+      </p>
+
+      <div class="offer">
+        <article>
+          <span class="k">App</span>
+          <h3>アプリをつくる</h3>
+          <p>
+            スマホで動く小さなアプリを、企画から公開まで。
+            社内の困りごとを1つ解くもの、お客様に配る販促用のもの、
+            イベントで使うもの。用途は問いません。
+          </p>
+          <p class="meta">目安：2〜6週間</p>
+        </article>
+
+        <article class="music">
+          <span class="k">Music</span>
+          <h3>音楽をつくる</h3>
+          <p>
+            動画やアプリに載せる短い曲、店内で流す音。
+            AIを使って案を大量に出し、そこから選んで仕上げます。
+            <br />※ これから立ち上げる領域です。実績はまだありません。
+          </p>
+          <p class="meta">目安：応相談</p>
+        </article>
+
+        <article>
+          <span class="k">Prototype</span>
+          <h3>試作をつくる</h3>
+          <p>
+            「こういうの作れる？」に、資料ではなく動くもので答えます。
+            社内で企画を通したいとき、投資家に見せたいとき、
+            まず触れるものがあると話が早く進みます。
+          </p>
+          <p class="meta">目安：1〜2週間</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 運営会社 -->
+  <section id="company">
+    <div class="wrap">
+      <span class="eyebrow">Operator</span>
+      <h2 class="sec-title">運営しているのは</h2>
+      <p class="sec-lead">
+        Someday は、合同会社To do の中にある「つくる部門」です。
+        経営や事業の相談は、本体のサイトで承っています。
+      </p>
+
+      <div class="parent">
+        <dl>
+          <div><dt>運営会社</dt><dd>合同会社To do</dd></div>
+          <div><dt>本体のサイト</dt><dd><a href="https://todo-llc.netlify.app/" target="_blank" rel="noopener">todo-llc.netlify.app</a></dd></div>
+          <div><dt>本体の事業</dt><dd>アドバイザリー／COO代行／SEOオウンドメディア運用支援／業界アドバイザリー</dd></div>
+          <div><dt>この部門</dt><dd>アプリ開発・音楽制作・試作制作</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- お問い合わせ -->
+  <section id="contact">
+    <div class="wrap">
+      <span class="eyebrow">Contact</span>
+      <h2 class="sec-title">つくりたいものが<br />ありますか。</h2>
+      <p class="sec-lead">
+        「こんなの作れますか」の一行で構いません。
+        できないときは、できないとお伝えします。
+      </p>
+
+      <div class="mail">
+        <span class="k">Mail</span>
+        <p class="addr"><a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></p>
+        <p class="n">
+          3営業日以内にご返信します。オンラインで全国対応。<br />
+          作れるかどうかの見立てだけでも、お気軽にどうぞ。
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fb">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="3.2" y="3.2" width="25.6" height="25.6" rx="7.5" stroke="#ccf24a" stroke-width="2.6"/>
+      </svg>
+      <span class="name">Someday</span>
+    </div>
+    <p>思いついたものを、つくってしまう部門。</p>
+    <nav class="fnav">
+      <a href="#works">つくったもの</a>
+      <a href="#how">つくりかた</a>
+      <a href="#offer">できること</a>
+      <a href="#company">運営会社</a>
+      <a href="#contact">お問い合わせ</a>
+    </nav>
+    <p class="copy">
+      © 合同会社To do　｜　このページは提案版です。<br />
+      本体のサイト：<a href="https://todo-llc.netlify.app/" target="_blank" rel="noopener">todo-llc.netlify.app</a>
+    </p>
+  </div>
+</footer>
+
+<div class="sticky">
+  <a class="btn btn-primary" href="#works">つくったものを触る</a>
+</div>
+
+<script>
+  // ハンバーガーメニュー
+  var btn = document.getElementById("menu-btn");
+  var drawer = document.getElementById("drawer");
+  btn.addEventListener("click", function () {
+    var open = drawer.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
+  });
+  drawer.addEventListener("click", function (e) {
+    if (e.target.tagName === "A") {
+      drawer.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+  });
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Someday",
+  "description": "AIを使って、スマホで動く小さなアプリと音楽をつくる制作部門。",
+  "parentOrganization": { "@type": "Organization", "name": "合同会社To do" },
+  "areaServed": "JP",
+  "knowsLanguage": "ja"
+}
+</script>
+
+</body>
+</html>
