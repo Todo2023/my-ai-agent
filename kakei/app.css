@@ -706,6 +706,31 @@ select {
 .kv div.total span:first-child { color: var(--text); }
 .kv div.bad span:last-child { color: var(--red); }
 
+/* 明細の1行。グループの小計を見出しにして、その下に項目を並べる */
+.kv div.gsum {
+  margin-top: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  color: #d5f5e7;
+}
+
+.kv div.gsum span:first-child { color: #d5f5e7; }
+.kv div.gsum span:last-child { font-weight: 600; }
+
+.kv div.sub { padding: 5px 0 5px 10px; font-size: 12.5px; border-bottom: none; }
+.kv div.sub span:first-child { color: var(--dim); }
+.kv div.sub span:last-child { color: var(--text); white-space: nowrap; }
+
+/* 月あたりの額を小さく添える。手元の表と突き合わせるのは月額のほうなので */
+.kv div.sub i {
+  display: inline-block;
+  margin-left: 8px;
+  font-style: normal;
+  font-size: 10.5px;
+  color: rgba(139, 168, 162, 0.75);
+}
+
 .table-mini { font-size: 12px; color: var(--dim); }
 .table-mini div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(219, 255, 246, 0.055); }
 .table-mini div span:last-child { font-variant-numeric: tabular-nums; color: var(--text); }

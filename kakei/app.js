@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-11 2人を固定";
+const VERSION = "2026-08-12 項目ごとの内訳";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -525,25 +525,34 @@ function highlightRow(year) {
 function openYear(year) {
   const r = state.sim.rows.find((x) => x.year === year);
   if (!r) return;
+  const plan = active();
+  const b = SIM.breakdown(plan, year);   // 項目ごとの明細は、開いたその年のぶんだけ作る
+
   const line = (k, v, cls) => (v ? `<div class="${cls || ""}"><span>${esc(k)}</span><span>${signed(v)}</span></div>` : "");
+  // 明細の1行。月いくらだったかも添える（手元の表と突き合わせるのは月額のほうなので）
+  const item = (label, amount, sign) => `<div class="sub"><span>${esc(label || "（名前なし）")}</span>
+    <span>${sign}${man(Math.abs(amount))}<i>${en((Math.abs(amount) * 10000) / 12)}/月</i></span></div>`;
 
   $("yearTitle").textContent = `${r.year}年（${PEOPLE.me.short}${r.age}歳 / ${PEOPLE.partner.short}${r.partnerAge}歳）`;
   $("yearBody").innerHTML = `
     ${r.notes.length ? `<p class="note"><b>${r.notes.map(esc).join("・")}</b></p>` : ""}
+
     <h2 class="sec">入ってくるお金</h2>
     <div class="kv">
-      ${line(`働いて得るお金（${NAME.me}）`, r.income.workBy.me)}
-      ${line(`働いて得るお金（${NAME.partner}）`, r.income.workBy.partner)}
-      ${line("働いて得るお金（そのほか）", r.income.workBy.none)}
+      ${b.income.map((x) => item(`${x.label}${x.owner ? `（${NAME[x.owner]}）` : ""}`, x.amount, "+")).join("")}
       ${line("年金", r.income.pension)}
       ${line("退職金", r.income.severance)}
       ${line("児童手当", r.income.allowance)}
       ${line("そのほかの収入", r.income.other)}
       <div class="total"><span>合計</span><span>${signed(r.income.total)}</span></div>
     </div>
+
     <h2 class="sec">出ていくお金</h2>
     <div class="kv">
-      ${line("毎月の支出（12か月ぶん）", -r.spend.daily)}
+      ${b.groups.map((g) => `
+        <div class="gsum"><span>${esc(g.name)}</span><span>−${man(g.total)}</span></div>
+        ${g.items.map((x) => item(x.label, x.amount, "−")).join("")}
+      `).join("")}
       ${line("住宅ローン", -r.spend.loan)}
       ${line("住まいの維持費", -r.spend.upkeep)}
       ${line("頭金・諸費用", -r.spend.down)}
@@ -551,14 +560,25 @@ function openYear(year) {
       ${line("そのほかの支出", -r.spend.other)}
       <div class="total"><span>合計</span><span>${signed(-r.spend.total)}</span></div>
     </div>
+
+    ${b.savings.length ? `
+      <h2 class="sec">貯めるお金（資産に残る）</h2>
+      <div class="kv">
+        ${b.savings.map((x) => item(x.label, x.amount, "")).join("")}
+        <div class="total"><span>合計</span><span>${man(b.savingTotal)}</span></div>
+      </div>` : ""}
+
     <h2 class="sec">この年の収支</h2>
     <div class="kv">
       <div class="total${r.net < 0 ? " bad" : ""}"><span>年間の収支</span><span>${signed(r.net)}</span></div>
       <div class="total${r.balance < 0 ? " bad" : ""}"><span>年末の残高</span><span>${r.balance < 0 ? `−${man(-r.balance)}` : man(r.balance)}</span></div>
     </div>
-    <p class="note dim">単位は万円。残高には運用の利回り（年 ${active().assets.yieldRate}%）が入っています。
-      ${r.spend.saving ? `この年に貯蓄へまわしたお金 ${man(r.spend.saving)}万円 は、資産に残るので「出ていくお金」には数えていません。` : ""}
-      ${r.retired ? `退職後なので、毎月の支出を ${active().living.oldRate}% で見ています。` : ""}</p>
+
+    <p class="note dim">単位は万円（右の小さい字は、その年の月あたり）。1万円未満は四捨五入しているので、
+      小計を足すと合計と1万円ほどずれることがあります。残高には運用の利回り（年 ${plan.assets.yieldRate}%）が入っています。
+      ${b.savingTotal ? `貯めるお金 ${man(b.savingTotal)}万円 は資産に残るので、「出ていくお金」には数えていません。` : ""}
+      ${r.retired ? `退職後なので、毎月の支出を ${plan.living.oldRate}% で見ています。` : ""}
+      ${plan.living.inflation ? `物価上昇（年 ${plan.living.inflation}%）を見込む項目は、その年の額に増えています。` : ""}</p>
   `;
   openSheet("year");
 }

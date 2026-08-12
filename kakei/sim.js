@@ -95,6 +95,37 @@
     return true;
   }
 
+  /*
+   * 1項目ぶんの金額と生死を出す小さい関数。
+   * 年ごとの表を作る simulate と、1年の明細を作る breakdown の両方から呼ぶ。
+   * ここを共通にしておかないと、グラフの数字と明細の数字が静かにずれる。
+   */
+
+  const incomeLive = (it, year, retired, pRetired) => {
+    const ownerRetired = it.owner === "me" ? retired : it.owner === "partner" ? pRetired : false;
+    return !(it.owner && ownerRetired) && alive(it, year, retired);
+  };
+
+  const incomeYear = (it, t) => toMan(it.monthly) * Math.pow(1 + it.raise / 100, t);
+
+  // 貯めるお金には老後の掛け率をかけない（積立額は暮らしぶりで増減するものではない）
+  const spendYear = (it, infl, oldFactor) =>
+    toMan(it.monthly) * (it.inflate ? infl : 1) * (it.saving ? 1 : oldFactor);
+
+  /** その年がどんな年か（年齢・退職しているか・物価の倍率）を1か所で出す */
+  function yearFacts(p, year) {
+    const t = year - p.startYear;
+    const age = year - p.me.birthYear;
+    const pAge = p.partner.on ? year - p.partner.birthYear : null;
+    const retired = age >= p.me.retireAge;
+    return {
+      t, age, pAge, retired,
+      pRetired: p.partner.on ? pAge >= p.partner.retireAge : true,
+      infl: Math.pow(1 + p.living.inflation / 100, t),
+      oldFactor: retired ? p.living.oldRate / 100 : 1,
+    };
+  }
+
   const normItem = (it, i, kind) => ({
     id: it.id || `${kind}${i}`,
     label: it.label || "",
@@ -211,24 +242,17 @@
     let balance = p.assets.now;
 
     for (let year = p.startYear; year <= endYear; year++) {
-      const t = year - p.startYear;
-      const age = year - p.me.birthYear;
-      const pAge = p.partner.on ? year - p.partner.birthYear : null;
-      const infl = Math.pow(1 + p.living.inflation / 100, t);
-      const retired = age >= p.me.retireAge;
-      const pRetired = p.partner.on ? pAge >= p.partner.retireAge : true;
+      const { t, age, pAge, retired, pRetired, infl, oldFactor } = yearFacts(p, year);
       const notes = [];
 
       /* ---- 入ってくるお金（項目） ---- */
+      // 「だれの収入か」を決めてあるものは、その人が仕事をやめた時点で止まる。
+      // 給与のたぐいは退職年齢を動かすたびに手で直すものではないので、ここで繋げておく
       let work = 0;
       const workBy = { me: 0, partner: 0, none: 0 };   // 内訳で「だれの収入か」を出すため
       for (const it of p.income) {
-        // 「だれの収入か」を決めてあるものは、その人が仕事をやめた時点で止まる。
-        // 給与のたぐいは退職年齢を動かすたびに手で直すものではないので、ここで繋げておく
-        const ownerRetired = it.owner === "me" ? retired : it.owner === "partner" ? pRetired : false;
-        if (it.owner && ownerRetired) continue;
-        if (!alive(it, year, retired)) continue;
-        const amount = toMan(it.monthly) * Math.pow(1 + it.raise / 100, t);
+        if (!incomeLive(it, year, retired, pRetired)) continue;
+        const amount = incomeYear(it, t);
         work += amount;
         workBy[it.owner || "none"] += amount;
       }
@@ -276,14 +300,13 @@
       /* ---- 出ていくお金（項目） ---- */
       // 退職したら生活費は oldRate ぶんに落ちる。項目ごとの「いつまで」で書けるところは
       // そちらが優先で、ここは書ききれない全体のゆるみを1本のつまみで表している
-      const oldFactor = retired ? p.living.oldRate / 100 : 1;
       let daily = 0;
       let saving = 0;
       for (const it of p.spend) {
         if (!alive(it, year, retired)) continue;
-        const yearly = toMan(it.monthly) * (it.inflate ? infl : 1);
+        const yearly = spendYear(it, infl, oldFactor);
         if (it.saving) saving += yearly;         // 資産に残るので出ていくお金には数えない
-        else daily += yearly * oldFactor;
+        else daily += yearly;
       }
 
       let rent = 0;   // 住まいの項目は月々の表に入っているので、ここでは扱わない
@@ -335,6 +358,50 @@
     return { last: rows[rows.length - 1] || null, first: rows[0] || null, low, peak, broke };
   }
 
+  /**
+   * その1年の、項目ごとの明細。
+   *
+   * simulate は年ごとの合計しか持たない（56年ぶんの明細を毎回作ると、
+   * 打つそばから計算し直す作りに耐えない）。明細は開いたその年のぶんだけ、ここで作る。
+   * 金額の出し方は simulate と同じ関数を通しているので、合計は必ず一致する。
+   */
+  function breakdown(plan, year) {
+    const p = normalize(plan);
+    const { t, age, pAge, retired, pRetired, infl, oldFactor } = yearFacts(p, year);
+
+    const income = p.income
+      .filter((it) => incomeLive(it, year, retired, pRetired))
+      .map((it) => ({ label: it.label, owner: it.owner, amount: incomeYear(it, t) }));
+
+    const live = p.spend.filter((it) => alive(it, year, retired));
+    const toRow = (it) => ({
+      group: it.group || "その他",
+      label: it.label,
+      amount: spendYear(it, infl, oldFactor),
+    });
+
+    // 出ていくお金はグループごとにまとめる。項目が30もあると、並べただけでは読めない
+    const groups = [];
+    for (const it of live) {
+      if (it.saving) continue;
+      const row = toRow(it);
+      let g = groups.find((x) => x.name === row.group);
+      if (!g) groups.push((g = { name: row.group, total: 0, items: [] }));
+      g.items.push(row);
+      g.total += row.amount;
+    }
+
+    const savings = live.filter((it) => it.saving).map(toRow);
+
+    return {
+      year, age, partnerAge: pAge, retired,
+      income,
+      groups,
+      savings,
+      savingTotal: savings.reduce((s, x) => s + x.amount, 0),
+    };
+  }
+
   const minBalance = (plan) => simulate(plan).summary.low.balance;
 
   /**
@@ -380,7 +447,8 @@
 
   scope.KakeiSim = {
     EDU, PATHS, PATH_LABEL, UNI_LABEL, PENSION_AGE,
-    toMan, alive, normalize, simulate, monthlyNow, monthlyRoom, loanPerYear, eduCost, allowance, minBalance,
+    toMan, alive, normalize, simulate, breakdown, monthlyNow, monthlyRoom,
+    loanPerYear, eduCost, allowance, minBalance,
   };
 })(typeof self !== "undefined" ? self : globalThis);
 
