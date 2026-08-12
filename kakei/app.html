@@ -55,6 +55,11 @@
     <span class="m-note" id="mNote"></span>
   </button>
 
+  <button type="button" class="monthly assets" id="assetsCard">
+    <span class="m-row total"><span>いまの貯蓄・投資</span><b id="aTotal"></b></span>
+    <span class="m-note" id="aNote"></span>
+  </button>
+
   <div class="tiles">
     <div class="tile"><span class="tl" id="tile1l"></span><b class="tv" id="tile1v"></b></div>
     <div class="tile"><span class="tl" id="tile2l"></span><b class="tv" id="tile2v"></b></div>
@@ -218,9 +223,11 @@
   </div>
   <div class="sheet-body">
     <p class="note">収支と前提をまるごと保存したものが「プラン」です。<b>複製して1か所だけ変えれば</b>、
-      買う・買わない、働き続ける・早く辞める、をグラフに重ねて比べられます。</p>
+      買う・買わない、働き続ける・早く辞める、をグラフに重ねて比べられます。<br />
+      いまの家計を元に比べたいときは、<b>下の「複製」</b>を使ってください
+      （「からっぽのプラン」は、何も入っていないところから組み立てたいとき用です）。</p>
     <div class="cards" id="planList"></div>
-    <button type="button" class="btn ghost" id="addPlan">＋ 最初の状態から新しく作る</button>
+    <button type="button" class="btn ghost" id="addPlan">＋ からっぽのプランを作る</button>
   </div>
   <div class="sheet-foot">
     <button type="button" class="btn primary" data-close="plans">グラフに戻る</button>

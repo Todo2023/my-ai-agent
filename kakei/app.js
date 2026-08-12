@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-12 口座と内訳";
+const VERSION = "2026-08-12b 口座カード・新規プラン修正";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -120,8 +120,15 @@ function hydrate(plan) {
   return plan;
 }
 
+/**
+ * 新しいプラン。seed（`{ income, spend }`）を渡すとその収支表で作り、
+ * 渡さなければ**からっぽ**で作る。
+ *
+ * 以前ここで見本の収支表を既定にしていたが、鍵の付いた本物の家計を開いている人に
+ * 見本の数字が混ざるのは筋が悪い。新しく作るなら、何も入っていないところから。
+ */
 function newPlan(name, seed) {
-  const P = seed || self.KakeiSecret.SAMPLE;
+  const P = seed || { income: [], spend: [] };
   return hydrate({
     id: uid(),
     name: name || "わが家",
@@ -132,8 +139,9 @@ function newPlan(name, seed) {
     partner: { on: true, birthYear: PEOPLE.partner.birth[0], retireAge: 65, severance: 0, pension: 120 },
     living: { inflation: 1.5, oldRate: 80 },
     assets: { now: 0, yieldRate: 1 },
-    income: P.INCOME.map((it) => Object.assign({ id: uid() }, it)),
-    spend: P.SPEND.map((it) => Object.assign({ id: uid() }, it)),
+    income: (P.income || []).map((it) => Object.assign({ id: uid() }, it)),
+    spend: (P.spend || []).map((it) => Object.assign({ id: uid() }, it)),
+    accounts: [],
     childAllowance: false,
     children: [],
     home: null,
@@ -211,6 +219,7 @@ function refresh() {
 
   renderVerdict();
   renderMonthly();
+  renderAssetsCard();
   renderTiles();
   drawChart();
   renderLegend();
@@ -258,6 +267,19 @@ function renderMonthly() {
   $("mNote").textContent = m.keep >= 0
     ? `毎月 ${en(m.keep)} ずつ資産がふえます（現金＋貯める）`
     : `毎月 ${en(-m.keep)} ずつ資産が減っています`;
+}
+
+/** いまの貯蓄。主画面から1タップで直しに行けるように、ここにも出す */
+function renderAssetsCard() {
+  const plan = active();
+  const list = plan.accounts || [];
+  const total = list.reduce((s, a) => s + (Number(a.yen) || 0), 0);
+
+  $("aTotal").textContent = list.length ? en(total) : yen(plan.assets.now || 0);
+  const newest = list.map((a) => a.asOf).filter(Boolean).sort().pop();
+  $("aNote").textContent = list.length
+    ? `${list.length}つの口座の合計${newest ? `・${asOfText(newest)}` : ""}（押すと直せます）`
+    : "まだ入っていません（押すと入れられます）";
 }
 
 function renderTiles() {
@@ -1011,7 +1033,15 @@ function bind() {
   const openBudget = () => { renderBudget(); openSheet("budget"); };
   $("budgetBtn").addEventListener("click", openBudget);
   $("monthly").addEventListener("click", openBudget);
-  $("assumeBtn").addEventListener("click", () => { fillForm(); renderAccounts(); openSheet("assume"); });
+  const openAssume = (scrollTo) => {
+    fillForm();
+    renderAccounts();
+    openSheet("assume");
+    // 「口座はどこ？」と探させない。貯蓄カードから来たときは、その場所まで運ぶ
+    if (scrollTo) setTimeout(() => $(scrollTo).scrollIntoView({ block: "center" }), 60);
+  };
+  $("assumeBtn").addEventListener("click", () => openAssume());
+  $("assetsCard").addEventListener("click", () => openAssume("accountList"));
 
   /* --- お金の置き場（口座） --- */
 
@@ -1338,6 +1368,24 @@ function healForeignController() {
   });
 }
 
+/**
+ * 新しい版が入ったら、その場で読み直す。
+ *
+ * キャッシュを先に返す作りなので、直したものが届くのは「次に開いたとき」になる。
+ * 直したのに変わらない、という一番たちの悪い状態が生まれるので、
+ * 新しい Service Worker が主導権を取った時点で1回だけ読み直す。
+ * 起動時から担当がいた場合だけ（＝入れ替わったときだけ）動かす。
+ */
+function watchForUpdate() {
+  if (!navigator.serviceWorker.controller) return;   // 初回の登録は対象外
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
+}
+
 (function start() {
   bind();
 
@@ -1349,6 +1397,7 @@ function healForeignController() {
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     healForeignController();
+    watchForUpdate();
     addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   }
 })();
