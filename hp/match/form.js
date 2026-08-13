@@ -15,19 +15,15 @@
   "use strict";
 
   /* ══════════════════════════════════════════
-     送信先の設定（タスク2でここを埋める）
+     送信先の設定
 
-     2つとも空のあいだは、送信ボタンを押しても
-     「まだ送信しません」と出て、組み立てた内容を表示するだけ。
-
-     Supabase のプロジェクトを作ったら、
-     プロジェクト設定の URL と anon キーをここに入れる。
-     anon キーはブラウザに出るので、必ず profiles テーブルの
-     RLS を「挿入だけ許可・読み取りは不可」にしておくこと。
-     （テーブルとポリシーの作り方は README.md に書いてある）
+     接続先は config.js が持っている。直すのはあちらの1か所だけ。
+     空のあいだは、送信ボタンを押しても「まだ送信しません」と出て、
+     組み立てた内容を表示するだけ。
      ══════════════════════════════════════════ */
-  var SUPABASE_URL = "";       // 例）https://xxxxxxxx.supabase.co
-  var SUPABASE_ANON_KEY = "";  // 例）eyJhbGciOi...
+  var CONFIG = window.TODO_MATCH_CONFIG || {};
+  var SUPABASE_URL = CONFIG.SUPABASE_URL || "";
+  var SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY || "";
 
   var TABLE = "profiles";
   var DRAFT_KEY = "todo-match-draft-v1";
@@ -278,7 +274,7 @@
         "ok",
         "この内容で受け付けます（まだ送信していません）",
         "保存先（Supabase）の接続はこれからです。いまは、送る内容の確認まで行えます。\n" +
-        "form.js の SUPABASE_URL と SUPABASE_ANON_KEY を入れると、実際に登録されるようになります。",
+        "config.js の SUPABASE_URL と SUPABASE_ANON_KEY を入れると、実際に登録されるようになります。",
         payload
       );
       return;
