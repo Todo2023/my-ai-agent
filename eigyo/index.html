@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>営業AIの作業台</title>
+<meta name="description" content="営業支援AIの3つの工程（商談準備・ターゲットリスト・メール下書き）のプロンプトを、入力から組み立てる道具。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- 社内用。検索に出さない -->
+<!--
+  ここには manifest も Service Worker も置かない。
+  これはアプリではなく、社内で使う道具のページ。
+-->
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>営業AIの作業台</h1>
+    <p>
+      入力を埋めると、AIに渡すプロンプトができます。コピーして、Claude などの入力欄に貼ってください。<br />
+      入力した内容はこの端末の中だけに残ります（送信はしません）。
+    </p>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <p class="lead" id="lead"></p>
+
+    <form id="form" onsubmit="return false;"></form>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="make">プロンプトを作る</button>
+      <button type="button" class="btn btn-ghost" id="clear">入力を消す</button>
+    </div>
+
+    <section class="out" id="out">
+      <h2>できたプロンプト<span class="n" id="out-name"></span></h2>
+      <textarea id="out-text" readonly spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="copy">コピーする</button>
+      </div>
+      <p class="copied" id="copied" role="status" aria-live="polite"></p>
+    </section>
+
+    <div class="warn">
+      <b>出てきたものを、そのまま外に出さないこと。</b>
+      <ul>
+        <li>数字・社名・時期は、出典URLを開いて1つずつ確かめる</li>
+        <li>「【推測】」と付いている行は、事実として書き直さない</li>
+        <li>メールの送信ボタンは、必ず人が押す</li>
+        <li>クライアントの資料を貼るときは、社外に出せない情報が混ざっていないか先に確認する</li>
+      </ul>
+    </div>
+
+    <footer>
+      文面を直したいときは <code>prompts.js</code> を編集してください。<br />
+      使い方のくわしい説明は <a href="https://github.com/todo2023/my-ai-agent/blob/main/eigyo/README.md">README</a> にあります。
+    </footer>
+
+  </div>
+</main>
+
+<script src="prompts.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
