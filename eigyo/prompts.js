@@ -29,8 +29,10 @@ var PROMPTS = [
     id: "shodan",
     name: "商談準備",
     sub: "企業リサーチ＋提案書ドラフト",
-    lead: "月曜に受け取った商談予定を、1件ずつここに入れて回す。出てきたものは、そのまま納品せずに必ず目を通す。",
+    lead: "月曜に受け取った商談予定を、1件ずつここに入れて回す。出てきたものは、そのまま納品せずに必ず目を通す。担当エージェントを選ぶと、その業界の勘どころが指示に足される。",
     fields: [
+      // 選択肢は agents.js の AGENTS から作る。担当を増やしてもここは直さなくてよい。
+      { k: "agent", label: "担当エージェント", type: AGENTS.map(function (a) { return a.name; }) },
       { k: "company", label: "相手企業名", ph: "例）株式会社○○製作所", req: true },
       { k: "url", label: "相手企業のURL", ph: "https://" },
       { k: "date", label: "商談日", type: "date" },
@@ -40,10 +42,13 @@ var PROMPTS = [
       { k: "known", label: "すでに分かっていること", ph: "例）展示会で名刺交換。ライン増設を検討中と聞いている。（なければ空欄で可）", type: "area" }
     ],
     build: function (v) {
+      var agent = agentByName(v.agent);
       return [
         "あなたは、BtoBの法人営業を長く担当してきた営業企画の担当者です。",
         "これから行う商談に向けて、公開情報を調べ、提案書のドラフトと商談準備メモを作ってください。",
         "",
+        // 担当エージェントの専門。汎用のときは brief が空なので、この行ごと消える。
+        agent && agent.brief ? agent.brief + "\n" : null,
         "# 商談の前提",
         "- 相手企業：" + v.company,
         v.url ? "- 相手企業のURL：" + v.url : "- 相手企業のURL：未提供（社名から探すこと）",
@@ -102,7 +107,7 @@ var PROMPTS = [
         "- 相手企業を持ち上げる表現はいらない。商談で使えるかどうかだけで書く。",
         "- 個人のSNSや私生活に関する情報は集めない。役職者としての公開発言（インタビュー、",
         "  登壇、自社メディアの記事）までにとどめる。"
-      ].join("\n");
+      ].filter(function (s) { return s !== null; }).join("\n");
     }
   },
 
