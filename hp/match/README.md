@@ -1,22 +1,46 @@
-# 経営者・研究者マッチング　事前登録フォーム
+# 経営者・研究者マッチング
 
-CLAUDE.md の**タスク1（フォームページの実装）**。
-プロフィールを登録してもらうための1ページ。ビルド不要・外部の読み込みなし。
+プロフィールを登録してもらい、相性の良い相手と「会う理由」「初回メッセージ案」を
+AIが下書きし、**人が直して承認したものだけ**を相手に送る仕組み。
 
-**https://todo2023.github.io/my-ai-agent/hp/match/**
+| | |
+| --- | --- |
+| 登録フォーム | https://todo2023.github.io/my-ai-agent/hp/match/ |
+| 管理画面（身内用） | https://todo2023.github.io/my-ai-agent/hp/match/admin/ |
 
-会社トップ（`../index.html`）には手を入れていない。このフォルダだけで完結している。
+会社トップ（`../index.html`）には手を入れていない。
+
+## 全体の流れ
+
+```
+  登録者                     管理画面（身内）                  相手
+    │                            │                            │
+    │ ① フォームで登録 ─────────▶ profiles に保存             │
+    │                            │                            │
+    │                            │ ② 「相手を探す」を押す      │
+    │                            │    → Claude API（有料）    │
+    │                            │    → matches に pending    │
+    │                            │                            │
+    │ ◀── ③ 確認依頼メール ───── │                            │
+    │ ──── 返事（修正・承認）───▶ │                            │
+    │                            │ ④ 承認（approved）         │
+    │                            │ ────── ⑤ 送信 ───────────▶ │
+```
+
+**②で作ったものは、④を通るまで相手に届かない。** これがこの仕組みの前提（Human-in-the-loop）。
 
 ## ファイル
 
 | | |
 | --- | --- |
-| `index.html` | ページ本体。入力欄の `name` 属性が、そのまま DB のカラム名 |
-| `form.css` | このページ専用の見た目（セクションの枠・選択肢・エラー表示） |
-| `form.js` | 入力チェック、下書きの自動保存、送信 |
+| `index.html` | 登録フォーム。入力欄の `name` が DB のカラム名 |
+| `config.js` | **接続先の設定。ここだけ直せば全部に効く** |
+| `form.css` / `form.js` | フォームの見た目と、入力チェック・下書き保存・送信 |
+| `admin/` | 管理画面（一覧・生成・承認・送信） |
+| `../../supabase/schema.sql` | テーブルとRLSの定義。SQL Editor に貼る |
+| `../../supabase/functions/generate-matches/` | Claude API を呼ぶサーバー側の処理 |
 
 見た目とメニューは、全ページ共通の `../style.css` と `../app.js` をそのまま使っている。
-この2つは触っていないので、他のページには影響しない。
 
 ## 入力項目とカラムの対応
 
@@ -35,119 +59,123 @@ CLAUDE.md のデータスキーマと 1:1。フォームの5セクションが�
 | | `visibility` | 必須 | ラジオ（3択） |
 | | `ai_consent_note` `visibility_note` | 任意 | 1行テキスト |
 
-自由記述に最低文字数を入れてあるのは、短すぎるとマッチングの判定ができないため。
-数字は `form.js` の `FIELDS` にある。変えたければそこ1か所。
-
 **項目を増やすときは、3つを必ずそろえる。**
 
 1. `index.html` に `<input name="カラム名">` を足す
 2. `form.js` の `FIELDS` に足す
-3. `profiles` テーブルにカラムを足す
+3. `supabase/schema.sql` の `profiles` にカラムを足す
+
+自由記述に最低文字数を入れてあるのは、短すぎるとマッチングの判定ができないため。
+数字は `form.js` の `FIELDS` にある。
 
 ## いまの状態
 
-**保存先につないでいないので、送信しても登録はされない。**
-必須チェックを通ると、「まだ送信していません」という表示と、
-Supabase に送る予定の内容（JSON）が出るところまで動く。
+**`config.js` が空なので、まだどこにもつながっていない。**
 
-入力の途中経過は、その端末の中（localStorage）に自動保存している。
-書きかけで閉じても、次に開いたときに戻る。同意のチェックだけは戻さない（毎回ご自身で入れてもらう）。
+- 登録フォーム … 入力チェックまで動く。送信しても保存はされず、送る予定の内容が表示されるだけ
+- 管理画面 … 「まだつないでいません」と出る
+- **現時点の費用はゼロ**
 
 ## 費用
 
-**このページ自体には費用がかからない。** 配信は GitHub Pages、外部の読み込みもない。
-
-この先つなぐものも、無料枠に収める。
-
 | | |
 | --- | --- |
-| Supabase | 無料プランの範囲で使う。有料プランには切り替えない |
-| Claude API（タスク3） | 従量課金。**使う前に見積もりを出して確認する** |
-| メール通知（タスク4） | 無料枠のあるサービス、または `mailto:`（費用ゼロ）で済ませる |
+| GitHub Pages（配信） | 無料 |
+| Supabase | 無料プランの範囲。有料プランには切り替えない |
+| **Claude API** | **従量課金。ここだけお金がかかる** |
+| メール送信 | `mailto:`（端末のメールアプリを開くだけ）なので費用ゼロ |
 
-課金の決まりはリポジトリ直下の `CLAUDE.md` にまとめてある。**有料になる操作の前は必ず相談すること。**
+Claude API の目安は **1回の生成で $0.05〜0.15（8〜20円）程度**。
+登録10名規模の検証なら、総額で数百円のオーダー。
 
-## 保存先につなぐ（タスク2）
+歯止めとして次を入れてある（決まりは `../../CLAUDE.md`）。
 
-`form.js` の先頭の2行を埋めると、実際に登録されるようになる。
+1. APIキーはサーバー側（Edge Function の環境変数）だけ。ブラウザには置かない
+2. 自動実行なし。管理画面のボタンを押したときだけ動く
+3. 1回の照合人数（12名）と生成件数（3件）に上限
+4. `max_tokens` を明示
+5. 使用量を `generation_logs` に必ず記録（失敗した回も記録する）
+6. 押す前に「何名と照合するか・概算いくらか」を出して確認する
 
-```js
-var SUPABASE_URL = "https://xxxxxxxx.supabase.co";
-var SUPABASE_ANON_KEY = "eyJhbGciOi...";
-```
+**Anthropic のコンソールで月額上限を設定しておくこと。** これが最後の砦になる。
 
-anon キーはブラウザから見える。**テーブル側で守る**必要がある。
-Supabase の SQL Editor で実行する内容（案）：
+## つなぐ手順
+
+### 1. Supabase（無料プラン・カード登録不要）
+
+1. プロジェクトを作る
+2. SQL Editor に [`../../supabase/schema.sql`](../../supabase/schema.sql) を貼って実行
+3. 続けて、自分のメールアドレスを管理者に入れる
 
 ```sql
-create table profiles (
-  id                  uuid primary key default gen_random_uuid(),
-  created_at          timestamptz not null default now(),
-
-  name                text not null,
-  organization        text not null,
-  title               text not null,
-  industry            text not null,
-  org_size            text,
-  email               text not null,
-  region              text not null,
-
-  background          text not null,
-  current_work        text not null,
-  strengths           text not null,
-
-  target_profile      text not null,
-  purpose_tags        text[] not null default '{}',
-  purpose_other       text,
-
-  pain_points         text,
-  near_term_goals     text,
-  offerable_resources text,
-
-  ai_consent          boolean not null default false,
-  ai_consent_note     text,
-  visibility          text not null,
-  visibility_note     text
-);
-
--- 個人情報なので、行単位のアクセス制御を必ず入れる
-alter table profiles enable row level security;
-
--- 登録（挿入）だけ、誰でもできる
-create policy "anon can insert" on profiles
-  for insert to anon with check (true);
-
--- 読み取りのポリシーは作らない。
--- ポリシーがなければ anon キーでは1行も読めない（管理側は service_role キーで読む）。
+insert into admins (email, note) values ('あなた@example.com', '代表');
 ```
 
-`ai_consent` に同意していない登録を DB 側でも弾きたいなら、
-`with check (ai_consent = true)` にする。フォーム側でも必須にしてある。
+4. Project Settings > Data API から **Project URL** と **anon public** キーを控える
 
-つないだあとに確認すること。
+### 2. `config.js` を埋める
 
-- [ ] 登録できる（Table Editor に行が増える）
-- [ ] anon キーで `select` すると 0 行（読めないこと）
+```js
+window.TODO_MATCH_CONFIG = {
+  SUPABASE_URL: "https://xxxxxxxx.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOi..."
+};
+```
+
+anon キーはブラウザから見える。それで正しい。読み取りは RLS で止めてある。
+**service_role キーは絶対に書かない。**
+
+この時点で登録フォームは動く。管理画面のログインには次の設定が要る。
+
+### 3. 管理画面のログインを通す
+
+Authentication > URL Configuration の **Redirect URLs** に管理画面のURLを足す。
+
+```
+https://todo2023.github.io/my-ai-agent/hp/match/admin/
+```
+
+ログインは「メールで届いたリンクを開く」方式。パスワードは持たない。
+
+### 4. Claude API をつなぐ（タスク3）
+
+Supabase CLI から Edge Function を置く。
+
+```bash
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+supabase functions deploy generate-matches
+```
+
+`ANTHROPIC_API_KEY` はここにしか置かない。リポジトリにも `config.js` にも書かない。
+
+### 5. つないだあとに確認すること
+
+- [ ] フォームから登録できる（Table Editor に行が増える）
+- [ ] **anon キーで `select * from profiles` を叩くと 0 行**（＝他人には読めない）
 - [ ] `purpose_tags` が配列として入っている
 - [ ] 通信を切って送信 → 失敗メッセージが出て、下書きが残る
+- [ ] 管理画面にログインできる。`admins` にないアドレスでは入れない
+- [ ] 「相手を探す」→ 確認ダイアログで **やめると費用が発生しない**
+- [ ] 生成後、`generation_logs` に使用量が記録されている
+- [ ] 承認前のマッチは「相手に送る」が押せない
 
-## 動作確認
+## 動作確認（手元）
 
 ```bash
 python3 -m http.server 8000
-# → http://localhost:8000/hp/match/
+# 登録フォーム   → http://localhost:8000/hp/match/
+# 管理画面       → http://localhost:8000/hp/match/admin/
 ```
 
-スマホ幅（390px）とPC幅（1280px）で、横スクロールが出ないこと・
-未入力のまま送信すると必須13項目が赤くなることを確認済み。
+スマホ幅（390px）とPC幅（1280px）で横スクロールが出ないこと、
+未入力のまま送信すると必須13項目が赤くなることは確認済み。
 
 ## 公開前にやること
 
 - [ ] `index.html` 冒頭の `<div class="demo-bar">`（テスト運用中の帯）を、実情に合わせて直すか消す
 - [ ] フッターの「このページは検証中の受付です。」を直す
-- [ ] `form.js` に Supabase の URL とキーを入れる（タスク2）
 - [ ] 問い合わせ先を決める。いまは「ご登録のメールアドレスからご連絡ください」としか書いていない
-- [ ] 会社トップからリンクするなら、`../index.html` の事業一覧「BUSINESS 03（準備中）」の枠を差し替える
+- [ ] 会社トップからリンクするなら、`../index.html` の事業一覧に枠を足す
 
 `<meta name="robots" content="noindex, nofollow">` は**公開後も外さない**。
-個人情報を入力するページを検索結果に出す必要はない。案内はURLを直接送る形で足りる。
+登録フォームも管理画面も、検索結果に出す必要はない。
