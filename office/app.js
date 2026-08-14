@@ -1,9 +1,12 @@
 /*
-  執務室 ── 中身（配属・依頼・画面の出し入れ）
+  中身（配属・依頼・画面の出し入れ）── MTGルームとカンファレンスルームで共通
 
   部屋を歩く画面は room.js が持っている。こちらはデータと、重ねて出す画面。
   room.js からは OFFICE.〜 だけを呼ぶ形にしてあるので、
   部屋の見た目を作り直しても、こちらは触らなくてよい。
+
+  どちらの部屋も、同じ「迎えた担当（seats）」と「依頼（jobs）」を見ている。
+  カンファレンスルームで迎えると、MTGルームにその担当が立つ。
 
   通信はしない。配属と依頼は、この端末の中（localStorage）にだけ残る。
   ※ 本番では、依頼はこちらのメールに届き、状態はこちらが進める。
@@ -73,41 +76,44 @@ var OFFICE = (function () {
     fire(talkEnd);
   }
 
-  function showProfile(s, seat) {
+  function showProfile(s, where) {
     var seated = seats.indexOf(s.id) >= 0;
     open(
-      '<h2>' + esc(s.name) + '</h2>' +
+      '<h2>' + esc(s.mark + " " + s.name) + '</h2>' +
       '<p class="sub">' + esc(s.field) + '</p>' +
+      (s.state === "準備中"
+        ? '<p class="soon-note">この担当は準備中です。まだお迎えできません。</p>' : '') +
       (s.career ? '<h3>これまで</h3><p class="career">' + esc(s.career) + '</p>' : '') +
       (s.can.length ? '<h3>できること</h3><ul>' + s.can.map(li).join("") + '</ul>' : '') +
       (s.cannot.length ? '<h3>できないこと</h3><ul class="no">' + s.cannot.map(li).join("") + '</ul>' : '') +
       '<div class="price"><span>月額</span>' + esc(s.price) + '</div>' +
       '<div class="btn-row">' +
         (seated
-          ? '<button class="btn btn-ghost" data-fire="' + s.id + '">席から外す</button>'
+          ? '<button class="btn btn-ghost" data-fire="' + s.id + '">MTGルームから外す</button>'
           : s.state === "準備中"
             ? '<button class="btn btn-ghost" disabled>準備中です</button>'
-            : '<button class="btn btn-primary" data-seat-in="' + s.id + '" data-at="' + seat + '">この席に来てもらう</button>') +
+            : '<button class="btn btn-primary" data-hire="' + s.id + '">MTGルームに迎える</button>') +
         '<button class="btn btn-quiet" data-close>閉じる</button>' +
       '</div>'
     );
   }
 
-  function showPicks(seat) {
-    var rest = STAFF.filter(function (s) { return seats.indexOf(s.id) < 0; });
-    open(
-      '<h2>担当を選ぶ</h2>' +
-      '<p class="sub">SEAT 0' + (seat + 1) + ' に来てもらう担当を選んでください。</p>' +
-      '<div class="picks">' + rest.map(function (s) {
-        return '<button class="pick" data-who="' + s.id + '" data-seat="' + seat + '"' +
-          (s.state === "準備中" ? " disabled" : "") + '>' +
-          '<span class="chip" style="background:' + s.color + '"></span>' +
-          '<span class="t"><span class="nm">' + esc(s.name) +
-            (s.state === "準備中" ? "（準備中）" : "") + '</span>' +
-          '<span class="fld">' + esc(s.field) + '</span></span></button>';
-      }).join("") + '</div>' +
-      '<div class="btn-row"><button class="btn btn-quiet" data-close>閉じる</button></div>'
-    );
+  /* カンファレンスルームから、MTGルームの空いている席へ迎える */
+  function hire(id) {
+    var s = staffById(id);
+    if (seats.indexOf(id) >= 0) { say(s.name + "は、すでにMTGルームにいます。"); return; }
+    var i = seats.indexOf(null);
+    if (i < 0) {
+      say("MTGルームの席が埋まっています。\n入れ替えるには、いまいる担当を先に外してください。", [
+        { t: "MTGルームへ行く", f: function () { location.href = "index.html"; } }
+      ]);
+      return;
+    }
+    seats[i] = id;
+    update();
+    say(s.name + "が、MTGルームに来てくれることになった。", [
+      { t: "MTGルームへ行く", f: function () { location.href = "index.html"; } }
+    ]);
   }
 
   function showAsk(seat) {
@@ -158,8 +164,8 @@ var OFFICE = (function () {
         (mine.length ? '<ul class="jobs">' + mine.map(jobRow).join("") + '</ul>' : '') +
         '<div class="btn-row">' + (s
           ? '<button class="btn btn-primary" data-ask="' + i + '">仕事を頼む</button>' +
-            '<button class="btn btn-ghost" data-who="' + s.id + '" data-seat="' + i + '">この担当を見る</button>'
-          : '<button class="btn btn-ghost" data-hire="' + i + '">担当を選ぶ</button>') +
+            '<button class="btn btn-ghost" data-who="' + s.id + '">この担当を見る</button>'
+          : '<a class="btn btn-ghost" href="conference.html">カンファレンスルームで選ぶ</a>') +
         '</div>';
       list.appendChild(el);
     });
@@ -179,11 +185,9 @@ var OFFICE = (function () {
     var d = t.dataset;
 
     if (d.close !== undefined) return close();
-    if (d.hire !== undefined) return showPicks(+d.hire);
-    if (d.who) return showProfile(staffById(d.who), +d.seat);
+    if (d.who) return showProfile(staffById(d.who));
     if (d.ask !== undefined) return showAsk(+d.ask);
-
-    if (d.seatIn) { seats[+d.at] = d.seatIn; close(); update(); return; }
+    if (d.hire) { close(); hire(d.hire); return; }
 
     if (d.fire) {
       var at = seats.indexOf(d.fire);
@@ -239,8 +243,8 @@ var OFFICE = (function () {
   return {
     seats: function () { return seats; },
     say: say,
+    hire: hire,
     showProfile: showProfile,
-    showPicks: showPicks,
     showAsk: showAsk,
     onChange: function (f) { changed.push(f); },
     onTalkEnd: function (f) { talkEnd.push(f); }

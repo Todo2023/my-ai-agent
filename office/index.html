@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>執務室｜合同会社To do</title>
-<meta name="description" content="契約したAI担当者が常駐する執務室。部屋を歩いて、席にいる担当に話しかけ、仕事を渡せます。" />
+<title>MTGルーム｜合同会社To do</title>
+<meta name="description" content="御社が迎えたAI担当者だけがいる部屋。歩いて話しかけ、仕事を渡せます。" />
 <meta name="theme-color" content="#123055" />
 <meta name="color-scheme" content="light" />
 <meta name="format-detection" content="telephone=no" />
@@ -23,13 +23,17 @@
 
 <header>
   <div class="wrap">
-    <span class="eyebrow">YOUR AI STAFF</span>
-    <h1>執務室</h1>
+    <span class="eyebrow">MEETING ROOM</span>
+    <h1>MTGルーム</h1>
     <p>
-      御社に常駐しているAI担当者です。<br />
-      部屋を歩いて、席にいる担当に話しかけてください。
+      御社が迎えたAI担当者だけがいる部屋です。<br />
+      歩いて話しかけると、仕事を渡せます。
     </p>
     <div class="seat-count">ご契約中の席　<b id="filled">0</b> / <span id="total">3</span></div>
+    <nav class="rooms">
+      <span class="here">MTGルーム</span>
+      <a href="conference.html">カンファレンスルーム →</a>
+    </nav>
   </div>
 </header>
 
@@ -39,17 +43,16 @@
     <!-- ─── 部屋（歩く画面） ─── -->
     <section class="room-wrap" id="room-view">
       <div class="stage">
-        <canvas id="room" aria-label="執務室の見取り図。十字キーで歩き、はなすで話しかけます。"></canvas>
+       <div class="board"><!-- キャンバスと同じ大きさ。名札はこの中に置く -->
+        <canvas id="room" aria-label="MTGルームの見取り図。十字キーで歩き、はなすで話しかけます。"></canvas>
         <div class="labels" id="labels"></div>
-
-        <!-- 会話の窓 -->
         <div class="msgbox" id="msgbox">
           <p class="msgtext" id="msgtext" role="status" aria-live="polite"></p>
           <div class="msgbtns" id="msgbtns"></div>
         </div>
+       </div>
       </div>
 
-      <!-- 操作 -->
       <div class="pad">
         <div class="dpad">
           <button class="key up" data-dir="up" aria-label="上へ"></button>
@@ -61,7 +64,9 @@
         <button class="btn btn-primary talk" id="talk">はなす</button>
       </div>
       <p class="hint">
-        パソコンでは矢印キー（または W A S D）で歩き、Enter か Space で話しかけられます。
+        担当の正面に立って「はなす」。机は挟んでいてかまいません。<br />
+        パソコンでは矢印キー（または W A S D）で歩き、Enter か Space で話しかけられます。<br />
+        下の扉に話しかけると、カンファレンスルームへ行けます。
       </p>
 
       <button class="btn btn-quiet toggle" data-view="list">一覧で見る</button>
@@ -84,11 +89,32 @@
   </div>
 </main>
 
-<!-- 重ねて出す画面（プロフィール／担当選び／依頼フォーム） -->
 <div class="sheet" id="sheet" role="dialog" aria-modal="true">
   <div class="panel" id="panel"></div>
 </div>
 
+<script>
+  /* この部屋の形。1文字が1マス（# 壁／D 机／P 観葉植物／= 扉／. 床） */
+  var ROOM = {
+    map: [
+      "############",
+      "#..........#",
+      "#.D..D..D..#",
+      "#..........#",
+      "#..........#",
+      "#P........P#",
+      "#..........#",
+      "#..........#",
+      "#..........#",
+      "#..........#",
+      "#####==#####"
+    ],
+    spots: [[2, 1], [5, 1], [8, 1]],
+    start: [5, 8],
+    mode: "mtg",
+    door: { url: "conference.html", label: "カンファレンスルーム" }
+  };
+</script>
 <script src="staff.js"></script>
 <script src="app.js"></script><!-- OFFICE を作る。room.js より先に読む -->
 <script src="room.js"></script>
