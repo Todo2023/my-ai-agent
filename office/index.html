@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>執務室｜合同会社To do</title>
+<meta name="description" content="契約したAI担当者が常駐する執務室。席にいる担当に仕事を渡し、進み具合を見られます。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- デモ版のため検索避け。公開時にこの行を消す -->
+<!--
+  ここには manifest も Service Worker も置かない。
+  アプリではなく、クライアントに開いてもらう画面。
+-->
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>デモ版</b>：見せ方を確かめるための試作です。依頼は送信されず、この端末の中にだけ残ります。
+</div>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">YOUR AI STAFF</span>
+    <h1>執務室</h1>
+    <p>
+      御社に常駐しているAI担当者です。<br />
+      席にいる担当に仕事を渡すと、翌営業日には手元に返ってきます。
+    </p>
+    <div class="seat-count">
+      ご契約中の席　<b id="filled">0</b> / <span id="total">3</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h2 class="sec-title">席</h2>
+    <p class="sec-lead">担当をタップすると、できること・できないことが見られます。合わなければ入れ替えられます。</p>
+    <div class="desks" id="desks"></div>
+
+    <footer>
+      これはデモ版です。入力した内容は送信されず、この端末の中にだけ保存されます。<br />
+      本番では、依頼はそのまま担当に届き、状態はこちらが進めます。<br />
+      <a href="../hp/sales-ai/">サービスの説明を見る</a>
+    </footer>
+  </div>
+</main>
+
+<!-- 重ねて出す画面（プロフィール／担当選び／依頼フォーム） -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script src="staff.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
