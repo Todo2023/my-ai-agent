@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>執務室｜合同会社To do</title>
-<meta name="description" content="契約したAI担当者が常駐する執務室。席にいる担当に仕事を渡し、進み具合を見られます。" />
+<meta name="description" content="契約したAI担当者が常駐する執務室。部屋を歩いて、席にいる担当に話しかけ、仕事を渡せます。" />
 <meta name="theme-color" content="#123055" />
 <meta name="color-scheme" content="light" />
 <meta name="format-detection" content="telephone=no" />
@@ -27,25 +27,60 @@
     <h1>執務室</h1>
     <p>
       御社に常駐しているAI担当者です。<br />
-      席にいる担当に仕事を渡すと、翌営業日には手元に返ってきます。
+      部屋を歩いて、席にいる担当に話しかけてください。
     </p>
-    <div class="seat-count">
-      ご契約中の席　<b id="filled">0</b> / <span id="total">3</span>
-    </div>
+    <div class="seat-count">ご契約中の席　<b id="filled">0</b> / <span id="total">3</span></div>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <h2 class="sec-title">席</h2>
-    <p class="sec-lead">担当をタップすると、できること・できないことが見られます。合わなければ入れ替えられます。</p>
-    <div class="desks" id="desks"></div>
+
+    <!-- ─── 部屋（歩く画面） ─── -->
+    <section class="room-wrap" id="room-view">
+      <div class="stage">
+        <canvas id="room" aria-label="執務室の見取り図。十字キーで歩き、はなすで話しかけます。"></canvas>
+        <div class="labels" id="labels"></div>
+
+        <!-- 会話の窓 -->
+        <div class="msgbox" id="msgbox">
+          <p class="msgtext" id="msgtext" role="status" aria-live="polite"></p>
+          <div class="msgbtns" id="msgbtns"></div>
+        </div>
+      </div>
+
+      <!-- 操作 -->
+      <div class="pad">
+        <div class="dpad">
+          <button class="key up" data-dir="up" aria-label="上へ"></button>
+          <button class="key left" data-dir="left" aria-label="左へ"></button>
+          <button class="key right" data-dir="right" aria-label="右へ"></button>
+          <button class="key down" data-dir="down" aria-label="下へ"></button>
+          <span class="hub"></span>
+        </div>
+        <button class="btn btn-primary talk" id="talk">はなす</button>
+      </div>
+      <p class="hint">
+        パソコンでは矢印キー（または W A S D）で歩き、Enter か Space で話しかけられます。
+      </p>
+
+      <button class="btn btn-quiet toggle" data-view="list">一覧で見る</button>
+    </section>
+
+    <!-- ─── 一覧（歩くのが難しいとき用） ─── -->
+    <section class="list-wrap" id="list-view" hidden>
+      <h2 class="sec-title">席</h2>
+      <p class="sec-lead">担当をタップすると、できること・できないことが見られます。</p>
+      <div class="desks" id="desks"></div>
+      <button class="btn btn-quiet toggle" data-view="room">部屋に戻る</button>
+    </section>
 
     <footer>
       これはデモ版です。入力した内容は送信されず、この端末の中にだけ保存されます。<br />
       本番では、依頼はそのまま担当に届き、状態はこちらが進めます。<br />
       <a href="../hp/sales-ai/">サービスの説明を見る</a>
     </footer>
+
   </div>
 </main>
 
@@ -55,7 +90,19 @@
 </div>
 
 <script src="staff.js"></script>
-<script src="app.js"></script>
+<script src="app.js"></script><!-- OFFICE を作る。room.js より先に読む -->
+<script src="room.js"></script>
+<script>
+  // 部屋 ↔ 一覧 の切り替え
+  document.querySelectorAll("[data-view]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var toList = b.dataset.view === "list";
+      document.getElementById("room-view").hidden = toList;
+      document.getElementById("list-view").hidden = !toList;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+</script>
 
 </body>
 </html>
