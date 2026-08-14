@@ -63,10 +63,20 @@ header p{margin:9px 0 0; font-size:12.5px; line-height:1.85; color:#b9c8dc;}
 }
 .seat-count b{font-size:14px; color:#fff;}
 
+/* 部屋の行き来 */
+.rooms{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; font-size:12px;}
+.rooms a,.rooms .here{padding:6px 13px; border-radius:999px; text-decoration:none;}
+.rooms a{color:#dbe5f2; border:1px solid rgba(255,255,255,.22);}
+.rooms .here{background:rgba(255,255,255,.14); color:#fff; font-weight:700;}
+
 /* ══════════ 部屋（歩く画面） ══════════ */
 main{padding:24px 0 0;}
 
-.stage{position:relative; line-height:0; display:flex; justify-content:center;}
+/* キャンバスが囲みより広くなることがあるので、横だけスクロールできるようにしておく。
+   名札は .board（キャンバスと同じ大きさ）の中に置くので、位置がずれない。 */
+.stage{display:flex; justify-content:center; overflow-x:auto; scrollbar-width:none;}
+.stage::-webkit-scrollbar{display:none;}
+.board{position:relative; flex:0 0 auto; line-height:0;}
 #room{
   image-rendering:pixelated;          /* ドットをぼかさない */
   image-rendering:crisp-edges;
@@ -78,12 +88,14 @@ main{padding:24px 0 0;}
 .labels .label{
   position:absolute; transform:translate(-50%,-100%);
   white-space:nowrap; line-height:1.4;
-  padding:2px 8px; border-radius:999px;
+  padding:2px 7px; border-radius:999px;
   background:rgba(255,255,255,.94); border:1px solid var(--line); border-bottom-width:2px;
   font-size:10.5px; font-weight:700; color:var(--ink);
   box-shadow:0 2px 6px rgba(18,48,85,.14);
 }
 .labels .label.off{color:var(--dim); border-style:dashed; background:rgba(255,255,255,.8);}
+.labels .label.soon{color:var(--dim); background:rgba(255,255,255,.72); border-style:dashed;}
+.labels .label.mine{box-shadow:0 0 0 2px rgba(224,96,47,.35), 0 2px 6px rgba(18,48,85,.14);}
 
 /* 会話の窓 */
 .msgbox{
@@ -250,18 +262,32 @@ main{padding:24px 0 0;}
 .field.miss input{border-color:var(--accent); background:#fff8f5;}
 .msg{margin:10px 0 0; font-size:12.5px; font-weight:700; color:var(--accent); min-height:1.6em;}
 
-/* 候補の並び */
-.picks{display:grid; gap:10px; margin-top:4px;}
+/* 在籍者の並び */
+.picks,.roster{display:grid; gap:10px; margin-top:4px;}
 .pick{
-  display:flex; gap:12px; align-items:center; text-align:left;
+  display:flex; gap:12px; align-items:center; text-align:left; width:100%;
   padding:12px; border-radius:12px; background:#fff;
   border:1px solid var(--line); cursor:pointer; font:inherit;
 }
 .pick:active{background:var(--tint);}
 .pick[disabled]{opacity:.5; cursor:default;}
-.pick .t{min-width:0;}
-.pick .nm{font-size:13.5px; font-weight:700;}
-.pick .fld{font-size:11.5px; color:var(--dim); line-height:1.7;}
+.pick.soon{background:var(--tint); border-style:dashed;}
+.pick.soon .chip{opacity:.45;}
+.pick .t{min-width:0; display:block;}
+.pick .nm{font-size:13.5px; font-weight:700; display:block;}
+.pick .fld{font-size:11.5px; color:var(--dim); line-height:1.7; display:block;}
+.pick .tag{
+  margin-left:8px; padding:1px 8px; border-radius:999px; vertical-align:1px;
+  font-size:10px; font-weight:700; letter-spacing:.04em;
+  background:rgba(224,96,47,.13); color:var(--accent);
+}
+.pick .tag.soon{background:#e9edf3; color:var(--dim);}
+
+.soon-note{
+  margin:0 0 4px; padding:10px 13px; border-radius:10px;
+  background:var(--tint); border:1px dashed #c9d6e5;
+  font-size:12.5px; color:var(--dim);
+}
 
 footer{
   padding:28px 0 0; font-size:11.5px; line-height:1.9; color:var(--dim); text-align:center;
