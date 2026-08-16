@@ -116,7 +116,10 @@
   .del { border: 0; background: none; color: var(--ink-faint); font-size: 14px; cursor: pointer; padding: 2px 4px; }
   .empty { color: var(--ink-faint); font-size: 13px; text-align: center; padding: 20px 0; }
   .fine { color: var(--ink-faint); font-size: 11.5px; margin: 14px 2px 0; }
-  #gate { display: none; }
+  /* 合言葉を通るまで中身を出さない。hidden属性はApps Scriptの表示環境で効かない場合があるため、
+     CSSで確実に隠し、通過したときだけ show を付けて出す。 */
+  #gate, #main { display: none; }
+  #gate.show, #main.show { display: block; }
   #loading { text-align: center; color: var(--ink-faint); font-size: 13px; padding: 40px 0; }
 </style>
 </head>
@@ -136,7 +139,7 @@
     <div id="pinMsg"></div>
   </section>
 
-  <div id="main" hidden>
+  <div id="main">
     <section>
       <p class="eyebrow">いまの ふたり</p>
       <div class="pair" id="pair"></div>
@@ -230,8 +233,8 @@ call("needsPin").then(function (required) {
 });
 
 function showGate() {
-  $("loading").hidden = true;
-  $("gate").style.display = "block";
+  $("loading").style.display = "none";
+  $("gate").classList.add("show");
   $("pin").focus();
 }
 
@@ -240,7 +243,6 @@ $("pinGo").onclick = function () {
   $("pinMsg").innerHTML = '<div class="notice">確かめています…</div>';
   refresh().then(function () {
     localStorage.setItem("taijuu:pin", pin);
-    $("gate").style.display = "none";
     $("pinMsg").innerHTML = "";
   }).catch(function () {
     pin = "";
@@ -251,8 +253,9 @@ $("pinGo").onclick = function () {
 function refresh() {
   return call("getState", pin).then(function (next) {
     state = next;
-    $("loading").hidden = true;
-    $("main").hidden = false;
+    $("loading").style.display = "none";
+    $("gate").classList.remove("show");
+    $("main").classList.add("show");
     if (!$("date").value) $("date").value = state.today;
     renderAll();
   });
