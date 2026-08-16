@@ -111,6 +111,32 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 - [ ] 通信を切って「審査に出す」→ 失敗が出て、下書きは残る
 
 
+## 審査を通した記事を site に出す
+
+審査画面（`../admin/`）で公開したものは、まだDBの中にしかない。
+**DBは投稿と審査の待ち行列で、配信するサイトは静的**という形にしてあるので、
+最後にひと手間だけ手元で流す。
+
+```bash
+node biz/tools/pull-published.mjs --dry-run   # 何が変わるか見る
+node biz/tools/pull-published.mjs             # articles/*.md に落とす
+node biz/tools/build-index.mjs                # 一覧と記事ページを作り直す
+git add biz && git commit                     # 生成物ごとコミットして反映
+```
+
+取り込んだ `.md` には `work_id` が入る。これが2つの役目を持つ。
+
+| | |
+| --- | --- |
+| 上書きの判断 | 同じ `work_id` のときだけ取り込み直す |
+| いいね・通報の宛先 | DBに行があるので、生成した記事ページに反応を出せる |
+
+**`work_id` のない `.md`（手で書いた記事）は絶対に上書きしない。**
+slug がぶつかったときも触らずに報せるので、どちらかの名前を変えて解決する。
+
+取り込んだ `.md` を手で直しても構わないが、その記事を公開し直すと消える。
+直すならDB側で直す。
+
 ## 使える記法
 
 | | |
@@ -146,6 +172,7 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | `articles.json` | 一覧用のまとめ。**手で書かない。生成物** |
 | `tools/build-index.mjs` | `articles.json` と記事ページを作る。手元で走らせる |
 | `tools/render-page.mjs` | 記事ページのひな形。URLの根と `noindex` の切り替えがここにある |
+| `tools/pull-published.mjs` | 審査を通した記事をDBから `articles/*.md` に落とす |
 
 ## 動作確認（手元）
 
