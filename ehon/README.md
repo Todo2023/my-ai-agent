@@ -74,6 +74,19 @@
 
 表示のオン・オフは読む人が切り替える。**記法は本文に書き込むが、出し分けは表示側でやる。**
 
+### まとめて作る
+
+9冊は部品を組み合わせて作ってある。1枚ずつ手で描くより、**並べたときに絵柄がそろう**。
+
+```bash
+node ehon/tools/_make-books.mjs   # 話 → 絵と book.json
+node ehon/tools/build-index.mjs   # → books.json
+```
+
+話を足すときは `tools/_make-books.mjs` の `BOOKS` に1つ足す。
+**すでにあるフォルダは上書きされる。** 手で描いた `tsuki-no-pan` は
+この道具の対象に入れていないので、消える心配はない。
+
 ### 絵について
 
 - 縦横の比は **16:10** にそろえる（そろっていないと、めくるたびに大きさが変わる）
@@ -96,6 +109,8 @@
 | `books/*/` | 絵本1冊ぶん（`book.json` と絵） |
 | `books.json` | 棚用のまとめ。**手で書かない。生成物** |
 | `tools/build-index.mjs` | `books.json` を作る。絵の重さも出す |
+| `tools/_draw.mjs` | 絵の部品（空・いきもの・もの）。10冊ぶんの絵柄をそろえるため |
+| `tools/_make-books.mjs` | 話から絵と `book.json` を書き出す。**話を足すのはここ** |
 | `sw.js` / `manifest.webmanifest` | PWA。読んだ絵本を端末に残す |
 | `_icon.html` / `_build_icons.js` | アイコンの元絵と書き出し。絵を変えたときだけ走らせる |
 
