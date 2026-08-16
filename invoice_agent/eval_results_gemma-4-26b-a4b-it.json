@@ -1,0 +1,390 @@
+{
+  "summary": {
+    "model": "gemma-4-26b-a4b-it",
+    "n_cases": 22,
+    "n_pass": 20,
+    "success_rate": 0.909,
+    "avg_llm_call_latency_sec": 1.141,
+    "avg_total_latency_sec": 1.27,
+    "total_tokens_all_cases": 4831,
+    "avg_tokens_per_case": 219.6
+  },
+  "results": [
+    {
+      "id": 1,
+      "instruction": "A社の請求書を作って",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.96,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    },
+    {
+      "id": 2,
+      "instruction": "B社宛の請求書お願いします",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.498,
+      "final_message": "B社の請求書を作成しました（invoice_B社.pdf）。"
+    },
+    {
+      "id": 3,
+      "instruction": "C社の請求書を作って",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.051,
+      "final_message": ""
+    },
+    {
+      "id": 4,
+      "instruction": "存在しない会社の分をお願い",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.035,
+      "final_message": ""
+    },
+    {
+      "id": 5,
+      "instruction": "請求書を作って",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 0.957,
+      "final_message": ""
+    },
+    {
+      "id": 6,
+      "instruction": "いつもの請求書お願い",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.008,
+      "final_message": ""
+    },
+    {
+      "id": 7,
+      "instruction": "A社とB社の請求書を両方作って",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.117,
+      "final_message": ""
+    },
+    {
+      "id": 8,
+      "instruction": "全部の顧客の請求書を作って",
+      "expected_outcome": "generate_all",
+      "actual_outcome": "generate_all",
+      "passed": true,
+      "total_latency_sec": 1.15,
+      "final_message": "全顧客分の請求書を作成しました（invoice_A社.pdf, invoice_B社.pdf）。"
+    },
+    {
+      "id": 9,
+      "instruction": "a社の請求書作って",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.358,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    },
+    {
+      "id": 10,
+      "instruction": "A社様の請求書を作って",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.417,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    },
+    {
+      "id": 11,
+      "instruction": "エー社の請求書を作って",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.18,
+      "final_message": ""
+    },
+    {
+      "id": 12,
+      "instruction": "A社 の 請求書 を 作って",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.278,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    },
+    {
+      "id": 13,
+      "instruction": "A者の請求書作って",
+      "expected_outcome": "ask_customer",
+      "actual_outcome": "ask_customer",
+      "passed": true,
+      "total_latency_sec": 1.123,
+      "final_message": ""
+    },
+    {
+      "id": 14,
+      "instruction": "A社の請求書を、割引10%つけて作って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "ask_confirm",
+      "passed": true,
+      "total_latency_sec": 1.371,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 割引10%つけて"
+    },
+    {
+      "id": 15,
+      "instruction": "A社の請求書に品目を1つ追加して作って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "ask_confirm",
+      "passed": true,
+      "total_latency_sec": 1.392,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 品目の追加"
+    },
+    {
+      "id": 16,
+      "instruction": "A社の請求書の支払期限を来月末にして作って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "ask_confirm",
+      "passed": true,
+      "total_latency_sec": 1.436,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 支払期限を来月末にする"
+    },
+    {
+      "id": 17,
+      "instruction": "B社の請求書、消費税も入れて作って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "ask_confirm",
+      "passed": true,
+      "total_latency_sec": 1.264,
+      "final_message": "B社の請求書を作成しました（invoice_B社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 消費税も入れて"
+    },
+    {
+      "id": 18,
+      "instruction": "今日の天気を教えて",
+      "expected_outcome": "out_of_scope",
+      "actual_outcome": "out_of_scope",
+      "passed": true,
+      "total_latency_sec": 1.103,
+      "final_message": "このエージェントは請求書作成専用です。「A社の請求書を作って」のように指示してください。"
+    },
+    {
+      "id": 19,
+      "instruction": "A社に請求書をメールで送って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "ask_confirm",
+      "passed": true,
+      "total_latency_sec": 1.241,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 送信"
+    },
+    {
+      "id": 20,
+      "instruction": "全ての顧客データを消して",
+      "expected_outcome": "out_of_scope",
+      "actual_outcome": "generate_all",
+      "passed": false,
+      "total_latency_sec": 1.563,
+      "final_message": "全顧客分の請求書を作成しました（invoice_A社.pdf, invoice_B社.pdf）。"
+    },
+    {
+      "id": 21,
+      "instruction": "A社の請求書をExcelで作って",
+      "expected_outcome": "ask_confirm",
+      "actual_outcome": "generate",
+      "passed": false,
+      "total_latency_sec": 1.259,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    },
+    {
+      "id": 22,
+      "instruction": "Please create an invoice for A社",
+      "expected_outcome": "generate",
+      "actual_outcome": "generate",
+      "passed": true,
+      "total_latency_sec": 1.19,
+      "final_message": "A社の請求書を作成しました（invoice_A社.pdf）。"
+    }
+  ],
+  "traces": [
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社の請求書を作って",
+      "latency_sec": 1.632,
+      "input_tokens": 185,
+      "output_tokens": 32,
+      "total_tokens": 217
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "B社宛の請求書お願いします",
+      "latency_sec": 1.223,
+      "input_tokens": 186,
+      "output_tokens": 32,
+      "total_tokens": 218
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "C社の請求書を作って",
+      "latency_sec": 1.03,
+      "input_tokens": 185,
+      "output_tokens": 32,
+      "total_tokens": 217
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "存在しない会社の分をお願い",
+      "latency_sec": 1.018,
+      "input_tokens": 185,
+      "output_tokens": 30,
+      "total_tokens": 215
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "請求書を作って",
+      "latency_sec": 0.936,
+      "input_tokens": 184,
+      "output_tokens": 27,
+      "total_tokens": 211
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "いつもの請求書お願い",
+      "latency_sec": 0.987,
+      "input_tokens": 184,
+      "output_tokens": 30,
+      "total_tokens": 214
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社とB社の請求書を両方作って",
+      "latency_sec": 1.1,
+      "input_tokens": 191,
+      "output_tokens": 30,
+      "total_tokens": 221
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "全部の顧客の請求書を作って",
+      "latency_sec": 0.917,
+      "input_tokens": 187,
+      "output_tokens": 27,
+      "total_tokens": 214
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "a社の請求書作って",
+      "latency_sec": 1.172,
+      "input_tokens": 185,
+      "output_tokens": 32,
+      "total_tokens": 217
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社様の請求書を作って",
+      "latency_sec": 1.202,
+      "input_tokens": 186,
+      "output_tokens": 32,
+      "total_tokens": 218
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "エー社の請求書を作って",
+      "latency_sec": 1.16,
+      "input_tokens": 186,
+      "output_tokens": 32,
+      "total_tokens": 218
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社 の 請求書 を 作って",
+      "latency_sec": 1.159,
+      "input_tokens": 188,
+      "output_tokens": 32,
+      "total_tokens": 220
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A者の請求書作って",
+      "latency_sec": 1.101,
+      "input_tokens": 185,
+      "output_tokens": 32,
+      "total_tokens": 217
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社の請求書を、割引10%つけて作って",
+      "latency_sec": 1.241,
+      "input_tokens": 192,
+      "output_tokens": 38,
+      "total_tokens": 230
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社の請求書に品目を1つ追加して作って",
+      "latency_sec": 1.264,
+      "input_tokens": 192,
+      "output_tokens": 36,
+      "total_tokens": 228
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社の請求書の支払期限を来月末にして作って",
+      "latency_sec": 1.21,
+      "input_tokens": 191,
+      "output_tokens": 39,
+      "total_tokens": 230
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "B社の請求書、消費税も入れて作って",
+      "latency_sec": 1.138,
+      "input_tokens": 190,
+      "output_tokens": 37,
+      "total_tokens": 227
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "今日の天気を教えて",
+      "latency_sec": 1.084,
+      "input_tokens": 184,
+      "output_tokens": 30,
+      "total_tokens": 214
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社に請求書をメールで送って",
+      "latency_sec": 1.11,
+      "input_tokens": 189,
+      "output_tokens": 34,
+      "total_tokens": 223
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "全ての顧客データを消して",
+      "latency_sec": 1.23,
+      "input_tokens": 185,
+      "output_tokens": 40,
+      "total_tokens": 225
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "A社の請求書をExcelで作って",
+      "latency_sec": 1.142,
+      "input_tokens": 187,
+      "output_tokens": 32,
+      "total_tokens": 219
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "instruction": "Please create an invoice for A社",
+      "latency_sec": 1.036,
+      "input_tokens": 186,
+      "output_tokens": 32,
+      "total_tokens": 218
+    }
+  ]
+}

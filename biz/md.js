@@ -64,7 +64,7 @@ function inline(src) {
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text, url) => {
     const href = safeUrl(url);
     const outer = /^https?:/i.test(href);
-    // 外部リンクは rel を付ける。被リンク目的の投稿の旨味を消すため（docs/platform-marketing.md）
+    // 外部リンクは rel を付ける。被リンク目的の投稿の旨味を消すため（sekkei/platform-marketing.md）
     const attr = outer ? ' target="_blank" rel="ugc nofollow noopener"' : "";
     return `<a href="${href}"${attr}>${text}</a>`;
   });

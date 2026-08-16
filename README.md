@@ -23,9 +23,15 @@ GitHub Pages に置いてあるスマホ向けアプリ（PWA）。どれもビ�
 | [`supabase/`](supabase/) | **DB定義と生成処理** | `hp/match/`（マッチング）用。ブラウザでは動かない。まだ配置していない |
 | [`biz/`](biz/) | **ハタラク文庫（仮）** | マーケ・事業の記事置き場。Markdownで書く。PWAではない |
 | [`admin/`](admin/) | **審査（身内用）** | 投稿を見て公開・差し戻しを決める。管理者以外には何も出ない |
-| [`docs/`](docs/) | **設計メモ** | `biz/` と `ehon/` をどう育てるかの検討。コードはない |
+| [`sekkei/`](sekkei/) | **設計メモ** | `biz/` と `ehon/` をどう育てるかの検討。コードはない |
+
+| [`diet_agent/`](diet_agent/) [`invoice_agent/`](invoice_agent/) [`meeting_agent/`](meeting_agent/) [`travel_agent/`](travel_agent/) [`diet_gas/`](diet_gas/) [`diet_worker/`](diet_worker/) | **AIエージェント教材** | Python。進め方は [`README-agents.md`](README-agents.md) |
 
 各フォルダの README に、遊び方・入れ方・中身の説明がある。
+
+**このリポジトリには性質の違う2つのプロジェクトが入っている。**
+配信するもの（上の表）と、AIエージェント教材（Python）。
+GitHub Pages は1ブランチしか配信できないので、`main` ひとつにまとめてある。
 
 ```bash
 # ローカルで動かす（Service Worker を使うので http で開く）

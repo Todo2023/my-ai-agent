@@ -5,7 +5,7 @@
 --  何度実行しても壊れないように書いてある（if not exists / drop policy）。
 --
 --  無料プランの範囲で動く。有料の拡張は使っていない。
---  設計の意図は docs/README.md（共通）と docs/platform-*.md にある。
+--  設計の意図は sekkei/README.md（共通）と sekkei/platform-*.md にある。
 --
 --  ── ここで守っていること ──
 --   ・下書きと審査待ちは、書いた本人と管理者以外には1行も見えない
@@ -59,7 +59,7 @@ $$;
 -- ------------------------------------------------------------
 -- 1. 招待
 --    Phase 1 は招待制。ここに載っているアドレスの人だけが書ける。
---    「誰でも書ける」に変えるのは、荒れ方を見てから（docs/platform-marketing.md）
+--    「誰でも書ける」に変えるのは、荒れ方を見てから（sekkei/platform-marketing.md）
 -- ------------------------------------------------------------
 create table if not exists invites (
   email      text primary key,
@@ -123,7 +123,7 @@ create policy "own profile update"
 -- 3. 作品（記事・絵本を1つの表で持つ）
 --
 --    site で2つのサービスを分ける。無料プランはプロジェクトを2つまでしか
---    作れないので、1つのDBに同居させる（docs/README.md）。
+--    作れないので、1つのDBに同居させる（sekkei/README.md）。
 --
 --    status は4つ。
 --      draft     … 書いている途中。本人と管理者だけが見える
@@ -147,7 +147,7 @@ create table if not exists works (
   topics        text[] not null default '{}',
 
   -- 記事の本文。有料販売を後から足せるように、最初から2つに分けて持つ。
-  -- いま body_paid は必ず空。表示側も見に行かない（docs/platform-marketing.md）
+  -- いま body_paid は必ず空。表示側も見に行かない（sekkei/platform-marketing.md）
   body_free     text,
   body_paid     text,
 
@@ -261,7 +261,7 @@ create trigger works_guard_insert
 -- ------------------------------------------------------------
 -- 4. 絵本のページ
 --    絵そのものはここに入れない。ファイル名だけを持つ。
---    絵は配信側（Cloudflare Pages / R2）に置く（docs/platform-kids.md）
+--    絵は配信側（Cloudflare Pages / R2）に置く（sekkei/platform-kids.md）
 -- ------------------------------------------------------------
 create table if not exists work_pages (
   id         uuid primary key default gen_random_uuid(),
@@ -297,7 +297,7 @@ create policy "author edits pages"
 -- ------------------------------------------------------------
 -- 5. 反応
 --    子ども向けの自由記述コメントは作らない。
---    comments は site = 'biz' だけで使う（docs/platform-kids.md）
+--    comments は site = 'biz' だけで使う（sekkei/platform-kids.md）
 -- ------------------------------------------------------------
 create table if not exists likes (
   work_id    uuid not null references works (id) on delete cascade,
@@ -383,7 +383,7 @@ create policy "admins update reports" on reports for update using (is_admin()) w
 -- 7. 決済の器（Phase 3。いまは何も入れない）
 --
 --    Stripe Connect の Standard を使う。作者が自分のStripeアカウントで受け取り、
---    我々はお金を預からない（docs/README.md）。
+--    我々はお金を預からない（sekkei/README.md）。
 --    ここに入るのは、作者とStripeアカウントの対応だけ。
 --
 --    ⚠️ 本人にも読ませない列は作らない。カード情報はここに一切来ない
@@ -392,7 +392,7 @@ create table if not exists stripe_accounts (
   user_id           uuid primary key references auth.users (id) on delete cascade,
   stripe_account_id text not null,
   -- 子ども自身の作品でも、受け取りは保護者名義にする。
-  -- Stripeのアカウントは18歳以上でないと作れない（docs/platform-kids.md）
+  -- Stripeのアカウントは18歳以上でないと作れない（sekkei/platform-kids.md）
   on_behalf_of_minor boolean not null default false,
   created_at        timestamptz not null default now()
 );

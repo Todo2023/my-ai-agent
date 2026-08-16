@@ -7,7 +7,7 @@
  * コミットするための道具。CIでは動かさない。
  *
  * ついでに、絵の重さも出す。絵本は1冊が重く、置き場所を間違えると
- * 無料枠が先に尽きるので、増えてきたら気づけるようにしておく（docs/platform-kids.md）。
+ * 無料枠が先に尽きるので、増えてきたら気づけるようにしておく（sekkei/platform-kids.md）。
  */
 import { readdir, readFile, writeFile, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";

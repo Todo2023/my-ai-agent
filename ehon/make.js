@@ -4,7 +4,7 @@
  * Phase 1（投稿を受け付ける段）の前に、作るところだけ先に作ってある。
  * まだどこにも送らない。端末の中（localStorage）に残り、book.json として持ち出す。
  *
- * 記事（biz/write.html）と作りを分けている理由は docs/platform-kids.md にある。
+ * 記事（biz/write.html）と作りを分けている理由は sekkei/platform-kids.md にある。
  * 絵本は「1本の長い文章」ではなく「ページの並び」なので、Markdownの画面では作れない。
  *
  * 絵はファイル名だけを持つ。中身を localStorage に入れると数冊で容量が尽きるため、

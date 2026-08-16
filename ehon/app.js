@@ -94,7 +94,7 @@ async function main() {
 main();
 
 // Service Worker。一度読んだえほんは端末に残り、次からは通信なしで開く。
-// 絵は重いので、これが帯域の節約にもなる（docs/platform-kids.md）
+// 絵は重いので、これが帯域の節約にもなる（sekkei/platform-kids.md）
 if ("serviceWorker" in navigator) {
   addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch((err) => console.warn("sw", err));

@@ -8,7 +8,7 @@
  *
  * URLに ?slug= が付くのは、いまビルドを持たないため（CLAUDE.md）。
  * 検索に載せる段（Phase 2）で、記事ごとの静的HTMLを吐く形に変える。
- * 設計は docs/platform-marketing.md。
+ * 設計は sekkei/platform-marketing.md。
  */
 import { renderMarkdown, parseFrontMatter, readingMinutes } from "./md.js";
 import * as supa from "./supa.js";

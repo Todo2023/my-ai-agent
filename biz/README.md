@@ -3,7 +3,7 @@
 マーケティング・事業づくりの記事を、Markdownで書いて置く場所。
 Zennのマーケ版として作るものの、いちばん最初の形（Phase 0）。
 
-設計の意図は [`../docs/platform-marketing.md`](../docs/platform-marketing.md) にある。
+設計の意図は [`../sekkei/platform-marketing.md`](../sekkei/platform-marketing.md) にある。
 
 | | |
 | --- | --- |
@@ -152,7 +152,7 @@ python3 -m http.server 8000
 
 ## いまできないこと
 
-Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
+Phase 0 なので、次はまだない。順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
 
 - いいね・コメント（Phase 1 の残り）。DBの表はもうあるが、画面がまだない
 - いいね・コメント・フォロー（Phase 1）
@@ -173,4 +173,4 @@ Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs
 
 **有料販売を始めるなら、その前に GitHub Pages から出る。**
 GitHub Pages はECに使えない決まりになっている。詳しくは
-[`../docs/README.md`](../docs/README.md#github-pages-に有料販売を載せてはいけない)。
+[`../sekkei/README.md`](../sekkei/README.md#github-pages-に有料販売を載せてはいけない)。

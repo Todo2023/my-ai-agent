@@ -5,7 +5,7 @@
  * まだどこにも送らない。書いたものは端末の中（localStorage）だけに残り、
  * 出来上がりは .md として持ち出す。
  *
- * ここを先に作った理由は docs/platform-marketing.md にある。
+ * ここを先に作った理由は sekkei/platform-marketing.md にある。
  * マーケターはGitHubを開かないので、Zennと同じGitHub連携を真似ると書き手が来ない。
  * 「見たまま書けて、裏はMarkdown」がこのサービスの入口になる。
  *

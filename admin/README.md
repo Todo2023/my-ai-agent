@@ -17,7 +17,7 @@
 （[`../supabase/community.sql`](../supabase/community.sql) の `guard_publish`）。
 
 つまり**この画面を通す以外に、絵本が世に出る道はない。**
-理由は [`../docs/platform-kids.md`](../docs/platform-kids.md) にある。
+理由は [`../sekkei/platform-kids.md`](../sekkei/platform-kids.md) にある。
 
 ## 使い方
 

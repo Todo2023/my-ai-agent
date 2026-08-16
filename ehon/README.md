@@ -2,7 +2,7 @@
 
 絵本を えらんで、そのまま読める棚。子ども向けプラットフォームの Phase 0。
 
-設計の意図は [`../docs/platform-kids.md`](../docs/platform-kids.md) にある。
+設計の意図は [`../sekkei/platform-kids.md`](../sekkei/platform-kids.md) にある。
 
 | | |
 | --- | --- |
@@ -169,7 +169,7 @@ python3 -m http.server 8000
 
 ## いまできないこと
 
-Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
+Phase 0 なので、次はまだない。順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
 
 - 審査の画面（Phase 1 の残り）。DBは人が通すまで公開しない作りになっているが、
   **通すための画面がまだない**
@@ -186,4 +186,4 @@ Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs
 - [ ] 「おうちの方へ」の説明を、実際の運用に合わせて直す
 
 **投稿を受け付ける前に、審査を誰がいつやるかを決める。**
-決まっていないと開けない。理由は [`../docs/platform-kids.md`](../docs/platform-kids.md) にある。
+決まっていないと開けない。理由は [`../sekkei/platform-kids.md`](../sekkei/platform-kids.md) にある。

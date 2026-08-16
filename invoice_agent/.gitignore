@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+invoice_*.pdf
+.env
+gate2_results.json
+gate2_run.log
+*.log
+checkpoints.sqlite
+invoice_counter.json
