@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<!--
+  ═══════════════════════════════════════════════════════════
+   マッチング管理画面（身内用）
+
+   やること
+     1. 登録された人を見る
+     2. その人に合う相手を探す（Claude API を呼ぶ。押したときだけ動く）
+     3. AIが作った理由とメッセージ案を、人が直して承認する
+     4. 承認したものだけを、メールで送る
+
+   ★ 承認していないものは、絶対に外に出ない作りにしてある。
+
+   外部ライブラリは読み込まない（このリポジトリの決まり）。
+   Supabase へは素の fetch で話す。
+  ═══════════════════════════════════════════════════════════
+-->
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>マッチング管理｜合同会社To do</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<link rel="stylesheet" href="../../style.css" />
+<link rel="stylesheet" href="../form.css" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body class="no-sticky">
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="../">合同会社To do<small>MATCHING ADMIN</small></a>
+    <span class="who" id="who"></span>
+    <button type="button" class="btn btn-ghost small" id="logout" hidden>ログアウト</button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- 未設定のとき -->
+    <section class="panel" id="setup" hidden>
+      <h2 class="sec-title">まだつないでいません</h2>
+      <p class="sec-lead">
+        <code>hp/match/config.js</code> に Supabase の URL と anon キーを入れてください。<br />
+        先に <code>supabase/schema.sql</code> を流しておく必要があります。手順は
+        <a href="../README.md">match/README.md</a> にあります。
+      </p>
+    </section>
+
+    <!-- ログイン -->
+    <section class="panel" id="login" hidden>
+      <h2 class="sec-title">ログイン</h2>
+      <p class="sec-lead">
+        <code>admins</code> テーブルに登録したメールアドレスにだけ、ログイン用のリンクが届きます。
+      </p>
+      <div class="field">
+        <label for="login-email">メールアドレス</label>
+        <input type="email" id="login-email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+      </div>
+      <button type="button" class="btn btn-primary" id="send-link">ログイン用リンクを送る</button>
+      <div class="note" id="login-note" hidden></div>
+    </section>
+
+    <!-- 本体 -->
+    <div id="app" hidden>
+
+      <section class="panel cost" id="cost-panel">
+        <h2 class="sec-title">今月のAPI実費</h2>
+        <p class="big-num" id="cost-num">—</p>
+        <p class="note" id="cost-detail">読み込み中…</p>
+        <p class="note">
+          ※ 概算です。正しい金額は Anthropic のコンソールで確認してください。
+          使いすぎを止めたいときは、コンソール側で月額上限を設定します。
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="sec-title">確認待ちのマッチ</h2>
+          <button type="button" class="btn btn-ghost small" id="reload">読み直す</button>
+        </div>
+        <p class="sec-lead">
+          AIが作った下書きです。<b>そのまま送らないこと。</b>
+          事実が合っているかを見て、文章を直してから承認してください。
+        </p>
+        <div id="matches"><p class="note">読み込み中…</p></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="sec-title">登録された人</h2>
+        <p class="sec-lead">
+          「相手を探す」を押すと Claude API を呼びます（費用が発生します）。
+          押す前に、何人と照合するかと概算費用が出ます。
+        </p>
+        <div id="profiles"><p class="note">読み込み中…</p></div>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="fname">合同会社To do</p>
+    <p class="copy">© 合同会社To do　｜　身内用の管理画面です。</p>
+  </div>
+</footer>
+
+<script src="../config.js"></script>
+<script src="admin.js"></script>
+
+</body>
+</html>

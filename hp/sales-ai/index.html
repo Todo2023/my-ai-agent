@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>営業支援AI（商談準備代行）｜合同会社To do</title>
+<meta name="description" content="商談前の企業リサーチと提案書ドラフトを、AIと人の二重チェックで代行します。月曜に商談予定をお送りいただければ、火曜には準備一式が揃います。月4件4万円から。まずは1件無料でお試しください。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- デモ版のため検索避け。公開時にこの行を消す -->
+
+<!-- OGP（公開時に URL と画像を差し替える） -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="合同会社To do" />
+<meta property="og:title" content="営業支援AI（商談準備代行）｜合同会社To do" />
+<meta property="og:description" content="商談前のリサーチと提案書ドラフトを、毎週まとめて代行します。月4件4万円から。まずは1件無料でお試しください。" />
+<meta property="og:locale" content="ja_JP" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>デモ版</b>：文言・料金・実績はすべて検討用のたたき台です。まだ公開していません。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="../">合同会社To do<small>SALES AI</small></a>
+    <nav>
+      <a href="#service">サービス</a>
+      <a href="#reason">選ばれる理由</a>
+      <a href="#price">料金</a>
+      <a href="#flow">ご依頼の流れ</a>
+      <a href="../#company">会社概要</a>
+    </nav>
+    <a class="btn btn-primary head-cta" href="#contact">1件、無料で試す</a>
+    <button class="menu-btn" id="menu-btn" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span></button>
+  </div>
+  <div class="wrap" id="drawer">
+    <a href="#service">サービス</a>
+    <a href="#reason">選ばれる理由</a>
+    <a href="#offer">無料お試し</a>
+    <a href="#price">料金</a>
+    <a href="#flow">ご依頼の流れ</a>
+    <a href="#faq">よくあるご質問</a>
+    <a href="../">会社トップへ</a>
+    <a class="btn btn-primary" href="#contact">1件、無料で試す</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ヒーロー -->
+  <div class="hero">
+    <div class="wrap">
+      <span class="tag">営業支援AI（商談準備代行）</span>
+      <h1>商談の前に調べる時間を、<br /><em>まるごと引き取ります</em>。</h1>
+      <p>
+        来週の商談、相手のことをどこまで調べられていますか。<br />
+        月曜に予定をお送りいただければ、火曜には企業リサーチと提案書のドラフトが揃っている。
+        そういう担当者を、月額でお貸しします。
+      </p>
+      <ul class="facts">
+        <li>月4件／4万円〜</li>
+        <li>初期費用なし</li>
+        <li>まず1件、無料でお試し</li>
+      </ul>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#contact">1件、無料で試してみる</a>
+        <a class="btn btn-line" href="#service">サービスを見る</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 課題 -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">SUCH A CASE</span>
+      <h2 class="sec-title">商談は増えた。<br />準備の時間だけが足りない。</h2>
+      <p class="sec-lead">新規事業や海外展開に動き出した会社ほど、この状態になります。</p>
+      <ul class="checks">
+        <li>アポは取れているのに、相手のことを調べきれないまま当日を迎えている</li>
+        <li>提案書が毎回ゼロからで、作るだけで半日つぶれる</li>
+        <li>ホームページを見て終わり。IRや業界の動きまでは追えていない</li>
+        <li>調べる力のある人を採りたいが、1人ぶんの人件費は出せない</li>
+        <li>準備の質が担当者によってばらつき、しかも属人化している</li>
+        <li>生成AIを試したが、出力をそのまま出せる品質にならなかった</li>
+      </ul>
+      <p class="after-checks">商談の勝敗は、当日ではなく<br />前の週に決まっています。</p>
+    </div>
+  </section>
+
+  <!-- サービス -->
+  <section class="tint" id="service">
+    <div class="wrap">
+      <span class="eyebrow">SERVICE</span>
+      <h2 class="sec-title">商談1件ごとに、<br />準備一式をお届けします。</h2>
+      <p class="sec-lead">企業名と商談の目的をいただければ、あとはこちらで揃えます。納品はGoogleドキュメント／PDF／お使いの資料形式のいずれかで。</p>
+
+      <div class="cards">
+        <div class="card">
+          <span class="no">SERVICE 01</span>
+          <h3>商談前<br />企業リサーチ</h3>
+          <p class="desc">
+            相手企業を、公開情報の範囲で調べ上げます。
+            単なる会社概要ではなく、「今この会社が何に困っていそうか」まで仮説にして書きます。
+          </p>
+          <ul class="items">
+            <li>事業内容・主力商品・顧客層の整理</li>
+            <li>直近の動き（プレスリリース・採用・出店・新拠点）</li>
+            <li>上場企業の場合は決算資料・中期計画から重点テーマを抽出</li>
+            <li>業界の流れと、競合他社の打ち手</li>
+            <li>商談相手の役職から見た関心事の推定</li>
+            <li>出典URLを全項目に付記（裏取りできる形で納品）</li>
+          </ul>
+          <p class="price">1件あたり／月額プランに含む</p>
+        </div>
+
+        <div class="card">
+          <span class="no">SERVICE 02</span>
+          <h3>提案書ドラフト＋<br />商談準備メモ</h3>
+          <p class="desc">
+            リサーチをもとに、そのまま持って行ける形まで落とします。
+            商談準備メモには、聞くべき質問と想定される反論への返し方まで入れます。
+          </p>
+          <ul class="items">
+            <li>課題仮説（3つ・根拠付き）</li>
+            <li>提案の骨子（現状／打ち手／効果の見立て）</li>
+            <li>御社の商材と相手の課題を結ぶ一文</li>
+            <li>商談で聞くべき質問リスト（5〜7問）</li>
+            <li>想定される反論と、返し方</li>
+            <li>次回アクションの置きどころ</li>
+          </ul>
+          <p class="price">1件あたり／月額プランに含む</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 選ばれる理由 -->
+  <section id="reason">
+    <div class="wrap">
+      <span class="eyebrow">REASON</span>
+      <h2 class="sec-title">生成AIを自分で使うのとは、<br />ここが違います。</h2>
+
+      <div class="reasons">
+        <div class="reason">
+          <span class="num">1</span>
+          <h3>営業を統括してきた人間が、出力を見てから納品する</h3>
+          <p>
+            代表はBtoBメーカーで営業統括・海外事業・新規事業を担当してきました。
+            AIが集めた材料を、実際に商談で使えるかという目で通してから出します。
+            「もっともらしいが、当日いらない情報」を落とすのがこの工程です。
+          </p>
+        </div>
+        <div class="reason">
+          <span class="num">2</span>
+          <h3>出典を付けて出す。事実確認をこちらで済ませる</h3>
+          <p>
+            調べた内容には必ず出典URLを付けます。数字や固有名詞は人の目で照合し、
+            確認が取れなかったものは「未確認」と明記します。
+            商談の場で外せない部分を、御社が疑わずに使える状態にしてお渡しします。
+          </p>
+        </div>
+        <div class="reason">
+          <span class="num">3</span>
+          <h3>1件ずつの発注ではなく、毎週決まった曜日に届く</h3>
+          <p>
+            月曜に翌週の商談予定をまとめてお送りいただき、火曜に納品する形が基本です。
+            都度お願いする手間がなく、社内に担当者が1人増えたのと同じ感覚で使えます。
+            件数の増減はプラン内で調整できます。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 無料お試し -->
+  <section class="offer" id="offer">
+    <div class="wrap">
+      <span class="eyebrow">FREE TRIAL</span>
+      <h2 class="sec-title">まず1件、<br />実際の商談で試してください。</h2>
+      <p class="sec-lead">
+        費用はかかりません。実際に控えている商談を1件、お預けいただくだけです。<br />
+        納品物を見てから、続けるかどうかをお決めください。
+      </p>
+
+      <ol class="steps">
+        <li>
+          <span class="n">1</span>
+          <span>
+            <span class="t">商談を1件お知らせいただく</span>
+            <span class="s">相手企業名・商談日・お会いする方の役職・商談の目的。下のフォームから2分で終わります。</span>
+          </span>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <span>
+            <span class="t">こちらでリサーチと下書きを作ります</span>
+            <span class="s">公開情報を調べ、課題仮説と提案の骨子まで組み立てます。</span>
+          </span>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <span>
+            <span class="t">3営業日以内に納品します</span>
+            <span class="s">企業リサーチ・提案書ドラフト・商談準備メモの3点をメールでお送りします。</span>
+          </span>
+        </li>
+        <li>
+          <span class="n">4</span>
+          <span>
+            <span class="t">商談で使ってから、判断してください</span>
+            <span class="s">受け取って終わり、でもかまいません。営業の電話はしません。</span>
+          </span>
+        </li>
+      </ol>
+      <p class="note">※ 無料でお試しいただけるのは1社につき1件までです。商談日まで5営業日以上ある案件でお願いします。</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#contact">1件、無料で試してみる</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 料金 -->
+  <section id="price">
+    <div class="wrap">
+      <span class="eyebrow">PRICE</span>
+      <h2 class="sec-title">料金</h2>
+      <p class="sec-lead">月に何件の商談を準備するかで選べます。件数が読めないうちは、ライトから始めて超過分を都度お支払いいただく形をおすすめしています。</p>
+
+      <div class="plans">
+        <div class="plan">
+          <h3>ライト</h3>
+          <p class="amount"><b>4</b>万円 / 月</p>
+          <ul class="inc">
+            <li>商談準備 月4件まで</li>
+            <li>企業リサーチ</li>
+            <li>提案書ドラフト</li>
+            <li>商談準備メモ</li>
+            <li>週1回の定期納品</li>
+          </ul>
+        </div>
+        <div class="plan pick">
+          <span class="badge">おすすめ</span>
+          <h3>スタンダード</h3>
+          <p class="amount"><b>8</b>万円 / 月</p>
+          <ul class="inc">
+            <li>商談準備 月8件まで</li>
+            <li>ライトの内容すべて</li>
+            <li>提案書の御社フォーマット対応</li>
+            <li>商談後の振り返りメモ</li>
+            <li>月1回のオンライン定例（30分）</li>
+          </ul>
+        </div>
+        <div class="plan">
+          <h3>超過・スポット</h3>
+          <p class="amount"><b>1</b>万円 〜 / 件</p>
+          <ul class="inc">
+            <li>プランの件数を超えたぶん</li>
+            <li>単発でのご依頼</li>
+            <li>急ぎ（翌営業日納品）は別途</li>
+          </ul>
+        </div>
+      </div>
+      <p class="price-note">
+        ※ 価格は税別です。初期費用・解約手数料はいただきません。<br />
+        ※ 料金にはAIの実行費用（従量課金分）を含みます。追加のご請求はありません。<br />
+        ※ 月額プランは3ヶ月からのご契約をお願いしています（進め方が噛み合うまでに時間がかかるため）。<br />
+        ※ <b>先着3社さまはモニター価格でご提供します</b>（6ヶ月間、上記の半額。導入後の感想を差し支えない範囲で伺わせてください）。<br />
+        ※ 商談相手の業界・規模により、1件あたりの調査量が変わります。大きく外れる場合は事前にご相談します。
+      </p>
+    </div>
+  </section>
+
+  <!-- 流れ -->
+  <section class="tint" id="flow">
+    <div class="wrap">
+      <span class="eyebrow">FLOW</span>
+      <h2 class="sec-title">ご依頼の流れ</h2>
+      <p class="sec-lead">お申し込みから、毎週の運用が回り始めるまで、およそ2週間です。</p>
+
+      <ol class="flow">
+        <li>
+          <span class="n">1</span>
+          <span>
+            <span class="when">当日〜3営業日</span>
+            <h3>無料お試し（1件）</h3>
+            <p>控えている商談を1件お預かりし、リサーチから提案書ドラフトまでお作りしてお送りします。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <span>
+            <span class="when">30分</span>
+            <h3>オンラインでお打ち合わせ</h3>
+            <p>納品物をご覧いただいたうえで、御社の商材・よくある商談相手・提案書の型をうかがいます。ここで出力の方向を合わせます。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <span>
+            <span class="when">3営業日</span>
+            <h3>ご提案・お見積り</h3>
+            <p>月の商談件数からプランをご提示します。秘密保持契約が必要な場合は、この段階で締結します。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">4</span>
+          <span>
+            <span class="when">毎週月曜</span>
+            <h3>翌週の商談予定をお送りいただく</h3>
+            <p>企業名・商談日・お会いする方・目的。メール1通、あるいは共有シートへの記入で完了します。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">5</span>
+          <span>
+            <span class="when">毎週火曜</span>
+            <h3>準備一式を納品</h3>
+            <p>企業リサーチ・提案書ドラフト・商談準備メモをまとめてお届けします。修正は1件につき2回まで無料です。</p>
+          </span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="sec-title">よくあるご質問</h2>
+
+      <div class="faq">
+        <details>
+          <summary>AIが書いたものが、そのまま届くのですか。</summary>
+          <div class="a">
+            いいえ。調査と下書きの生成にはAIを使いますが、納品前に必ず人が通します。
+            数字や固有名詞は出典に当たって確認し、確認できなかったものは「未確認」と明記します。
+            商談で使えないと判断した部分は、こちらで書き直してからお渡しします。
+          </div>
+        </details>
+        <details>
+          <summary>こちらから渡す情報は、どこまで必要ですか。</summary>
+          <div class="a">
+            最低限、相手企業名・商談日・お会いする方の役職・商談の目的の4つです。
+            御社の商材や過去の提案書をいただけると、提案の骨子が御社の型に寄ります。
+            初回のお打ち合わせでその型を共有いただければ、以降は毎週4項目だけで回ります。
+          </div>
+        </details>
+        <details>
+          <summary>お預けした情報の取り扱いはどうなりますか。</summary>
+          <div class="a">
+            商談準備以外の目的には使用しません。秘密保持契約の締結にも対応します。
+            なお、調査には外部のAIサービスを利用するため、ご提供いただいた情報の一部がその処理に渡ります。
+            渡す範囲は事前にご説明し、社外に出せない情報はお預かりしない形で進めます。
+          </div>
+        </details>
+        <details>
+          <summary>非上場の会社や、情報の少ない相手でも調べられますか。</summary>
+          <div class="a">
+            公開情報が少ない場合は、業界の構造・近隣の同業他社・採用情報・取引先の動きから仮説を組み立てます。
+            分かったことと推測を分けて書きますので、どこまでが事実かは読めば分かる状態でお渡しします。
+            調べようがない場合は、着手前にその旨をお伝えします。
+          </div>
+        </details>
+        <details>
+          <summary>件数が月によって増減します。大丈夫ですか。</summary>
+          <div class="a">
+            プランの件数を超えたぶんは1件1万円〜の都度課金で対応します。
+            逆に少なかった月の繰り越しは、翌月ぶんまで（最大4件）お受けしています。
+            数ヶ月動かして件数が固まってきたら、プランの見直しをご提案します。
+          </div>
+        </details>
+        <details>
+          <summary>途中でやめられますか。</summary>
+          <div class="a">
+            最低契約期間（3ヶ月）を過ぎたあとは、翌月末までにご連絡いただければ解約できます。
+            解約手数料はいただきません。納品した資料の権利は、納品時に御社へ移ります。
+          </div>
+        </details>
+        <details>
+          <summary>商談に同席してもらうことはできますか。</summary>
+          <div class="a">
+            このサービスは準備までが範囲です。
+            商談そのものの設計や営業体制の見直しについては、
+            <a href="../advisory/">事業アドバイザリー</a>で別途お受けしています。
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- お問い合わせ -->
+  <section class="tint" id="contact">
+    <div class="wrap">
+      <span class="eyebrow">CONTACT</span>
+      <h2 class="sec-title">無料お試し・<br />ご相談のお申し込み</h2>
+      <p class="sec-lead">
+        2分で送信できます。3営業日以内にご返信します。<br />
+        「まだ検討段階」「話を聞いてみたいだけ」でも構いません。
+      </p>
+
+      <form id="contact-form" data-about="営業支援AI（商談準備代行）" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-company">御社名<span class="req">必須</span></label>
+            <input type="text" id="f-company" name="company" autocomplete="organization" required />
+          </div>
+          <div class="field">
+            <label for="f-name">ご担当者名<span class="req">必須</span></label>
+            <input type="text" id="f-name" name="name" autocomplete="name" required />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-email">メールアドレス<span class="req">必須</span></label>
+            <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" required />
+          </div>
+          <div class="field">
+            <label for="f-url">サイトのURL</label>
+            <input type="url" id="f-url" name="url" inputmode="url" placeholder="https://" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-body">ご相談内容／お試ししたい商談</label>
+          <textarea id="f-body" name="body" placeholder="例）来月◯日に、製造業の役員と初回商談。自社の検査装置を提案したい。相手のことがほとんど調べられていない。"></textarea>
+        </div>
+        <p class="form-note">
+          お預かりした内容は、ご連絡とご提案のためだけに使用します。第三者へ提供することはありません。
+        </p>
+        <button type="submit" class="btn btn-primary">この内容で申し込む</button>
+        <div id="form-result" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="fname">合同会社To do</p>
+    <p>営業支援AI（商談準備代行）</p>
+    <nav class="fnav">
+      <a href="../">会社トップ</a>
+      <a href="#service">サービス</a>
+      <a href="#price">料金</a>
+      <a href="#flow">ご依頼の流れ</a>
+      <a href="#faq">よくあるご質問</a>
+      <a href="../#company">会社概要</a>
+      <a href="#contact">お問い合わせ</a>
+    </nav>
+    <p class="copy">© 合同会社To do　｜　このページはデモ版です。</p>
+  </div>
+</footer>
+
+<div class="sticky">
+  <a class="btn btn-primary" href="#contact">1件、無料で試してみる</a>
+</div>
+
+<script src="../app.js"></script>
+
+<!-- 構造化データ（公開時に url / 住所 / 連絡先を埋める） -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "営業支援AI（商談準備代行）",
+  "serviceType": "商談前の企業リサーチ・提案書ドラフト作成の代行",
+  "description": "商談前の企業リサーチと提案書ドラフト、商談準備メモの作成を、週次の定期納品で代行します。",
+  "areaServed": "JP",
+  "provider": { "@type": "Organization", "name": "合同会社To do" }
+}
+</script>
+
+</body>
+</html>

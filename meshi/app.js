@@ -11,7 +11,7 @@
  * 「新しく撮ったぶんだけ足す」が何度でも同じ手順でできる。
  */
 
-const VERSION = "2026-08-08g 読み取り直し版";   // 設定に出す。更新が届いているかを目で確かめるため
+const VERSION = "2026-08-09 各店から読み直し版";   // 設定に出す。更新が届いているかを目で確かめるため
 const THUMB_MAX = 640;   // 一覧用に縮める長辺(px)
 const DB = self.MeshiDB;
 
@@ -851,6 +851,67 @@ function bind() {
   $("detailDelete").addEventListener("click", () => deletePlace(state.openId));
   $("detailToggle").addEventListener("click", () => toggleStatus(state.openId, false));
   $("detailAddShot").addEventListener("click", () => el.pickerMore.click());
+
+  /**
+   * この1軒だけ、スクショから読み直す。
+   * 店名を手で打ち直したあと、残り（候補・エリアのタグ）だけを取り直したい場面のため。
+   * **手で入れた店名は上書きしない**。空のときだけ入れる。
+   */
+  $("detailReread").addEventListener("click", async () => {
+    const p = state.places.find((x) => x.id === state.openId);
+    if (!p) return;
+    const shots = shotsOf(p.id);
+    if (!shots.length) { toast("この店にはスクショがありません"); return; }
+
+    clearTimeout(saveTimer);
+    await saveDetail();          // 打ち直した内容を先に確定させる
+
+    const btn = $("detailReread");
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "⟳ 読み取り中…";
+    try {
+      const shot = shots[0];
+      const rec = shot.fullData
+        ? { data: shot.fullData, type: shot.type }
+        : await DB.get("blobs", shot.id);
+      if (!rec) { toast("元の画像が見つかりません"); return; }
+
+      const found = await MeshiOCR.read(new Blob([rec.data], { type: rec.type || shot.type || "image/jpeg" }));
+      if (!found) { toast("読み取れませんでした"); return; }
+
+      p.ocrCandidates = (found.candidates || []).slice(0, 6);
+      p.ocrDone = true;
+
+      const addedTags = [];
+      if (found.area && !(p.tags || []).includes(found.area)) {
+        p.tags = [...(p.tags || []), found.area].slice(0, 8);
+        addedTags.push(found.area);
+      }
+      // 名前が空のときだけ入れる。打ち直した名前を消してしまっては本末転倒
+      let filledName = false;
+      if (!p.name && found.name && found.strength >= OCR_SURE) {
+        p.name = found.name;
+        p.nameFromShot = true;
+        filledName = true;
+      }
+
+      await DB.put("places", p);
+      fillDetail(p);
+      render();
+
+      const parts = [];
+      if (filledName) parts.push("店名を入れました");
+      if (addedTags.length) parts.push(`タグに「${addedTags.join(" ")}」を足しました`);
+      parts.push(`候補${p.ocrCandidates.length}件`);
+      toast(parts.join(" ・ "));
+    } catch (_) {
+      toast("読み取りが使えませんでした");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
 
   for (const id of ["fName", "fTags", "fMemo", "fUrl", "fVisited"]) {
     $(id).addEventListener("input", queueSave);
