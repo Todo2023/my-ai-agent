@@ -1,0 +1,84 @@
+<!-- アイコンの元絵。_build_icons.js が Chromium で開いて PNG に書き出す -->
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const ctx = document.getElementById("c").getContext("2d");
+
+// maskable は端が丸く切られるので、絵を内側に寄せる
+window.render = (maskable) => {
+  const S = 512;
+  ctx.clearRect(0, 0, S, S);
+
+  // 夜あけの空。えほんの中の色と揃えてある
+  const bg = ctx.createLinearGradient(0, 0, 0, S);
+  bg.addColorStop(0, "#fffaf2");
+  bg.addColorStop(1, "#f2ddc2");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, S, S);
+
+  ctx.save();
+  const k = maskable ? 0.78 : 1;
+  ctx.translate(S / 2, S / 2);
+  ctx.scale(k, k);
+  ctx.translate(-S / 2, -S / 2);
+
+  // 月
+  ctx.fillStyle = "#f6c377";
+  ctx.beginPath();
+  ctx.arc(S / 2, 168, 62, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ひらいた本。左右のページを、少し反らせて描く
+  const cx = S / 2, top = 250, bottom = 402, half = 158;
+
+  const page = (dir) => {
+    ctx.beginPath();
+    ctx.moveTo(cx, top);
+    ctx.quadraticCurveTo(cx + dir * half * 0.55, top - 26, cx + dir * half, top + 6);
+    ctx.lineTo(cx + dir * half, bottom - 18);
+    ctx.quadraticCurveTo(cx + dir * half * 0.55, bottom - 46, cx, bottom);
+    ctx.closePath();
+  };
+
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#c25b3a";
+  ctx.lineWidth = 16;
+  ctx.lineJoin = "round";
+
+  for (const dir of [-1, 1]) { page(dir); ctx.fill(); ctx.stroke(); }
+
+  // 真ん中の綴じ
+  ctx.strokeStyle = "#c25b3a";
+  ctx.lineWidth = 16;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(cx, top);
+  ctx.lineTo(cx, bottom);
+  ctx.stroke();
+
+  // 文字に見立てた線
+  ctx.strokeStyle = "rgba(194,91,58,0.42)";
+  ctx.lineWidth = 11;
+  for (const dir of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const y = 298 + i * 34;
+      ctx.beginPath();
+      ctx.moveTo(cx + dir * 34, y);
+      ctx.lineTo(cx + dir * (i === 2 ? 92 : 124), y + dir * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+};
+
+window.toPNG = (size) => {
+  const out = document.createElement("canvas");
+  out.width = out.height = size;
+  const o = out.getContext("2d");
+  o.imageSmoothingQuality = "high";
+  o.drawImage(document.getElementById("c"), 0, 0, size, size);
+  return out.toDataURL("image/png");
+};
+
+window.render(false);
+</script>
