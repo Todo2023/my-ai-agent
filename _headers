@@ -1,0 +1,28 @@
+# Cloudflare Pages に置いたときだけ効く設定。
+# GitHub Pages はこのファイルを読まない（ただのファイルとして無視される）ので、
+# 両方に置いたままで問題ない。
+#
+# 書き方： パスのパターンを書き、次の行から2スペース下げてヘッダを並べる。
+
+# ── サイト全体 ──
+# 既存のアプリ（meshi / kakei など）を壊さない範囲だけにしてある
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), interest-cohort=()
+
+# ── コミュニティの3つだけ、読み込み先を絞る ──
+# 投稿を受け付ける場所なので、万一おかしなものが混ざっても
+# 外に送れない・外から持ってこられないようにしておく。
+#
+# connect-src に Supabase を明示している。ここを増やすときは、
+# なぜ増やすのかを必ず考えること（増やすほど守りが薄くなる）。
+/biz/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://wmjzbdacvjrepxdqzwen.supabase.co; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+
+/ehon/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://wmjzbdacvjrepxdqzwen.supabase.co; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+
+/admin/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://wmjzbdacvjrepxdqzwen.supabase.co; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
