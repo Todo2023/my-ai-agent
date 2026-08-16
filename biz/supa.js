@@ -53,6 +53,22 @@ export function signOut() {
 
 export const signedIn = () => Boolean(session?.access_token);
 
+/**
+ * ログイン中の人のID（auth.users.id）。
+ * works.author_id に入れる。RLS が author_id = auth.uid() を求めるので、
+ * ここが抜けていると「弾かれた」ように見えて原因が分かりにくい
+ */
+export function userId() {
+  const token = session?.access_token;
+  if (!token) return null;
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(part.padEnd(part.length + ((4 - part.length % 4) % 4), "="))).sub || null;
+  } catch {
+    return null;
+  }
+}
+
 /** ログインのリンクを送る。届いたリンクを開くと、この画面に戻ってくる */
 export async function sendLoginLink(email) {
   if (!isConfigured()) throw new Error("まだつないでいません");
@@ -87,14 +103,19 @@ async function refresh() {
 async function api(path, opts = {}, retried = false) {
   if (!isConfigured()) throw new Error("まだつないでいません");
 
+  // ログインしていないときは Authorization を付けない。
+  // 新しい形式のキー（sb_publishable_...）は JWT ではないので、
+  // Bearer に載せると弾かれることがある。役割は apikey だけで決まる
+  const headers = {
+    apikey: ANON,
+    "Content-Type": "application/json",
+    ...(opts.headers || {}),
+  };
+  if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+
   const res = await fetch(URL_BASE + path, {
     method: opts.method || "GET",
-    headers: {
-      apikey: ANON,
-      Authorization: `Bearer ${session?.access_token || ANON}`,
-      "Content-Type": "application/json",
-      ...(opts.headers || {}),
-    },
+    headers,
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
 
@@ -119,8 +140,12 @@ async function api(path, opts = {}, retried = false) {
  * status は 'review' で固定。published はDB側のトリガが止める（supabase/community.sql）
  */
 export async function submitArticle(draft, topics) {
+  const author = userId();
+  if (!author) throw new Error("ログインし直してください");
+
   const row = {
     site: "biz",
+    author_id: author,
     kind: "article",
     slug: draft.slug,
     title: draft.title,
