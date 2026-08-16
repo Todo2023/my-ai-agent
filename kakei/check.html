@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#0c1416" />
 <meta name="color-scheme" content="dark" />
 <link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
 <style>
   :root { --text: #e6f2ee; --dim: #8ba8a2; --mint: #4fd6a9; --ok: #4fd6a9; --ng: #f0748a; --warn: #f0c463; }
   * { box-sizing: border-box; }
@@ -92,6 +93,46 @@ try {
   store.textContent = "使えない：" + e + "（プライベートブラウズや、サイトデータのブロックが原因のことが多いです）";
   store.className = "v ng";
 }
+
+/*
+ * 「直したはずのものが画面に出ない」がいちばん分かりにくいので、
+ * 配信されている版と、この端末が使っている版を並べて出す。
+ * 食い違っていたら、下の「キャッシュを消して読み直す」を押せばいい。
+ */
+const verRow = row("アプリの版", "確認中…");
+const sealRow = row("家計の封", "確認中…");
+const pickVersion = (text) => (text.match(/const VERSION = "([^"]+)"/) || [])[1] || "（不明）";
+
+(async () => {
+  try {
+    const live = pickVersion(await fetch("./app.js", { cache: "no-store" }).then((r) => r.text()));
+    let mine = live;
+    if (self.caches) {
+      const hit = await caches.match(new Request("./app.js"), { ignoreSearch: true });
+      if (hit) mine = pickVersion(await hit.text());
+    }
+    const same = live === mine;
+    verRow.textContent = same ? `${mine}（最新）` : `この端末 ${mine} ／ 配信 ${live} — 下のボタンで最新にできます`;
+    verRow.className = same ? "v ok" : "v warn";
+  } catch (e) {
+    verRow.textContent = "確かめられない：" + e;
+    verRow.className = "v warn";
+  }
+
+  try {
+    const box = await fetch("./preset.enc.json", { cache: "no-store" }).then((r) => r.json());
+    const stamp = (box.stamp || "").slice(0, 10).replace(/-/g, "/");
+    let saved = "";
+    try { saved = (JSON.parse(localStorage.getItem("kakei-data") || "{}").stamp || "").slice(0, 10).replace(/-/g, "/"); } catch (_) { /* 無ければ空 */ }
+    sealRow.textContent = saved === stamp
+      ? `${stamp} の封を読み込みずみ`
+      : `配信 ${stamp}${saved ? ` ／ この端末 ${saved}` : " ／ この端末はまだ読み込んでいません"} — アプリの帯か、設定の「合い言葉を入れて読み込み直す」から`;
+    sealRow.className = saved === stamp ? "v ok" : "v warn";
+  } catch (e) {
+    sealRow.textContent = "確かめられない：" + e;
+    sealRow.className = "v warn";
+  }
+})();
 
 // manifest が読めているか
 const man = row("manifest", "確認中…");

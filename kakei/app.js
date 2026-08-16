@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-16 配信のお知らせ";
+const VERSION = "2026-08-16b 封は網から取る";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 

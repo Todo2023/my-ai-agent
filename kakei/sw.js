@@ -8,7 +8,7 @@
  * ファイルを更新したら CACHE の版数を上げること。上げないと古いまま開かれる。
  */
 
-const CACHE = "kakei-mirai-v8";
+const CACHE = "kakei-mirai-v9";
 const ASSETS = [
   "./",
   "./index.html",
@@ -48,6 +48,27 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+
+  /*
+   * 封（家計の中身）だけは、まず網に取りに行く。
+   *
+   * ほかのファイルと同じくキャッシュを先に返してしまうと、こちらで中身を
+   * 入れ替えても端末が古い封を握ったままになり、「読み込み直す」を押しても
+   * 古い家計が返ってくる。実際にそれで、足した口座が届かなかった。
+   * 圏外のときだけキャッシュに落ちる。
+   */
+  if (new URL(req.url).pathname.endsWith("/preset.enc.json")) {
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const fresh = await fetch(req, { cache: "no-store" });
+        if (fresh && fresh.ok) { cache.put(req, fresh.clone()); return fresh; }
+      } catch (_) { /* 圏外。下でキャッシュを返す */ }
+      return (await cache.match(req, { ignoreSearch: true }))
+        || new Response("offline", { status: 503, statusText: "offline" });
+    })());
+    return;
+  }
 
   // まずキャッシュを返して起動を速くし、裏で新しい版を取り込む
   e.respondWith(caches.open(CACHE).then(async (cache) => {
