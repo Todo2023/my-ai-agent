@@ -18,6 +18,6 @@
 */
 
 window.TODO_EHON_CONFIG = {
-  SUPABASE_URL: "",       // 例）https://xxxxxxxx.supabase.co
-  SUPABASE_ANON_KEY: ""   // 例）eyJhbGciOi...
+  SUPABASE_URL: "https://wmjzbdacvjrepxdqzwen.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtanpiZGFjdmpyZXB4ZHF6d2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDU5NTIsImV4cCI6MjEwMjQyMTk1Mn0.oxBuZMXzc8QrrqeD6i2i1ZkrYRUisDNIhHjtw0R0ei4"
 };

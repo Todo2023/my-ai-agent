@@ -64,8 +64,8 @@ published: true
 
 ## つなぐ手順（Phase 1）
 
-**まだつないでいない。** `config.js` が空なので、書く画面は端末の中だけで動く。
-つなぐと「審査に出す」が使えるようになる。**費用はゼロのまま**（Supabase 無料プラン・カード登録不要）。
+**つないである**（2026-08-16）。`config.js` に Supabase の URL と anon キーが入っている。
+書く画面から「審査に出す」が使える。**費用はゼロのまま**（Supabase 無料プラン・カード登録不要）。
 
 ### 1. Supabase
 
@@ -133,7 +133,7 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | `index.html` / `app.js` | 一覧。しぼりこみと検索 |
 | `article.html` / `article.js` | 記事ページ |
 | `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
-| `config.js` | **接続先の設定。いまは空**。ここを埋めるとつながる |
+| `config.js` | 接続先の設定。**anonキーが入っている**（公開前提のキー。RLSで守る） |
 | `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
 | `md.js` | Markdown→HTML。外部ライブラリを入れない決まりなので自前 |
 | `style.css` | 3つの画面で共通 |

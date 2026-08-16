@@ -12,7 +12,7 @@
  * ファイルを更新したら CACHE の版数を上げること。
  */
 
-const CACHE = "ehon-v2";
+const CACHE = "ehon-v3";
 
 // 画面のもと。これだけは先に入れておく
 const SHELL = [
