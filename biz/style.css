@@ -3,7 +3,7 @@
 /*
   マーケ・ビジネス版コミュニティ（仮）
 
-  一覧（index.html）と記事（article.html）が共有している。
+  一覧（index.html）・記事（article.html）・書く画面（write.html）が共有している。
   設計の意図は docs/platform-marketing.md にある。
 
   会社サイト（hp/style.css）とは別のものなので、色も分けてある。
@@ -179,3 +179,90 @@ header{position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--b
 
 footer{border-top:1px solid var(--line); padding:26px 0 40px; font-size:12px; color:var(--dim);}
 footer p{margin:4px 0;}
+
+/* ── 書く画面（write.html） ────────────────────────── */
+
+.editor{padding:20px 0 64px;}
+
+.drafts{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding-bottom:14px;}
+.drafts label{font-size:12px; color:var(--dim);}
+.drafts select{
+  flex:1 1 180px; min-width:0; max-width:340px; padding:8px 10px; font-size:13.5px;
+  color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:9px;
+}
+.saved{font-size:11.5px; color:var(--dim); margin-left:auto;}
+.saved.warn{color:var(--pr); font-weight:700;}
+
+.btn{
+  padding:7px 12px; font-size:13px; border-radius:9px; cursor:pointer;
+  background:var(--tint); border:1px solid var(--line); color:var(--ink);
+}
+.btn:hover{border-color:var(--accent);}
+.btn:disabled{opacity:.4; cursor:default; border-color:var(--line);}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
+.btn.primary:disabled{background:var(--tint); color:var(--dim);}
+.btn.danger:hover{border-color:var(--pr); color:var(--pr);}
+
+.meta-box{border:1px solid var(--line); border-radius:var(--radius); background:var(--tint);}
+.meta-box summary{padding:11px 16px; font-size:13.5px; font-weight:700; cursor:pointer;}
+.fields{display:grid; gap:12px; padding:4px 16px 18px;}
+@media (min-width:720px){ .fields{grid-template-columns:1fr 1fr;} .f.wide{grid-column:1 / -1;} }
+
+.f{display:flex; flex-direction:column; gap:4px;}
+.f label{font-size:12px; color:var(--dim); display:flex; align-items:center; gap:6px;}
+.f label b{
+  font-size:9.5px; letter-spacing:.08em; color:#fff; background:var(--accent);
+  border-radius:4px; padding:1px 5px; font-weight:700;
+}
+.f input[type="text"],.f input[type="date"]{
+  padding:9px 11px; font-size:14px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:9px;
+}
+.f input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.f .hint{font-size:11.5px; color:var(--dim); line-height:1.7;}
+.f.check label{font-size:14px; color:var(--ink);}
+.f.check input{width:18px; height:18px; accent-color:var(--accent);}
+
+.problems{
+  margin:14px 0 0; padding:11px 14px; font-size:13px; font-weight:700;
+  color:var(--pr); border:1px solid currentColor; border-radius:10px;
+  background:color-mix(in srgb, var(--pr) 8%, transparent);
+}
+
+.tabs{display:flex; gap:6px; padding:16px 0 10px;}
+.tab{
+  padding:7px 16px; font-size:13.5px; border-radius:999px;
+  background:var(--tint); border:1px solid var(--line); color:var(--dim);
+}
+.tab[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff;}
+@media (min-width:960px){ .tabs{display:none;} }
+
+.panes{display:block;}
+.pane-preview{display:none;}
+.panes.show-preview .pane-write{display:none;}
+.panes.show-preview .pane-preview{display:block;}
+@media (min-width:960px){
+  .panes{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
+  .panes.show-preview .pane-write{display:block;}
+  .pane-preview{display:block;}
+}
+
+.toolbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding-bottom:8px;}
+.toolbar .count{margin-left:auto; font-size:11.5px; color:var(--dim);}
+
+#src{
+  width:100%; min-height:52vh; padding:14px 16px; resize:vertical;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Hiragino Sans",monospace;
+  font-size:14px; line-height:1.95; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:var(--radius);
+}
+#src:focus{outline:2px solid var(--accent); outline-offset:1px;}
+
+.pane-preview .body{
+  margin-top:0; min-height:52vh; padding:14px 18px;
+  border:1px dashed var(--line); border-radius:var(--radius); background:var(--tint);
+}
+.pane-preview .body > :first-child{margin-top:0;}
+
+.actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding-top:18px;}
+.actions .hint{font-size:11.5px; color:var(--dim); line-height:1.8; flex:1 1 260px;}

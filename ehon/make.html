@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>えほんを つくる | えほんの棚（仮）</title>
+<meta name="theme-color" content="#c25b3a" />
+<meta name="color-scheme" content="light" />
+<meta name="robots" content="noindex" /><!-- 制作画面。公開後もこの行は外さない -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c25b3a'/%3E%3Cpath d='M6 8h9v17H6zM17 8h9v17h-9z' fill='%23fffaf2'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>投稿はまだ受け付けていません。</b>ここで作ったものは<b>この端末の中だけ</b>に残ります。どこにも送られません。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="./">えほんの棚</a>
+    <nav>
+      <a href="./">たな</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap maker">
+
+  <div class="drafts">
+    <label for="draft-pick">つくりかけ</label>
+    <select id="draft-pick"></select>
+    <button class="btn" id="new" type="button">あたらしく つくる</button>
+    <button class="btn danger" id="delete" type="button">これを 消す</button>
+    <span class="saved" id="saved"></span>
+  </div>
+
+  <details class="meta-box" open>
+    <summary>えほんの情報</summary>
+    <div class="fields">
+      <p class="f wide">
+        <label for="f-title">だいめい<b>必須</b></label>
+        <input id="f-title" type="text" maxlength="80" placeholder="つきのパンやさん" />
+      </p>
+      <p class="f">
+        <label for="f-slug">フォルダ名<b>必須</b></label>
+        <input id="f-slug" type="text" maxlength="80" placeholder="tsuki-no-pan" spellcheck="false" />
+        <span class="hint">半角の英数字と <code>-</code> だけ</span>
+      </p>
+      <p class="f">
+        <label for="f-author">つくった人</label>
+        <input id="f-author" type="text" maxlength="40" />
+      </p>
+      <p class="f">
+        <label for="f-agemin">対象年齢（から）</label>
+        <input id="f-agemin" type="number" min="0" max="18" />
+      </p>
+      <p class="f">
+        <label for="f-agemax">対象年齢（まで）</label>
+        <input id="f-agemax" type="number" min="0" max="18" />
+      </p>
+      <p class="f wide">
+        <label for="f-minutes">よみきかせの目安（ふん）</label>
+        <input id="f-minutes" type="number" min="1" max="60" />
+        <span class="hint">親が選ぶときに<b>最初に見るところ</b>。実際に声に出して測る</span>
+      </p>
+      <p class="f wide">
+        <label for="f-summary">どんなおはなし</label>
+        <input id="f-summary" type="text" maxlength="120" placeholder="よるだけあいている、ちいさなパンやさんのおはなし。" />
+      </p>
+    </div>
+  </details>
+
+  <p class="problems" id="problems" hidden></p>
+
+  <h2 class="sec">ページ</h2>
+  <ol class="pages" id="pages"></ol>
+  <button class="btn" id="add-page" type="button">＋ ページを ふやす</button>
+
+  <div class="actions">
+    <button class="btn primary" id="download" type="button">book.json をダウンロード</button>
+    <span class="hint">
+      <code>ehon/books/（フォルダ名）/</code> を作って、<code>book.json</code> と絵を入れ、
+      <code>node ehon/tools/build-index.mjs</code> を走らせると棚に並びます。
+    </span>
+  </div>
+
+  <div class="note">
+    <b>絵について。</b>
+    縦横の比は <b>16:10</b> にそろえ、1枚150KB以内（長辺1600px・WebPかSVG）にします。
+    ここで選んだ絵は<b>見た目の確認に使うだけ</b>で、どこにも送られません。
+    <code>book.json</code> にはファイル名だけが入るので、絵は自分でフォルダに置いてください。
+  </div>
+
+</main>
+
+<script type="module" src="make.js"></script>
+</body>
+</html>

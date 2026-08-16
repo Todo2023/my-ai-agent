@@ -24,8 +24,18 @@
 
 ## 絵本の作り方
 
-`books/（フォルダ名）/` を作って `book.json` と絵を置き、
-`node tools/build-index.mjs` を走らせる。
+作る場所は2つある。どちらでも同じ `book.json` になる。
+
+| | |
+| --- | --- |
+| **[つくる画面](https://todo2023.github.io/my-ai-agent/ehon/make.html)**（`make.html`） | ページを足しながら作る。ふりがなの見た目と読み上げをその場で確かめられる |
+| エディタで直接 | `book.json` を手で書く |
+
+**つくる画面はまだどこにも送らない。** 端末の中（localStorage）だけに残り、
+`book.json` を落として使う。絵はファイル名だけを持つので、
+**絵そのものは自分で `books/（フォルダ名）/` に置く。**
+
+`node tools/build-index.mjs` を走らせると棚に並ぶ。
 
 ```json
 {
@@ -78,8 +88,9 @@
 | --- | --- |
 | `index.html` / `app.js` | 棚。対象年齢でしぼりこむ |
 | `read.html` / `reader.js` | ビューア。めくる・ふりがな・読み上げ |
+| `make.html` / `make.js` | つくる画面。作りかけは端末の中だけ |
 | `ruby.js` | ふりがなの記法を読む |
-| `style.css` | 棚とビューアで共通 |
+| `style.css` | 3つの画面で共通 |
 | `books/*/` | 絵本1冊ぶん（`book.json` と絵） |
 | `books.json` | 棚用のまとめ。**手で書かない。生成物** |
 | `tools/build-index.mjs` | `books.json` を作る。絵の重さも出す |
@@ -109,7 +120,8 @@ python3 -m http.server 8000
 
 Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
 
-- 投稿（Phase 1）。**公開の前に人が全ページを見る仕組みとセットで作る**
+- 投稿の送信（Phase 1）。**つくる画面はもうある**が、送り先がまだない。
+  **公開の前に人が全ページを見る仕組みとセットで作る**
 - 保護者アカウント・応援の記録（Phase 1）
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 有料販売・応援（Phase 3。**購入は保護者アカウントのみ**）
@@ -117,6 +129,7 @@ Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs
 ## 公開前にやること
 
 - [ ] `index.html` と `read.html` の `<meta name="robots" content="noindex">` を外す
+      （`make.html` の `noindex` は**外さない**）
 - [ ] `index.html` の `<div class="demo-bar">`（試作中の帯）を消す
 - [ ] サンプルの絵本を、本物と入れ替えるか消す
 - [ ] 「おうちの方へ」の説明を、実際の運用に合わせて直す

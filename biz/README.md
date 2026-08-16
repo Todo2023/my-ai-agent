@@ -15,7 +15,27 @@ Zennのマーケ版として作るものの、いちばん最初の形（Phase 0
 
 ## 記事の書き方
 
-`articles/` に `.md` を置いて、`node tools/build-index.mjs` を走らせる。それだけ。
+書く場所は2つある。どちらでも同じ `.md` になる。
+
+| | |
+| --- | --- |
+| **[書く画面](https://todo2023.github.io/my-ai-agent/biz/write.html)**（`write.html`） | 見たまま書けて、下書きは端末に残る。書き上がったら `.md` を落とす |
+| エディタで直接 | `articles/` に `.md` を置く |
+
+どちらの場合も、最後に `node tools/build-index.mjs` を走らせると一覧に出る。
+
+### 書く画面について
+
+**まだどこにも送らない。** 書いたものは端末の中（localStorage）だけに残る。
+Phase 1 でつないだあとは、この画面の「ダウンロード」が「保存」に変わるだけで、
+書き味の部分はそのまま使う。
+
+- 下書きを何本でも持てる。打つたびに自動で保存される
+- 必須の項目が埋まるまで、ダウンロードのボタンは押せない
+- トピックは、すでに使われているものを候補に出す（表記ゆれを防ぐため）
+- **PR（広告・案件記事）のチェックはここで付ける**
+
+### `.md` を直接書く場合
 
 ```markdown
 ---
@@ -65,8 +85,9 @@ published: true
 | --- | --- |
 | `index.html` / `app.js` | 一覧。しぼりこみと検索 |
 | `article.html` / `article.js` | 記事ページ |
+| `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
 | `md.js` | Markdown→HTML。外部ライブラリを入れない決まりなので自前 |
-| `style.css` | 一覧と記事で共通 |
+| `style.css` | 3つの画面で共通 |
 | `articles/*.md` | 記事の本文 |
 | `articles.json` | 一覧用のまとめ。**手で書かない。生成物** |
 | `tools/build-index.mjs` | `articles.json` を作る。手元で走らせる |
@@ -84,7 +105,7 @@ python3 -m http.server 8000
 
 Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
 
-- 投稿フォーム・ログイン（Phase 1）
+- 投稿の送信・ログイン（Phase 1）。**書く画面はもうある**が、送り先がまだない
 - いいね・コメント・フォロー（Phase 1）
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 投げ銭・有料販売（Phase 3）
@@ -96,6 +117,7 @@ Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs
 ## 公開前にやること
 
 - [ ] `index.html` と `article.html` の `<meta name="robots" content="noindex">` を外す
+      （`write.html` の `noindex` は**外さない**）
 - [ ] 両ページの `<div class="demo-bar">`（試作中の帯）を消す
 - [ ] 記事ごとの静的HTMLに切り替える（`?slug=` をやめる）
 - [ ] サンプル記事（`編集部` 名義の3本）を、本物と入れ替えるか消す
