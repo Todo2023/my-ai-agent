@@ -19,24 +19,27 @@
  *
  * **コマンドは1つのまま。** 2つに分けると片方を忘れて、
  * 一覧には出るのに記事が開けない、という壊れ方をする。
+ *
+ * 作るところ（collect）と書くところを分けてあるのは、
+ * check.mjs が「置いてあるものが最新か」を、書かずに確かめられるようにするため。
  */
 import { readdir, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseFrontMatter, excerpt, readingMinutes } from "../md.js";
 import { renderArticlePage } from "./render-page.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, "..");
+export const root = join(here, "..");
 const dir = join(root, "articles");
-const pagesDir = join(root, "a");
+export const pagesDir = join(root, "a");
 
 /** DB側（supabase/community.sql）の slug の決まりと同じにしておく。
  *  ここを緩めるとファイル名やURLに変なものが混ざる */
-const SLUG = /^[a-z0-9][a-z0-9-]{0,79}$/;
+export const SLUG = /^[a-z0-9][a-z0-9-]{0,79}$/;
 
 /** `…/biz/a/` を直に開かれたときに一覧へ送る。ここに置くものは記事ではない */
-const REDIRECT = `<!doctype html>
+export const REDIRECT = `<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
@@ -51,82 +54,101 @@ const REDIRECT = `<!doctype html>
 </html>
 `;
 
-const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
-const articles = [];
-const pages = [];
-const skipped = [];
+/**
+ * articles/*.md から、置くべきものを組み立てる。**何も書かない。**
+ * @returns {{indexJson:string, pages:Array<{slug:string,html:string}>,
+ *            drafts:string[], errors:string[]}}
+ */
+export async function collect() {
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
+  const articles = [];
+  const pages = [];
+  const drafts = [];
+  const errors = [];
 
-for (const file of files) {
-  const slug = file.replace(/\.md$/, "");
-  const { meta, body } = parseFrontMatter(await readFile(join(dir, file), "utf8"));
+  for (const file of files) {
+    const slug = file.replace(/\.md$/, "");
+    const { meta, body } = parseFrontMatter(await readFile(join(dir, file), "utf8"));
 
-  if (!SLUG.test(slug)) {
-    console.error(`× ${file}: ファイル名に使えない文字がある（英小文字・数字・ハイフンだけ）`);
-    process.exitCode = 1;
-    continue;
+    if (!SLUG.test(slug)) {
+      errors.push(`${file}: ファイル名に使えない文字がある（英小文字・数字・ハイフンだけ）`);
+      continue;
+    }
+
+    // published: false は下書き。一覧にも出さないし、ページも作らない
+    if (meta.published === false) { drafts.push(slug); continue; }
+
+    const missing = ["title", "published_at"].filter((k) => !meta[k]);
+    if (missing.length) {
+      errors.push(`${file}: ${missing.join(" と ")} がない`);
+      continue;
+    }
+
+    articles.push({
+      slug,
+      title: meta.title,
+      emoji: meta.emoji || "📝",
+      topics: Array.isArray(meta.topics) ? meta.topics : (meta.topics ? [meta.topics] : []),
+      author: meta.author || "",
+      handle: meta.handle || "",
+      published_at: meta.published_at,
+      is_pr: meta.is_pr === true,
+      excerpt: excerpt(body),
+      minutes: readingMinutes(body),
+    });
+
+    pages.push({ slug, html: renderArticlePage({ slug, meta, body }) });
   }
 
-  // published: false は下書き。一覧にも出さないし、ページも作らない
-  if (meta.published === false) { skipped.push(slug); continue; }
+  // 新しいものが上
+  articles.sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)));
+  const topics = [...new Set(articles.flatMap((a) => a.topics))].sort();
 
-  const missing = ["title", "published_at"].filter((k) => !meta[k]);
-  if (missing.length) {
-    console.error(`× ${file}: ${missing.join(" と ")} がない`);
-    process.exitCode = 1;
-    continue;
+  return {
+    indexJson: `${JSON.stringify({ topics, articles }, null, 2)}\n`,
+    pages,
+    drafts,
+    errors,
+  };
+}
+
+/** 生成物を置く。消えた記事のページも片づける */
+async function writeAll() {
+  const { indexJson, pages, drafts, errors } = await collect();
+
+  for (const e of errors) console.error(`× ${e}`);
+  if (errors.length) process.exitCode = 1;
+
+  await writeFile(join(root, "articles.json"), indexJson, "utf8");
+
+  await mkdir(pagesDir, { recursive: true });
+  for (const page of pages) {
+    await mkdir(join(pagesDir, page.slug), { recursive: true });
+    await writeFile(join(pagesDir, page.slug, "index.html"), page.html, "utf8");
   }
 
-  articles.push({
-    slug,
-    title: meta.title,
-    emoji: meta.emoji || "📝",
-    topics: Array.isArray(meta.topics) ? meta.topics : (meta.topics ? [meta.topics] : []),
-    author: meta.author || "",
-    handle: meta.handle || "",
-    published_at: meta.published_at,
-    is_pr: meta.is_pr === true,
-    excerpt: excerpt(body),
-    minutes: readingMinutes(body),
-  });
+  // 下書きに戻した記事・消した記事のページが残らないようにする。
+  // 消し忘れると、一覧に出ないURLだけが生き続けて検索に拾われる
+  const keep = new Set(pages.map((p) => p.slug));
+  const removed = [];
+  for (const name of await readdir(pagesDir)) {
+    if (name === "index.html" || keep.has(name)) continue;
+    if (!SLUG.test(name)) continue;          // 見知らぬものは触らない
+    await rm(join(pagesDir, name), { recursive: true, force: true });
+    removed.push(name);
+  }
 
-  pages.push({ slug, html: renderArticlePage({ slug, meta, body }) });
+  // `…/biz/a/` をそのまま開かれたときの行き先。無いと 404 になる
+  await writeFile(join(pagesDir, "index.html"), REDIRECT, "utf8");
+
+  console.log(`○ articles.json（公開 ${pages.length}本 / 下書き ${drafts.length}本）`);
+  console.log(`○ a/<slug>/index.html を ${pages.length}本ぶん`);
+  if (drafts.length) console.log(`  下書き: ${drafts.join(", ")}`);
+  if (removed.length) console.log(`  消したページ: ${removed.join(", ")}`);
+  console.log("\n生成物もコミットする（配信にビルドを持たないため）。点検は node biz/tools/check.mjs");
 }
 
-// 新しいものが上
-articles.sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)));
-
-const topics = [...new Set(articles.flatMap((a) => a.topics))].sort();
-
-await writeFile(
-  join(root, "articles.json"),
-  `${JSON.stringify({ topics, articles }, null, 2)}\n`,
-  "utf8",
-);
-
-/* ── 記事ページを書く ── */
-
-await mkdir(pagesDir, { recursive: true });
-
-for (const page of pages) {
-  await mkdir(join(pagesDir, page.slug), { recursive: true });
-  await writeFile(join(pagesDir, page.slug, "index.html"), page.html, "utf8");
+// 直に走らせたときだけ書く。check.mjs から読まれたときは何もしない
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await writeAll();
 }
-
-// 下書きに戻した記事・消した記事のページが残らないようにする。
-// 消し忘れると、一覧に出ないURLだけが生き続けて検索に拾われる
-const keep = new Set(pages.map((p) => p.slug));
-const removed = [];
-for (const name of await readdir(pagesDir)) {
-  if (name === "index.html" || keep.has(name)) continue;
-  if (!SLUG.test(name)) continue;          // 見知らぬものは触らない
-  await rm(join(pagesDir, name), { recursive: true, force: true });
-  removed.push(name);
-}
-
-// `…/biz/a/` をそのまま開かれたときの行き先。無いと 404 になる
-await writeFile(join(pagesDir, "index.html"), REDIRECT, "utf8");
-
-console.log(`○ articles.json（公開 ${articles.length}本 / 下書き ${skipped.length}本）`);
-console.log(`○ a/<slug>/index.html を ${pages.length}本ぶん`);
-if (skipped.length) console.log(`  下書き: ${skipped.join(", ")}`);
-if (removed.length) console.log(`  消したページ: ${removed.join(", ")}`);

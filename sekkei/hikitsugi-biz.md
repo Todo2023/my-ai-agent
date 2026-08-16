@@ -111,11 +111,25 @@ node biz/tools/pull-published.mjs             # articles/*.md に落とす
 node biz/tools/build-index.mjs                # 一覧と記事ページを作り直す
 ```
 
+**コミットする前に点検を走らせる。**
+
+```bash
+node biz/tools/check.mjs
+```
+
 ## 落とし穴（実際にはまったもの）
 
-- **`config.js` の読み込み忘れ。** 新しいページを作ったら `<script src="config.js"></script>` を先に置く。忘れるとDBに繋がらないのに静かに動く
-- **生成物のコミット忘れ。** `biz/a/` と `biz/articles.json` は生成物だが、
+**〔点検〕**が付いたものは `check.mjs` が見つける。付いていないものは目で見るしかない。
+
+- **`config.js` の読み込み忘れ。**〔点検〕新しいページを作ったら `<script src="config.js"></script>` を先に置く。忘れるとDBに繋がらないのに静かに動く
+- **生成物のコミット忘れ。**〔点検〕`biz/a/` と `biz/articles.json` は生成物だが、
   配信にビルドを持たないので**コミットしないと反映されない**
+- **`noindex` を外す場所を間違える。**〔点検〕`write` `article` `profile` は公開後も外さない。
+  一覧と記事ページは揃っていないと、片方だけ検索に載る
+- **外部の読み込みを混ぜる。**〔点検〕CDN・Webフォントに加えて、**本文の外部画像**も。
+  `_headers` の CSP（`img-src 'self' data:`）で、Cloudflare に移した先で出なくなる
+- **Supabase を引っ越して `_headers` を直し忘れる。**〔点検〕
+  CSP の `connect-src` に古いURLが残り、**移設先でDBだけ繋がらない**
 - **ログインのリンクが戻る先。** Supabase の Redirect URLs に無い画面でログインすると、
   メールのリンクを踏んでも戻ってこない。画面を足したら登録も足す（`biz/README.md`）
 - **front matter は YAML ではない。** `md.js` の `parseFrontMatter` は

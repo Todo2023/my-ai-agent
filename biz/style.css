@@ -3,8 +3,10 @@
 /*
   マーケ・ビジネス版コミュニティ（仮）
 
-  一覧（index.html）・記事（article.html）・書く画面（write.html）が共有している。
-  設計の意図は docs/platform-marketing.md にある。
+  一覧（index.html）・記事（生成した a/<slug>/index.html と article.html）・
+  書く画面（write.html）・書き手の欄（profile.html）が共有している。
+  設計の意図は ../sekkei/platform-marketing.md にある。
+  （docs/ は同居している別プロジェクトなので、そちらではない）
 
   会社サイト（hp/style.css）とは別のものなので、色も分けてある。
 */
