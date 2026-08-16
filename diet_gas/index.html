@@ -199,8 +199,18 @@
 
 var RANGES = [{ label: "30日", days: 30 }, { label: "90日", days: 90 }, { label: "1年", days: 365 }];
 var state = { people: [{ name: "夫", goal: null }, { name: "妻", goal: null }], records: [], today: "" };
-var current = Number(localStorage.getItem("taijuu:who") || 0);
-var pin = localStorage.getItem("taijuu:pin") || "";
+/* Apps Script の画面は googleusercontent.com の枠内で動くため、ブラウザの設定によっては
+   localStorage に触れた瞬間に例外が出る。ここで落ちると画面が真っさらのまま止まるので、
+   読み書きは必ずこの2つを通す。 */
+function stored(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+function store(key, value) {
+  try { localStorage.setItem(key, value); } catch (e) { /* 記憶できないだけで、動作には支障ない */ }
+}
+
+var current = Number(stored("taijuu:who") || 0);
+var pin = stored("taijuu:pin") || "";
 var rangeDays = 90;
 var fromPhoto = false;
 
@@ -214,8 +224,18 @@ var wash = function (i) { return i === 0 ? "var(--a-wash)" : "var(--b-wash)"; };
 function call(name) {
   var args = Array.prototype.slice.call(arguments, 1);
   return new Promise(function (resolve, reject) {
-    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name].apply(null, args);
+    // apply のレシーバには runner 自身を渡す。null を渡すと呼び出しが成立せず、
+    // 画面が「読み込んでいます…」のまま静かに止まる。
+    var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+    runner[name].apply(runner, args);
   });
+}
+
+/** 失敗を画面に出す。黙って止まると原因が分からなくなるため。 */
+function fail(error) {
+  var message = (error && (error.message || error.toString())) || "原因不明のエラー";
+  $("loading").style.display = "block";
+  $("loading").innerHTML = '<div class="notice err">開けませんでした：' + esc(message) + "</div>";
 }
 
 function notice(kind, html) {
@@ -227,10 +247,15 @@ function notice(kind, html) {
 call("needsPin").then(function (required) {
   if (required && !pin) { showGate(); return; }
   return refresh().catch(function (error) {
-    if (String(error.message || error).indexOf("合言葉") >= 0) { pin = ""; localStorage.removeItem("taijuu:pin"); showGate(); }
-    else { $("loading").textContent = "開けませんでした: " + (error.message || error); }
+    if (String(error.message || error).indexOf("合言葉") >= 0) {
+      pin = "";
+      store("taijuu:pin", "");
+      showGate();
+    } else {
+      fail(error);
+    }
   });
-});
+}).catch(fail);
 
 function showGate() {
   $("loading").style.display = "none";
@@ -242,7 +267,7 @@ $("pinGo").onclick = function () {
   pin = $("pin").value.trim();
   $("pinMsg").innerHTML = '<div class="notice">確かめています…</div>';
   refresh().then(function () {
-    localStorage.setItem("taijuu:pin", pin);
+    store("taijuu:pin", pin);
     $("pinMsg").innerHTML = "";
   }).catch(function () {
     pin = "";
@@ -336,7 +361,7 @@ function renderPicker() {
     if (i === current) { button.style.background = color(i); button.style.color = "#fff"; }
     button.onclick = function () {
       current = i;
-      localStorage.setItem("taijuu:who", String(i));
+      store("taijuu:who", String(i));
       clearForm();
       renderAll();
     };
