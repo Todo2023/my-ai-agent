@@ -23,6 +23,9 @@
 }
 
 *{box-sizing:border-box;}
+/* hidden 属性は常に効かせる。display を指定したクラスに hidden を付けても
+   消えない（クラスのほうが強い）という取りこぼしを防ぐ */
+[hidden]{display:none !important;}
 html{-webkit-text-size-adjust:100%;}
 body{
   margin:0; background:var(--bg); color:var(--ink);
@@ -229,3 +232,12 @@ footer p{margin:4px 0;}
 .maker .actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:22px 0 8px;}
 .maker .actions .hint{font-size:12px; color:var(--dim); line-height:1.85; flex:1 1 260px;}
 .maker .actions code,.maker .note code{background:var(--tint); border-radius:5px; padding:1px 5px; font-size:.92em;}
+
+/* 送る（config.js が空のあいだは説明だけ出る） */
+.send{margin-top:20px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius); background:#fff;}
+.send-state{font-size:13px; color:var(--dim); line-height:1.85;}
+.send-row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;}
+.send-row input{
+  flex:1 1 200px; min-width:0; padding:10px 12px; font-size:15px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px;
+}

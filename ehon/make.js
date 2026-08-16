@@ -11,6 +11,7 @@
  * 選んだ絵はその場の確認に使うだけにしてある。
  */
 import { rubyToDom, toSpeech, toPlain } from "./ruby.js";
+import * as supa from "./supa.js";
 
 const $ = (id) => document.getElementById(id);
 const KEY = "ehon:drafts";
@@ -282,6 +283,63 @@ function download() {
   URL.revokeObjectURL(url);
 }
 
+/* ── 送る（config.js が空のあいだは何も送らない） ────────── */
+
+function drawSendState(message) {
+  const box = $("send-state");
+  if (message != null) { box.textContent = message; return; }
+
+  if (!supa.isConfigured()) {
+    box.textContent = "まだつないでいません。作ったものは端末の中だけに残ります（つなぎ方は README）。";
+    $("send-row").hidden = true;
+    return;
+  }
+  $("send-row").hidden = false;
+  const on = supa.signedIn();
+  $("login").hidden = on;
+  $("email").hidden = on;
+  $("submit").hidden = !on;
+  $("logout").hidden = !on;
+  box.textContent = on
+    ? "ログイン中。審査に出すと、人が全ページを見てから公開されます。"
+    : "審査に出すにはログインします。メールに届くリンクを開くだけで、パスワードは要りません。";
+}
+
+async function submit() {
+  const d = current();
+  const blocking = problems(d).filter((m) => !m.includes("alt"));
+  if (blocking.length) { drawSendState(`出せません： ${blocking.join(" / ")}`); return; }
+
+  $("submit").disabled = true;
+  drawSendState("送っています…");
+  try {
+    await supa.submitBook(d);
+    drawSendState("審査に出しました。絵は別にお渡しください（ここではファイル名だけ送っています）。");
+  } catch (err) {
+    drawSendState(`送れませんでした： ${err.message}`);
+    $("submit").disabled = false;
+  }
+}
+
+function wireSend() {
+  supa.loadSession();
+  drawSendState();
+
+  $("login").addEventListener("click", async () => {
+    const email = $("email").value.trim();
+    if (!email) { drawSendState("メールアドレスを入れてください"); return; }
+    try {
+      await supa.sendLoginLink(email);
+      drawSendState("リンクを送りました。メールを開いてください。");
+    } catch (err) {
+      drawSendState(`送れませんでした： ${err.message}`);
+    }
+  });
+
+  $("logout").addEventListener("click", () => { supa.signOut(); drawSendState(); });
+  $("submit").addEventListener("click", submit);
+}
+
 /* ── 動かす ────────────────────────────────── */
 
 function touch() {
@@ -344,6 +402,7 @@ function main() {
   });
 
   $("download").addEventListener("click", download);
+  wireSend();
 }
 
 main();

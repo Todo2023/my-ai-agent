@@ -13,6 +13,7 @@
  * 書き味の部分はそのまま使える。
  */
 import { renderMarkdown, parseFrontMatter, readingMinutes } from "./md.js";
+import * as supa from "./supa.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -248,6 +249,64 @@ async function loadTopicHints() {
   }
 }
 
+/* ── 送る（config.js が空のあいだは何も送らない） ────────── */
+
+function drawSendState(message) {
+  const box = $("send-state");
+  if (message != null) { box.textContent = message; return; }
+
+  if (!supa.isConfigured()) {
+    box.textContent = "まだつないでいません。書いたものは端末の中だけに残ります（つなぎ方は README）。";
+    $("send-row").hidden = true;
+    return;
+  }
+  $("send-row").hidden = false;
+  const on = supa.signedIn();
+  $("login").hidden = on;
+  $("email").hidden = on;
+  $("submit").hidden = !on;
+  $("logout").hidden = !on;
+  box.textContent = on
+    ? "ログイン中。審査に出すと、通るまで公開されません。"
+    : "審査に出すにはログインします。メールに届くリンクを開くだけで、パスワードは要りません。";
+}
+
+async function submit() {
+  const d = current();
+  const list = problems(d);
+  if (list.length) { drawSendState(`出せません： ${list.join(" / ")}`); return; }
+
+  $("submit").disabled = true;
+  drawSendState("送っています…");
+  try {
+    await supa.submitArticle(d, topicList(d.topics));
+    drawSendState("審査に出しました。結果はメールで届きます。");
+  } catch (err) {
+    // RLS で弾かれた理由がそのまま返る。招待されていない場合もここに来る
+    drawSendState(`送れませんでした： ${err.message}`);
+    $("submit").disabled = false;
+  }
+}
+
+function wireSend() {
+  supa.loadSession();
+  drawSendState();
+
+  $("login").addEventListener("click", async () => {
+    const email = $("email").value.trim();
+    if (!email) { drawSendState("メールアドレスを入れてください"); return; }
+    try {
+      await supa.sendLoginLink(email);
+      drawSendState("リンクを送りました。メールを開いてください。");
+    } catch (err) {
+      drawSendState(`送れませんでした： ${err.message}`);
+    }
+  });
+
+  $("logout").addEventListener("click", () => { supa.signOut(); drawSendState(); });
+  $("submit").addEventListener("click", submit);
+}
+
 /* ── 起動 ───────────────────────────────── */
 
 function switchTo(id) {
@@ -304,6 +363,7 @@ function main() {
   $("tab-preview").addEventListener("click", () => setTab(true));
 
   loadTopicHints();
+  wireSend();
 }
 
 main();

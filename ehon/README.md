@@ -89,6 +89,8 @@
 | `index.html` / `app.js` | 棚。対象年齢でしぼりこむ |
 | `read.html` / `reader.js` | ビューア。めくる・ふりがな・読み上げ |
 | `make.html` / `make.js` | つくる画面。作りかけは端末の中だけ |
+| `config.js` | **接続先の設定。いまは空**。ここを埋めるとつながる |
+| `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
 | `ruby.js` | ふりがなの記法を読む |
 | `style.css` | 3つの画面で共通 |
 | `books/*/` | 絵本1冊ぶん（`book.json` と絵） |
@@ -96,6 +98,55 @@
 | `tools/build-index.mjs` | `books.json` を作る。絵の重さも出す |
 | `sw.js` / `manifest.webmanifest` | PWA。読んだ絵本を端末に残す |
 | `_icon.html` / `_build_icons.js` | アイコンの元絵と書き出し。絵を変えたときだけ走らせる |
+
+## つなぐ手順（Phase 1）
+
+**まだつないでいない。** `config.js` が空なので、つくる画面は端末の中だけで動く。
+つなぐと「審査に出す」が使えるようになる。**絵そのものは送られない（ファイル名だけ）。****費用はゼロのまま**（Supabase 無料プラン・カード登録不要）。
+
+### 1. Supabase
+
+1. プロジェクトを作る（無料プラン）
+2. SQL Editor に [`../supabase/community.sql`](../supabase/community.sql) を貼って実行
+3. 続けて、自分を管理者と招待に入れる
+
+```sql
+insert into admins  (email, note) values ('あなた@example.com', '代表');
+insert into invites (email, site) values ('あなた@example.com', 'both');
+```
+
+4. Project Settings > Data API から **Project URL** と **anon public** キーを控える
+
+### 2. `config.js` を埋める
+
+```js
+window.TODO_EHON_CONFIG = {
+  SUPABASE_URL: "https://xxxxxxxx.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOi..."
+};
+```
+
+anon キーはブラウザから見える。それで正しい。読み書きは RLS で止めてある。
+**service_role キーは絶対に書かない。**
+
+### 3. ログインのリンクが戻る先を登録する
+
+Authentication > URL Configuration の **Redirect URLs** につくる画面のURLを足す。
+
+```
+https://todo2023.github.io/my-ai-agent/ehon/make.html
+```
+
+### 4. つないだあとに確認すること
+
+- [ ] anon キーで `select * from works` → **0行**（下書きが漏れていない）
+- [ ] `select * from public_works` → 公開したものだけ出る
+- [ ] `invites` にないアドレスでログインして「審査に出す」→ **弾かれる**
+- [ ] 出した絵本が `status = 'review'` で入っている
+- [ ] **管理者以外が `status` を `published` に変えようとすると弾かれる**（いちばん大事）
+- [ ] 絵本に `comments` を insert しようとすると弾かれる
+- [ ] 通信を切って「審査に出す」→ 失敗が出て、作りかけは残る
+
 
 ## 読むときの操作
 
@@ -120,8 +171,8 @@ python3 -m http.server 8000
 
 Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
 
-- 投稿の送信（Phase 1）。**つくる画面はもうある**が、送り先がまだない。
-  **公開の前に人が全ページを見る仕組みとセットで作る**
+- 審査の画面（Phase 1 の残り）。DBは人が通すまで公開しない作りになっているが、
+  **通すための画面がまだない**
 - 保護者アカウント・応援の記録（Phase 1）
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 有料販売・応援（Phase 3。**購入は保護者アカウントのみ**）

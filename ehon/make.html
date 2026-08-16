@@ -77,6 +77,17 @@
   <ol class="pages" id="pages"></ol>
   <button class="btn" id="add-page" type="button">＋ ページを ふやす</button>
 
+  <div class="send" id="send-box">
+    <p class="send-state" id="send-state"></p>
+    <div class="send-row" id="send-row" hidden>
+      <label class="skip" for="email">メールアドレス</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+      <button class="btn" id="login" type="button">ログインのリンクを送る</button>
+      <button class="btn primary" id="submit" type="button" hidden>審査に出す</button>
+      <button class="btn" id="logout" type="button" hidden>ログアウト</button>
+    </div>
+  </div>
+
   <div class="actions">
     <button class="btn primary" id="download" type="button">book.json をダウンロード</button>
     <span class="hint">
@@ -94,6 +105,7 @@
 
 </main>
 
+<script src="config.js"></script>
 <script type="module" src="make.js"></script>
 </body>
 </html>

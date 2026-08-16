@@ -62,6 +62,53 @@ published: true
 
 `published_at` か `title` が抜けていると `build-index.mjs` が止まる（気づかず公開されるのを防ぐため）。
 
+## つなぐ手順（Phase 1）
+
+**まだつないでいない。** `config.js` が空なので、書く画面は端末の中だけで動く。
+つなぐと「審査に出す」が使えるようになる。**費用はゼロのまま**（Supabase 無料プラン・カード登録不要）。
+
+### 1. Supabase
+
+1. プロジェクトを作る（無料プラン）
+2. SQL Editor に [`../supabase/community.sql`](../supabase/community.sql) を貼って実行
+3. 続けて、自分を管理者と招待に入れる
+
+```sql
+insert into admins  (email, note) values ('あなた@example.com', '代表');
+insert into invites (email, site) values ('あなた@example.com', 'both');
+```
+
+4. Project Settings > Data API から **Project URL** と **anon public** キーを控える
+
+### 2. `config.js` を埋める
+
+```js
+window.TODO_BIZ_CONFIG = {
+  SUPABASE_URL: "https://xxxxxxxx.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOi..."
+};
+```
+
+anon キーはブラウザから見える。それで正しい。読み書きは RLS で止めてある。
+**service_role キーは絶対に書かない。**
+
+### 3. ログインのリンクが戻る先を登録する
+
+Authentication > URL Configuration の **Redirect URLs** に書く画面のURLを足す。
+
+```
+https://todo2023.github.io/my-ai-agent/biz/write.html
+```
+
+### 4. つないだあとに確認すること
+
+- [ ] anon キーで `select * from works` → **0行**（下書きが漏れていない）
+- [ ] `select * from public_works` → 公開したものだけ出る
+- [ ] `invites` にないアドレスでログインして「審査に出す」→ **弾かれる**
+- [ ] 出した記事が `status = 'review'` で入っている（`published` になっていない）
+- [ ] 通信を切って「審査に出す」→ 失敗が出て、下書きは残る
+
+
 ## 使える記法
 
 | | |
@@ -86,6 +133,8 @@ published: true
 | `index.html` / `app.js` | 一覧。しぼりこみと検索 |
 | `article.html` / `article.js` | 記事ページ |
 | `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
+| `config.js` | **接続先の設定。いまは空**。ここを埋めるとつながる |
+| `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
 | `md.js` | Markdown→HTML。外部ライブラリを入れない決まりなので自前 |
 | `style.css` | 3つの画面で共通 |
 | `articles/*.md` | 記事の本文 |
@@ -105,7 +154,7 @@ python3 -m http.server 8000
 
 Phase 0 なので、次はまだない。順番は [`../docs/README.md`](../docs/README.md#3-段階全部ゼロ円) にある。
 
-- 投稿の送信・ログイン（Phase 1）。**書く画面はもうある**が、送り先がまだない
+- いいね・コメント（Phase 1 の残り）。DBの表はもうあるが、画面がまだない
 - いいね・コメント・フォロー（Phase 1）
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 投げ銭・有料販売（Phase 3）
