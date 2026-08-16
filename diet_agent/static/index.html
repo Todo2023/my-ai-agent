@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ふたりのダイエット記録</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1c1f24; --muted: #6b7280;
+    --line: #e3e6ea; --accent: #2f6fed; --accent2: #e0559b;
+    --warn-bg: #fff6e5; --warn-line: #f0c67a; --warn-text: #8a5a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171b; --card: #1d2126; --text: #e8eaed; --muted: #9aa3ad;
+      --line: #2e343b; --warn-bg: #3a2f14; --warn-line: #7a6220; --warn-text: #f0cf8a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    font-size: 16px; padding: 0 12px 48px; -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 19px; margin: 18px 2px 12px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px; margin-bottom: 12px;
+  }
+  .card h2 { font-size: 14px; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tabs button {
+    flex: 1; padding: 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); font-size: 16px; font-weight: 600;
+  }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tabs button:nth-child(2)[aria-selected="true"] { background: var(--accent2); border-color: var(--accent2); }
+  .shoot { display: block; width: 100%; padding: 16px; font-size: 17px; font-weight: 700;
+    border: 0; border-radius: 12px; background: var(--accent); color: #fff; }
+  .shoot:disabled { opacity: .6; }
+  input[type=file] { display: none; }
+  .hint { color: var(--muted); font-size: 13px; margin: 8px 2px 0; text-align: center; }
+  .preview { display: none; margin-top: 12px; text-align: center; }
+  .preview img { max-width: 100%; max-height: 220px; border-radius: 10px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .fields label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .fields .full { grid-column: 1 / -1; }
+  input[type=number], input[type=date], input[type=text] {
+    width: 100%; padding: 12px; font-size: 17px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  .ocr-filled { border-color: var(--accent); background: rgba(47,111,237,.08); }
+  .save { width: 100%; margin-top: 12px; padding: 15px; font-size: 16px; font-weight: 700;
+    border: 0; border-radius: 12px; background: #18a05a; color: #fff; }
+  .save:disabled { opacity: .5; }
+  .warn { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-text);
+    border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-top: 10px; }
+  .warn ul { margin: 0; padding-left: 18px; }
+  .msg { margin-top: 10px; font-size: 14px; }
+  .msg.err { color: #d13b3b; }
+  .msg.ok { color: #18a05a; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .stat .name { font-size: 13px; font-weight: 700; }
+  .stat .big { font-size: 26px; font-weight: 700; margin: 2px 0; }
+  .stat .sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .down { color: #18a05a; } .up { color: #d13b3b; }
+  .goal { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+  .goal input { padding: 7px; font-size: 14px; }
+  .goal button { padding: 8px 10px; font-size: 13px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; padding-bottom: 6px; }
+  td { padding: 8px 0; border-top: 1px solid var(--line); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .del { border: 0; background: none; color: var(--muted); font-size: 16px; padding: 0 4px; }
+  .badge { font-size: 10px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 14px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ふたりのダイエット記録</h1>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <h2>体重計の写真から記録する</h2>
+    <button class="shoot" id="shoot">📷 体重計を撮る</button>
+    <input type="file" id="photo" accept="image/*" capture="environment">
+    <p class="hint">表示部分が大きく写るように撮ってください</p>
+    <div class="preview" id="preview"><img id="previewImg" alt="撮影した写真"></div>
+    <div id="warnBox"></div>
+
+    <div class="fields">
+      <div class="full">
+        <label for="date">日付</label>
+        <input type="date" id="date">
+      </div>
+      <div>
+        <label for="weight">体重 (kg)</label>
+        <input type="number" id="weight" step="0.1" min="20" max="250" inputmode="decimal" placeholder="62.4">
+      </div>
+      <div>
+        <label for="fat">体脂肪率 (%)</label>
+        <input type="number" id="fat" step="0.1" min="1" max="70" inputmode="decimal" placeholder="任意">
+      </div>
+      <div class="full">
+        <label for="note">メモ</label>
+        <input type="text" id="note" placeholder="任意（例: 飲み会の翌日）">
+      </div>
+    </div>
+    <button class="save" id="save">この内容で保存</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>ふたりの状況</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <h2>推移（直近60日）</h2>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="card">
+    <h2>記録一覧</h2>
+    <div id="history"></div>
+  </div>
+</div>
+
+<script>
+const COLORS = ["#2f6fed", "#e0559b"];
+let state = { users: [], records: [], summaries: [], today: "" };
+let currentUser = localStorage.getItem("dietUser") || "";
+let ocrFilled = false;
+
+const $ = (id) => document.getElementById(id);
+const fmt = (v, unit = "") => (v === null || v === undefined ? "—" : v.toFixed(1) + unit);
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "通信に失敗しました");
+  return data;
+}
+
+async function load() {
+  state = await api("/api/state");
+  if (!state.users.includes(currentUser)) currentUser = state.users[0];
+  if (!$("date").value) $("date").value = state.today;
+  renderTabs();
+  renderStats();
+  renderChart();
+  renderHistory();
+}
+
+function renderTabs() {
+  $("tabs").innerHTML = "";
+  state.users.forEach((user) => {
+    const b = document.createElement("button");
+    b.textContent = user;
+    b.setAttribute("aria-selected", user === currentUser);
+    b.onclick = () => {
+      currentUser = user;
+      localStorage.setItem("dietUser", user);
+      clearForm();
+      renderTabs();
+      renderHistory();
+    };
+    $("tabs").appendChild(b);
+  });
+}
+
+function renderStats() {
+  $("stats").innerHTML = "";
+  state.summaries.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "stat";
+    const week = s.week_change_kg;
+    const weekHtml = week === null
+      ? '<span class="sub">先週比: —</span>'
+      : `<span class="sub">先週比: <b class="${week <= 0 ? "down" : "up"}">${week > 0 ? "+" : ""}${week.toFixed(1)}kg</b></span>`;
+    const goalHtml = s.goal_weight_kg === null
+      ? "目標未設定"
+      : `目標 ${fmt(s.goal_weight_kg, "kg")}／あと ${s.to_goal_kg > 0 ? s.to_goal_kg.toFixed(1) + "kg" : "達成 🎉"}`;
+    div.innerHTML = `
+      <div class="name" style="color:${COLORS[i % 2]}">${s.user}</div>
+      <div class="big">${s.latest ? fmt(s.latest.weight_kg) : "—"}<span style="font-size:14px">kg</span></div>
+      ${weekHtml}
+      <div class="sub">開始から: ${s.total_change_kg === null ? "—" : (s.total_change_kg > 0 ? "+" : "") + s.total_change_kg.toFixed(1) + "kg"}</div>
+      <div class="sub">${goalHtml}</div>
+      <div class="goal">
+        <input type="number" step="0.1" placeholder="目標kg" value="${s.goal_weight_kg ?? ""}" id="goal-${i}">
+        <button data-user="${s.user}" data-input="goal-${i}">設定</button>
+      </div>`;
+    $("stats").appendChild(div);
+  });
+  $("stats").querySelectorAll("button").forEach((b) => {
+    b.onclick = async () => {
+      const value = $(b.dataset.input).value;
+      await api("/api/goals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: b.dataset.user, goal_weight_kg: value === "" ? null : Number(value) }),
+      });
+      load();
+    };
+  });
+}
+
+function renderChart() {
+  const W = 520, H = 200, PAD = { l: 38, r: 10, t: 10, b: 22 };
+  const since = new Date();
+  since.setDate(since.getDate() - 59);
+  const series = state.users.map((user) =>
+    state.records
+      .filter((r) => r.user === user && new Date(r.date) >= since)
+      .map((r) => ({ x: new Date(r.date).getTime(), y: r.weight_kg }))
+      .sort((a, b) => a.x - b.x)
+  );
+  const points = series.flat();
+  if (points.length < 2) {
+    $("chart").innerHTML = '<div class="empty">記録が2件たまるとグラフが出ます</div>';
+    $("legend").innerHTML = "";
+    return;
+  }
+  const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
+  const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
+  let [y0, y1] = [Math.min(...ys), Math.max(...ys)];
+  const pad = Math.max((y1 - y0) * 0.15, 0.5);
+  y0 -= pad; y1 += pad;
+  const sx = (x) => PAD.l + ((x - x0) / (x1 - x0 || 1)) * (W - PAD.l - PAD.r);
+  const sy = (y) => H - PAD.b - ((y - y0) / (y1 - y0 || 1)) * (H - PAD.t - PAD.b);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="体重の推移">`;
+  for (let i = 0; i <= 3; i++) {
+    const y = y0 + ((y1 - y0) * i) / 3;
+    svg += `<line x1="${PAD.l}" y1="${sy(y)}" x2="${W - PAD.r}" y2="${sy(y)}" stroke="var(--line)"/>`;
+    svg += `<text x="4" y="${sy(y) + 4}" font-size="10" fill="var(--muted)">${y.toFixed(1)}</text>`;
+  }
+  const label = (t) => new Date(t).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
+  svg += `<text x="${PAD.l}" y="${H - 6}" font-size="10" fill="var(--muted)">${label(x0)}</text>`;
+  svg += `<text x="${W - PAD.r}" y="${H - 6}" font-size="10" fill="var(--muted)" text-anchor="end">${label(x1)}</text>`;
+  series.forEach((pts, i) => {
+    if (!pts.length) return;
+    const d = pts.map((p, j) => `${j ? "L" : "M"}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(" ");
+    svg += `<path d="${d}" fill="none" stroke="${COLORS[i % 2]}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    svg += pts.map((p) => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3" fill="${COLORS[i % 2]}"/>`).join("");
+  });
+  $("chart").innerHTML = svg + "</svg>";
+  $("legend").innerHTML = state.users
+    .map((u, i) => `<span><i style="background:${COLORS[i % 2]}"></i> ${u}</span>`)
+    .join("");
+}
+
+function renderHistory() {
+  const rows = state.records.filter((r) => r.user === currentUser).slice(0, 30);
+  if (!rows.length) {
+    $("history").innerHTML = '<div class="empty">まだ記録がありません</div>';
+    return;
+  }
+  const table = document.createElement("table");
+  table.innerHTML =
+    "<tr><th>日付</th><th style='text-align:right'>体重</th><th style='text-align:right'>体脂肪</th><th></th><th></th></tr>" +
+    rows
+      .map(
+        (r) => `<tr>
+          <td>${r.date.slice(5).replace("-", "/")}${r.note ? ` <span class="badge">${escapeHtml(r.note)}</span>` : ""}</td>
+          <td class="num">${r.weight_kg.toFixed(1)}kg</td>
+          <td class="num">${r.body_fat_pct === null ? "—" : r.body_fat_pct.toFixed(1) + "%"}</td>
+          <td>${r.source === "ocr" ? '<span class="badge">📷</span>' : ""}</td>
+          <td style="text-align:right"><button class="del" data-date="${r.date}" aria-label="削除">✕</button></td>
+        </tr>`
+      )
+      .join("");
+  $("history").innerHTML = "";
+  $("history").appendChild(table);
+  table.querySelectorAll(".del").forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm(`${currentUser} の ${b.dataset.date} の記録を削除しますか？`)) return;
+      await api(`/api/records/${encodeURIComponent(currentUser)}/${b.dataset.date}`, { method: "DELETE" });
+      load();
+    };
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function showWarnings(list) {
+  $("warnBox").innerHTML = list.length
+    ? `<div class="warn"><b>確認してください</b><ul>${list.map((w) => `<li>${escapeHtml(w)}</li>`).join("")}</ul></div>`
+    : "";
+}
+
+function clearForm() {
+  ["weight", "fat", "note"].forEach((id) => {
+    $(id).value = "";
+    $(id).classList.remove("ocr-filled");
+  });
+  $("date").value = state.today || new Date().toISOString().slice(0, 10);
+  $("preview").style.display = "none";
+  $("warnBox").innerHTML = "";
+  $("msg").textContent = "";
+  ocrFilled = false;
+}
+
+$("shoot").onclick = () => $("photo").click();
+
+$("photo").onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  $("previewImg").src = URL.createObjectURL(file);
+  $("preview").style.display = "block";
+  $("msg").className = "msg";
+  $("msg").textContent = "読み取り中…";
+  $("shoot").disabled = true;
+
+  const form = new FormData();
+  form.append("user", currentUser);
+  form.append("photo", file);
+  try {
+    const { reading } = await api("/api/ocr", { method: "POST", body: form });
+    if (reading.weight_kg !== null) {
+      $("weight").value = reading.weight_kg;
+      $("weight").classList.add("ocr-filled");
+      ocrFilled = true;
+    }
+    if (reading.body_fat_pct !== null) {
+      $("fat").value = reading.body_fat_pct;
+      $("fat").classList.add("ocr-filled");
+    }
+    showWarnings(reading.warnings);
+    $("msg").className = "msg" + (reading.needs_check ? " err" : " ok");
+    $("msg").textContent = reading.needs_check
+      ? "数字を確認してから保存してください"
+      : `読み取りました（読み取り結果: ${reading.raw_text || "-"}）`;
+  } catch (err) {
+    showWarnings([]);
+    $("msg").className = "msg err";
+    $("msg").textContent = err.message + " — 手入力で保存できます";
+  } finally {
+    $("shoot").disabled = false;
+    e.target.value = "";
+  }
+};
+
+$("save").onclick = async () => {
+  const weight = Number($("weight").value);
+  if (!weight) {
+    $("msg").className = "msg err";
+    $("msg").textContent = "体重を入力してください";
+    return;
+  }
+  $("save").disabled = true;
+  try {
+    await api("/api/records", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: currentUser,
+        date: $("date").value,
+        weight_kg: weight,
+        body_fat_pct: $("fat").value === "" ? null : Number($("fat").value),
+        source: ocrFilled ? "ocr" : "manual",
+        note: $("note").value || null,
+      }),
+    });
+    const day = $("date").value;
+    clearForm();
+    await load();
+    $("msg").className = "msg ok";
+    $("msg").textContent = `${currentUser} の ${day} を保存しました`;
+  } catch (err) {
+    $("msg").className = "msg err";
+    $("msg").textContent = err.message;
+  } finally {
+    $("save").disabled = false;
+  }
+};
+
+load();
+</script>
+</body>
+</html>
