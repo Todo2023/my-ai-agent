@@ -129,16 +129,31 @@
     );
   }
 
+  const fetchBox = () => fetch("./preset.enc.json", { cache: "no-cache" }).then((r) => {
+    if (!r.ok) throw new Error("暗号ファイルが読めません");
+    return r.json();
+  });
+
+  /**
+   * 中身は開けずに、封をした日付だけを見る。
+   * すでに開いた端末が「配信されたほうが新しい」と気づくために使う。
+   */
+  async function peek() {
+    try {
+      const box = await fetchBox();
+      return { stamp: box.stamp || "" };
+    } catch (_) {
+      return { stamp: "" };   // 圏外などで読めなくても、アプリは動き続ける
+    }
+  }
+
   /**
    * 合い言葉で中身を取り出す。合わなければ null（AES-GCM は改ざんも中身違いも
    * 同じように失敗するので、「違います」以上のことは言えないし、言う必要もない）。
    */
   async function unlock(pass) {
     if (!crypto || !crypto.subtle) throw new Error("この画面では暗号が使えません（https で開いてください）");
-    const box = await fetch("./preset.enc.json", { cache: "no-cache" }).then((r) => {
-      if (!r.ok) throw new Error("暗号ファイルが読めません");
-      return r.json();
-    });
+    const box = await fetchBox();
     try {
       const key = await deriveKey(canon(pass), b64ToBytes(box.salt), box.iter);
       const plain = await crypto.subtle.decrypt(
@@ -146,13 +161,13 @@
         key,
         b64ToBytes(box.data)
       );
-      return JSON.parse(new TextDecoder().decode(plain));
+      return { data: JSON.parse(new TextDecoder().decode(plain)), stamp: box.stamp || "" };
     } catch (_) {
       return null;
     }
   }
 
-  scope.KakeiSecret = { SAMPLE, unlock, canon };
+  scope.KakeiSecret = { SAMPLE, unlock, peek, canon };
 })(typeof self !== "undefined" ? self : globalThis);
 
 if (typeof module !== "undefined" && module.exports) {

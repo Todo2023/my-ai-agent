@@ -37,6 +37,9 @@ const data = Buffer.concat([body, cipher.getAuthTag()]);
 const out = {
   note: "この家計は合い言葉で封をしてあります。中身は AES-256-GCM の暗号文です。",
   v: 1,
+  // いつ封をしたか。中身は隠すが、この印だけは表に出す。
+  // すでに開いた端末が「配信されたほうが新しい」と気づけるようにするため
+  stamp: new Date().toISOString(),
   kdf: "PBKDF2-SHA256",
   iter: ITER,
   salt: salt.toString("base64"),

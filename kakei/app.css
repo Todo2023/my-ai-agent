@@ -110,6 +110,38 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   cursor: pointer;
 }
 
+/* ---------- お知らせの帯（封が新しいとき） ---------- */
+
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(9px + env(safe-area-inset-top)) 12px 9px 16px;
+  background: linear-gradient(180deg, #1d4d3f, #16382f);
+  border-bottom: 1px solid rgba(79, 214, 169, 0.35);
+  font-size: 12.5px;
+  color: #d5f5e7;
+}
+
+.banner span { flex: 1 1 auto; line-height: 1.5; }
+
+.banner button {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #06211a;
+  background: var(--mint-soft);
+  cursor: pointer;
+}
+
+.banner button.x { padding: 7px 10px; background: none; color: rgba(213, 245, 231, 0.7); font-weight: 400; }
+
 /* ---------- 上のバー ---------- */
 
 .bar {

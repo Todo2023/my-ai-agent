@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-12b 口座カード・新規プラン修正";
+const VERSION = "2026-08-16 配信のお知らせ";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -183,7 +183,8 @@ function readSaved() {
 }
 
 /** データ一式を受け取って、画面をそれで作り直す。合い言葉で開いたときもここに来る */
-function adopt(data) {
+function adopt(data, stamp) {
+  if (stamp) data.stamp = stamp;   // どの版の封から取り出したか
   setPeople(data.people);
   for (const p of data.plans) { hydrate(p); syncPeople(p); }
   if (!data.plans.some((p) => p.id === data.activeId)) data.activeId = data.plans[0].id;
@@ -605,6 +606,33 @@ function openYear(year) {
   openSheet("year");
 }
 
+/* ---------------- 配信された家計のほうが新しいとき ---------------- */
+
+const SKIP_KEY = "kakei-skip-stamp";
+
+/**
+ * いちど開いた端末は、封を二度と読みに行かない作りになっている（合い言葉を
+ * 毎回聞かないため）。その結果、こちらで中身を入れ替えても端末に届かない。
+ *
+ * そこで封には日付の印だけ平文で付けてあり、起動のたびに**印だけ**を見に行く。
+ * 新しければ知らせる。読み込むかどうかは、この端末で直したものが
+ * 置き換わるということなので、必ず本人に選んでもらう。
+ */
+async function checkForNewSeal() {
+  const { stamp } = await self.KakeiSecret.peek();
+  if (!stamp) return;
+  const mine = state.data.stamp || "";
+  if (stamp === mine) return;
+  if (localStorage.getItem(SKIP_KEY) === stamp) return;   // 「あとで」と言われたぶんは黙る
+
+  const when = stamp.slice(0, 10).replace(/-/g, "/");
+  $("updateText").textContent = mine
+    ? `新しい家計が届いています（${when}）`
+    : `配信されている家計があります（${when}）`;
+  $("update").hidden = false;
+  $("update").dataset.stamp = stamp;
+}
+
 /* ---------------- 合い言葉 ---------------- */
 
 function showLock() {
@@ -628,10 +656,10 @@ async function tryUnlock() {
   msg.textContent = "ひらいています…";   // 鍵を作るのに1秒近くかかる端末がある
   btn.disabled = true;
 
-  let payload = null;
+  let opened = null;
   let failure = "";
   try {
-    payload = await self.KakeiSecret.unlock($("pass").value);
+    opened = await self.KakeiSecret.unlock($("pass").value);
   } catch (e) {
     failure = e.message;
   }
@@ -642,7 +670,7 @@ async function tryUnlock() {
     msg.textContent = failure;
     return;
   }
-  if (!payload) {
+  if (!opened) {
     msg.className = "lockmsg ng";
     msg.textContent = "合い言葉がちがうようです。";
     $("pass").select();
@@ -650,7 +678,8 @@ async function tryUnlock() {
   }
 
   hideLock();
-  adopt(payload);
+  $("update").hidden = true;
+  adopt(opened.data, opened.stamp);
   toast("ひらきました。次からは合い言葉なしで開きます");
 }
 
@@ -1024,6 +1053,17 @@ function bind() {
     toast("見本の家計です。設定から合い言葉で読み込めます");
   });
 
+  $("updateNow").addEventListener("click", () => {
+    if (!confirm("配信されている家計を読み込みます。\nこの端末で直したものは置き換わります。")) return;
+    $("update").hidden = true;
+    showLock();
+  });
+
+  $("updateLater").addEventListener("click", () => {
+    localStorage.setItem(SKIP_KEY, $("update").dataset.stamp || "");
+    $("update").hidden = true;
+  });
+
   $("relock").addEventListener("click", () => {
     if (!confirm("合い言葉を入れて読み込み直します。いまこの端末で編集した内容は消えます。")) return;
     closeSheet("settings");
@@ -1392,8 +1432,12 @@ function watchForUpdate() {
   // いちど開いた端末には家計が残っている。そのときは合い言葉を聞かない。
   // 残っていなければ、暗号文を開くまでこの端末には何も無い
   const saved = readSaved();
-  if (saved) adopt(saved);
-  else showLock();
+  if (saved) {
+    adopt(saved);
+    checkForNewSeal();   // 封のほうが新しければ知らせる（印だけ見に行く）
+  } else {
+    showLock();
+  }
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     healForeignController();
