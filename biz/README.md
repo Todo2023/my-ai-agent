@@ -8,7 +8,7 @@ Zennのマーケ版として作るものの、いちばん最初の形（Phase 0
 | | |
 | --- | --- |
 | 一覧 | https://todo2023.github.io/my-ai-agent/biz/ |
-| 記事 | `article.html?slug=（ファイル名）` |
+| 記事 | `a/（ファイル名）/` |
 
 **いまは投稿を受け付けていない。** 記事はこのリポジトリの中にあるものだけ。
 費用はゼロ（GitHub Pages のみ）。
@@ -23,6 +23,8 @@ Zennのマーケ版として作るものの、いちばん最初の形（Phase 0
 | エディタで直接 | `articles/` に `.md` を置く |
 
 どちらの場合も、最後に `node tools/build-index.mjs` を走らせると一覧に出る。
+このコマンドが `articles.json` と `a/<slug>/index.html` の両方を作る。
+**出来たものはコミットする**（配信にビルドを持たないため）。
 
 ### 書く画面について
 
@@ -131,7 +133,10 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | | |
 | --- | --- |
 | `index.html` / `app.js` | 一覧。しぼりこみと検索 |
-| `article.html` / `article.js` | 記事ページ |
+| `a/<slug>/index.html` | **記事ページ。生成物。手で書かない** |
+| `article-page.js` | 生成した記事ページに足すぶん（目次の現在地・いいね） |
+| `article.html` / `article.js` | 下書きの下見と、まだ取り込んでいないDB記事を開く画面。**noindex のまま** |
+| `article-parts.js` | 上の2つが共有する部品（目次・いいね・通報） |
 | `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
 | `config.js` | 接続先の設定。**anonキーが入っている**（公開前提のキー。RLSで守る） |
 | `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
@@ -139,7 +144,8 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | `style.css` | 3つの画面で共通 |
 | `articles/*.md` | 記事の本文 |
 | `articles.json` | 一覧用のまとめ。**手で書かない。生成物** |
-| `tools/build-index.mjs` | `articles.json` を作る。手元で走らせる |
+| `tools/build-index.mjs` | `articles.json` と記事ページを作る。手元で走らせる |
+| `tools/render-page.mjs` | 記事ページのひな形。URLの根と `noindex` の切り替えがここにある |
 
 ## 動作確認（手元）
 
@@ -159,16 +165,16 @@ Phase 0 なので、次はまだない。順番は [`../sekkei/README.md`](../se
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 投げ銭・有料販売（Phase 3）
 
-**URLに `?slug=` が付いているのは、まだビルドを持たないから。**
-検索に載せる段（Phase 2）で、記事ごとの静的HTMLを吐く形に変える。
-そのときURLも変わるので、**外に出すのはそのあとにする**。
+**記事のURLは `a/<slug>/` で固定した。**（2026-08-16）
+拡張子を付けていないので、置き場所を Cloudflare Pages に移しても同じURLのまま運べる。
+前に配った `article.html?slug=xxx` は、生成ページへ転送するようにしてある。
 
 ## 公開前にやること
 
-- [ ] `index.html` と `article.html` の `<meta name="robots" content="noindex">` を外す
-      （`write.html` の `noindex` は**外さない**）
-- [ ] 両ページの `<div class="demo-bar">`（試作中の帯）を消す
-- [ ] 記事ごとの静的HTMLに切り替える（`?slug=` をやめる）
+- [ ] `index.html` の `<meta name="robots" content="noindex">` を外す
+      （`write.html` と `article.html` の `noindex` は**外さない**）
+- [ ] `tools/render-page.mjs` の `NOINDEX` を `false` にして、`build-index.mjs` を流し直す
+- [ ] `index.html` と `tools/render-page.mjs` の `<div class="demo-bar">`（試作中の帯）を消す
 - [ ] サンプル記事（`編集部` 名義の3本）を、本物と入れ替えるか消す
 
 **有料販売を始めるなら、その前に GitHub Pages から出る。**
