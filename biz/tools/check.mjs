@@ -40,11 +40,17 @@ const read = async (path) => {
    コミットしていない、が一番起きる。配信にビルドを持たないので、
    置いてあるものが古いと、そのまま古いものが配られる            */
 
-const { indexJson, pages, drafts, errors } = await collect();
+const { indexJson, sitemap, pages, drafts, errors } = await collect();
 
 for (const e of errors) ok(`記事の front matter: ${e}`, false);
 
 ok("articles.json が最新", (await read(join(root, "articles.json"))) === indexJson,
+  "→ node biz/tools/build-index.mjs");
+
+// 検索避けを外したときだけ置く。噛み合っていないと、
+// 「検索避けの記事を並べた地図」または「地図のない公開」になる
+ok(sitemap ? "sitemap.xml が最新" : "sitemap.xml は置いていない（検索避けのあいだ）",
+  (await read(join(root, "sitemap.xml"))) === sitemap,
   "→ node biz/tools/build-index.mjs");
 
 for (const page of pages) {

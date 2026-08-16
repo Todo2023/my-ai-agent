@@ -27,7 +27,7 @@ import { readdir, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseFrontMatter, excerpt, readingMinutes } from "../md.js";
-import { renderArticlePage } from "./render-page.mjs";
+import { renderArticlePage, renderSitemap, NOINDEX } from "./render-page.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const root = join(here, "..");
@@ -106,6 +106,8 @@ export async function collect() {
 
   return {
     indexJson: `${JSON.stringify({ topics, articles }, null, 2)}\n`,
+    // 検索避けを外したときだけ置く。付けたままなら null（＝置かない）
+    sitemap: NOINDEX ? null : renderSitemap(articles),
     pages,
     drafts,
     errors,
@@ -114,12 +116,17 @@ export async function collect() {
 
 /** 生成物を置く。消えた記事のページも片づける */
 async function writeAll() {
-  const { indexJson, pages, drafts, errors } = await collect();
+  const { indexJson, sitemap, pages, drafts, errors } = await collect();
 
   for (const e of errors) console.error(`× ${e}`);
   if (errors.length) process.exitCode = 1;
 
   await writeFile(join(root, "articles.json"), indexJson, "utf8");
+
+  // 検索避けを外したときだけ地図を置く。戻したときは消す
+  const sitemapPath = join(root, "sitemap.xml");
+  if (sitemap) await writeFile(sitemapPath, sitemap, "utf8");
+  else await rm(sitemapPath, { force: true });
 
   await mkdir(pagesDir, { recursive: true });
   for (const page of pages) {
@@ -143,6 +150,7 @@ async function writeAll() {
 
   console.log(`○ articles.json（公開 ${pages.length}本 / 下書き ${drafts.length}本）`);
   console.log(`○ a/<slug>/index.html を ${pages.length}本ぶん`);
+  console.log(sitemap ? "○ sitemap.xml" : "‥ sitemap.xml は置かない（検索避けのあいだ）");
   if (drafts.length) console.log(`  下書き: ${drafts.join(", ")}`);
   if (removed.length) console.log(`  消したページ: ${removed.join(", ")}`);
   console.log("\n生成物もコミットする（配信にビルドを持たないため）。点検は node biz/tools/check.mjs");

@@ -242,11 +242,23 @@ node biz/tools/check.mjs
 
 ## 公開前にやること
 
-- [ ] `index.html` の `<meta name="robots" content="noindex">` を外す
-      （`write.html` と `article.html` の `noindex` は**外さない**）
+検索に出す操作は2つだけ。**片方だけやると `check.mjs` が止める。**
+
 - [ ] `tools/render-page.mjs` の `NOINDEX` を `false` にして、`build-index.mjs` を流し直す
-- [ ] `index.html` と `tools/render-page.mjs` の `<div class="demo-bar">`（試作中の帯）を消す
+      （記事ページから `noindex` が消え、`sitemap.xml` が出る）
+- [ ] `index.html` の `<meta name="robots" content="noindex">` を外す
+
+`write.html` `article.html` `profile.html` の `noindex` は**外さない**（`check.mjs` が見張る）。
+
+出す前に決めること。
+
 - [ ] サンプル記事（`編集部` 名義の3本）を、本物と入れ替えるか消す
+- [ ] `index.html` と `tools/render-page.mjs` の `<div class="demo-bar">`（試作中の帯）を消す
+- [ ] 置き場所。**有料販売に進むなら先に GitHub Pages から出る**（`../sekkei/README.md`）
+
+`robots.txt` は**ドメインの直下にしか置けない**ので、
+`todo2023.github.io/my-ai-agent/` の下にいるあいだは持てない。
+`sitemap.xml` は Search Console に直接出せば足りる。
 
 **有料販売を始めるなら、その前に GitHub Pages から出る。**
 GitHub Pages はECに使えない決まりになっている。詳しくは

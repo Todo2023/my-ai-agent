@@ -31,6 +31,28 @@ export const NOINDEX = true;
 
 const NAME = "ハタラク文庫（仮）";
 
+/**
+ * sitemap.xml を組み立てる。**`NOINDEX` を外したときだけ置く。**
+ * 検索避けのままの記事を並べた地図を置いても、言っていることが噛み合わない。
+ *
+ * ⚠ `robots.txt` は**ドメインの直下にしか置けない**。
+ *   いまの `todo2023.github.io/my-ai-agent/` はドメインの直下ではないので、
+ *   このリポジトリからは持てない。置き場所を移すときに考えること。
+ */
+export function renderSitemap(articles) {
+  const url = (loc, lastmod) =>
+    `  <url>\n    <loc>${loc}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}\n  </url>`;
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${[
+  url(SITE),
+  ...articles.map((a) => url(`${SITE}a/${a.slug}/`, String(a.published_at).slice(0, 10))),
+].join("\n")}
+</urlset>
+`;
+}
+
 const ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M8 9h16M8 16h16M8 23h10' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E";
 

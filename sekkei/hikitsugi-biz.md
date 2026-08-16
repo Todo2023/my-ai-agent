@@ -50,11 +50,17 @@
 
 ### 1. `noindex` を外す ← 検索に出す
 
-前提だった静的化・取り込み・書き手の欄は済んだ。外すのは次の3か所。
+前提だった静的化・取り込み・書き手の欄は済んだ。**操作は2つだけ。**
 
-- `biz/index.html` の `<meta name="robots" content="noindex">`
-- `biz/tools/render-page.mjs` の `NOINDEX` を `false` にして `build-index.mjs` を流し直す
-- `write.html` `article.html` `profile.html` の `noindex` は**外さない**
+```bash
+# 1. biz/tools/render-page.mjs の NOINDEX を false にする
+node biz/tools/build-index.mjs   # 記事から noindex が消え、sitemap.xml が出る
+# 2. biz/index.html の <meta name="robots" content="noindex"> を消す
+node biz/tools/check.mjs         # 片方だけだと、ここで止まる
+```
+
+`write.html` `article.html` `profile.html` の `noindex` は**外さない**（点検が見張る）。
+`robots.txt` はドメイン直下にしか置けないので、いまのURLでは持てない。
 
 **外す前に決めること。**
 
