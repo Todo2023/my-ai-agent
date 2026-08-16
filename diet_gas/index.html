@@ -198,6 +198,7 @@
 "use strict";
 
 var RANGES = [{ label: "30日", days: 30 }, { label: "90日", days: 90 }, { label: "1年", days: 365 }];
+var DEFAULT_NAMES = ["夫", "妻"];
 var state = { people: [{ name: "夫", goal: null }, { name: "妻", goal: null }], records: [], today: "" };
 /* Apps Script の画面は googleusercontent.com の枠内で動くため、ブラウザの設定によっては
    localStorage に触れた瞬間に例外が出る。ここで落ちると画面が真っさらのまま止まるので、
@@ -275,9 +276,41 @@ $("pinGo").onclick = function () {
   });
 };
 
+/**
+ * サーバーから届いた値を整える。空の項目（目標未設定・体脂肪率なし）は
+ * 欠落して届くことがあり、そのまま数値として扱うと画面全体が止まるため、
+ * ここで必ず null か数値のどちらかに揃える。
+ */
+function normalizeState(next) {
+  next = next || {};
+  var num = function (value) {
+    var n = typeof value === "number" ? value : Number(value);
+    return value === null || value === undefined || value === "" || isNaN(n) ? null : n;
+  };
+  var people = (next.people || []).slice(0, 2).map(function (person, i) {
+    person = person || {};
+    return { name: String(person.name || DEFAULT_NAMES[i]), goal: num(person.goal) };
+  });
+  while (people.length < 2) people.push({ name: DEFAULT_NAMES[people.length], goal: null });
+
+  var records = (next.records || []).map(function (r) {
+    r = r || {};
+    return {
+      person: Number(r.person) === 1 ? 1 : 0,
+      date: String(r.date || ""),
+      weight: num(r.weight),
+      fat: num(r.fat),
+      source: String(r.source || "manual"),
+      note: r.note ? String(r.note) : null
+    };
+  }).filter(function (r) { return r.date && r.weight !== null; });
+
+  return { people: people, records: records, today: String(next.today || "") };
+}
+
 function refresh() {
   return call("getState", pin).then(function (next) {
-    state = next;
+    state = normalizeState(next);
     $("loading").style.display = "none";
     $("gate").classList.remove("show");
     $("main").classList.add("show");
@@ -345,7 +378,7 @@ function renderPair() {
     var name = $("pair").querySelector('[data-name="' + i + '"]').value.trim();
     var goalValue = $("pair").querySelector('[data-goal="' + i + '"]').value;
     return call("setPerson", pin, i, name, goalValue === "" ? null : Number(goalValue))
-      .then(function (next) { state = next; renderAll(); });
+      .then(function (next) { state = normalizeState(next); renderAll(); });
   };
   $("pair").querySelectorAll("[data-name],[data-goal]").forEach(function (input) {
     input.onchange = function () { update(Number(input.dataset.name !== undefined ? input.dataset.name : input.dataset.goal)); };
@@ -466,7 +499,7 @@ function renderHistory() {
       var date = button.dataset.date;
       if (!confirm(state.people[current].name + " の " + date + " の記録を消しますか。")) return;
       button.disabled = true;
-      call("deleteRecord", pin, current, date).then(function (next) { state = next; renderAll(); });
+      call("deleteRecord", pin, current, date).then(function (next) { state = normalizeState(next); renderAll(); });
     };
   });
 }
@@ -521,15 +554,21 @@ $("photo").onchange = function (event) {
   shrink(file)
     .then(function (base64) { return call("readScale", pin, base64, "image/jpeg", current); })
     .then(function (reading) {
-      if (reading.weight !== null) { $("weight").value = reading.weight; fromPhoto = true; }
-      if (reading.fat !== null) $("fat").value = reading.fat;
-      if (reading.warnings.length) {
-        notice("warn", "<b>確かめてください</b><ul>" + reading.warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>");
+      // 読めなかった項目は欠落して届くことがあるので、ここでも null に揃える
+      reading = reading || {};
+      var weight = typeof reading.weight === "number" ? reading.weight : null;
+      var fat = typeof reading.fat === "number" ? reading.fat : null;
+      var warnings = reading.warnings || [];
+
+      if (weight !== null) { $("weight").value = weight; fromPhoto = true; }
+      if (fat !== null) $("fat").value = fat;
+      if (warnings.length) {
+        notice("warn", "<b>確かめてください</b><ul>" + warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>");
       } else {
-        notice("ok", "写真から <b>" + reading.weight + "kg</b>" + (reading.fat !== null ? " / <b>" + reading.fat + "%</b>" : "") +
+        notice("ok", "写真から <b>" + weight + "kg</b>" + (fat !== null ? " / <b>" + fat + "%</b>" : "") +
           " を読み取りました。合っていれば記録してください。");
       }
-      if (reading.weight === null) $("weight").focus();
+      if (weight === null) $("weight").focus();
     })
     .catch(function (error) {
       notice("err", esc(error.message || error) + " — 手で入れて記録できます。");
@@ -561,7 +600,7 @@ $("save").onclick = function () {
   notice("", "");
 
   call("saveRecord", pin, record).then(function (result) {
-    state = result.state;
+    state = normalizeState(result && result.state);
     clearForm();
     renderAll();
     notice("ok", esc(name) + " の " + day + " を" + (result.overwritten ? "書きなおしました" : "記録しました") + "。");
