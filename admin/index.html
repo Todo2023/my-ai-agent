@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>審査 | 身内用</title>
+<meta name="theme-color" content="#243040" />
+<meta name="color-scheme" content="light dark" />
+<meta name="robots" content="noindex, nofollow" /><!-- 管理画面。公開後もこの行は外さない -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23243040'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>身内用の審査画面です。</b>ここで「公開する」を押すまで、投稿は誰にも見えません。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <span class="logo">審査<small>REVIEW</small></span>
+    <nav>
+      <a href="../biz/">ハタラク文庫</a>
+      <a href="../ehon/">えほんの棚</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="login" id="login-box">
+    <p class="state" id="state">よみこんでいます…</p>
+    <div class="login-row" id="login-row" hidden>
+      <label class="skip" for="email">メールアドレス</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+      <button class="btn" id="login" type="button">ログインのリンクを送る</button>
+      <button class="btn" id="logout" type="button" hidden>ログアウト</button>
+    </div>
+  </div>
+
+  <div id="work-area" hidden>
+    <div class="tabs">
+      <button class="tab" id="tab-review" type="button" aria-pressed="true">審査待ち</button>
+      <button class="tab" id="tab-published" type="button" aria-pressed="false">公開ずみ</button>
+      <button class="tab" id="tab-rejected" type="button" aria-pressed="false">差し戻し</button>
+      <span class="count" id="count"></span>
+      <button class="btn small" id="reload" type="button">読み直す</button>
+    </div>
+
+    <ul class="list" id="list"></ul>
+    <p class="empty" id="empty" hidden>ここには何もありません。</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>審査（仮）— 合同会社To do の身内用。設計は <code>docs/README.md</code>。</p>
+    <p>子ども向けの作品は、ここで通すまで<b>データベース側で公開を止めています</b>。</p>
+  </div>
+</footer>
+
+<!-- 接続先とやりとりの処理は biz/ のものをそのまま使う（重複を作らない） -->
+<script src="../biz/config.js"></script>
+<script type="module" src="admin.js"></script>
+</body>
+</html>

@@ -44,6 +44,17 @@
         Phase 3 で、ここが投げ銭ボタンになる（docs/README.md）。
         いまは何も繋がっていない。金額の表示もしない。
       -->
+      <div class="reaction" id="reaction" hidden>
+        <button class="like" id="like" type="button" aria-pressed="false">♥ 0</button>
+        <button class="btn-plain" id="report" type="button" hidden>気になる点を知らせる</button>
+        <div class="login-row" id="login-row" hidden>
+          <label class="skip" for="email">メールアドレス</label>
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+          <button class="btn-plain" id="send-link" type="button">ログインのリンクを送る</button>
+        </div>
+        <p class="reaction-note" id="reaction-note"></p>
+      </div>
+
       <div class="support">
         <b>この記事が役に立ったら</b><br />
         いまは「読んだ」を伝える手段がありません。応援の仕組みは、投稿を受け付けるようになってから足します。
@@ -61,6 +72,7 @@
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script type="module" src="article.js"></script>
 </body>
 </html>

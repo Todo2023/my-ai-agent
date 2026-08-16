@@ -136,6 +136,13 @@ async function api(path, opts = {}, retried = false) {
 }
 
 /**
+ * 汎用の問い合わせ口。
+ * 審査画面（../admin/）など、この folder の外からも使う。
+ * 使う側が path とオプションを組み立てる
+ */
+export const request = (path, opts) => api(path, opts);
+
+/**
  * 記事を審査に出す。
  * status は 'review' で固定。published はDB側のトリガが止める（supabase/community.sql）
  */

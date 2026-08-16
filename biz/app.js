@@ -1,9 +1,14 @@
 /**
  * 記事一覧
  *
- * articles.json（tools/build-index.mjs が作る）だけを読む。
- * 記事本文は開いたときに取りに行くので、一覧は記事が増えても重くならない。
+ * 2か所から集めて並べる。
+ *   1. articles.json … リポジトリに置いた記事（tools/build-index.mjs が作る）
+ *   2. Supabase の public_works … 審査を通して公開された記事
+ *
+ * 2が落ちても1は出る。逆はない。**読めるものを優先**して、
+ * つながらない日でも一覧が真っ白にならないようにしてある。
  */
+import * as supa from "./supa.js";
 
 const $ = (id) => document.getElementById(id);
 const state = { all: [], topic: null, q: "" };
@@ -19,7 +24,10 @@ function el(tag, cls, text) {
 function card(a) {
   const li = el("li", "card");
   const link = el("a");
-  link.href = `article.html?slug=${encodeURIComponent(a.slug)}`;
+  // DBから来たものは id で開く。リポジトリの記事は slug で開く
+  link.href = a.from_db
+    ? `article.html?id=${encodeURIComponent(a.id)}`
+    : `article.html?slug=${encodeURIComponent(a.slug)}`;
 
   link.append(el("div", "emoji", a.emoji));
 
@@ -72,20 +80,60 @@ function drawTopics(topics) {
   ul.replaceChildren(make("すべて", null), ...topics.map((t) => make(t, t)));
 }
 
+/** Supabase で公開されている記事を取りに行く。落ちても一覧は出す */
+async function fromDatabase() {
+  if (!supa.isConfigured()) return [];
+  try {
+    const rows = await supa.request(
+      "/rest/v1/public_works?site=eq.biz&select=*&order=published_at.desc&limit=100",
+    );
+    return (rows || []).map((r) => ({
+      from_db: true,
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      emoji: r.emoji || "📝",
+      topics: r.topics || [],
+      author: r.display_name || "",
+      published_at: (r.published_at || "").slice(0, 10),
+      is_pr: r.is_pr === true,
+      excerpt: r.summary || "",
+      minutes: 1,
+    }));
+  } catch (err) {
+    console.warn("公開ぶんを読めませんでした", err);
+    return [];
+  }
+}
+
 async function main() {
+  let local = [];
+  let topics = [];
   try {
     const res = await fetch("articles.json", { cache: "no-cache" });
     if (!res.ok) throw new Error(String(res.status));
     const data = await res.json();
-    state.all = data.articles || [];
-    drawTopics(data.topics || []);
-    draw();
+    local = data.articles || [];
+    topics = data.topics || [];
   } catch (err) {
-    // 読めない理由はだいたい file:// で開いたとき。原因を出しておく
+    // 読めない理由はだいたい file:// で開いたとき
+    console.error(err);
+  }
+
+  const remote = await fromDatabase();
+
+  // 同じ slug があればリポジトリのほうを残す（そちらが正）
+  const seen = new Set(local.map((a) => a.slug));
+  state.all = [...local, ...remote.filter((a) => !seen.has(a.slug))]
+    .sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)));
+
+  drawTopics([...new Set([...topics, ...remote.flatMap((a) => a.topics)])].sort());
+  draw();
+
+  if (!state.all.length) {
     $("empty").hidden = false;
     $("empty").textContent =
-      "記事の一覧を読み込めませんでした。ローカルで見るときは python3 -m http.server で開いてください。";
-    console.error(err);
+      "記事を読み込めませんでした。ローカルで見るときは python3 -m http.server で開いてください。";
   }
 
   $("q").addEventListener("input", (e) => {
