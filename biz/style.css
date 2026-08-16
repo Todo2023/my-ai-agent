@@ -183,6 +183,28 @@ header{position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--b
 footer{border-top:1px solid var(--line); padding:26px 0 40px; font-size:12px; color:var(--dim);}
 footer p{margin:4px 0;}
 
+/* ── 書き手の欄（profile.html） ────────────────────── */
+
+.profile{padding:32px 0 64px;}
+.who h1{font-size:22px; font-weight:700;}
+.who .handle{margin-top:4px; font-size:12.5px; color:var(--dim);}
+.who .bio{margin-top:14px; font-size:14px; line-height:1.9; max-width:var(--read); white-space:pre-wrap;}
+.who .links{margin-top:12px; display:flex; flex-wrap:wrap; gap:6px 14px; list-style:none; font-size:12.5px;}
+.who .btn{margin-top:18px;}
+
+.edit-box{margin-top:24px; padding:16px; border:1px solid var(--line); border-radius:var(--radius); background:var(--tint);}
+.edit-box h2{font-size:14px; font-weight:700; padding-bottom:6px;}
+.edit-box .fields{padding-inline:0;}
+.f textarea{
+  padding:9px 11px; font-size:14px; line-height:1.8; color:var(--ink); resize:vertical;
+  font-family:inherit; background:var(--bg); border:1px solid var(--line); border-radius:9px;
+}
+.f textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+
+.works{margin-top:36px; border-top:1px solid var(--line); padding-top:24px;}
+.works h2{font-size:14px; font-weight:700; padding-bottom:14px;}
+.works .count{font-weight:400;}
+
 /* ── 書く画面（write.html） ────────────────────────── */
 
 .editor{padding:20px 0 64px;}

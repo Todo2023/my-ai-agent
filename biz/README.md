@@ -96,11 +96,16 @@ anon キーはブラウザから見える。それで正しい。読み書きは
 
 ### 3. ログインのリンクが戻る先を登録する
 
-Authentication > URL Configuration の **Redirect URLs** に書く画面のURLを足す。
+Authentication > URL Configuration の **Redirect URLs** に、ログインする画面のURLを足す。
+**足し忘れた画面ではリンクを踏んでも戻ってこない。**
 
 ```
 https://todo2023.github.io/my-ai-agent/biz/write.html
+https://todo2023.github.io/my-ai-agent/biz/profile.html
 ```
+
+記事ページ（`a/<slug>/`）からもログインできる（いいねを押すとき）。
+そこまで戻したいなら `https://todo2023.github.io/my-ai-agent/biz/a/**` も足す。
 
 ### 4. つないだあとに確認すること
 
@@ -137,6 +142,23 @@ slug がぶつかったときも触らずに報せるので、どちらかの名
 取り込んだ `.md` を手で直しても構わないが、その記事を公開し直すと消える。
 直すならDB側で直す。
 
+## 書き手の欄（`profile.html`）
+
+| | |
+| --- | --- |
+| `profile.html?handle=xxx` | その人の欄。**誰でも見える**（ログイン不要） |
+| `profile.html` | 自分の欄。ログインして表示名・紹介・リンクを書く |
+
+公開されるのは**表示名・紹介・リンクだけ**。メールアドレスは出ない（`profiles` に持っていない）。
+
+**ID（handle）は一度決めたら変えられないようにしてある。**
+記事ページのリンク先と、取り込んだ `.md` の `handle` に焼き付くため。
+変えたくなったら、記事側も一緒に直す必要がある。
+
+記事に名前が出るのは、DBから取り込んだ記事（`pull-published.mjs` を通ったもの）だけ。
+手で書いた `.md` は front matter の `author` がそのまま出て、リンクにはならない。
+リンクにしたいときは `handle: "xxx"` を足す。
+
 ## 使える記法
 
 | | |
@@ -163,6 +185,7 @@ slug がぶつかったときも触らずに報せるので、どちらかの名
 | `article-page.js` | 生成した記事ページに足すぶん（目次の現在地・いいね） |
 | `article.html` / `article.js` | 下書きの下見と、まだ取り込んでいないDB記事を開く画面。**noindex のまま** |
 | `article-parts.js` | 上の2つが共有する部品（目次・いいね・通報） |
+| `profile.html` / `profile.js` | 書き手の欄。見るのと、自分のを直すのを兼ねる |
 | `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
 | `config.js` | 接続先の設定。**anonキーが入っている**（公開前提のキー。RLSで守る） |
 | `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
@@ -185,12 +208,14 @@ python3 -m http.server 8000
 
 ## いまできないこと
 
-Phase 0 なので、次はまだない。順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
+順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
 
-- いいね・コメント（Phase 1 の残り）。DBの表はもうあるが、画面がまだない
-- いいね・コメント・フォロー（Phase 1）
+- コメント・フォロー（Phase 1 の残り）。`comments` の表はあるが、画面がまだない
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 投げ銭・有料販売（Phase 3）
+
+いいね・通報は動く。ただし**DBに行がある記事だけ**（`work_id` を持つもの）。
+手で書いた `.md` には押す先がないので、ボタン自体を出さない。
 
 **記事のURLは `a/<slug>/` で固定した。**（2026-08-16）
 拡張子を付けていないので、置き場所を Cloudflare Pages に移しても同じURLのまま運べる。
