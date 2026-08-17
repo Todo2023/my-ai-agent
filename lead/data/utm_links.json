@@ -1,0 +1,27 @@
+{
+  "base_url": "https://todo-llc.netlify.app/contact/",
+  "utm_campaign": "claudecode_series",
+  "links": {
+    "x": {
+      "utm_source": "x",
+      "utm_medium": "sns",
+      "url": "https://todo-llc.netlify.app/contact/?utm_source=x&utm_medium=sns&utm_campaign=claudecode_series",
+      "cta_a": "https://todo-llc.netlify.app/contact/?utm_source=x&utm_medium=sns&utm_campaign=claudecode_series&utm_content=cta_a",
+      "cta_b": "https://todo-llc.netlify.app/contact/?utm_source=x&utm_medium=sns&utm_campaign=claudecode_series&utm_content=cta_b"
+    },
+    "note": {
+      "utm_source": "note",
+      "utm_medium": "article",
+      "url": "https://todo-llc.netlify.app/contact/?utm_source=note&utm_medium=article&utm_campaign=claudecode_series",
+      "cta_a": "https://todo-llc.netlify.app/contact/?utm_source=note&utm_medium=article&utm_campaign=claudecode_series&utm_content=cta_a",
+      "cta_b": "https://todo-llc.netlify.app/contact/?utm_source=note&utm_medium=article&utm_campaign=claudecode_series&utm_content=cta_b"
+    },
+    "zenn": {
+      "utm_source": "zenn",
+      "utm_medium": "article",
+      "url": "https://todo-llc.netlify.app/contact/?utm_source=zenn&utm_medium=article&utm_campaign=claudecode_series",
+      "cta_a": "https://todo-llc.netlify.app/contact/?utm_source=zenn&utm_medium=article&utm_campaign=claudecode_series&utm_content=cta_a",
+      "cta_b": "https://todo-llc.netlify.app/contact/?utm_source=zenn&utm_medium=article&utm_campaign=claudecode_series&utm_content=cta_b"
+    }
+  }
+}

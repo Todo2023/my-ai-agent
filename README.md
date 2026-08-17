@@ -24,6 +24,7 @@ GitHub Pages に置いてあるスマホ向けアプリ（PWA）。どれもビ�
 | [`biz/`](biz/) | **ハタラク文庫（仮）** | マーケ・事業の記事置き場。Markdownで書く。PWAではない |
 | [`admin/`](admin/) | **審査（身内用）** | 投稿を見て公開・差し戻しを決める。管理者以外には何も出ない |
 | [`sekkei/`](sekkei/) | **設計メモ** | `biz/` と `ehon/` をどう育てるかの検討。コードはない |
+| [`lead/`](lead/) | **リード獲得自動化** | SNS投稿に無料相談ページへの導線（CTA + UTM）を付ける。Python。ブラウザでは動かない |
 
 | [`diet_agent/`](diet_agent/) [`invoice_agent/`](invoice_agent/) [`meeting_agent/`](meeting_agent/) [`travel_agent/`](travel_agent/) [`diet_gas/`](diet_gas/) [`diet_worker/`](diet_worker/) | **AIエージェント教材** | Python。進め方は [`README-agents.md`](README-agents.md) |
 

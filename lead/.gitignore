@@ -1,0 +1,4 @@
+# 生成物。毎日変わるので git には入れない
+output/*.md
+data/*.tmp
+__pycache__/
