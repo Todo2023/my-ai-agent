@@ -24,9 +24,10 @@ res = await post('/api/state', {}); let s = await res.json();
 ok('state default people', s.people.length === 2 && s.people[0].name === '夫' && s.people[0].goal === null, JSON.stringify(s.people));
 ok('today format', /^\d{4}-\d{2}-\d{2}$/.test(s.today), s.today);
 
-res = await post('/api/record', {person:0, date:'2026-08-16', weight:62.44, fat:18.2, source:'ocr', note:'テスト'});
+res = await post('/api/record', {person:0, date:'2026-08-16', weight:62.44, source:'ocr', note:'テスト'});
 let r = await res.json();
 ok('saved', r.state.records.length === 1 && r.state.records[0].weight === 62.4 && r.overwritten === false, JSON.stringify(r.state.records));
+ok('体脂肪率は持たない', !('fat' in r.state.records[0]), JSON.stringify(r.state.records[0]));
 res = await post('/api/record', {person:0, date:'2026-08-16', weight:63.0});
 r = await res.json();
 ok('overwrite same day', r.overwritten === true && r.state.records.length === 1 && r.state.records[0].weight === 63);
@@ -52,7 +53,7 @@ ok('pin accepted', res.status === 200);
 
 // 写真の読み取り（Geminiの応答を差し替えて検証だけ確かめる）
 const realFetch = globalThis.fetch;
-globalThis.fetch = async () => new Response(JSON.stringify({candidates:[{content:{parts:[{text:'{"weight_kg":624,"body_fat_pct":null,"raw_text":"624","confidence":0.8}'}]}}]}), {status:200});
+globalThis.fetch = async () => new Response(JSON.stringify({candidates:[{content:{parts:[{text:'{"weight_kg":624,"raw_text":"624","confidence":0.8}'}]}}]}), {status:200});
 res = await post('/api/read', {image:'AAAA', mimeType:'image/jpeg', person:0});
 let reading = await res.json();
 ok('decimal repaired', reading.weight === 62.4 && reading.warnings.some(w => w.includes('小数点')) && reading.needsCheck === true, JSON.stringify(reading));

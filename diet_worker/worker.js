@@ -19,17 +19,15 @@ const DEFAULT_MODEL = "gemini-3.6-flash";
 
 // 体重計の表示としてありえる範囲。ここを外れた値は採用しない。
 const W_MIN = 20, W_MAX = 250;
-const F_MIN = 3, F_MAX = 60;
 const JUMP_KG = 3; // 前回からこれ以上動いていたら読み間違いを疑う
 
 const PROMPT = [
   "この画像は体重計（または体組成計）の表示部分です。表示されている数字をそのまま読み取り、",
   "JSONだけを返してください。説明文やコードブロックは付けないこと。",
   "",
-  '{"weight_kg": 数値またはnull, "body_fat_pct": 数値またはnull, "raw_text": "画面に見えている文字", "confidence": 0.0〜1.0}',
+  '{"weight_kg": 数値またはnull, "raw_text": "画面に見えている文字", "confidence": 0.0〜1.0}',
   "",
-  "- weight_kg: 「kg」と書かれている、いちばん大きい数字",
-  "- body_fat_pct: 体脂肪率。表示が無ければ null",
+  "- weight_kg: 「kg」と書かれている、いちばん大きい数字。体脂肪率など他の数値は読まなくてよい",
   "- confidence: ぼやけている、桁が欠けて見える、どれが体重か判断できない場合は 0.5 未満にする",
   "",
   "小数点の位置に注意してください。体重計の表示はふつう小数第1位までです（例: 62.4）。",
@@ -148,19 +146,16 @@ async function saveRecord(env, data, body) {
   const person = personIndex(body.person);
   const date = String(body.date || "");
   const weight = number(body.weight);
-  let fat = number(body.fat);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("日付の形式が違います");
   if (weight === null || weight < W_MIN || weight > W_MAX) {
     throw new Error("体重が入力できる範囲（" + W_MIN + "〜" + W_MAX + "kg）の外です");
   }
-  if (fat !== null && (fat < 1 || fat > 70)) throw new Error("体脂肪率が入力できる範囲の外です");
 
   const record = {
     person: person,
     date: date,
     weight: Math.round(weight * 10) / 10,
-    fat: fat === null ? null : Math.round(fat * 10) / 10,
     source: body.source === "ocr" ? "ocr" : "manual",
     note: body.note ? String(body.note).slice(0, 40) : null
   };
@@ -209,7 +204,7 @@ async function readScale(env, data, body) {
     reading = parseReading(await callGemini(env, String(body.image || ""), body.mimeType || "image/jpeg"));
   } catch (error) {
     return {
-      weight: null, fat: null, rawText: "", confidence: 0, needsCheck: true,
+      weight: null, rawText: "", confidence: 0, needsCheck: true,
       warnings: ["読み取りに失敗しました（" + (error.message || error) + "）。手で入れてください"]
     };
   }
@@ -262,7 +257,6 @@ function parseReading(text) {
   const confidence = number(data.confidence);
   return {
     weight: number(data.weight_kg),
-    fat: number(data.body_fat_pct),
     rawText: String(data.raw_text || ""),
     confidence: confidence === null ? 0 : Math.min(Math.max(confidence, 0), 1)
   };
@@ -275,7 +269,6 @@ function parseReading(text) {
 function validate(reading, previous) {
   const warnings = [];
   let weight = reading.weight;
-  let fat = reading.fat;
 
   if (weight !== null) {
     // 「62.4」を「624」と読むのはよくある失敗。10で割って収まるなら直す。
@@ -287,10 +280,6 @@ function validate(reading, previous) {
       warnings.push("読み取った体重 " + weight + "kg は範囲外です。手で入れてください");
       weight = null;
     }
-  }
-  if (fat !== null && (fat < F_MIN || fat > F_MAX)) {
-    warnings.push("読み取った体脂肪率 " + fat + "% は範囲外なので使いませんでした");
-    fat = null;
   }
   if (weight === null && !warnings.length) {
     warnings.push("体重を読み取れませんでした。手で入れてください");
@@ -308,7 +297,6 @@ function validate(reading, previous) {
 
   return {
     weight: weight === null ? null : Math.round(weight * 10) / 10,
-    fat: fat === null ? null : Math.round(fat * 10) / 10,
     rawText: reading.rawText,
     confidence: reading.confidence,
     warnings: warnings,
@@ -487,13 +475,9 @@ const PAGE = `<!DOCTYPE html>
           <label for="date">ひづけ</label>
           <input type="date" id="date">
         </div>
-        <div>
+        <div class="full">
           <label for="weight">たいじゅう kg</label>
           <input type="number" id="weight" step="0.1" min="20" max="250" inputmode="decimal" placeholder="62.4">
-        </div>
-        <div>
-          <label for="fat">たいしぼう %</label>
-          <input type="number" id="fat" step="0.1" min="1" max="70" inputmode="decimal" placeholder="任意">
         </div>
         <div class="full">
           <label for="note">ひとこと</label>
@@ -627,7 +611,6 @@ function normalizeState(next) {
       person: Number(r.person) === 1 ? 1 : 0,
       date: String(r.date || ""),
       weight: num(r.weight),
-      fat: num(r.fat),
       source: String(r.source || "manual"),
       note: r.note ? String(r.note) : null
     };
@@ -808,7 +791,7 @@ function renderHistory() {
     $("history").innerHTML = '<div class="empty">' + esc(state.people[current].name) + " の記録はまだありません</div>";
     return;
   }
-  $("history").innerHTML = "<table><thead><tr><th>ひづけ</th><th class='r'>たいじゅう</th><th class='r'>たいしぼう</th><th class='r'>まえの日から</th><th></th></tr></thead><tbody>" +
+  $("history").innerHTML = "<table><thead><tr><th>ひづけ</th><th class='r'>たいじゅう</th><th class='r'>まえの日から</th><th></th></tr></thead><tbody>" +
     rows.map(function (r, i) {
       var prev = rows[i + 1];
       var diff = prev ? r.weight - prev.weight : null;
@@ -816,7 +799,6 @@ function renderHistory() {
         (r.source === "ocr" ? ' <span class="tag" style="background:' + wash(current) + ";color:" + color(current) + '">写真</span>' : "") +
         (r.note ? '<br><span class="note">' + esc(r.note) + "</span>" : "") + "</td>" +
         "<td class='r'>" + r.weight.toFixed(1) + "</td>" +
-        "<td class='r'>" + (r.fat === null ? "—" : r.fat.toFixed(1)) + "</td>" +
         "<td class='r' style='color:" + (diff === null ? "var(--ink-faint)" : diff <= 0 ? "var(--down)" : "var(--up)") + "'>" +
         (diff === null ? "—" : one(diff)) + "</td>" +
         "<td class='r'><button class='del' data-date='" + r.date + "' aria-label='" + r.date + " の記録を消す'>✕</button></td></tr>";
@@ -843,7 +825,7 @@ function renderAll() {
 /* ---------- 写真を読む ---------- */
 
 function clearForm() {
-  ["weight", "fat", "note"].forEach(function (id) { $(id).value = ""; });
+  ["weight", "note"].forEach(function (id) { $(id).value = ""; });
   $("date").value = state.today;
   $("figure").style.display = "none";
   notice("", "");
@@ -885,16 +867,13 @@ $("photo").onchange = function (event) {
       // 読めなかった項目は欠落して届くことがあるので、ここでも null に揃える
       reading = reading || {};
       var weight = typeof reading.weight === "number" ? reading.weight : null;
-      var fat = typeof reading.fat === "number" ? reading.fat : null;
       var warnings = reading.warnings || [];
 
       if (weight !== null) { $("weight").value = weight; fromPhoto = true; }
-      if (fat !== null) $("fat").value = fat;
       if (warnings.length) {
         notice("warn", "<b>確かめてください</b><ul>" + warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>");
       } else {
-        notice("ok", "写真から <b>" + weight + "kg</b>" + (fat !== null ? " / <b>" + fat + "%</b>" : "") +
-          " を読み取りました。合っていれば記録してください。");
+        notice("ok", "写真から <b>" + weight + "kg</b> を読み取りました。合っていれば記録してください。");
       }
       if (weight === null) $("weight").focus();
     })
@@ -918,7 +897,6 @@ $("save").onclick = function () {
     person: current,
     date: $("date").value,
     weight: weight,
-    fat: $("fat").value === "" ? null : Number($("fat").value),
     note: $("note").value.trim(),
     source: fromPhoto ? "ocr" : "manual"
   };
