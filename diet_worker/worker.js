@@ -962,8 +962,8 @@ const MANIFEST = `{
 }`;
 
 const SERVICE_WORKER = `/** 入れ物だけをキャッシュする。記録の読み書きは毎回サーバに聞く。 */
-const CACHE = "taijuu-shell-v1";
-const SHELL = ["./", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const CACHE = "taijuu-shell-v2";
+const SHELL = ["manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -982,6 +982,23 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   // /api は必ずネットワークへ。キャッシュすると古い記録が出てしまう。
   if (request.method !== "GET" || url.origin !== location.origin || url.pathname.startsWith("/api/")) return;
+
+  // 画面そのものは毎回ネットワークを見に行く。キャッシュを優先すると、
+  // アプリを更新しても古い画面が出続けてしまう。圏外のときだけ控えを使う。
+  if (request.mode === "navigate" || url.pathname === "/") {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put("./", copy));
+          return res;
+        })
+        .catch(() => caches.match("./").then((hit) => hit || Response.error()))
+    );
+    return;
+  }
+
+  // アイコンなどの変わらないものだけ、控えを先に使う。
   event.respondWith(caches.match(request).then((hit) => hit || fetch(request)));
 });
 `;
