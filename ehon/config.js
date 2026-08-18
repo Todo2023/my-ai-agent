@@ -19,5 +19,16 @@
 
 window.TODO_EHON_CONFIG = {
   SUPABASE_URL: "https://wmjzbdacvjrepxdqzwen.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_MfWenaXrRnHUKEYT0HjXJg_lx-4INn7"
+  SUPABASE_ANON_KEY: "sb_publishable_MfWenaXrRnHUKEYT0HjXJg_lx-4INn7",
+
+  /*
+    投げ銭（Stripe Payment Link）の行き先。おしまいの画面に、
+    **保護者向けとして控えめに**出る（子ども向けのボタンにはしない）。
+
+    ⚠️ いま入っているのは **Stripe のテスト用リンク**（`/test_` が付いている）。
+       テストのリンクは本物のお金が動かないのに、カード情報の入力欄が出る。
+       読者が本気で入力してしまうので、**reader.js が test を弾いて表示しない。**
+       本番のリンク（`/test_` の付かないもの）に差し替えると、その時点で出る。
+  */
+  SUPPORT_URL: "https://buy.stripe.com/test_7sY00c5xccNU7lt4A52VG00"
 };

@@ -129,6 +129,14 @@ body.reading{background:#2a241d; color:#f6eee1; overflow:hidden;}
 .end.show{display:grid;}
 .end h2{font-size:22px;}
 .end p{margin-top:10px; color:#c6b9a8; font-size:14px;}
+/* 保護者向けの応援リンク。子どもの目を引かないよう、小さく暗く置く */
+.end .support{margin-top:26px; font-size:12px;}
+.end .support a{
+  padding:0; background:none; border:none; color:#8d8073;
+  text-decoration:underline; font-size:12px;
+}
+.end .support a:hover{color:#c6b9a8;}
+
 .end .row{margin-top:22px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
 .end a,.end button{
   padding:12px 20px; border-radius:12px; text-decoration:none; font-size:15px;
