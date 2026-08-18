@@ -141,8 +141,19 @@ async function main() {
     state.book = await res.json();
   } catch (err) {
     console.error(err);
-    $("title").textContent = "えほんを ひらけませんでした";
-    $("text").textContent = "ローカルで見るときは python3 -m http.server で開いてください。";
+    // 読む人に出す文。**開発の事情は書かない。**
+    // 消した えほんの URL を、あとから開く人がいる（前に配ったリンクや ブックマーク）
+    $("title").textContent = "この えほんは みつかりません";
+    $("text").textContent = "なまえが かわったか、いまは おいて いないようです。";
+
+    const back = document.createElement("a");
+    back.href = "./";
+    back.className = "to-shelf";
+    back.textContent = "ほかの えほんを えらぶ";
+    $("text").after(back);
+
+    // めくるところは意味がないので消す
+    document.querySelector(".reader-foot")?.remove();
     return;
   }
 

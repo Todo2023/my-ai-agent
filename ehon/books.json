@@ -97,6 +97,18 @@
       "bytes": 7301
     },
     {
+      "slug": "akai-mi",
+      "title": "あかい み",
+      "author": "編集部",
+      "summary": "きの みを、みんなで わけます。",
+      "age_min": 1,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 10607
+    },
+    {
       "slug": "ookii-chiisai",
       "title": "おおきい ちいさい",
       "author": "編集部",
