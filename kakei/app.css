@@ -664,6 +664,45 @@ select {
   color: var(--dim);
 }
 
+/* ---------- 月をめくる ---------- */
+
+.monthnav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.monthnav span {
+  min-width: 7.5em;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #d5f5e7;
+  font-variant-numeric: tabular-nums;
+}
+
+.monthnav button {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.monthnav button:disabled { opacity: 0.3; cursor: default; }
+
+/* 引落を入れる行。.card は別のもの（子ども・住まいの箱）なので名前を分けてある */
+.item.pay { align-items: center; }
+.item.pay input.ilabel { font-size: 13px; }
+
+.table-mini div[data-month] { padding: 8px 0; }
+.table-mini div[data-month]:active { background: rgba(219, 255, 246, 0.05); }
+
 /* ---------- カード（子ども・住まい・イベント・プラン） ---------- */
 
 .cards { display: flex; flex-direction: column; gap: 10px; }
