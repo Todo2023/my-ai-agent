@@ -144,7 +144,6 @@ ${NOINDEX ? '<meta name="robots" content="noindex" /><!-- 試作のため検索�
     <a class="logo" href="${UP}">ハタラク文庫<small>KARI · WORKING LIBRARY</small></a>
     <nav>
       <a href="${UP}">記事一覧</a>
-      <a href="${UP}../ehon/">えほんの棚</a>
     </nav>
   </div>
 </header>
