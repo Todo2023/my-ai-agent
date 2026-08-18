@@ -1,5 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
+<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <!-- ふちを ゆらす。まっすぐな線を なくす -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
+
+  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
+       中を けずった ぶんを 引くと、ふちだけが 残る -->
+  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
+  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
+  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
+  <feColorMatrix in="rimSoft" type="matrix"
+    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
+
+  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
+  <feColorMatrix in="m" type="matrix"
+    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
+  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
+
+  <feMerge>
+    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
+  </feMerge>
+</filter>
+
+<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
+  <feColorMatrix in="t" type="matrix"
+    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
+</filter>
+</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#9ed2e6"/><stop offset="1" stop-color="#dcefe4"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><circle cx="1290" cy="240" r="264" fill="url(#glow)"/><circle cx="1290" cy="240" r="120" fill="#ffd257"/><path d="M0 880 Q400 820 800 870 T1600 840 L1600 1000 L0 1000 Z" fill="#8fae74"/><ellipse cx="800" cy="910" rx="330" ry="80" fill="#9ec9dd"/><g transform="translate(800 900) scale(0.58)" fill="none" stroke-width="34"><path d="M-420 0 A420 420 0 0 1 420 0" stroke="#e2645a"/><path d="M-386 0 A386 386 0 0 1 386 0" stroke="#eaa14e"/><path d="M-352 0 A352 352 0 0 1 352 0" stroke="#efd469"/><path d="M-318 0 A318 318 0 0 1 318 0" stroke="#79b96a"/><path d="M-284 0 A284 284 0 0 1 284 0" stroke="#5aa7d6"/><path d="M-250 0 A250 250 0 0 1 250 0" stroke="#8f7ac4"/></g></svg>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><circle cx="1290" cy="240" r="264" fill="url(#glow)"/><circle cx="1290" cy="240" r="120" fill="#ffd257"/><path d="M0 880 Q400 820 800 870 T1600 840 L1600 1000 L0 1000 Z" fill="#8fae74"/><ellipse cx="800" cy="910" rx="330" ry="80" fill="#9ec9dd"/><g transform="translate(800 900) scale(0.58)" fill="none" stroke-width="34"><path d="M-420 0 A420 420 0 0 1 420 0" stroke="#e2645a"/><path d="M-386 0 A386 386 0 0 1 386 0" stroke="#eaa14e"/><path d="M-352 0 A352 352 0 0 1 352 0" stroke="#efd469"/><path d="M-318 0 A318 318 0 0 1 318 0" stroke="#79b96a"/><path d="M-284 0 A284 284 0 0 1 284 0" stroke="#5aa7d6"/><path d="M-250 0 A250 250 0 0 1 250 0" stroke="#8f7ac4"/></g></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>

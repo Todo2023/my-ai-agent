@@ -1,5 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
+<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <!-- ふちを ゆらす。まっすぐな線を なくす -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
+
+  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
+       中を けずった ぶんを 引くと、ふちだけが 残る -->
+  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
+  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
+  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
+  <feColorMatrix in="rimSoft" type="matrix"
+    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
+
+  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
+  <feColorMatrix in="m" type="matrix"
+    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
+  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
+
+  <feMerge>
+    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
+  </feMerge>
+</filter>
+
+<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
+  <feColorMatrix in="t" type="matrix"
+    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
+</filter>
+</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#9aa9b8"/><stop offset="1" stop-color="#c8d3dc"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><g stroke="#7fa8c4" stroke-width="7" stroke-linecap="round" opacity=".85"><line x1="440" y1="307" x2="426" y2="353"/><line x1="1560" y1="284" x2="1546" y2="330"/><line x1="1115" y1="98" x2="1101" y2="144"/><line x1="1405" y1="120" x2="1391" y2="166"/><line x1="1420" y1="268" x2="1406" y2="314"/><line x1="996" y1="632" x2="982" y2="678"/><line x1="442" y1="13" x2="428" y2="59"/><line x1="108" y1="413" x2="94" y2="459"/><line x1="282" y1="592" x2="268" y2="638"/><line x1="865" y1="146" x2="851" y2="192"/><line x1="519" y1="271" x2="505" y2="317"/><line x1="150" y1="342" x2="136" y2="388"/><line x1="1391" y1="621" x2="1377" y2="667"/><line x1="824" y1="60" x2="810" y2="106"/><line x1="397" y1="337" x2="383" y2="383"/><line x1="1105" y1="482" x2="1091" y2="528"/><line x1="1064" y1="435" x2="1050" y2="481"/><line x1="201" y1="576" x2="187" y2="622"/><line x1="197" y1="136" x2="183" y2="182"/><line x1="1151" y1="254" x2="1137" y2="300"/></g><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#8fae74"/></svg>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><g stroke="#7fa8c4" stroke-width="7" stroke-linecap="round" opacity=".85"><line x1="440" y1="307" x2="426" y2="353"/><line x1="1560" y1="284" x2="1546" y2="330"/><line x1="1115" y1="98" x2="1101" y2="144"/><line x1="1405" y1="120" x2="1391" y2="166"/><line x1="1420" y1="268" x2="1406" y2="314"/><line x1="996" y1="632" x2="982" y2="678"/><line x1="442" y1="13" x2="428" y2="59"/><line x1="108" y1="413" x2="94" y2="459"/><line x1="282" y1="592" x2="268" y2="638"/><line x1="865" y1="146" x2="851" y2="192"/><line x1="519" y1="271" x2="505" y2="317"/><line x1="150" y1="342" x2="136" y2="388"/><line x1="1391" y1="621" x2="1377" y2="667"/><line x1="824" y1="60" x2="810" y2="106"/><line x1="397" y1="337" x2="383" y2="383"/><line x1="1105" y1="482" x2="1091" y2="528"/><line x1="1064" y1="435" x2="1050" y2="481"/><line x1="201" y1="576" x2="187" y2="622"/><line x1="197" y1="136" x2="183" y2="182"/><line x1="1151" y1="254" x2="1137" y2="300"/></g><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#8fae74"/></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>

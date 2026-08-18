@@ -1,5 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
+<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <!-- ふちを ゆらす。まっすぐな線を なくす -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
+
+  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
+       中を けずった ぶんを 引くと、ふちだけが 残る -->
+  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
+  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
+  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
+  <feColorMatrix in="rimSoft" type="matrix"
+    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
+
+  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
+  <feColorMatrix in="m" type="matrix"
+    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
+  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
+
+  <feMerge>
+    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
+  </feMerge>
+</filter>
+
+<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
+  <feColorMatrix in="t" type="matrix"
+    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
+</filter>
+</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#c9d8e6"/><stop offset="1" stop-color="#eef4f8"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><path d="M-50 780 Q250 580 600 740 T1250 680 T1700 790 L1700 1000 L-50 1000 Z" fill="#dfe9f2"/><g fill="#fff" stroke="#b9cbdb" stroke-width="2" opacity=".95"><circle cx="409" cy="995" r="8.0"/><circle cx="948" cy="40" r="8.5"/><circle cx="1212" cy="279" r="11.7"/><circle cx="910" cy="390" r="7.4"/><circle cx="656" cy="379" r="11.2"/><circle cx="1202" cy="671" r="5.7"/><circle cx="1456" cy="757" r="8.2"/><circle cx="1294" cy="252" r="11.8"/><circle cx="187" cy="239" r="6.0"/><circle cx="800" cy="565" r="6.6"/><circle cx="1437" cy="88" r="8.2"/><circle cx="1454" cy="654" r="9.3"/><circle cx="242" cy="916" r="9.9"/><circle cx="294" cy="315" r="7.4"/><circle cx="1110" cy="757" r="8.4"/><circle cx="188" cy="738" r="5.1"/><circle cx="1253" cy="930" r="6.0"/><circle cx="1392" cy="523" r="5.7"/><circle cx="418" cy="994" r="9.3"/><circle cx="1340" cy="926" r="5.2"/><circle cx="1290" cy="901" r="5.9"/><circle cx="853" cy="348" r="8.5"/><circle cx="116" cy="726" r="8.1"/><circle cx="23" cy="865" r="9.6"/><circle cx="1025" cy="896" r="6.8"/><circle cx="573" cy="143" r="10.3"/><circle cx="490" cy="974" r="8.5"/><circle cx="971" cy="955" r="5.9"/><circle cx="478" cy="565" r="10.1"/><circle cx="1450" cy="718" r="10.2"/></g><path d="M0 860 Q400 800 800 850 T1600 820 L1600 1000 L0 1000 Z" fill="#f4f8fb"/><g fill="#b9cbdb"><ellipse cx="260" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="440" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="620" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="800" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="980" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="1160" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="1340" cy="931" rx="33.6" ry="21.599999999999998"/></g></svg>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><path d="M-50 780 Q250 580 600 740 T1250 680 T1700 790 L1700 1000 L-50 1000 Z" fill="#dfe9f2"/><g fill="#fff" stroke="#b9cbdb" stroke-width="2" opacity=".95"><circle cx="409" cy="995" r="8.0"/><circle cx="948" cy="40" r="8.5"/><circle cx="1212" cy="279" r="11.7"/><circle cx="910" cy="390" r="7.4"/><circle cx="656" cy="379" r="11.2"/><circle cx="1202" cy="671" r="5.7"/><circle cx="1456" cy="757" r="8.2"/><circle cx="1294" cy="252" r="11.8"/><circle cx="187" cy="239" r="6.0"/><circle cx="800" cy="565" r="6.6"/><circle cx="1437" cy="88" r="8.2"/><circle cx="1454" cy="654" r="9.3"/><circle cx="242" cy="916" r="9.9"/><circle cx="294" cy="315" r="7.4"/><circle cx="1110" cy="757" r="8.4"/><circle cx="188" cy="738" r="5.1"/><circle cx="1253" cy="930" r="6.0"/><circle cx="1392" cy="523" r="5.7"/><circle cx="418" cy="994" r="9.3"/><circle cx="1340" cy="926" r="5.2"/><circle cx="1290" cy="901" r="5.9"/><circle cx="853" cy="348" r="8.5"/><circle cx="116" cy="726" r="8.1"/><circle cx="23" cy="865" r="9.6"/><circle cx="1025" cy="896" r="6.8"/><circle cx="573" cy="143" r="10.3"/><circle cx="490" cy="974" r="8.5"/><circle cx="971" cy="955" r="5.9"/><circle cx="478" cy="565" r="10.1"/><circle cx="1450" cy="718" r="10.2"/></g><path d="M0 860 Q400 800 800 850 T1600 820 L1600 1000 L0 1000 Z" fill="#f4f8fb"/><g fill="#b9cbdb"><ellipse cx="260" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="440" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="620" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="800" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="980" cy="931" rx="33.6" ry="21.599999999999998"/><ellipse cx="1160" cy="888" rx="33.6" ry="21.599999999999998"/><ellipse cx="1340" cy="931" rx="33.6" ry="21.599999999999998"/></g></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>
