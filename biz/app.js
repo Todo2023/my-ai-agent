@@ -24,10 +24,12 @@ function el(tag, cls, text) {
 function card(a) {
   const li = el("li", "card");
   const link = el("a");
-  // DBから来たものは id で開く。リポジトリの記事は slug で開く
+  // リポジトリの記事には生成したページがある。
+  // DBのぶんはまだ .md に取り込んでいないので、その場で描く画面へ送る
+  // （取り込みは tools/pull-published.mjs）
   link.href = a.from_db
     ? `article.html?id=${encodeURIComponent(a.id)}`
-    : `article.html?slug=${encodeURIComponent(a.slug)}`;
+    : `a/${encodeURIComponent(a.slug)}/`;
 
   link.append(el("div", "emoji", a.emoji));
 
@@ -38,6 +40,7 @@ function card(a) {
   const meta = el("div", "meta");
   if (a.is_pr) meta.append(el("span", "tag pr", "PR"));
   for (const t of a.topics) meta.append(el("span", "tag", t));
+  if (a.author) meta.append(el("span", null, a.author));
   meta.append(el("span", null, `${a.published_at}・約${a.minutes}分`));
   box.append(meta);
 

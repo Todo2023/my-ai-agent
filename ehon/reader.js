@@ -180,6 +180,27 @@ async function main() {
   addEventListener("pagehide", stopSpeech);
 
   if (!("speechSynthesis" in window)) $("speak").hidden = true;
+
+  setupSupport();
+}
+
+/**
+ * おしまいの画面に、保護者向けの応援リンクを出す。
+ *
+ * ■ テスト用のリンクは絶対に出さない
+ *   Stripe のテストリンク（`buy.stripe.com/test_…`）は、本物のお金が動かないのに
+ *   カード情報の入力欄が出る。読者が本気で入力してしまうので、
+ *   **本番のリンクに差し替わるまで、この行ごと隠す。**
+ *
+ * ■ 子ども向けのボタンにはしない
+ *   大人の言葉で、小さく、下に置く（sekkei/platform-kids.md）。
+ */
+function setupSupport() {
+  const url = String(window.TODO_EHON_CONFIG?.SUPPORT_URL || "");
+  if (!/^https:\/\/buy\.stripe\.com\/(?!test_)[\w-]+$/.test(url)) return;
+
+  $("support-link").href = url;
+  $("support").hidden = false;
 }
 
 main();

@@ -1,0 +1,37 @@
+{
+  "slug": "oyasumi-no-mae",
+  "title": "おやすみの まえに",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ねる まえに することを、ひとつ ずつ。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "夕暮れの家",
+      "text": "そらが くらく なりました。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "部屋のあかりと夜の窓",
+      "text": "あかりを つけます。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "本を開く",
+      "text": "えほんを ひとつ。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "あかりを小さくする",
+      "text": "あかりを ちいさく します。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "あかりの消えた家と月",
+      "text": "おやすみなさい。"
+    }
+  ]
+}

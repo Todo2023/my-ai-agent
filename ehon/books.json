@@ -1,6 +1,42 @@
 {
   "books": [
     {
+      "slug": "ohayou-no-jun",
+      "title": "おはようの じゅんばん",
+      "author": "編集部",
+      "summary": "あさ、ひとつ ずつ めを さまします。",
+      "age_min": 0,
+      "age_max": 2,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 9119
+    },
+    {
+      "slug": "oyasumi-no-mae",
+      "title": "おやすみの まえに",
+      "author": "編集部",
+      "summary": "ねる まえに することを、ひとつ ずつ。",
+      "age_min": 0,
+      "age_max": 2,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 6725
+    },
+    {
+      "slug": "dare-no-koe",
+      "title": "だれの こえ",
+      "author": "編集部",
+      "summary": "きこえて くる こえの ぬしを さがします。",
+      "age_min": 0,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 16833
+    },
+    {
       "slug": "chiisana-niji",
       "title": "ちいさな にじ",
       "author": "編集部",
@@ -23,6 +59,90 @@
       "cover": "p01.svg",
       "pages": 6,
       "bytes": 8759
+    },
+    {
+      "slug": "pyon-pyon",
+      "title": "ぴょん ぴょん",
+      "author": "編集部",
+      "summary": "ぴょんと とぶ いきものが、つぎつぎ でて きます。",
+      "age_min": 0,
+      "age_max": 2,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 9759
+    },
+    {
+      "slug": "poton-poton",
+      "title": "ぽとん ぽとん",
+      "author": "編集部",
+      "summary": "あめの しずくが、ひとつ ずつ おちて きます。",
+      "age_min": 0,
+      "age_max": 2,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 14996
+    },
+    {
+      "slug": "maru-sagashi",
+      "title": "まるを さがして",
+      "author": "編集部",
+      "summary": "まるい ものを、ひとつ ずつ みつけて いきます。",
+      "age_min": 0,
+      "age_max": 2,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 7301
+    },
+    {
+      "slug": "akai-mi",
+      "title": "あかい み",
+      "author": "編集部",
+      "summary": "きの みを、みんなで わけます。",
+      "age_min": 1,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 10607
+    },
+    {
+      "slug": "ookii-chiisai",
+      "title": "おおきい ちいさい",
+      "author": "編集部",
+      "summary": "おおきい ものと ちいさい ものを、ならべて みます。",
+      "age_min": 1,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 8112
+    },
+    {
+      "slug": "kaze-ga-fuita",
+      "title": "かぜが ふいた",
+      "author": "編集部",
+      "summary": "かぜが ふくと、いろいろな ものが うごきます。",
+      "age_min": 1,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 11571
+    },
+    {
+      "slug": "koron-to-tamago",
+      "title": "ころんと たまご",
+      "author": "編集部",
+      "summary": "ころがって いった たまごの おはなし。",
+      "age_min": 1,
+      "age_max": 3,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 14265
     },
     {
       "slug": "yuki-no-ashiato",
@@ -49,6 +169,54 @@
       "bytes": 26152
     },
     {
+      "slug": "kasa-no-ongaku",
+      "title": "かさの おんがく",
+      "author": "編集部",
+      "summary": "かさに あたる あめの おとを、きいて みます。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 21693
+    },
+    {
+      "slug": "kumo-no-katachi",
+      "title": "くもの かたち",
+      "author": "編集部",
+      "summary": "くもが なにに みえるか、ふたりで いいあいます。",
+      "age_min": 3,
+      "age_max": 6,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 5,
+      "bytes": 9828
+    },
+    {
+      "slug": "keeki-no-rousoku",
+      "title": "ケーキの ろうそく",
+      "author": "編集部",
+      "summary": "ろうそくが、なかなか きえません。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 9516
+    },
+    {
+      "slug": "tanpopo-no-boushi",
+      "title": "たんぽぽの ぼうし",
+      "author": "編集部",
+      "summary": "わた毛が とんで いく さきを、おいかけます。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 15202
+    },
+    {
       "slug": "tsuki-no-pan",
       "title": "つきのパンやさん",
       "author": "編集部",
@@ -59,6 +227,66 @@
       "cover": "p01.svg",
       "pages": 8,
       "bytes": 10657
+    },
+    {
+      "slug": "tori-no-su",
+      "title": "とりの す",
+      "author": "編集部",
+      "summary": "すを つくる ために、なにが いるのかを さがします。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 12172
+    },
+    {
+      "slug": "neko-to-tsukimi",
+      "title": "ねこと つきみ",
+      "author": "編集部",
+      "summary": "ねこと ならんで、つきを みた よるの はなし。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 9817
+    },
+    {
+      "slug": "hashi-o-watatte",
+      "title": "はしを わたって",
+      "author": "編集部",
+      "summary": "こわかった はしを、わたって みる はなし。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 12896
+    },
+    {
+      "slug": "hitotsu-no-isu",
+      "title": "ひとつの いす",
+      "author": "編集部",
+      "summary": "ベンチが ひとつ しか ありません。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 11247
+    },
+    {
+      "slug": "mori-no-ongakukai",
+      "title": "もりの おんがくかい",
+      "author": "編集部",
+      "summary": "うまく できない こが、ひとり いました。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 21431
     },
     {
       "slug": "mori-no-yuubin",
@@ -73,6 +301,30 @@
       "bytes": 23619
     },
     {
+      "slug": "yuki-no-hi-no-koe",
+      "title": "ゆきの ひの こえ",
+      "author": "編集部",
+      "summary": "ゆきの ひは、おとが なくなります。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 15921
+    },
+    {
+      "slug": "aki-no-otoshimono",
+      "title": "あきの おとしもの",
+      "author": "編集部",
+      "summary": "おちて いた はっぱを、もとに もどしに いきます。",
+      "age_min": 4,
+      "age_max": 7,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 14232
+    },
+    {
       "slug": "umi-no-otoshimono",
       "title": "うみの おとしもの",
       "author": "編集部",
@@ -83,6 +335,66 @@
       "cover": "p01.svg",
       "pages": 8,
       "bytes": 9522
+    },
+    {
+      "slug": "taiyou-to-kage",
+      "title": "たいようと かげ",
+      "author": "編集部",
+      "summary": "かげの ながさが、いちにちで かわります。",
+      "age_min": 4,
+      "age_max": 7,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8613
+    },
+    {
+      "slug": "tegami-no-henji",
+      "title": "てがみの へんじ",
+      "author": "編集部",
+      "summary": "だした てがみの へんじを、まちつづけます。",
+      "age_min": 4,
+      "age_max": 7,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 15468
+    },
+    {
+      "slug": "densha-no-mado",
+      "title": "でんしゃの まど",
+      "author": "編集部",
+      "summary": "まどの そとを、ずっと みて いた ひの はなし。",
+      "age_min": 4,
+      "age_max": 7,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8795
+    },
+    {
+      "slug": "hana-no-namae",
+      "title": "はなの なまえ",
+      "author": "編集部",
+      "summary": "なまえの わからない はなを、どう よぶか きめます。",
+      "age_min": 4,
+      "age_max": 7,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 11425
+    },
+    {
+      "slug": "ido-no-soko",
+      "title": "いどの そこ",
+      "author": "編集部",
+      "summary": "いどを のぞいたら、そこに そらが ありました。",
+      "age_min": 5,
+      "age_max": 8,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 6910
     },
     {
       "slug": "tane-no-tabi",
@@ -97,6 +409,66 @@
       "bytes": 8969
     },
     {
+      "slug": "fune-to-hoshi",
+      "title": "ふねと ほし",
+      "author": "編集部",
+      "summary": "くらい うみで、かえりみちを さがします。",
+      "age_min": 5,
+      "age_max": 8,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8871
+    },
+    {
+      "slug": "mizuumi-no-koe",
+      "title": "みずうみの こえ",
+      "author": "編集部",
+      "summary": "よぶと かえって くる こえの はなし。",
+      "age_min": 5,
+      "age_max": 8,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 7682
+    },
+    {
+      "slug": "michi-no-wakaeme",
+      "title": "みちの わかれめ",
+      "author": "編集部",
+      "summary": "ふたつの みちの、どちらかを えらびます。",
+      "age_min": 5,
+      "age_max": 8,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 16631
+    },
+    {
+      "slug": "yama-no-mukou",
+      "title": "やまの むこう",
+      "author": "編集部",
+      "summary": "やまの むこうに なにが あるのか、みに いきます。",
+      "age_min": 5,
+      "age_max": 8,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 10083
+    },
+    {
+      "slug": "akari-o-kesu-mae",
+      "title": "あかりを けす まえに",
+      "author": "編集部",
+      "summary": "ねる まえの、みじかい じかんの はなし。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8935
+    },
+    {
       "slug": "ojiichan-no-radio",
       "title": "おじいちゃんの ラジオ",
       "author": "編集部",
@@ -109,6 +481,102 @@
       "bytes": 12197
     },
     {
+      "slug": "kawa-no-ishi",
+      "title": "かわの いし",
+      "author": "編集部",
+      "summary": "まるい いしが、どうして まるいのかを かんがえます。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8490
+    },
+    {
+      "slug": "kotae-no-nai-shitsumon",
+      "title": "こたえの ない しつもん",
+      "author": "編集部",
+      "summary": "だれに きいても、こたえが ちがいました。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 8831
+    },
+    {
+      "slug": "shizuka-na-oto",
+      "title": "しずかな おと",
+      "author": "編集部",
+      "summary": "しずかに して みると、いろいろ きこえて きます。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 19387
+    },
+    {
+      "slug": "tooku-no-tomodachi",
+      "title": "とおくの ともだち",
+      "author": "編集部",
+      "summary": "あえなく なった ともだちの ことを かんがえます。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 10701
+    },
+    {
+      "slug": "natsu-no-owari",
+      "title": "なつの おわり",
+      "author": "編集部",
+      "summary": "おわって いく きせつに、きづく はなし。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 9602
+    },
+    {
+      "slug": "hitori-no-jikan",
+      "title": "ひとりの じかん",
+      "author": "編集部",
+      "summary": "ひとりで いるのが、さびしい ときと そうでない とき。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 11191
+    },
+    {
+      "slug": "mata-aeru",
+      "title": "また あえる",
+      "author": "編集部",
+      "summary": "おわかれの ひに、なにを いうか かんがえます。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 11523
+    },
+    {
+      "slug": "yakusoku-no-basho",
+      "title": "やくそくの ばしょ",
+      "author": "編集部",
+      "summary": "あいてが こない とき、どのくらい まつか。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 11125
+    },
+    {
       "slug": "yoru-no-toshokan",
       "title": "よるの としょかん",
       "author": "編集部",
@@ -119,6 +587,18 @@
       "cover": "p01.svg",
       "pages": 8,
       "bytes": 14563
+    },
+    {
+      "slug": "wasuremono",
+      "title": "わすれもの",
+      "author": "編集部",
+      "summary": "なにを わすれたのか、おもいだせません。",
+      "age_min": 6,
+      "age_max": 9,
+      "reading_minutes": 4,
+      "cover": "p01.svg",
+      "pages": 6,
+      "bytes": 9010
     }
   ]
 }

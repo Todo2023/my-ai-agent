@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#cfe6f2"/><stop offset="1" stop-color="#f7e4ea"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/>
+<g transform="translate(118.74556598253548 213.46944271586835) scale(0.8165120584424584)" fill="#fffaf2">
+  <ellipse cx="0" cy="0" rx="120" ry="52"/><circle cx="-56" cy="-16" r="46"/><circle cx="44" cy="-24" r="56"/>
+</g>
+<g transform="translate(1515.1439433917403 224.15267551783472) scale(0.765425028745085)" fill="#fffaf2">
+  <ellipse cx="0" cy="0" rx="120" ry="52"/><circle cx="-56" cy="-16" r="46"/><circle cx="44" cy="-24" r="56"/>
+</g><path d="M-100 920 L340 460 L640 780 L940 520 L1340 840 L1700 660 L1700 1000 L-100 1000 Z" fill="#9fb0c4"/><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#8fae74"/>
+<g transform="translate(900 420) rotate(60) scale(1.8)">
+  <ellipse cx="0" cy="0" rx="18" ry="26" fill="#c9964a"/>
+  <g stroke="#f2e3c8" stroke-width="6" stroke-linecap="round" fill="none">
+    <path d="M0 -26 q-40 -30 -70 -16"/><path d="M0 -26 q-16 -44 6 -66"/><path d="M0 -26 q40 -26 70 -8"/>
+  </g>
+</g></svg>

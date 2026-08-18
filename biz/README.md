@@ -8,7 +8,7 @@ Zennのマーケ版として作るものの、いちばん最初の形（Phase 0
 | | |
 | --- | --- |
 | 一覧 | https://todo2023.github.io/my-ai-agent/biz/ |
-| 記事 | `article.html?slug=（ファイル名）` |
+| 記事 | `a/（ファイル名）/` |
 
 **いまは投稿を受け付けていない。** 記事はこのリポジトリの中にあるものだけ。
 費用はゼロ（GitHub Pages のみ）。
@@ -23,6 +23,8 @@ Zennのマーケ版として作るものの、いちばん最初の形（Phase 0
 | エディタで直接 | `articles/` に `.md` を置く |
 
 どちらの場合も、最後に `node tools/build-index.mjs` を走らせると一覧に出る。
+このコマンドが `articles.json` と `a/<slug>/index.html` の両方を作る。
+**出来たものはコミットする**（配信にビルドを持たないため）。
 
 ### 書く画面について
 
@@ -94,11 +96,16 @@ anon キーはブラウザから見える。それで正しい。読み書きは
 
 ### 3. ログインのリンクが戻る先を登録する
 
-Authentication > URL Configuration の **Redirect URLs** に書く画面のURLを足す。
+Authentication > URL Configuration の **Redirect URLs** に、ログインする画面のURLを足す。
+**足し忘れた画面ではリンクを踏んでも戻ってこない。**
 
 ```
 https://todo2023.github.io/my-ai-agent/biz/write.html
+https://todo2023.github.io/my-ai-agent/biz/profile.html
 ```
+
+記事ページ（`a/<slug>/`）からもログインできる（いいねを押すとき）。
+そこまで戻したいなら `https://todo2023.github.io/my-ai-agent/biz/a/**` も足す。
 
 ### 4. つないだあとに確認すること
 
@@ -108,6 +115,49 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 - [ ] 出した記事が `status = 'review'` で入っている（`published` になっていない）
 - [ ] 通信を切って「審査に出す」→ 失敗が出て、下書きは残る
 
+
+## 審査を通した記事を site に出す
+
+審査画面（`../admin/`）で公開したものは、まだDBの中にしかない。
+**DBは投稿と審査の待ち行列で、配信するサイトは静的**という形にしてあるので、
+最後にひと手間だけ手元で流す。
+
+```bash
+node biz/tools/pull-published.mjs --dry-run   # 何が変わるか見る
+node biz/tools/pull-published.mjs             # articles/*.md に落とす
+node biz/tools/build-index.mjs                # 一覧と記事ページを作り直す
+git add biz && git commit                     # 生成物ごとコミットして反映
+```
+
+取り込んだ `.md` には `work_id` が入る。これが2つの役目を持つ。
+
+| | |
+| --- | --- |
+| 上書きの判断 | 同じ `work_id` のときだけ取り込み直す |
+| いいね・通報の宛先 | DBに行があるので、生成した記事ページに反応を出せる |
+
+**`work_id` のない `.md`（手で書いた記事）は絶対に上書きしない。**
+slug がぶつかったときも触らずに報せるので、どちらかの名前を変えて解決する。
+
+取り込んだ `.md` を手で直しても構わないが、その記事を公開し直すと消える。
+直すならDB側で直す。
+
+## 書き手の欄（`profile.html`）
+
+| | |
+| --- | --- |
+| `profile.html?handle=xxx` | その人の欄。**誰でも見える**（ログイン不要） |
+| `profile.html` | 自分の欄。ログインして表示名・紹介・リンクを書く |
+
+公開されるのは**表示名・紹介・リンクだけ**。メールアドレスは出ない（`profiles` に持っていない）。
+
+**ID（handle）は一度決めたら変えられないようにしてある。**
+記事ページのリンク先と、取り込んだ `.md` の `handle` に焼き付くため。
+変えたくなったら、記事側も一緒に直す必要がある。
+
+記事に名前が出るのは、DBから取り込んだ記事（`pull-published.mjs` を通ったもの）だけ。
+手で書いた `.md` は front matter の `author` がそのまま出て、リンクにはならない。
+リンクにしたいときは `handle: "xxx"` を足す。
 
 ## 使える記法
 
@@ -131,7 +181,11 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | | |
 | --- | --- |
 | `index.html` / `app.js` | 一覧。しぼりこみと検索 |
-| `article.html` / `article.js` | 記事ページ |
+| `a/<slug>/index.html` | **記事ページ。生成物。手で書かない** |
+| `article-page.js` | 生成した記事ページに足すぶん（目次の現在地・いいね） |
+| `article.html` / `article.js` | 下書きの下見と、まだ取り込んでいないDB記事を開く画面。**noindex のまま** |
+| `article-parts.js` | 上の2つが共有する部品（目次・いいね・通報） |
+| `profile.html` / `profile.js` | 書き手の欄。見るのと、自分のを直すのを兼ねる |
 | `write.html` / `write.js` | 書く画面。下書きは端末の中だけ |
 | `config.js` | 接続先の設定。**anonキーが入っている**（公開前提のキー。RLSで守る） |
 | `supa.js` | Supabase とのやりとり。ライブラリは使わず REST を直接叩く |
@@ -139,7 +193,10 @@ https://todo2023.github.io/my-ai-agent/biz/write.html
 | `style.css` | 3つの画面で共通 |
 | `articles/*.md` | 記事の本文 |
 | `articles.json` | 一覧用のまとめ。**手で書かない。生成物** |
-| `tools/build-index.mjs` | `articles.json` を作る。手元で走らせる |
+| `tools/build-index.mjs` | `articles.json` と記事ページを作る。手元で走らせる |
+| `tools/render-page.mjs` | 記事ページのひな形。URLの根と `noindex` の切り替えがここにある |
+| `tools/pull-published.mjs` | 審査を通した記事をDBから `articles/*.md` に落とす |
+| `tools/check.mjs` | 置いてあるものの点検。**コミットする前に走らせる** |
 
 ## 動作確認（手元）
 
@@ -150,26 +207,58 @@ python3 -m http.server 8000
 
 `file://` で直接開くと記事を読み込めない（`fetch` が使えないため）。必ずサーバー越しに開く。
 
+## 点検（コミットする前に）
+
+```bash
+node biz/tools/check.mjs
+```
+
+ネットワークには出ない。**実際にはまった落とし穴だけ**を見る。
+
+| 見るもの | 見つかる事故 |
+| --- | --- |
+| 生成物が最新か | `.md` を直して `build-index.mjs` を流し忘れ／流して**コミット忘れ** |
+| `config.js` の読み込み | 忘れるとDBに繋がらないのに**静かに動く**。`module` より先に読めているかも見る |
+| `noindex` の付き方 | `write` `article` `profile` から外れていないか。一覧と記事ページが揃っているか |
+| 外部の読み込み | CDN・Webフォント・外部画像。決まりであり、`_headers` の CSP でも塞いである |
+| `_headers` と接続先 | Supabase を引っ越したのに CSP を直し忘れ → **移設先でDBだけ繋がらない** |
+
+消した記事のページが `a/` に残っていないかも見る（残ると一覧にないURLだけが検索に拾われる）。
+
 ## いまできないこと
 
-Phase 0 なので、次はまだない。順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
+順番は [`../sekkei/README.md`](../sekkei/README.md#3-段階全部ゼロ円) にある。
 
-- いいね・コメント（Phase 1 の残り）。DBの表はもうあるが、画面がまだない
-- いいね・コメント・フォロー（Phase 1）
+- コメント・フォロー（Phase 1 の残り）。`comments` の表はあるが、画面がまだない
 - 検索エンジンへの掲載（Phase 2。いまは `noindex`）
 - 投げ銭・有料販売（Phase 3）
 
-**URLに `?slug=` が付いているのは、まだビルドを持たないから。**
-検索に載せる段（Phase 2）で、記事ごとの静的HTMLを吐く形に変える。
-そのときURLも変わるので、**外に出すのはそのあとにする**。
+いいね・通報は動く。ただし**DBに行がある記事だけ**（`work_id` を持つもの）。
+手で書いた `.md` には押す先がないので、ボタン自体を出さない。
+
+**記事のURLは `a/<slug>/` で固定した。**（2026-08-16）
+拡張子を付けていないので、置き場所を Cloudflare Pages に移しても同じURLのまま運べる。
+前に配った `article.html?slug=xxx` は、生成ページへ転送するようにしてある。
 
 ## 公開前にやること
 
-- [ ] `index.html` と `article.html` の `<meta name="robots" content="noindex">` を外す
-      （`write.html` の `noindex` は**外さない**）
-- [ ] 両ページの `<div class="demo-bar">`（試作中の帯）を消す
-- [ ] 記事ごとの静的HTMLに切り替える（`?slug=` をやめる）
+検索に出す操作は2つだけ。**片方だけやると `check.mjs` が止める。**
+
+- [ ] `tools/render-page.mjs` の `NOINDEX` を `false` にして、`build-index.mjs` を流し直す
+      （記事ページから `noindex` が消え、`sitemap.xml` が出る）
+- [ ] `index.html` の `<meta name="robots" content="noindex">` を外す
+
+`write.html` `article.html` `profile.html` の `noindex` は**外さない**（`check.mjs` が見張る）。
+
+出す前に決めること。
+
 - [ ] サンプル記事（`編集部` 名義の3本）を、本物と入れ替えるか消す
+- [ ] `index.html` と `tools/render-page.mjs` の `<div class="demo-bar">`（試作中の帯）を消す
+- [ ] 置き場所。**有料販売に進むなら先に GitHub Pages から出る**（`../sekkei/README.md`）
+
+`robots.txt` は**ドメインの直下にしか置けない**ので、
+`todo2023.github.io/my-ai-agent/` の下にいるあいだは持てない。
+`sitemap.xml` は Search Console に直接出せば足りる。
 
 **有料販売を始めるなら、その前に GitHub Pages から出る。**
 GitHub Pages はECに使えない決まりになっている。詳しくは
