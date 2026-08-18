@@ -1,0 +1,42 @@
+{
+  "slug": "dare-no-koe",
+  "title": "だれの こえ",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 3,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "きこえて くる こえの ぬしを さがします。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "静かな森",
+      "text": "もりで、こえが しました。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "木の上の鳥",
+      "text": "「ちいちい。」だれ？"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "草の中のねずみ",
+      "text": "「ちゅう。」だれ？"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "かえる",
+      "text": "「けろ。」だれ？"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "みんな集まっている",
+      "text": "みんな いた。"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕方、手をふる子ども",
+      "text": "「またね。」"
+    }
+  ]
+}

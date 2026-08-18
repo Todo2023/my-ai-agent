@@ -1,0 +1,37 @@
+{
+  "slug": "pyon-pyon",
+  "title": "ぴょん ぴょん",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ぴょんと とぶ いきものが、つぎつぎ でて きます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "うさぎ",
+      "text": "うさぎさんが ぴょん。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "かえる",
+      "text": "かえるさんが ぴょん。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "魚がはねる",
+      "text": "さかなさんも ぴょん。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "子どもがジャンプする",
+      "text": "わたしも ぴょん。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "みんなで跳ねる",
+      "text": "みんなで ぴょん ぴょん。"
+    }
+  ]
+}

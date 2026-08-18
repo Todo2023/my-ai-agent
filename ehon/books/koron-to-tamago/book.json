@@ -1,0 +1,37 @@
+{
+  "slug": "koron-to-tamago",
+  "title": "ころんと たまご",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ころがって いった たまごの おはなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "草の上のたまご",
+      "text": "たまごが ひとつ。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "たまごがころがる",
+      "text": "ころん。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "うさぎが追いかける",
+      "text": "ころころ ころん。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "たまごが止まる",
+      "text": "とまりました。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "たまごから鳥が出てくる",
+      "text": "ぴい。うまれました。"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "kaze-ga-fuita",
+  "title": "かぜが ふいた",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "かぜが ふくと、いろいろな ものが うごきます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "晴れた日の木",
+      "text": "かぜが ふきました。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "木の葉が舞う",
+      "text": "はっぱが ゆれました。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "花がゆれる",
+      "text": "おはなも ゆれました。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "たこがあがる",
+      "text": "たこが たかく あがりました。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "夕方、たこを持って帰る",
+      "text": "かぜが やみました。かえりましょう。"
+    }
+  ]
+}

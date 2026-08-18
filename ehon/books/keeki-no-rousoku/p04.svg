@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#3a2c20"/><stop offset="1" stop-color="#5b4636"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/>
+<g transform="translate(1200 380) scale(1)">
+  <circle cx="0" cy="0" r="150" fill="url(#glow)"/>
+  <path d="M-46 -30 L46 -30 L30 40 L-30 40 Z" fill="#ffd98a" stroke="#c9964a" stroke-width="8" stroke-linejoin="round"/>
+  <rect x="-8" y="-80" width="16" height="50" rx="8" fill="#7d5a3c"/>
+</g>
+<g transform="translate(660 620) scale(1.7)">
+  <rect x="-110" y="-30" width="220" height="90" rx="14" fill="#f2e3c8"/>
+  <path d="M-110 -30 q40 26 74 0 q40 26 74 0 q30 22 72 0 v-16 h-220 Z" fill="#e08fb0"/>
+  <rect x="-8" y="-96" width="16" height="66" rx="8" fill="#fffaf2"/>
+  <ellipse cx="0" cy="-104" rx="12" ry="20" fill="#ffd257"/>
+</g>
+<g transform="translate(1060 640.4000000000001) scale(1.4)">
+  <path d="M-44 30 L44 30 L54 150 L-54 150 Z" fill="#e08fb0"/>
+  <rect x="-46" y="150" width="34" height="60" rx="16" fill="#f0c9a8"/>
+  <rect x="12" y="150" width="34" height="60" rx="16" fill="#f0c9a8"/>
+  <circle cx="0" cy="-24" r="62" fill="#f0c9a8"/>
+  <path d="M-62 -34 a62 62 0 0 1 124 0 q-62 -34 -124 0 Z" fill="#3d2b22"/>
+  <circle cx="-22" cy="-16" r="8" fill="#241812"/><circle cx="22" cy="-16" r="8" fill="#241812"/>
+  <path d="M-14 6 q14 12 28 0" stroke="#b9705c" stroke-width="6" fill="none" stroke-linecap="round"/>
+</g><g transform="translate(1360 733.6) scale(1.2)">
+    <ellipse cx="0" cy="96" rx="86" ry="76" fill="#c9964a"/>
+       <ellipse cx="0" cy="112" rx="52" ry="50" fill="#f2e3c8"/><ellipse cx="-84" cy="-6" rx="28" ry="56" fill="#c9964a"/><ellipse cx="84" cy="-6" rx="28" ry="56" fill="#c9964a"/><circle cx="0" cy="0" r="72" fill="#c9964a"/><circle cx="-24" cy="4" r="10" fill="#241812"/><circle cx="24" cy="4" r="10" fill="#241812"/>
+       <ellipse cx="0" cy="40" rx="28" ry="20" fill="#f2e3c8"/>
+       <circle cx="0" cy="32" r="8" fill="#241812"/>
+  </g></svg>

@@ -1,0 +1,37 @@
+{
+  "slug": "maru-sagashi",
+  "title": "まるを さがして",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "まるい ものを、ひとつ ずつ みつけて いきます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "空にまるい太陽",
+      "text": "まるい もの、みーつけた。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "地面にころがる赤いボール",
+      "text": "これも まる。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "花のまんなかの黄色いまる",
+      "text": "おはなの まんなかも まる。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "ねこの目もまるい",
+      "text": "ねこさんの おめめも まる。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "夜のまるい月",
+      "text": "よるにも、まるが ありました。"
+    }
+  ]
+}

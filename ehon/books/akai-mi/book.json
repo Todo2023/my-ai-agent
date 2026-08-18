@@ -1,0 +1,37 @@
+{
+  "slug": "akai-mi",
+  "title": "あかい み",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "きの みを、みんなで わけます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "赤い実のなる木",
+      "text": "あかい みが なりました。"
+    },
+    {
+      "image": "p02.svg",
+      "alt": "くまが実をみつける",
+      "text": "くまさんが みつけました。"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "ねずみも来る",
+      "text": "ねずみさんも きました。"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "3人で分ける",
+      "text": "みっつに わけました。"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "並んで食べる",
+      "text": "おなじ あじが しました。"
+    }
+  ]
+}
