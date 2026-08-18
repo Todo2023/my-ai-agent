@@ -137,9 +137,13 @@ img.src = ${JSON.stringify(svgDataUri)};
 }
 
 async function renderCover(chrome, book, tmpHtml) {
-  const svgPath = join(ehon, "books", book.slug, book.cover);
-  const svg = await readFile(svgPath, "utf8");
-  const uri = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  // 表紙は SVG とは かぎらない。手で描いた絵の本は .jpg / .png のことがある
+  const coverPath = join(ehon, "books", book.slug, book.cover);
+  const raw = await readFile(coverPath);
+  const type = book.cover.endsWith(".svg") ? "image/svg+xml"
+    : book.cover.endsWith(".png") ? "image/png"
+    : "image/jpeg";
+  const uri = `data:${type};base64,${raw.toString("base64")}`;
 
   await writeFile(tmpHtml, pageHtml(uri, book), "utf8");
   const { stdout } = await run(chrome, [
