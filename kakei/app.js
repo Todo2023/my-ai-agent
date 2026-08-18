@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-16b 封は網から取る";
+const VERSION = "2026-08-18 カードの引落";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -25,6 +25,7 @@ const state = {
   others: [],     // 比較で重ねるプランの計算結果
   hover: null,    // グラフをなぞっている年（西暦）
   opened: new Set(),   // 収支で「⌄」を開いている項目
+  cardMonth: "",       // カードの引落で表示している月（"2026-08"）
 };
 
 const $ = (id) => document.getElementById(id);
@@ -117,6 +118,10 @@ function hydrate(plan) {
     return child;
   });
   plan.events = (plan.events || []).map((e) => Object.assign({ id: uid(), kind: "spend", label: "", repeat: 1 }, e));
+
+  // カードと、その引落の記録。cardLog は { "2026-08": { カードのid: 円 } }
+  plan.cards = (plan.cards || []).map((c) => Object.assign({ id: uid(), label: "" }, c));
+  plan.cardLog = plan.cardLog && typeof plan.cardLog === "object" ? plan.cardLog : {};
   return plan;
 }
 
@@ -221,6 +226,7 @@ function refresh() {
   renderVerdict();
   renderMonthly();
   renderAssetsCard();
+  renderCardsCard();
   renderTiles();
   drawChart();
   renderLegend();
@@ -875,6 +881,93 @@ function renderAccounts() {
     + `<span class="side">${yen(total / 10000)}</span>`;
 }
 
+/* ---------------- カードの引落 ---------------- */
+
+const CARD_START = "2026-08";   // ここより前の月は入れられない（記録の始まり）
+
+const thisMonth = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const monthLabel = (m) => `${m.slice(0, 4)}年${Number(m.slice(5, 7))}月`;
+
+/** "2026-08" を n か月ずらす */
+function monthAdd(m, n) {
+  const y = Number(m.slice(0, 4));
+  const mo = Number(m.slice(5, 7)) - 1 + n;
+  const d = new Date(y, mo, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/** 入れられる最後の月。引落は先の分まで分かることがあるので、翌月まで開けておく */
+const monthMax = () => monthAdd(thisMonth(), 1);
+
+const cardTotal = (plan, m) => Object.values((plan.cardLog || {})[m] || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+
+/** 記録のある月を新しい順に */
+const loggedMonths = (plan) => Object.keys(plan.cardLog || {})
+  .filter((m) => cardTotal(plan, m) > 0)
+  .sort()
+  .reverse();
+
+function renderCards() {
+  const plan = active();
+  const m = state.cardMonth;
+  const log = (plan.cardLog || {})[m] || {};
+
+  $("monthLabel").textContent = monthLabel(m);
+  $("prevMonth").disabled = m <= CARD_START;
+  $("nextMonth").disabled = m >= monthMax();
+
+  $("cardList").innerHTML = (plan.cards || []).map((c) => {
+    const v = Number(log[c.id]) || 0;
+    return `<div class="item pay" data-card="${c.id}">
+      <input class="ilabel" type="text" data-k="label" value="${esc(c.label)}" placeholder="カードの名前" />
+      <span class="iamt"><input type="text" data-k="yen" inputmode="numeric" value="${v ? v.toLocaleString("ja-JP") : ""}" placeholder="0" /><i>円</i></span>
+      <button type="button" class="del" data-del-card="${c.id}" aria-label="消す">🗑</button>
+    </div>`;
+  }).join("") || `<p class="note dim">カードがありません。「＋ カードを足す」から。</p>`;
+
+  const total = cardTotal(plan, m);
+  $("sumCards").innerHTML = `<span>${monthLabel(m)}の合計</span><b>${en(total)}</b>`;
+
+  // 収支表と突き合わせる。カードは支払いの通り道なので、足し算はしない
+  const spend = SIM.monthlyNow(plan).spend;
+  const prev = cardTotal(plan, monthAdd(m, -1));
+  const diff = prev && total ? total - prev : null;
+  $("cardCompare").textContent = total
+    ? `収支表の「出ていく」は ${en(spend)}／月。カードの引落はその内側にあります。`
+      + (diff !== null ? `　前の月とくらべて ${diff >= 0 ? "＋" : "−"}${en(Math.abs(diff))}。` : "")
+    : "まだ入っていません。カードごとに引落額を入れてください。";
+
+  const months = loggedMonths(plan);
+  $("cardHistory").innerHTML = months.length
+    ? months.map((mm) => `<div data-month="${mm}" style="cursor:pointer"><span>${monthLabel(mm)}${mm === m ? "（表示中）" : ""}</span><span>${en(cardTotal(plan, mm))}</span></div>`).join("")
+    : `<div><span>まだ記録がありません</span><span>—</span></div>`;
+}
+
+/** 主画面のカード。最後に入れた月の合計を出す */
+function renderCardsCard() {
+  const plan = active();
+  const months = loggedMonths(plan);
+  const has = (plan.cards || []).length > 0;
+  $("cardsCard").hidden = !has;
+  if (!has) return;
+
+  if (!months.length) {
+    $("cLabel").textContent = "カードの引落";
+    $("cTotal").textContent = "未入力";
+    $("cNote").textContent = `${monthLabel(CARD_START)}分から入れられます（押すと入力）`;
+    return;
+  }
+  const m = months[0];
+  $("cLabel").textContent = `カードの引落（${monthLabel(m)}）`;
+  $("cTotal").textContent = en(cardTotal(plan, m));
+  const n = (plan.cards || []).filter((c) => Number(((plan.cardLog || {})[m] || {})[c.id]) > 0).length;
+  $("cNote").textContent = `${n}枚ぶん・${plan.cards.length}枚中（押すと入力）`;
+}
+
 /* ---------------- ライフイベント ---------------- */
 
 /** その子に、これから出ていく教育費の合計。判断の材料になるのは年額より総額 */
@@ -1082,6 +1175,88 @@ function bind() {
   };
   $("assumeBtn").addEventListener("click", () => openAssume());
   $("assetsCard").addEventListener("click", () => openAssume("accountList"));
+
+  /* --- カードの引落 --- */
+
+  const openCards = () => {
+    // 記録のある最新の月から開く。無ければ今月（始まりより前には行かない）
+    if (!state.cardMonth) {
+      const months = loggedMonths(active());
+      const now = thisMonth();
+      state.cardMonth = months[0] || (now < CARD_START ? CARD_START : now);
+    }
+    renderCards();
+    openSheet("cards");
+  };
+  $("cardsBtn").addEventListener("click", openCards);
+  $("cardsCard").addEventListener("click", openCards);
+
+  $("prevMonth").addEventListener("click", () => {
+    if (state.cardMonth <= CARD_START) return;
+    state.cardMonth = monthAdd(state.cardMonth, -1);
+    renderCards();
+  });
+
+  $("nextMonth").addEventListener("click", () => {
+    if (state.cardMonth >= monthMax()) return;
+    state.cardMonth = monthAdd(state.cardMonth, 1);
+    renderCards();
+  });
+
+  $("addCard").addEventListener("click", () => {
+    const plan = active();
+    plan.cards = plan.cards || [];
+    plan.cards.push({ id: uid(), label: "" });
+    renderCards();
+    saveData();
+  });
+
+  $("cardList").addEventListener("input", (e) => {
+    const row = e.target.closest("[data-card]");
+    const k = e.target.dataset.k;
+    if (!row || !k) return;
+    const plan = active();
+    const card = plan.cards.find((c) => c.id === row.dataset.card);
+    if (!card) return;
+
+    if (k === "label") {
+      card.label = e.target.value;
+    } else {
+      const yen = Number(String(e.target.value).replace(/[^\d.-]/g, "")) || 0;
+      plan.cardLog = plan.cardLog || {};
+      plan.cardLog[state.cardMonth] = plan.cardLog[state.cardMonth] || {};
+      if (yen) plan.cardLog[state.cardMonth][card.id] = yen;
+      else delete plan.cardLog[state.cardMonth][card.id];
+    }
+    saveData();
+    // 名前や桁区切りを打っている最中に組み直すと入力が飛ぶ。合計だけ先に直す
+    const total = cardTotal(plan, state.cardMonth);
+    $("sumCards").innerHTML = `<span>${monthLabel(state.cardMonth)}の合計</span><b>${en(total)}</b>`;
+    renderCardsCard();
+  });
+
+  // 指を離してから組み直す（桁区切りと履歴がここで整う）
+  $("cardList").addEventListener("change", (e) => { if (e.target.dataset.k) renderCards(); });
+
+  $("cardList").addEventListener("click", (e) => {
+    const del = e.target.closest("[data-del-card]");
+    if (!del) return;
+    const plan = active();
+    const card = plan.cards.find((c) => c.id === del.dataset.delCard);
+    if (!confirm(`「${card && card.label ? card.label : "このカード"}」を消します。\nこれまでに入れた引落の記録も消えます。`)) return;
+    plan.cards = plan.cards.filter((c) => c.id !== del.dataset.delCard);
+    for (const m of Object.keys(plan.cardLog || {})) delete plan.cardLog[m][del.dataset.delCard];
+    renderCards();
+    renderCardsCard();
+    saveData();
+  });
+
+  $("cardHistory").addEventListener("click", (e) => {
+    const row = e.target.closest("[data-month]");
+    if (!row) return;
+    state.cardMonth = row.dataset.month;
+    renderCards();
+  });
 
   /* --- お金の置き場（口座） --- */
 

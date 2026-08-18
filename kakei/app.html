@@ -44,6 +44,7 @@
 <header class="bar">
   <h1 class="brand">家計のみらい</h1>
   <div class="bar-actions">
+    <button type="button" class="icon-btn" id="cardsBtn" aria-label="カードの引落">💳</button>
     <button type="button" class="icon-btn" id="plansBtn" aria-label="プラン">🗂</button>
     <button type="button" class="icon-btn" id="settingsBtn" aria-label="設定">⚙</button>
   </div>
@@ -65,6 +66,11 @@
   <button type="button" class="monthly assets" id="assetsCard">
     <span class="m-row total"><span>いまの貯蓄・投資</span><b id="aTotal"></b></span>
     <span class="m-note" id="aNote"></span>
+  </button>
+
+  <button type="button" class="monthly" id="cardsCard" hidden>
+    <span class="m-row total"><span id="cLabel">カードの引落</span><b id="cTotal"></b></span>
+    <span class="m-note" id="cNote"></span>
   </button>
 
   <div class="tiles">
@@ -94,6 +100,39 @@
   <button type="button" class="fab sub" id="assumeBtn">✎ 前提</button>
   <button type="button" class="fab sub" id="eventsBtn">🎏 イベント</button>
 </div>
+
+<!-- ---------- カードの引落 ---------- -->
+<section class="sheet" id="cards" hidden aria-modal="true" role="dialog" aria-label="カードの引落">
+  <div class="sheet-bar">
+    <button type="button" class="icon-btn" data-close="cards" aria-label="閉じる">✕</button>
+    <span class="sheet-title">カードの引落</span>
+    <span class="icon-btn" aria-hidden="true"></span>
+  </div>
+  <div class="sheet-body">
+    <p class="note">その月に<b>実際に引き落とされた額</b>を、カードごとに入れてください（円）。
+      使った月ではなく、<b>口座から出ていった月</b>で入れると、通帳と突き合わせられます。</p>
+
+    <div class="monthnav">
+      <button type="button" id="prevMonth" aria-label="前の月">◀</button>
+      <span id="monthLabel"></span>
+      <button type="button" id="nextMonth" aria-label="次の月">▶</button>
+    </div>
+
+    <div class="items" id="cardList"></div>
+    <button type="button" class="btn ghost" id="addCard">＋ カードを足す</button>
+    <div class="sumbar" id="sumCards"></div>
+    <p class="note dim" id="cardCompare"></p>
+
+    <h2 class="sec">これまでの引落</h2>
+    <div class="table-mini" id="cardHistory"></div>
+    <p class="note dim">カードは<b>支払いの通り道</b>であって、あたらしい支出ではありません。
+      食費もレジャー費も「収支」に入っているので、<b>この記録は先の見通しには足していません</b>。
+      収支表が実際とずれていないかを確かめるためのものです。</p>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn primary" data-close="cards">グラフに戻る</button>
+  </div>
+</section>
 
 <!-- ---------- 毎月の収支 ---------- -->
 <section class="sheet" id="budget" hidden aria-modal="true" role="dialog" aria-label="毎月の収支">
