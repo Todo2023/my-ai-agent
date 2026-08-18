@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-18 カードの引落";
+const VERSION = "2026-08-18b PayPayカード";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
@@ -195,6 +195,28 @@ function adopt(data, stamp) {
   if (!data.plans.some((p) => p.id === data.activeId)) data.activeId = data.plans[0].id;
   state.data = data;
   refresh();
+}
+
+/**
+ * 配信された家計を取り込むときも、**この端末で入れたカードの引落だけは残す**。
+ *
+ * 引落の記録は、その端末で打った人しか持っていない。封の側は空のままなので、
+ * まるごと置き換えると、せっかく入れた月ぶんが消える。月とカードで突き合わせて、
+ * 打った本人の数字を優先して混ぜる。
+ */
+function keepCardLog(incoming) {
+  const old = readSaved();
+  if (!old || !Array.isArray(old.plans)) return incoming;
+  for (const plan of incoming.plans || []) {
+    const prev = old.plans.find((p) => p.id === plan.id);
+    if (!prev || !prev.cardLog) continue;
+    const merged = Object.assign({}, plan.cardLog || {});
+    for (const [m, byCard] of Object.entries(prev.cardLog)) {
+      merged[m] = Object.assign({}, merged[m] || {}, byCard);
+    }
+    plan.cardLog = merged;
+  }
+  return incoming;
 }
 
 /** 合い言葉なしで使うときの、だれのものでもない家計 */
@@ -685,7 +707,7 @@ async function tryUnlock() {
 
   hideLock();
   $("update").hidden = true;
-  adopt(opened.data, opened.stamp);
+  adopt(keepCardLog(opened.data), opened.stamp);
   toast("ひらきました。次からは合い言葉なしで開きます");
 }
 
@@ -1147,7 +1169,7 @@ function bind() {
   });
 
   $("updateNow").addEventListener("click", () => {
-    if (!confirm("配信されている家計を読み込みます。\nこの端末で直したものは置き換わります。")) return;
+    if (!confirm("配信されている家計を読み込みます。\nこの端末で直したものは置き換わります。\n（カードの引落に入れた記録はそのまま残ります）")) return;
     $("update").hidden = true;
     showLock();
   });
