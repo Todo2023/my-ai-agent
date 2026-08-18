@@ -526,7 +526,64 @@ export const treehouse = (x, y, s = 1, lit = true) => `
   </g>
 </g>`;
 
+
+/* ── 水彩ふうの仕上げ ────────────────────────────
+   紙のにじみと、ふちの ゆらぎ。**SVGのフィルタだけで作る。**
+   画像を足さないので、容量も 通信も 増えない（0円のまま）。
+
+   ■ 本物の水彩ではない
+     塗りの かたちを ゆらして、紙の目を かさねているだけ。
+     それでも、まっすぐな線と 均一な塗りは 消える。
+
+   ■ 重さに気をつける
+     feTurbulence は広いほど重い。ゆらぎは背景を除いた絵にだけ かける。
+     古い端末で もたつくようなら、下の WATERCOLOR を false にすれば
+     もとの平らな絵に戻る（作り直しは build のやり直しだけ）。          */
+export const WATERCOLOR = false;
+
+const WC_DEFS = `<defs>
+<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <!-- ふちを ゆらす。まっすぐな線を なくす -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
+
+  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
+       中を けずった ぶんを 引くと、ふちだけが 残る -->
+  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
+  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
+  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
+  <feColorMatrix in="rimSoft" type="matrix"
+    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
+
+  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
+  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
+  <feColorMatrix in="m" type="matrix"
+    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
+  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
+
+  <feMerge>
+    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
+  </feMerge>
+</filter>
+
+<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
+  <feColorMatrix in="t" type="matrix"
+    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
+</filter>
+</defs>`;
+
+/** 紙の目。いちばん上に かさねる */
+const PAPER = `<rect width="${W}" height="${H}" filter="url(#paper)" opacity=".22"/>`;
+
 /** 1ページぶんの SVG を組み立てる */
 export function page(parts) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img">${parts.join("")}</svg>\n`;
+  if (!WATERCOLOR) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img">${parts.join("")}</svg>\n`;
+  }
+  // parts[0] は かならず bg(...)。ここを ゆらすと、ふちに すきまが出る
+  const [sky, ...art] = parts;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img">${
+    WC_DEFS}${sky}<g filter="url(#wc)">${art.join("")}</g>${PAPER}</svg>\n`;
 }

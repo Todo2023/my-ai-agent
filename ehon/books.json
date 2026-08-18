@@ -289,6 +289,18 @@
       "bytes": 47253
     },
     {
+      "slug": "moko-mori",
+      "title": "もこの もりの いちにち",
+      "author": "編集部",
+      "summary": "もこが すごした、もりの ある いちにちの おはなし。",
+      "age_min": 3,
+      "age_max": 6,
+      "reading_minutes": 5,
+      "cover": "p01.jpg",
+      "pages": 9,
+      "bytes": 2565820
+    },
+    {
       "slug": "mori-no-ongakukai",
       "title": "もりの おんがくかい",
       "author": "編集部",
