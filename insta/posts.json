@@ -89,17 +89,6 @@
       "bytes": 42813
     },
     {
-      "slug": "akai-mi",
-      "title": "あかい み",
-      "image": "images/akai-mi.jpg",
-      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/akai-mi.jpg",
-      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=akai-mi",
-      "caption": "あかい み\n\nきの みを、みんなで わけます。\n\n1〜3さい ／ 4分で読めます ／ 5ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #1歳 #2歳 #3歳",
-      "caption_length": 149,
-      "hashtag_count": 12,
-      "bytes": 38778
-    },
-    {
       "slug": "ookii-chiisai",
       "title": "おおきい ちいさい",
       "image": "images/ookii-chiisai.jpg",
@@ -252,6 +241,17 @@
       "caption_length": 153,
       "hashtag_count": 12,
       "bytes": 46060
+    },
+    {
+      "slug": "moko-no-donguri",
+      "title": "もこの どんぐり",
+      "image": "images/moko-no-donguri.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/moko-no-donguri.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=moko-no-donguri",
+      "caption": "もこの どんぐり\n\nひとつ しか ない どんぐりを、もこは どう しましたか。\n\n3〜5さい ／ 5分で読めます ／ 8ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #3歳 #4歳 #5歳",
+      "caption_length": 165,
+      "hashtag_count": 12,
+      "bytes": 72403
     },
     {
       "slug": "mori-no-ongakukai",

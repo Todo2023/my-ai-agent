@@ -412,6 +412,120 @@ export const window = (x, y, s = 1, night = true) => `
   <rect x="-10" y="-120" width="20" height="240" fill="#7d5a3c"/><rect x="-150" y="-12" width="300" height="20" fill="#7d5a3c"/>
 </g>`;
 
+
+/* ── もこ（きめられた いきもの） ────────────────────
+   もらった絵をもとにした、この棚の看板になる子。
+   青みの毛・オレンジの しっぽ・つぎはぎの セーター・どんぐり。
+
+   水彩の絵をそのまま使うことはできない（この棚は塗りのSVGを
+   組み合わせて作る）。**とくちょうだけを写して**、同じ絵柄に揃えてある。
+
+   ほかの いきものと同じく、頭のまんなかが原点。足のうらは y=172。
+   だから stand(地面, 倍率) がそのまま使える                        */
+
+const FUR = "#4e6272";      // 青みの毛
+const FUR_D = "#3d4e5c";
+const CREAM = "#f6ecdc";    // 顔と おなか
+const TAIL = "#e08a4a";     // しっぽ
+
+/** つぎはぎのセーター。色の並びを変えると別の服になる */
+const KNIT = ["#5f9e6a", "#e0a83c", "#c9524a", "#4f8fa8"];
+
+export function moko(x, y, s = 1, opts = {}) {
+  const { arm = "up", knit = KNIT } = opts;
+  const sq = (px, py, c) => `<rect x="${px}" y="${py}" width="34" height="30" rx="6" fill="${c}"/>`;
+  let patches = "";
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      patches += sq(-51 + c * 34, 46 + r * 30, knit[(r + c) % knit.length]);
+    }
+  }
+
+  // 腕は線で描く。四角を回すと、肩から はなれて見える
+  const armUp = `<path d="M54 74 L104 -10" stroke="${FUR}" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <circle cx="108" cy="-16" r="19" fill="${FUR}"/>`;
+  const armDown = `<path d="M56 70 L74 132" stroke="${FUR}" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <circle cx="76" cy="136" r="18" fill="${FUR}"/>`;
+
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <g transform="rotate(-22 -70 96)">
+      <ellipse cx="-70" cy="96" rx="46" ry="82" fill="${TAIL}"/>
+      <g fill="#fdf3e6"><circle cx="-80" cy="42" r="9"/><circle cx="-58" cy="86" r="8"/><circle cx="-84" cy="126" r="9"/></g>
+    </g>
+    <path d="M-56 78 L-84 138" stroke="${FUR}" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <circle cx="-86" cy="142" r="18" fill="${FUR}"/>
+    <ellipse cx="0" cy="100" rx="72" ry="72" fill="${FUR}"/>
+    <g>${patches}</g>
+    ${arm === "up" ? armUp : armDown}
+    <rect x="-44" y="152" width="36" height="26" rx="12" fill="#8a6a45"/>
+    <rect x="8" y="152" width="36" height="26" rx="12" fill="#8a6a45"/>
+    <circle cx="-46" cy="-52" r="27" fill="${FUR}"/><circle cx="46" cy="-52" r="27" fill="${FUR}"/>
+    <circle cx="-46" cy="-52" r="14" fill="#e4b9bd"/><circle cx="46" cy="-52" r="14" fill="#e4b9bd"/>
+    <circle cx="0" cy="0" r="72" fill="${FUR}"/>
+    <path d="M-46 6 a46 46 0 0 0 92 0 a46 52 0 0 0 -92 0 Z" fill="${CREAM}"/>
+    <path d="M-30 -62 q30 -22 60 -4 q-28 6 -60 4 Z" fill="${CREAM}"/>
+    <circle cx="-26" cy="-4" r="10" fill="#241812"/><circle cx="26" cy="-4" r="10" fill="#241812"/>
+    <circle cx="-44" cy="22" r="12" fill="#e79a9a" opacity=".55"/><circle cx="44" cy="22" r="12" fill="#e79a9a" opacity=".55"/>
+    <ellipse cx="0" cy="20" rx="12" ry="9" fill="#8a5a4a"/>
+    <path d="M-14 34 q14 14 28 0" stroke="#8a5a4a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M0 62 l0 24" stroke="#c9b79a" stroke-width="5"/>
+    <path d="M0 86 q-20 10 -22 26 q20 4 22 -26 Z" fill="#8fc36a"/>
+  </g>`;
+}
+
+/** どんぐり */
+export const acorn = (x, y, s = 1) => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-26 -6 q26 46 52 0 q-26 26 -52 0 Z" fill="#d9a04a"/>
+  <ellipse cx="0" cy="6" rx="26" ry="30" fill="#e0b062"/>
+  <path d="M-30 -10 a30 20 0 0 1 60 0 Z" fill="#8a6a45"/>
+  <rect x="-4" y="-34" width="8" height="16" rx="4" fill="#8a6a45"/>
+</g>`;
+
+/** きのこ */
+export const mushroom = (x, y, s = 1, cap = "#d9524a") => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <rect x="-13" y="-30" width="26" height="42" rx="12" fill="#f6ecdc"/>
+  <path d="M-46 -26 a46 34 0 0 1 92 0 Z" fill="${cap}"/>
+  <g fill="#fdf3e6"><circle cx="-20" cy="-36" r="7"/><circle cx="12" cy="-42" r="6"/><circle cx="26" cy="-30" r="5"/></g>
+</g>`;
+
+export const mushrooms = (seed = 11, y = 890, n = 5) => {
+  const r = rng(seed);
+  const caps = ["#d9524a", "#e0a83c", "#c47ab0"];
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    out += mushroom(70 + (i * (W - 140)) / Math.max(1, n - 1) + r() * 90 - 45, y - r() * 30, 0.7 + r() * 0.7, caps[(r() * 3) | 0]);
+  }
+  return out;
+};
+
+/** ほたるの ような ひかり。夜と 森の おくで つかう */
+export const fireflies = (seed = 12, n = 16) => {
+  const r = rng(seed);
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const x = (r() * W) | 0, y = ((r() * 700) + 80) | 0;
+    out += `<circle cx="${x}" cy="${y}" r="${(r() * 12 + 10).toFixed(0)}" fill="#ffe9b0" opacity=".22"/>
+            <circle cx="${x}" cy="${y}" r="${(r() * 3 + 3).toFixed(1)}" fill="#fff6d6"/>`;
+  }
+  return out;
+};
+
+/** きの うえの いえ */
+export const treehouse = (x, y, s = 1, lit = true) => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <rect x="-26" y="0" width="52" height="200" rx="14" fill="#7d5a3c"/>
+  <rect x="-110" y="-40" width="220" height="26" rx="10" fill="#8a6a45"/>
+  <rect x="-90" y="-160" width="180" height="124" rx="12" fill="#e0c9a4"/>
+  <path d="M-116 -156 L0 -240 L116 -156 Z" fill="#a8763f"/>
+  <rect x="-40" y="-120" width="80" height="60" rx="8" fill="${lit ? "#ffd98a" : "#7a8a9a"}"/>
+  <g stroke="#7d5a3c" stroke-width="9" stroke-linecap="round">
+    <path d="M-14 10 L-14 190"/><path d="M14 10 L14 190"/>
+    <path d="M-14 40 L14 40"/><path d="M-14 90 L14 90"/><path d="M-14 140 L14 140"/>
+  </g>
+</g>`;
+
 /** 1ページぶんの SVG を組み立てる */
 export function page(parts) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img">${parts.join("")}</svg>\n`;
