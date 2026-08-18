@@ -122,6 +122,14 @@ body.reading{background:#2a241d; color:#f6eee1; overflow:hidden;}
 .nav-btn:disabled{opacity:.3; cursor:default;}
 .pageno{min-width:74px; text-align:center; font-size:13px; color:#c6b9a8;}
 
+/* えほんが見つからないときの、棚へ戻るボタン */
+.to-shelf{
+  display:inline-block; margin:18px auto 0; padding:12px 22px; border-radius:12px;
+  background:#3a322a; border:1px solid #4d4238; color:#f6eee1;
+  text-decoration:none; font-size:15px;
+}
+.to-shelf:hover{border-color:#8a7a68;}
+
 .end{
   position:absolute; inset:0; display:none; place-content:center; text-align:center;
   background:rgba(34,29,23,.96); padding:24px;
