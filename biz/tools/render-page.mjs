@@ -18,9 +18,10 @@ import { renderMarkdown, excerpt, readingMinutes } from "../md.js";
 
 /**
  * 公開したときのURLの根。canonical と OGP に入る。
- * **置き場所を移したらここを直す**（sekkei/README.md の移設の話）。
+ * **中身は ../../site.mjs にある。** 移設のとき探し回らないよう1か所にまとめてある。
  */
-export const SITE = "https://todo2023.github.io/my-ai-agent/biz/";
+import { BIZ } from "../../site.mjs";
+export const SITE = BIZ;
 
 /**
  * 検索避け。いまは試作なので付けたまま。

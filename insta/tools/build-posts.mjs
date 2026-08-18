@@ -38,8 +38,8 @@ const root = join(here, "..");
 const ehon = join(root, "..", "ehon");
 const imagesDir = join(root, "images");
 
-/** 絵本の棚のURL。プロフィールのリンクに置くものと同じ */
-const SHELF = "https://todo2023.github.io/my-ai-agent/ehon/";
+/** URLの根は ../../site.mjs にまとめてある。移設したらそこだけ直す */
+import { EHON as SHELF, INSTA } from "../../site.mjs";
 
 /** 投稿画像の大きさ。Instagram の縦長（4:5）。一覧で一番大きく出る形 */
 const W = 1080;
@@ -197,7 +197,7 @@ for (const book of books) {
     title: book.title,
     image: `images/${book.slug}.jpg`,
     // Meta はこのURLを取りに来る。公開されていないと投稿できない
-    image_url: `https://todo2023.github.io/my-ai-agent/insta/images/${book.slug}.jpg`,
+    image_url: `${INSTA}images/${book.slug}.jpg`,
     link: `${SHELF}read.html?book=${book.slug}`,
     caption: text,
     caption_length: [...text].length,
