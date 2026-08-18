@@ -1,39 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
-<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-  <!-- ふちを ゆらす。まっすぐな線を なくす -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
-  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
-  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
-
-  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
-       中を けずった ぶんを 引くと、ふちだけが 残る -->
-  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
-  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
-  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
-  <feColorMatrix in="rimSoft" type="matrix"
-    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
-
-  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
-  <feColorMatrix in="m" type="matrix"
-    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
-  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
-
-  <feMerge>
-    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
-  </feMerge>
-</filter>
-
-<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
-  <feColorMatrix in="t" type="matrix"
-    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
-</filter>
-</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#141d3a"/><stop offset="1" stop-color="#2b3a63"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><g fill="#fff" opacity=".85"><circle cx="584" cy="298" r="2.5"/><circle cx="50" cy="511" r="2.2"/><circle cx="496" cy="330" r="2.3"/><circle cx="1231" cy="177" r="2.4"/><circle cx="1416" cy="411" r="2.0"/><circle cx="304" cy="447" r="2.3"/><circle cx="177" cy="431" r="2.2"/><circle cx="842" cy="134" r="1.9"/><circle cx="357" cy="431" r="1.8"/><circle cx="1304" cy="490" r="2.1"/><circle cx="964" cy="433" r="1.7"/><circle cx="1459" cy="371" r="3.1"/><circle cx="1128" cy="374" r="1.6"/><circle cx="802" cy="457" r="1.9"/><circle cx="794" cy="369" r="3.1"/><circle cx="1386" cy="358" r="2.0"/><circle cx="1250" cy="407" r="2.2"/><circle cx="546" cy="388" r="2.5"/><circle cx="1303" cy="487" r="3.1"/><circle cx="59" cy="41" r="3.4"/><circle cx="417" cy="235" r="1.5"/><circle cx="543" cy="461" r="1.8"/></g><path d="M0 800 q100 -40 200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 L1600 1000 L0 1000 Z" fill="#1f4a5e"/>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g fill="#fff" opacity=".85"><circle cx="584" cy="298" r="2.5"/><circle cx="50" cy="511" r="2.2"/><circle cx="496" cy="330" r="2.3"/><circle cx="1231" cy="177" r="2.4"/><circle cx="1416" cy="411" r="2.0"/><circle cx="304" cy="447" r="2.3"/><circle cx="177" cy="431" r="2.2"/><circle cx="842" cy="134" r="1.9"/><circle cx="357" cy="431" r="1.8"/><circle cx="1304" cy="490" r="2.1"/><circle cx="964" cy="433" r="1.7"/><circle cx="1459" cy="371" r="3.1"/><circle cx="1128" cy="374" r="1.6"/><circle cx="802" cy="457" r="1.9"/><circle cx="794" cy="369" r="3.1"/><circle cx="1386" cy="358" r="2.0"/><circle cx="1250" cy="407" r="2.2"/><circle cx="546" cy="388" r="2.5"/><circle cx="1303" cy="487" r="3.1"/><circle cx="59" cy="41" r="3.4"/><circle cx="417" cy="235" r="1.5"/><circle cx="543" cy="461" r="1.8"/></g><path d="M0 800 q100 -40 200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 L1600 1000 L0 1000 Z" fill="#1f4a5e"/>
 <g transform="translate(900 780) scale(1.1)">
   <path d="M-130 0 L130 0 L96 56 L-96 56 Z" fill="#a8763f"/>
   <rect x="-6" y="-160" width="12" height="160" rx="6" fill="#7d5a3c"/>
@@ -43,4 +12,4 @@
   <circle cx="0" cy="0" r="150" fill="url(#glow)"/>
   <path d="M-46 -30 L46 -30 L30 40 L-30 40 Z" fill="#ffd98a" stroke="#c9964a" stroke-width="8" stroke-linejoin="round"/>
   <rect x="-8" y="-80" width="16" height="50" rx="8" fill="#7d5a3c"/>
-</g></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>
+</g></svg>

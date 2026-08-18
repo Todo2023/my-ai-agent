@@ -10,7 +10,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 18339
+      "bytes": 9119
     },
     {
       "slug": "oyasumi-no-mae",
@@ -22,7 +22,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 15945
+      "bytes": 6725
     },
     {
       "slug": "dare-no-koe",
@@ -34,7 +34,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 27897
+      "bytes": 16833
     },
     {
       "slug": "chiisana-niji",
@@ -46,7 +46,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 20062
+      "bytes": 8998
     },
     {
       "slug": "nebosuke-taiyou",
@@ -58,7 +58,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19823
+      "bytes": 8759
     },
     {
       "slug": "pyon-pyon",
@@ -70,7 +70,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 18979
+      "bytes": 9759
     },
     {
       "slug": "poton-poton",
@@ -82,7 +82,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 26060
+      "bytes": 14996
     },
     {
       "slug": "maru-sagashi",
@@ -94,7 +94,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 16521
+      "bytes": 7301
     },
     {
       "slug": "akai-mi",
@@ -106,7 +106,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 19827
+      "bytes": 10607
     },
     {
       "slug": "ookii-chiisai",
@@ -118,7 +118,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 17332
+      "bytes": 8112
     },
     {
       "slug": "kaze-ga-fuita",
@@ -130,7 +130,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 20791
+      "bytes": 11571
     },
     {
       "slug": "koron-to-tamago",
@@ -142,7 +142,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 23485
+      "bytes": 14265
     },
     {
       "slug": "yuki-no-ashiato",
@@ -154,7 +154,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 28191
+      "bytes": 17127
     },
     {
       "slug": "akai-kasa",
@@ -166,7 +166,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 7,
-      "bytes": 39060
+      "bytes": 26152
     },
     {
       "slug": "kasa-no-ongaku",
@@ -178,7 +178,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 32757
+      "bytes": 21693
     },
     {
       "slug": "kumo-no-katachi",
@@ -190,7 +190,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 5,
-      "bytes": 19048
+      "bytes": 9828
     },
     {
       "slug": "keeki-no-rousoku",
@@ -202,7 +202,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 20580
+      "bytes": 9516
     },
     {
       "slug": "tanpopo-no-boushi",
@@ -214,7 +214,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 26266
+      "bytes": 15202
     },
     {
       "slug": "tsuki-no-pan",
@@ -238,7 +238,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 23236
+      "bytes": 12172
     },
     {
       "slug": "neko-to-tsukimi",
@@ -250,7 +250,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 20881
+      "bytes": 9817
     },
     {
       "slug": "hashi-o-watatte",
@@ -262,7 +262,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 23960
+      "bytes": 12896
     },
     {
       "slug": "hitotsu-no-isu",
@@ -274,7 +274,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 22311
+      "bytes": 11247
     },
     {
       "slug": "moko-no-donguri",
@@ -286,7 +286,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 62005
+      "bytes": 47253
     },
     {
       "slug": "mori-no-ongakukai",
@@ -298,7 +298,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 32495
+      "bytes": 21431
     },
     {
       "slug": "mori-no-yuubin",
@@ -310,7 +310,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 38371
+      "bytes": 23619
     },
     {
       "slug": "yuki-no-hi-no-koe",
@@ -322,7 +322,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 26985
+      "bytes": 15921
     },
     {
       "slug": "aki-no-otoshimono",
@@ -334,7 +334,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 25296
+      "bytes": 14232
     },
     {
       "slug": "umi-no-otoshimono",
@@ -346,7 +346,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 24274
+      "bytes": 9522
     },
     {
       "slug": "taiyou-to-kage",
@@ -358,7 +358,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19677
+      "bytes": 8613
     },
     {
       "slug": "tegami-no-henji",
@@ -370,7 +370,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 26532
+      "bytes": 15468
     },
     {
       "slug": "densha-no-mado",
@@ -382,7 +382,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19859
+      "bytes": 8795
     },
     {
       "slug": "hana-no-namae",
@@ -394,7 +394,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 22489
+      "bytes": 11425
     },
     {
       "slug": "ido-no-soko",
@@ -406,7 +406,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 17974
+      "bytes": 6910
     },
     {
       "slug": "tane-no-tabi",
@@ -418,7 +418,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 23721
+      "bytes": 8969
     },
     {
       "slug": "fune-to-hoshi",
@@ -430,7 +430,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19935
+      "bytes": 8871
     },
     {
       "slug": "mizuumi-no-koe",
@@ -442,7 +442,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 18746
+      "bytes": 7682
     },
     {
       "slug": "michi-no-wakaeme",
@@ -454,7 +454,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 27695
+      "bytes": 16631
     },
     {
       "slug": "yama-no-mukou",
@@ -466,7 +466,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 21147
+      "bytes": 10083
     },
     {
       "slug": "akari-o-kesu-mae",
@@ -478,7 +478,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19999
+      "bytes": 8935
     },
     {
       "slug": "ojiichan-no-radio",
@@ -490,7 +490,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 26949
+      "bytes": 12197
     },
     {
       "slug": "kawa-no-ishi",
@@ -502,7 +502,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19554
+      "bytes": 8490
     },
     {
       "slug": "kotae-no-nai-shitsumon",
@@ -514,7 +514,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 19895
+      "bytes": 8831
     },
     {
       "slug": "shizuka-na-oto",
@@ -526,7 +526,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 30451
+      "bytes": 19387
     },
     {
       "slug": "tooku-no-tomodachi",
@@ -538,7 +538,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 21765
+      "bytes": 10701
     },
     {
       "slug": "natsu-no-owari",
@@ -550,7 +550,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 20666
+      "bytes": 9602
     },
     {
       "slug": "hitori-no-jikan",
@@ -562,7 +562,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 22255
+      "bytes": 11191
     },
     {
       "slug": "mata-aeru",
@@ -574,7 +574,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 22587
+      "bytes": 11523
     },
     {
       "slug": "yakusoku-no-basho",
@@ -586,7 +586,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 22189
+      "bytes": 11125
     },
     {
       "slug": "yoru-no-toshokan",
@@ -598,7 +598,7 @@
       "reading_minutes": 5,
       "cover": "p01.svg",
       "pages": 8,
-      "bytes": 29315
+      "bytes": 14563
     },
     {
       "slug": "wasuremono",
@@ -610,7 +610,7 @@
       "reading_minutes": 4,
       "cover": "p01.svg",
       "pages": 6,
-      "bytes": 20074
+      "bytes": 9010
     }
   ]
 }

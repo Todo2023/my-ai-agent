@@ -1,36 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
-<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-  <!-- ふちを ゆらす。まっすぐな線を なくす -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
-  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
-  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
-
-  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
-       中を けずった ぶんを 引くと、ふちだけが 残る -->
-  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
-  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
-  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
-  <feColorMatrix in="rimSoft" type="matrix"
-    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
-
-  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
-  <feColorMatrix in="m" type="matrix"
-    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
-  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
-
-  <feMerge>
-    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
-  </feMerge>
-</filter>
-
-<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
-  <feColorMatrix in="t" type="matrix"
-    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
-</filter>
-</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#c9d8e6"/><stop offset="1" stop-color="#eef4f8"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><g fill="#fff" stroke="#b9cbdb" stroke-width="2" opacity=".95"><circle cx="558" cy="673" r="5.5"/><circle cx="703" cy="325" r="6.4"/><circle cx="1240" cy="240" r="8.8"/><circle cx="478" cy="830" r="5.1"/><circle cx="1408" cy="864" r="8.1"/><circle cx="237" cy="275" r="10.1"/><circle cx="435" cy="697" r="9.4"/><circle cx="519" cy="438" r="5.8"/><circle cx="280" cy="832" r="7.7"/><circle cx="1329" cy="120" r="10.4"/><circle cx="537" cy="162" r="9.9"/><circle cx="1339" cy="627" r="6.0"/><circle cx="1396" cy="374" r="8.0"/><circle cx="322" cy="383" r="11.8"/><circle cx="695" cy="777" r="10.8"/><circle cx="1448" cy="619" r="7.4"/><circle cx="1557" cy="557" r="5.7"/><circle cx="590" cy="578" r="11.3"/><circle cx="1162" cy="258" r="7.0"/><circle cx="1219" cy="942" r="6.6"/><circle cx="703" cy="429" r="5.1"/><circle cx="1055" cy="928" r="10.8"/><circle cx="1205" cy="534" r="7.1"/><circle cx="537" cy="122" r="10.3"/><circle cx="1357" cy="909" r="9.4"/><circle cx="1044" cy="336" r="6.1"/><circle cx="323" cy="862" r="9.5"/><circle cx="778" cy="23" r="8.1"/><circle cx="723" cy="515" r="8.4"/><circle cx="1552" cy="718" r="7.1"/><circle cx="377" cy="713" r="9.5"/><circle cx="183" cy="82" r="8.5"/><circle cx="425" cy="863" r="5.5"/><circle cx="1002" cy="68" r="7.0"/><circle cx="174" cy="989" r="5.1"/><circle cx="917" cy="910" r="7.1"/><circle cx="47" cy="102" r="6.0"/><circle cx="1566" cy="845" r="7.2"/><circle cx="109" cy="343" r="9.7"/><circle cx="74" cy="999" r="10.8"/><circle cx="256" cy="706" r="8.1"/><circle cx="926" cy="562" r="6.8"/><circle cx="1216" cy="681" r="5.9"/><circle cx="1310" cy="527" r="10.0"/><circle cx="90" cy="312" r="6.4"/><circle cx="749" cy="670" r="8.8"/><circle cx="1029" cy="114" r="8.3"/><circle cx="978" cy="480" r="11.8"/><circle cx="567" cy="492" r="9.2"/><circle cx="1147" cy="109" r="7.0"/></g><path d="M-50 800 Q250 600 600 760 T1250 700 T1700 810 L1700 1000 L-50 1000 Z" fill="#dfe9f2"/><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#f4f8fb"/></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g fill="#fff" stroke="#b9cbdb" stroke-width="2" opacity=".95"><circle cx="558" cy="673" r="5.5"/><circle cx="703" cy="325" r="6.4"/><circle cx="1240" cy="240" r="8.8"/><circle cx="478" cy="830" r="5.1"/><circle cx="1408" cy="864" r="8.1"/><circle cx="237" cy="275" r="10.1"/><circle cx="435" cy="697" r="9.4"/><circle cx="519" cy="438" r="5.8"/><circle cx="280" cy="832" r="7.7"/><circle cx="1329" cy="120" r="10.4"/><circle cx="537" cy="162" r="9.9"/><circle cx="1339" cy="627" r="6.0"/><circle cx="1396" cy="374" r="8.0"/><circle cx="322" cy="383" r="11.8"/><circle cx="695" cy="777" r="10.8"/><circle cx="1448" cy="619" r="7.4"/><circle cx="1557" cy="557" r="5.7"/><circle cx="590" cy="578" r="11.3"/><circle cx="1162" cy="258" r="7.0"/><circle cx="1219" cy="942" r="6.6"/><circle cx="703" cy="429" r="5.1"/><circle cx="1055" cy="928" r="10.8"/><circle cx="1205" cy="534" r="7.1"/><circle cx="537" cy="122" r="10.3"/><circle cx="1357" cy="909" r="9.4"/><circle cx="1044" cy="336" r="6.1"/><circle cx="323" cy="862" r="9.5"/><circle cx="778" cy="23" r="8.1"/><circle cx="723" cy="515" r="8.4"/><circle cx="1552" cy="718" r="7.1"/><circle cx="377" cy="713" r="9.5"/><circle cx="183" cy="82" r="8.5"/><circle cx="425" cy="863" r="5.5"/><circle cx="1002" cy="68" r="7.0"/><circle cx="174" cy="989" r="5.1"/><circle cx="917" cy="910" r="7.1"/><circle cx="47" cy="102" r="6.0"/><circle cx="1566" cy="845" r="7.2"/><circle cx="109" cy="343" r="9.7"/><circle cx="74" cy="999" r="10.8"/><circle cx="256" cy="706" r="8.1"/><circle cx="926" cy="562" r="6.8"/><circle cx="1216" cy="681" r="5.9"/><circle cx="1310" cy="527" r="10.0"/><circle cx="90" cy="312" r="6.4"/><circle cx="749" cy="670" r="8.8"/><circle cx="1029" cy="114" r="8.3"/><circle cx="978" cy="480" r="11.8"/><circle cx="567" cy="492" r="9.2"/><circle cx="1147" cy="109" r="7.0"/></g><path d="M-50 800 Q250 600 600 760 T1250 700 T1700 810 L1700 1000 L-50 1000 Z" fill="#dfe9f2"/><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#f4f8fb"/></svg>

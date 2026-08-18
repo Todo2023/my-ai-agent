@@ -539,7 +539,7 @@ export const treehouse = (x, y, s = 1, lit = true) => `
      feTurbulence は広いほど重い。ゆらぎは背景を除いた絵にだけ かける。
      古い端末で もたつくようなら、下の WATERCOLOR を false にすれば
      もとの平らな絵に戻る（作り直しは build のやり直しだけ）。          */
-export const WATERCOLOR = true;
+export const WATERCOLOR = false;
 
 const WC_DEFS = `<defs>
 <filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">

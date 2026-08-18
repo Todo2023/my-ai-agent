@@ -1,36 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs>
-<filter id="wc" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-  <!-- ふちを ゆらす。まっすぐな線を なくす -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="3" seed="7" result="n"/>
-  <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
-  <feGaussianBlur in="d" stdDeviation="1.1" result="soft"/>
-
-  <!-- にじみの ふち。水彩は かわくとき、ふちに 色が たまって 濃くなる。
-       中を けずった ぶんを 引くと、ふちだけが 残る -->
-  <feMorphology in="soft" operator="erode" radius="4" result="inner"/>
-  <feComposite in="soft" in2="inner" operator="out" result="rim"/>
-  <feGaussianBlur in="rim" stdDeviation="2" result="rimSoft"/>
-  <feColorMatrix in="rimSoft" type="matrix"
-    values="0.66 0 0 0 0  0 0.66 0 0 0  0 0 0.66 0 0  0 0 0 0.28 0" result="rimDark"/>
-
-  <!-- 塗りの中の むら。均一な塗りは 絵の具に見えない -->
-  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="19" result="m"/>
-  <feColorMatrix in="m" type="matrix"
-    values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.32 0 0 0 -0.19" result="mottleA"/>
-  <feComposite in="mottleA" in2="soft" operator="in" result="mottle"/>
-
-  <feMerge>
-    <feMergeNode in="soft"/><feMergeNode in="mottle"/><feMergeNode in="rimDark"/>
-  </feMerge>
-</filter>
-
-<filter id="paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="5" seed="5" result="t"/>
-  <feColorMatrix in="t" type="matrix"
-    values="0 0 0 0 0.45  0 0 0 0 0.42  0 0 0 0 0.36  0.55 0 0 0 -0.12"/>
-</filter>
-</defs><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#141d3a"/><stop offset="1" stop-color="#2b3a63"/></linearGradient>
 <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
 <stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
-</defs><rect width="1600" height="1000" fill="url(#sky)"/><g filter="url(#wc)"><g fill="#fff" opacity=".85"><circle cx="385" cy="190" r="1.6"/><circle cx="179" cy="198" r="2.7"/><circle cx="825" cy="329" r="2.7"/><circle cx="433" cy="125" r="3.4"/><circle cx="537" cy="159" r="3.0"/><circle cx="172" cy="283" r="2.5"/><circle cx="1547" cy="148" r="3.1"/><circle cx="473" cy="230" r="1.7"/><circle cx="673" cy="294" r="1.9"/><circle cx="1307" cy="89" r="2.6"/><circle cx="630" cy="459" r="3.4"/><circle cx="1045" cy="395" r="2.9"/><circle cx="1421" cy="18" r="3.0"/><circle cx="516" cy="7" r="3.0"/></g><path d="M-50 780 Q250 580 600 740 T1250 680 T1700 790 L1700 1000 L-50 1000 Z" fill="#3b4a63"/><circle cx="800" cy="980" r="418.00000000000006" fill="url(#glow)"/><circle cx="800" cy="980" r="190" fill="#ffd257"/></g><rect width="1600" height="1000" filter="url(#paper)" opacity=".22"/></svg>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><g fill="#fff" opacity=".85"><circle cx="385" cy="190" r="1.6"/><circle cx="179" cy="198" r="2.7"/><circle cx="825" cy="329" r="2.7"/><circle cx="433" cy="125" r="3.4"/><circle cx="537" cy="159" r="3.0"/><circle cx="172" cy="283" r="2.5"/><circle cx="1547" cy="148" r="3.1"/><circle cx="473" cy="230" r="1.7"/><circle cx="673" cy="294" r="1.9"/><circle cx="1307" cy="89" r="2.6"/><circle cx="630" cy="459" r="3.4"/><circle cx="1045" cy="395" r="2.9"/><circle cx="1421" cy="18" r="3.0"/><circle cx="516" cy="7" r="3.0"/></g><path d="M-50 780 Q250 580 600 740 T1250 680 T1700 790 L1700 1000 L-50 1000 Z" fill="#3b4a63"/><circle cx="800" cy="980" r="418.00000000000006" fill="url(#glow)"/><circle cx="800" cy="980" r="190" fill="#ffd257"/></svg>
