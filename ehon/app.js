@@ -113,9 +113,15 @@ function setupSupportFoot() {
   const url = String(window.TODO_EHON_CONFIG?.SUPPORT_URL || "");
   if (!/^https:\/\/buy\.stripe\.com\/(?!test_)[\w-]+$/.test(url)) return;
 
-  const link = document.getElementById("support-foot-link");
-  const box = document.getElementById("support-foot");
-  if (!link || !box) return;
-  link.href = url;
-  box.hidden = false;
+  // 棚の上と下の2か所に出す。下まで読んだ人にも押せるように
+  for (const [boxId, linkId] of [
+    ["support-foot", "support-foot-link"],
+    ["support-foot2", "support-foot-link2"],
+  ]) {
+    const box = document.getElementById(boxId);
+    const link = document.getElementById(linkId);
+    if (!box || !link) continue;
+    link.href = url;
+    box.hidden = false;
+  }
 }
