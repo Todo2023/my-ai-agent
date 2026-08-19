@@ -13,7 +13,7 @@
  * 計算そのものは sim.js にある。ここは見せ方と保存だけを持つ。
  */
 
-const VERSION = "2026-08-18b PayPayカード";
+const VERSION = "2026-08-19 トドの貯蓄を追加";
 const KEY = "kakei-data";
 const SIM = self.KakeiSim;
 
