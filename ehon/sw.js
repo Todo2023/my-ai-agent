@@ -12,7 +12,7 @@
  * ファイルを更新したら CACHE の版数を上げること。
  */
 
-const CACHE = "ehon-v13";
+const CACHE = "ehon-v15";
 
 // 画面のもと。これだけは先に入れておく
 const SHELL = [
@@ -65,19 +65,39 @@ self.addEventListener("fetch", (e) => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(req, { ignoreSearch: true });
 
-    // えほんの絵と本文は変わらない。あるものをそのまま返して、取りに行かない
+    /* ── えほんの絵と本文 ────────────────────────────
+       中身は変わらない。あるものを そのまま返して、取りに行かない。
+       ここが「圏外でも読める」を支えている                         */
     if (cached && isBook) return cached;
 
-    const fresh = fetch(req).then((res) => {
-      if (res && res.ok) cache.put(req, res.clone());
-      return res;
-    }).catch(() => null);
+    /* ── 画面のもと（HTML・JS・CSS・books.json）───────────
+       **まず新しいものを取りに行き、だめならキャッシュ**にした。
 
-    // 画面のもとは、まずキャッシュを返して起動を速くし、裏で新しい版を入れる
+       前は逆（まずキャッシュ、裏で更新）だった。それだと直したものが
+       出るまでに2回以上ひらく必要があり、「直したはずなのに
+       変わらない」が何度も起きた。画面のもとは数十KBしかないので、
+       毎回取りに行っても遅くならない。
+
+       cache: "reload" を付けているのは、ブラウザ自身が持っている古い版
+       （GitHub Pages は10分ほど持たせる）を飛ばすため。
+       これが無いと、取りに行っても古いものが返ってくる。
+
+       ⚠ ここで new Request(req, …) を使ってはいけない。
+         ページを開く要求（mode が navigate）からは作り直せず、
+         例外になって古いキャッシュに落ちる。URLから取り直す        */
+    try {
+      const res = await fetch(req.url, { cache: "reload", credentials: "same-origin" });
+      if (res && res.ok) {
+        cache.put(req, res.clone());
+        return res;
+      }
+      if (cached) return cached;
+      if (res) return res;
+    } catch {
+      // 圏外。下のキャッシュに落ちる
+    }
+
     if (cached) return cached;
-
-    const net = await fresh;
-    if (net) return net;
 
     if (req.mode === "navigate") {
       const fallback = await cache.match("./index.html");
