@@ -123,6 +123,15 @@ body.reading{background:#2a241d; color:#f6eee1; overflow:hidden;}
 .pageno{min-width:74px; text-align:center; font-size:13px; color:#c6b9a8;}
 
 /* えほんが見つからないときの、棚へ戻るボタン */
+/* 棚のいちばん下の 応援リンク。おうちの方むけ */
+.support-foot{margin-top:14px;}
+.support-foot a{
+  display:inline-block; padding:10px 18px; border-radius:11px;
+  background:#efe2cc; border:1px solid #d9c7a8; color:#5b4636;
+  text-decoration:none; font-size:13.5px;
+}
+.support-foot a:hover{border-color:#a8763f;}
+
 .to-shelf{
   display:inline-block; margin:18px auto 0; padding:12px 22px; border-radius:12px;
   background:#3a322a; border:1px solid #4d4238; color:#f6eee1;

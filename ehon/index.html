@@ -55,10 +55,21 @@
 <footer>
   <div class="wrap">
     <p>えほんの棚（仮）— 合同会社To do の試作。</p>
-    <p>有料販売・応援の仕組みは、まだありません。</p>
+    <p>えほんは ぜんぶ 無料です。<strong>有料の販売は していません。</strong></p>
+    <!--
+      おうちの方むけの応援リンク。config.js の SUPPORT_URL が
+      本番のものになるまで app.js が隠す（テスト用リンクを読者に出さないため）。
+      子どもが読む画面（read.html）ではなく、**大人が見る棚のいちばん下**に置く。
+    -->
+    <p class="support-foot" id="support-foot" hidden>
+      <a id="support-foot-link" href="#" target="_blank" rel="noopener">
+        おうちの方へ：この棚を応援する（100円から）
+      </a>
+    </p>
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>

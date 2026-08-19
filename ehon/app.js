@@ -92,6 +92,7 @@ async function main() {
 }
 
 main();
+setupSupportFoot();
 
 // Service Worker。一度読んだえほんは端末に残り、次からは通信なしで開く。
 // 絵は重いので、これが帯域の節約にもなる（sekkei/platform-kids.md）
@@ -99,4 +100,22 @@ if ("serviceWorker" in navigator) {
   addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch((err) => console.warn("sw", err));
   });
+}
+
+/**
+ * おうちの方むけの応援リンク（棚のいちばん下）。
+ *
+ * reader.js の setupSupport と同じ判定にしてある。
+ * **テスト用のリンク（buy.stripe.com/test_…）は出さない。**
+ * 本物のお金が動かないのに カード情報の入力欄が出るため。
+ */
+function setupSupportFoot() {
+  const url = String(window.TODO_EHON_CONFIG?.SUPPORT_URL || "");
+  if (!/^https:\/\/buy\.stripe\.com\/(?!test_)[\w-]+$/.test(url)) return;
+
+  const link = document.getElementById("support-foot-link");
+  const box = document.getElementById("support-foot");
+  if (!link || !box) return;
+  link.href = url;
+  box.hidden = false;
 }
