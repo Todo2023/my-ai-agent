@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>えほんとコード | わが子だけの絵本が作れるようになる講座</title>
+<meta name="description" content="エンジニアじゃなくても大丈夫。AIに話しかけるだけで「わが子だけのオリジナル絵本」が作れるようになる、動画+テキストの自習型講座。参加費500円(税込・買い切り)。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="えほんとコード | わが子だけの絵本が作れるようになる講座">
+<meta property="og:description" content="パソコンが苦手でも大丈夫。AIへの話しかけ方を覚えて、お子さんだけの絵本を作ってみませんか。参加費500円(税込)。">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F2A44;
+    --navy-deep:#141c30;
+    --paper:#FAF6EF;
+    --paper-warm:#F4EEE0;
+    --gold:#F2B84B;
+    --blue:#4C6B8A;
+    --blue-soft:#7C93AC;
+    --ink:#2B2418;
+    --line:#E9DFC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Zen Maru Gothic', system-ui, sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.9;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+  }
+  h1,h2,h3,.display{font-family:'Klee One', 'Zen Maru Gothic', serif;}
+  a{text-decoration:none; color:inherit;}
+  img,svg{max-width:100%; display:block;}
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px;}
+  .br-sp{display:none;}
+  @media (max-width:600px){ .br-sp{display:block;} }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 68%, var(--paper) 100%);
+    color:var(--paper);
+    padding:64px 24px 120px;
+    overflow:hidden;
+  }
+  .stars{position:absolute; inset:0; pointer-events:none;}
+  .star{
+    position:absolute; background:#fff; border-radius:50%;
+    opacity:.8; animation:twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.25; transform:scale(.8);}
+    50%{opacity:1; transform:scale(1.15);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .star{animation:none; opacity:.6;}
+    .cta{transition:none;}
+  }
+  .moon{
+    position:absolute; top:32px; right:7%;
+    width:60px; height:60px; border-radius:50%;
+    background:var(--gold);
+    box-shadow:-14px 3px 0 0 var(--navy-deep) inset;
+    opacity:.9;
+  }
+  .hero-art{
+    max-width:520px; width:100%; margin:0 auto 34px;
+    border-radius:20px; overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+    position:relative; z-index:2;
+    border:4px solid rgba(250,246,239,.15);
+    background:#22304d;
+  }
+  .eyebrow{
+    font-size:14px; letter-spacing:.14em; color:var(--gold);
+    font-weight:700; margin-bottom:16px; position:relative; z-index:2;
+  }
+  .hero h1{
+    font-size:clamp(28px, 5vw, 48px);
+    font-weight:600; line-height:1.55; max-width:800px;
+    position:relative; z-index:2;
+  }
+  .hero h1 em{font-style:normal; color:var(--gold);}
+  .hero p.lead{
+    margin-top:24px; font-size:17px; max-width:600px;
+    color:#E7E2D6; position:relative; z-index:2;
+  }
+  .cta{
+    display:inline-block; margin-top:34px;
+    background:var(--gold); color:var(--navy-deep);
+    font-weight:700; padding:16px 38px; border-radius:100px;
+    font-size:16px; box-shadow:0 8px 24px rgba(242,184,75,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+    position:relative; z-index:2;
+  }
+  .cta:hover{transform:translateY(-2px); box-shadow:0 12px 28px rgba(242,184,75,.45);}
+  .cta:focus-visible{outline:3px solid #fff; outline-offset:3px;}
+  .cta-sub{margin-top:14px; font-size:13px; color:#B9C2D2; position:relative; z-index:2;}
+
+  /* ===== SECTIONS ===== */
+  section{padding:76px 0;}
+  .kicker{font-size:13px; letter-spacing:.12em; color:var(--blue); font-weight:700; margin-bottom:12px;}
+  h2.section-title{
+    font-size:clamp(23px, 3.4vw, 32px);
+    font-weight:600; color:var(--navy);
+    margin-bottom:34px; line-height:1.6;
+  }
+
+  .empathy-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:22px;}
+  .empathy-card{background:var(--paper-warm); border-radius:18px; padding:26px 24px; border:1px solid var(--line);}
+  .empathy-card .mark{font-size:22px; color:var(--gold); line-height:1;}
+  .empathy-card p{margin-top:10px; font-size:15px; color:#4A4030;}
+
+  .get-list{list-style:none;}
+  .get-list li{display:flex; gap:16px; padding:20px 0; border-bottom:1px dashed #D8CDB2;}
+  .get-list li:last-child{border-bottom:none;}
+  .get-num{font-family:'Klee One', serif; font-size:20px; color:var(--gold); font-weight:600; flex-shrink:0; width:32px;}
+  .get-body h3{font-size:17px; color:var(--navy); margin-bottom:6px; font-weight:600;}
+  .get-body p{font-size:14.5px; color:#54493A;}
+
+  .curriculum{background:var(--navy); color:var(--paper); border-radius:24px; padding:48px 32px;}
+  .curriculum h2.section-title{color:var(--paper);}
+  .steps{list-style:none; counter-reset:step; margin-top:20px;}
+  .steps li{
+    counter-increment:step; position:relative;
+    padding:20px 0 20px 56px; border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{
+    content:counter(step);
+    position:absolute; left:0; top:18px;
+    width:36px; height:36px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-family:'Klee One', serif; font-size:16px;
+  }
+  .steps h3{font-size:16.5px; margin-bottom:6px; font-weight:600;}
+  .steps p{font-size:14px; color:#C9D0DE;}
+
+  .avatar-box{
+    display:flex; gap:28px; align-items:center;
+    background:var(--paper-warm); border-radius:20px; padding:32px;
+    border:1px solid var(--line); flex-wrap:wrap;
+  }
+  .avatar-badge{
+    width:88px; height:88px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--blue-soft), var(--blue));
+    flex-shrink:0; position:relative;
+  }
+  .avatar-badge::after{
+    content:"💬"; position:absolute; inset:0; display:flex;
+    align-items:center; justify-content:center; font-size:30px;
+  }
+  .avatar-box h3{color:var(--navy); font-size:18px; margin-bottom:8px; font-weight:600;}
+  .avatar-box p{font-size:14.5px; color:#4A4030; max-width:520px;}
+
+  /* target / not-for */
+  .two-col{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:22px;}
+  .panel{border-radius:18px; padding:28px 26px; border:1px solid var(--line); background:#fff;}
+  .panel.warn{background:#FFF8E9; border-color:#EFDCA9;}
+  .panel h3{font-size:17px; color:var(--navy); margin-bottom:14px; font-weight:600;}
+  .panel ul{list-style:none;}
+  .panel li{font-size:14.5px; color:#4A4030; padding:7px 0 7px 26px; position:relative;}
+  .panel li::before{position:absolute; left:0; top:7px;}
+  .panel:not(.warn) li::before{content:"◎"; color:var(--gold);}
+  .panel.warn li::before{content:"△"; color:#C98A1E;}
+
+  /* pricing */
+  .price-card{
+    max-width:420px; margin:0 auto; text-align:center;
+    background:var(--navy); color:var(--paper);
+    border-radius:24px; padding:44px 32px;
+  }
+  .price-card .kicker{color:var(--gold);}
+  .price-num{font-family:'Klee One', serif; font-size:52px; font-weight:600; margin:14px 0 4px;}
+  .price-num span{font-size:16px; font-weight:400; margin-left:6px;}
+  .price-card p.note{font-size:13px; color:#C9D0DE; margin-bottom:24px;}
+  .price-card .cta{background:var(--gold); color:var(--navy-deep); width:100%; margin-top:0;}
+  .price-card .refund{
+    margin-top:20px; font-size:12.5px; color:#AEB8C9; line-height:1.8;
+    border-top:1px solid rgba(255,255,255,.14); padding-top:16px;
+  }
+  @media (max-width:600px){ .price-num{font-size:44px;} }
+
+  /* monitor */
+  .monitor{
+    background:var(--paper-warm); border:1px dashed #D8C79B;
+    border-radius:20px; padding:32px 28px; text-align:center;
+  }
+  .monitor h3{color:var(--navy); font-size:19px; margin-bottom:10px; font-weight:600;}
+  .monitor p{font-size:14.5px; color:#4A4030; max-width:640px; margin:0 auto;}
+
+  /* faq */
+  .faq-item{border-bottom:1px solid #E2D8C0; padding:20px 0;}
+  .faq-item:last-child{border-bottom:none;}
+  .faq-item h3{font-size:15.5px; color:var(--navy); margin-bottom:8px; font-weight:600;}
+  .faq-item p{font-size:14px; color:#54493A;}
+  .faq-item .q-mark{color:var(--gold); margin-right:6px;}
+
+  footer{
+    background:var(--navy-deep); color:#9AA5B8; padding:40px 24px; font-size:12.5px;
+    text-align:center; line-height:1.9;
+  }
+  footer strong{color:#C9D0DE;}
+  footer .links{margin-top:12px;}
+  footer .links a{color:#C9D0DE; text-decoration:underline; margin:0 8px;}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="stars" id="stars" aria-hidden="true"></div>
+  <div class="moon" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-art">
+      <svg viewBox="0 0 800 460" role="img" aria-label="夜、ベッドの上でお子さんと絵本を読むイラスト">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#101830"/>
+            <stop offset="100%" stop-color="#2A3B5C"/>
+          </linearGradient>
+          <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F2B84B" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#F2B84B" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="460" fill="url(#sky)"/>
+        <circle cx="640" cy="90" r="42" fill="#F2B84B" opacity=".92"/>
+        <circle cx="624" cy="82" r="38" fill="#1a2440" opacity=".95"/>
+        <g fill="#ffffff" opacity=".75">
+          <circle cx="90" cy="70" r="2.4"/><circle cx="170" cy="130" r="1.8"/>
+          <circle cx="260" cy="60" r="2"/><circle cx="360" cy="118" r="1.6"/>
+          <circle cx="470" cy="66" r="2.2"/><circle cx="540" cy="150" r="1.7"/>
+          <circle cx="720" cy="190" r="2"/><circle cx="60" cy="200" r="1.7"/>
+        </g>
+        <ellipse cx="400" cy="330" rx="260" ry="120" fill="url(#glow)"/>
+        <!-- bed -->
+        <rect x="120" y="330" width="560" height="90" rx="24" fill="#F4EEE0"/>
+        <rect x="120" y="372" width="560" height="48" rx="20" fill="#E2D8C0"/>
+        <!-- parent -->
+        <circle cx="330" cy="252" r="40" fill="#F6D9BE"/>
+        <path d="M285 258 q45 -66 90 0 q-8 -70 -45 -72 q-38 2 -45 72Z" fill="#4A3B2E"/>
+        <path d="M280 300 q50 -26 100 0 l16 60 h-132Z" fill="#4C6B8A"/>
+        <!-- child -->
+        <circle cx="432" cy="286" r="30" fill="#F9E2CC"/>
+        <path d="M402 288 q30 -50 60 0 q-6 -50 -30 -52 q-24 2 -30 52Z" fill="#6B4A2E"/>
+        <path d="M400 322 q32 -18 64 0 l10 42 h-84Z" fill="#F2B84B"/>
+        <!-- book -->
+        <g transform="translate(302 330)">
+          <path d="M0 20 q52 -30 100 0 v42 q-48 -26 -100 0Z" fill="#FAF6EF"/>
+          <path d="M100 20 q52 -30 100 0 v42 q-48 -26 -100 0Z" fill="#FFFFFF"/>
+          <path d="M100 20 v42" stroke="#D8CDB2" stroke-width="2"/>
+          <g stroke="#C3B79A" stroke-width="3" stroke-linecap="round">
+            <path d="M22 30 h56"/><path d="M22 42 h44"/>
+            <path d="M122 30 h56"/><path d="M122 42 h44"/>
+          </g>
+        </g>
+        <!-- sparkles -->
+        <g fill="#F2B84B">
+          <path d="M540 250 l6 16 16 6 -16 6 -6 16 -6 -16 -16 -6 16 -6Z" opacity=".9"/>
+          <path d="M226 226 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4Z" opacity=".7"/>
+          <path d="M598 320 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3Z" opacity=".6"/>
+        </g>
+      </svg>
+    </div>
+    <div class="eyebrow">寝る前の10分が、ちょっと特別になる</div>
+    <h1>エンジニアじゃなくても、<br>AIと話すだけで<em>「わが子だけの絵本」</em>が<br>作れるようになる講座</h1>
+    <p class="lead">パソコンが苦手でも大丈夫。今日から使える「Claude Code」の基本操作を、動画とテキストで自分のペースに学べます。困ったときはAIチャットがいつでも隣にいます。</p>
+    <a href="#price" class="cta">講座の詳細を見る</a>
+    <div class="cta-sub">参加費 500円(税込・買い切り) ・ 自分のペースで受講OK</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">こんなこと、ありませんか</div>
+    <h2 class="section-title">絵本の読み聞かせをしながら、<br class="br-sp">ふと思ったこと</h2>
+    <div class="empathy-grid">
+      <div class="empathy-card">
+        <div class="mark">✦</div>
+        <p>市販の絵本もいいけど、うちの子の名前や好きなものが出てくる話があったら、もっと喜ぶだろうな</p>
+      </div>
+      <div class="empathy-card">
+        <div class="mark">✦</div>
+        <p>AIって聞くけど、パソコンに詳しくないし、難しそうで手が出せない</p>
+      </div>
+      <div class="empathy-card">
+        <div class="mark">✦</div>
+        <p>子どものために何か作ってあげたいけど、絵も文章も自信がない</p>
+      </div>
+      <div class="empathy-card">
+        <div class="mark">✦</div>
+        <p>新しいことを始めたくても、わからないところで詰まって挫折しそうで不安</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-warm);">
+  <div class="wrap">
+    <div class="kicker">この講座で得られること</div>
+    <h2 class="section-title">「難しそう」を、<br class="br-sp">「できた!」に変える3つのこと</h2>
+    <ul class="get-list">
+      <li>
+        <div class="get-num">01</div>
+        <div class="get-body">
+          <h3>AIに指示を出す、という新しい感覚が身につく</h3>
+          <p>プログラミングの知識がなくても、日本語で話しかけるだけでAIが応えてくれる感覚を、実際に手を動かしながら覚えられます。</p>
+        </div>
+      </li>
+      <li>
+        <div class="get-num">02</div>
+        <div class="get-body">
+          <h3>わが子だけの絵本づくりを、実践例として体験</h3>
+          <p>「こんな絵本を作って」とAIに伝える練習を通して、操作方法を自然に身につけていきます。</p>
+        </div>
+      </li>
+      <li>
+        <div class="get-num">03</div>
+        <div class="get-body">
+          <h3>つまずいても、一人で悩まない安心感</h3>
+          <p>インストールでの「あれ、動かない」も、AIチャットにその場で聞けます。</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="curriculum">
+      <div class="kicker" style="color:var(--gold);">カリキュラム</div>
+      <h2 class="section-title">全5ステップ、自分のペースで</h2>
+      <ol class="steps">
+        <li><h3>Claude Codeって、なに?</h3><p>絵本づくりを例に、AIができることをやさしく紹介します。</p></li>
+        <li><h3>使えるようにする(インストール)</h3><p>Windows・Mac、それぞれの手順を画面つきで解説。つまずきやすい所は動画で丁寧に。</p></li>
+        <li><h3>AIへの話しかけ方の「型」</h3><p>どう伝えればAIがちゃんと応えてくれるか、基本の型を覚えます。</p></li>
+        <li><h3>実践:わが子の絵本を作ってみる</h3><p>お子さんの名前や好きなものを伝えて、簡単な物語を一緒に作ってみましょう。</p></li>
+        <li><h3>困ったときのFAQ</h3><p>よくあるつまずきポイントと解決方法をまとめました。</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-warm);">
+  <div class="wrap">
+    <div class="kicker">サポート体制</div>
+    <h2 class="section-title">わからないことは、<br class="br-sp">AIチャットにいつでも聞けます</h2>
+    <div class="avatar-box">
+      <div class="avatar-badge" aria-hidden="true"></div>
+      <div>
+        <h3>専属のAIアシスタントが待機中</h3>
+        <p>動画を観ていて「ここがわからない」と思ったら、そのままテキストチャットで質問できます。24時間、自分のタイミングで聞けるので、深夜や子どもが寝たあとのすきま時間にも安心です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">受講前のご確認</div>
+    <h2 class="section-title">こんな方に向いています</h2>
+    <div class="two-col">
+      <div class="panel">
+        <h3>向いている方</h3>
+        <ul>
+          <li>お子さんに読み聞かせをしていて、オリジナルの物語を作ってみたい方</li>
+          <li>AIを使ってみたいけれど、何から始めればいいかわからない方</li>
+          <li>自分のペースで、少しずつ進めたい方</li>
+          <li>パソコン(Windows / Mac)をお持ちの方</li>
+        </ul>
+      </div>
+      <div class="panel warn">
+        <h3>ご注意ください</h3>
+        <ul>
+          <li>本講座はClaude Codeの<strong>基本操作</strong>を学ぶ内容です。プログラミングを本格的に学ぶ講座ではありません</li>
+          <li>スマホのみでのご受講はできません(教材の視聴は可能です)</li>
+          <li>絵本の印刷・製本サービスは含まれません</li>
+          <li>Claude Code自体の利用料金・アカウント登録はご自身でのご準備が必要です</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="price" style="background:var(--paper-warm);">
+  <div class="wrap">
+    <div class="kicker" style="text-align:center;">参加費</div>
+    <h2 class="section-title" style="text-align:center;">まずは気軽に、試してみませんか</h2>
+    <div class="price-card">
+      <div class="kicker">えほんとコード 講座</div>
+      <div class="price-num">¥500<span>(税込・買い切り)</span></div>
+      <p class="note">動画・テキスト教材は購入後、いつでも見返せます</p>
+      <a href="#" class="cta">今すぐ申し込む</a>
+      <p class="refund">デジタルコンテンツの性質上、購入後の返金・返品には<strong>いかなる場合も</strong>対応できません。ご了承のうえお申し込みください。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="monitor">
+      <h3>先行モニター募集中</h3>
+      <p>現在、正式公開に向けて教材をブラッシュアップしています。実際に受講して感想を聞かせてくださる先行モニターの方を、少人数だけ募集しています。ご興味のある方はSNSのDMからお気軽にご連絡ください。</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-warm);">
+  <div class="wrap">
+    <div class="kicker">よくある質問</div>
+    <h2 class="section-title">申し込み前に知っておきたいこと</h2>
+
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>パソコン操作がとても苦手なのですが、大丈夫ですか?</h3>
+      <p>A. インストール手順は画面つきで細かく解説しています。それでも困ったときはAIチャットにその場で質問できるので、一人で悩まずに進められます。</p>
+    </div>
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>スマホだけでも受講できますか?</h3>
+      <p>A. 動画・テキストの視聴はスマホでも可能ですが、Claude Code自体はパソコンでの操作が必要です。パソコンをご用意のうえご受講ください。</p>
+    </div>
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>Claude Codeの利用料金は別途かかりますか?</h3>
+      <p>A. Claude Codeのご利用にあたっては、提供元であるAnthropic社のアカウント登録・料金プランのご確認が必要です。講座内でも登録の流れをご案内しますが、利用料金は本講座の参加費には含まれません。</p>
+    </div>
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>絵は自分で描く必要がありますか?</h3>
+      <p>A. 本講座では、まず絵本の「文章と構成」をAIと一緒に作るところまでを扱います。絵を描くスキルは必要ありません。</p>
+    </div>
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>返金はできますか?</h3>
+      <p>A. デジタルコンテンツという商品の性質上、購入後の返金・返品にはいかなる場合も対応できません。ご了承のうえお申し込みください。なお、二重決済など明らかな決済上の不備については個別に対応いたします。</p>
+    </div>
+    <div class="faq-item">
+      <h3><span class="q-mark">Q.</span>受講期限はありますか?</h3>
+      <p>A. ご自身のペースで進めていただけます。期限は設けておりません。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>えほんとコード</strong>(仮称)</p>
+  <p>本講座はデジタルコンテンツ商品です。購入後の返金・返品には一切対応いたしかねます。<br>特定商取引法に基づく表記は申込ページに掲載いたします。</p>
+  <p class="links">
+    <a href="#price">参加費について</a>・<a href="#">特定商取引法に基づく表記</a>・<a href="#">プライバシーポリシー</a>
+  </p>
+  <p style="margin-top:14px; opacity:.75;">&copy; えほんとコード</p>
+</footer>
+
+<script>
+  // 夜空の星を散らす
+  (function () {
+    var container = document.getElementById('stars');
+    if (!container) return;
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < 40; i++) {
+      var star = document.createElement('div');
+      star.className = 'star';
+      var size = Math.random() * 2.5 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 55 + '%';
+      star.style.animationDelay = (Math.random() * 3) + 's';
+      fragment.appendChild(star);
+    }
+    container.appendChild(fragment);
+  })();
+</script>
+
+</body>
+</html>
