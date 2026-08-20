@@ -41,6 +41,22 @@ python3 -m http.server 8000           # → http://localhost:8000/insta/ で目�
 | `index.html` | 並べて確かめる画面。**noindex のまま**（中の作業画面） |
 | `tools/build-posts.mjs` | 上の2つを作る。手元で走らせる |
 
+## きょう出す1件を決める
+
+**どれを出すかは機械が決めない。** `posted.json` の `today` に slug を1つ書く。
+`index.html` の一番上に、その1件が大きく出る（画像・手順・キャプション）。
+
+```json
+{ "today": "moko-mori", "posted": [] }
+```
+
+出したら、`posted` に `{"slug": "...", "date": "2026-08-20"}` を足して、
+`today` を次の絵本に書き換える。**同じ絵本を2回出さないための記録。**
+
+| | |
+| --- | --- |
+| `posted.json` | **手で書く。生成物ではない**。`build-posts.mjs` は触らない |
+
 ## いまできること
 
 **手で投稿できます。** `index.html` で画像とキャプションを見て、

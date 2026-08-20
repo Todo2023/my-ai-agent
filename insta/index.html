@@ -19,6 +19,26 @@
     いまは「キャプションをコピー」で手で投稿できます。
   </p>
 
+  <!-- きょう出す1件。どれを出すかは posted.json の "today" で決める（手で書く） -->
+  <section class="today" id="today" hidden>
+    <h2>きょう出す1件</h2>
+    <div class="today-body">
+      <img id="today-img" alt="" />
+      <div>
+        <p class="today-title" id="today-title"></p>
+        <ol class="steps">
+          <li>下の「画像を保存」を押す（スマホなら長押しで保存）</li>
+          <li>「キャプションをコピー」を押す</li>
+          <li>Instagram アプリで新規投稿 → 保存した画像を選ぶ → キャプションを貼る</li>
+          <li>出したら <code>insta/posted.json</code> の <code>today</code> を次の絵本に書き換える</li>
+        </ol>
+        <div class="row" id="today-row"></div>
+        <pre class="cap" id="today-cap"></pre>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="all-head" id="all-head" hidden>ほかの下書き</h2>
   <ul class="posts" id="posts"></ul>
 </div>
 <script type="module" src="app.js"></script>

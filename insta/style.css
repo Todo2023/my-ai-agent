@@ -51,3 +51,22 @@ button{
 }
 button:hover{border-color:var(--accent); color:var(--accent);}
 .said{font-size:12px; color:var(--accent);}
+
+/* きょう出す1件。一番上に大きく出す（insta/posted.json の "today" で決める） */
+.today{
+  margin:0 0 32px; padding:18px; border:2px solid var(--accent); border-radius:var(--radius);
+  background:color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.today h2{margin:0 0 14px; font-size:17px; color:var(--accent);}
+.today-body{display:grid; gap:18px;}
+@media (min-width:760px){ .today-body{grid-template-columns:340px 1fr;} }
+.today-body img{width:100%; height:auto; border-radius:8px; display:block; background:#0002;}
+.today-title{margin:0 0 8px; font-weight:700;}
+.steps{margin:0; padding-left:1.3em; font-size:13.5px; color:var(--dim);}
+.steps code{font-size:12.5px;}
+.all-head{font-size:15px; color:var(--dim); margin:0 0 12px;}
+.btn-like{
+  font-size:13px; padding:7px 13px; border-radius:9px; text-decoration:none;
+  color:var(--bg); background:var(--accent); border:1px solid var(--accent);
+}
+.btn-like:hover{opacity:.85;}
