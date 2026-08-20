@@ -69,14 +69,6 @@
     box-shadow:-14px 3px 0 0 var(--navy-deep) inset;
     opacity:.9;
   }
-  .hero-art{
-    max-width:520px; width:100%; margin:0 auto 34px;
-    border-radius:20px; overflow:hidden;
-    box-shadow:0 20px 50px rgba(0,0,0,.35);
-    position:relative; z-index:2;
-    border:4px solid rgba(250,246,239,.15);
-    background:#22304d;
-  }
   .eyebrow{
     font-size:14px; letter-spacing:.14em; color:var(--gold);
     font-weight:700; margin-bottom:16px; position:relative; z-index:2;
@@ -101,6 +93,11 @@
   }
   .cta:hover{transform:translateY(-2px); box-shadow:0 12px 28px rgba(242,184,75,.45);}
   .cta:focus-visible{outline:3px solid #fff; outline-offset:3px;}
+  .cta-disabled{
+    background:#5A6478; color:#D3D9E4; cursor:not-allowed;
+    box-shadow:none; pointer-events:none;
+  }
+  .prep-note{font-size:12.5px; color:#C9D0DE; margin-top:14px; line-height:1.8;}
   .cta-sub{margin-top:14px; font-size:13px; color:#B9C2D2; position:relative; z-index:2;}
 
   /* ===== SECTIONS ===== */
@@ -218,62 +215,11 @@
   <div class="stars" id="stars" aria-hidden="true"></div>
   <div class="moon" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="hero-art">
-      <svg viewBox="0 0 800 460" role="img" aria-label="夜、ベッドの上でお子さんと絵本を読むイラスト">
-        <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#101830"/>
-            <stop offset="100%" stop-color="#2A3B5C"/>
-          </linearGradient>
-          <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#F2B84B" stop-opacity=".55"/>
-            <stop offset="100%" stop-color="#F2B84B" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <rect width="800" height="460" fill="url(#sky)"/>
-        <circle cx="640" cy="90" r="42" fill="#F2B84B" opacity=".92"/>
-        <circle cx="624" cy="82" r="38" fill="#1a2440" opacity=".95"/>
-        <g fill="#ffffff" opacity=".75">
-          <circle cx="90" cy="70" r="2.4"/><circle cx="170" cy="130" r="1.8"/>
-          <circle cx="260" cy="60" r="2"/><circle cx="360" cy="118" r="1.6"/>
-          <circle cx="470" cy="66" r="2.2"/><circle cx="540" cy="150" r="1.7"/>
-          <circle cx="720" cy="190" r="2"/><circle cx="60" cy="200" r="1.7"/>
-        </g>
-        <ellipse cx="400" cy="330" rx="260" ry="120" fill="url(#glow)"/>
-        <!-- bed -->
-        <rect x="120" y="330" width="560" height="90" rx="24" fill="#F4EEE0"/>
-        <rect x="120" y="372" width="560" height="48" rx="20" fill="#E2D8C0"/>
-        <!-- parent -->
-        <circle cx="330" cy="252" r="40" fill="#F6D9BE"/>
-        <path d="M285 258 q45 -66 90 0 q-8 -70 -45 -72 q-38 2 -45 72Z" fill="#4A3B2E"/>
-        <path d="M280 300 q50 -26 100 0 l16 60 h-132Z" fill="#4C6B8A"/>
-        <!-- child -->
-        <circle cx="432" cy="286" r="30" fill="#F9E2CC"/>
-        <path d="M402 288 q30 -50 60 0 q-6 -50 -30 -52 q-24 2 -30 52Z" fill="#6B4A2E"/>
-        <path d="M400 322 q32 -18 64 0 l10 42 h-84Z" fill="#F2B84B"/>
-        <!-- book -->
-        <g transform="translate(302 330)">
-          <path d="M0 20 q52 -30 100 0 v42 q-48 -26 -100 0Z" fill="#FAF6EF"/>
-          <path d="M100 20 q52 -30 100 0 v42 q-48 -26 -100 0Z" fill="#FFFFFF"/>
-          <path d="M100 20 v42" stroke="#D8CDB2" stroke-width="2"/>
-          <g stroke="#C3B79A" stroke-width="3" stroke-linecap="round">
-            <path d="M22 30 h56"/><path d="M22 42 h44"/>
-            <path d="M122 30 h56"/><path d="M122 42 h44"/>
-          </g>
-        </g>
-        <!-- sparkles -->
-        <g fill="#F2B84B">
-          <path d="M540 250 l6 16 16 6 -16 6 -6 16 -6 -16 -16 -6 16 -6Z" opacity=".9"/>
-          <path d="M226 226 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4Z" opacity=".7"/>
-          <path d="M598 320 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3Z" opacity=".6"/>
-        </g>
-      </svg>
-    </div>
     <div class="eyebrow">寝る前の10分が、ちょっと特別になる</div>
     <h1>エンジニアじゃなくても、<br>AIと話すだけで<em>「わが子だけの絵本」</em>が<br>作れるようになる講座</h1>
     <p class="lead">パソコンが苦手でも大丈夫。今日から使える「Claude Code」の基本操作を、動画とテキストで自分のペースに学べます。困ったときはAIチャットがいつでも隣にいます。</p>
     <a href="#price" class="cta">講座の詳細を見る</a>
-    <div class="cta-sub">参加費 500円(税込・買い切り) ・ 自分のペースで受講OK</div>
+    <div class="cta-sub">参加費 500円(税込・買い切り) ・ お申し込み受付は準備中です</div>
   </div>
 </section>
 
@@ -397,7 +343,11 @@
       <div class="kicker">えほんとコード 講座</div>
       <div class="price-num">¥500<span>(税込・買い切り)</span></div>
       <p class="note">動画・テキスト教材は購入後、いつでも見返せます</p>
-      <a href="https://buy.stripe.com/14AfZh8UD1PncCicxH6wE01" class="cta" target="_blank" rel="noopener">今すぐ申し込む</a>
+      <!-- 申込受付を開始するときは、下の span を次のリンクに差し替える:
+           <a href="【新しいStripe決済リンク】" class="cta" target="_blank" rel="noopener">今すぐ申し込む</a>
+           あわせて直下の .prep-note と、ヒーロー下の .cta-sub の文言も戻すこと -->
+      <span class="cta cta-disabled" role="button" aria-disabled="true">準備中</span>
+      <p class="prep-note">現在お申し込み受付の準備中です。開始しだいSNSでお知らせします。</p>
       <p class="refund">デジタルコンテンツの性質上、購入後の返金・返品には<strong>いかなる場合も</strong>対応できません。ご了承のうえお申し込みください。</p>
     </div>
   </div>
