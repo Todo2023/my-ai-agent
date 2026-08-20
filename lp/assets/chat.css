@@ -1,0 +1,121 @@
+/* えほんとコード AIアシスタント「ほしの」共通スタイル */
+.ehon-chat{
+  --chat-navy:#1F2A44;
+  --chat-navy-deep:#141c30;
+  --chat-paper:#FAF6EF;
+  --chat-paper-warm:#F4EEE0;
+  --chat-gold:#F2B84B;
+  --chat-blue:#4C6B8A;
+  --chat-line:#E9DFC8;
+  --chat-ink:#2B2418;
+  font-family:'Zen Maru Gothic', system-ui, sans-serif;
+}
+
+/* ===== 起動ボタン(フローティング) ===== */
+.ehon-chat-launcher{
+  position:fixed; right:20px; bottom:20px; z-index:9998;
+  display:flex; align-items:center; gap:10px;
+  background:var(--chat-navy); color:var(--chat-paper);
+  border:none; border-radius:100px; padding:12px 20px 12px 12px;
+  font-family:inherit; font-size:14px; font-weight:700;
+  box-shadow:0 10px 28px rgba(20,28,48,.35);
+  cursor:pointer; transition:transform .2s ease, box-shadow .2s ease;
+}
+.ehon-chat-launcher:hover{transform:translateY(-2px); box-shadow:0 14px 32px rgba(20,28,48,.45);}
+.ehon-chat-launcher:focus-visible{outline:3px solid var(--chat-gold); outline-offset:3px;}
+.ehon-chat-launcher svg{width:34px; height:34px; flex-shrink:0;}
+.ehon-chat-launcher[hidden]{display:none;}
+
+/* ===== パネル ===== */
+.ehon-chat-panel{
+  position:fixed; right:20px; bottom:20px; z-index:9999;
+  width:min(380px, calc(100vw - 32px));
+  height:min(560px, calc(100vh - 40px));
+  background:var(--chat-paper);
+  border-radius:20px; overflow:hidden;
+  box-shadow:0 24px 60px rgba(20,28,48,.4);
+  display:flex; flex-direction:column;
+  border:1px solid var(--chat-line);
+}
+.ehon-chat-panel[hidden]{display:none;}
+
+/* 埋め込みモード(ページ内に固定表示) */
+.ehon-chat-embed .ehon-chat-panel{
+  position:static; width:100%; height:min(600px, 78vh);
+  right:auto; bottom:auto; box-shadow:0 12px 32px rgba(20,28,48,.12);
+}
+.ehon-chat-embed .ehon-chat-close{display:none;}
+
+.ehon-chat-header{
+  background:var(--chat-navy); color:var(--chat-paper);
+  padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0;
+}
+.ehon-chat-header svg{width:40px; height:40px; flex-shrink:0;}
+.ehon-chat-title{font-size:15px; font-weight:700; line-height:1.4;}
+.ehon-chat-status{font-size:11.5px; color:#B9C2D2; line-height:1.4;}
+.ehon-chat-close{
+  margin-left:auto; background:transparent; border:none; color:var(--chat-paper);
+  font-size:22px; line-height:1; cursor:pointer; padding:4px 6px; border-radius:8px;
+}
+.ehon-chat-close:hover{background:rgba(255,255,255,.12);}
+.ehon-chat-close:focus-visible{outline:2px solid var(--chat-gold); outline-offset:2px;}
+
+.ehon-chat-log{
+  flex:1; overflow-y:auto; padding:18px 16px;
+  display:flex; flex-direction:column; gap:14px;
+  background:var(--chat-paper);
+}
+.ehon-msg{display:flex; gap:10px; align-items:flex-start;}
+.ehon-msg svg{width:32px; height:32px; flex-shrink:0;}
+.ehon-msg-bubble{
+  background:#fff; border:1px solid var(--chat-line);
+  border-radius:4px 16px 16px 16px; padding:12px 14px;
+  font-size:14px; line-height:1.85; color:var(--chat-ink);
+  max-width:82%; white-space:pre-wrap; word-break:break-word;
+}
+.ehon-msg-bubble a{color:var(--chat-blue); text-decoration:underline;}
+.ehon-msg.user{flex-direction:row-reverse;}
+.ehon-msg.user .ehon-msg-bubble{
+  background:var(--chat-navy); color:var(--chat-paper);
+  border-color:var(--chat-navy); border-radius:16px 4px 16px 16px;
+}
+.ehon-msg.typing .ehon-msg-bubble{color:#8A8070; font-style:normal;}
+
+.ehon-chips{display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 12px;}
+.ehon-chip{
+  background:var(--chat-paper-warm); border:1px solid var(--chat-line);
+  color:var(--chat-navy); border-radius:100px; padding:8px 14px;
+  font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;
+  transition:background .15s ease;
+}
+.ehon-chip:hover{background:#EBE0C8;}
+.ehon-chip:focus-visible{outline:2px solid var(--chat-gold); outline-offset:2px;}
+
+.ehon-chat-form{
+  display:flex; gap:8px; padding:12px 14px;
+  border-top:1px solid var(--chat-line); background:var(--chat-paper-warm);
+  flex-shrink:0;
+}
+.ehon-chat-input{
+  flex:1; border:1px solid var(--chat-line); border-radius:100px;
+  padding:11px 16px; font-family:inherit; font-size:14px; color:var(--chat-ink);
+  background:#fff; min-width:0;
+}
+.ehon-chat-input:focus{outline:2px solid var(--chat-gold); outline-offset:0;}
+.ehon-chat-send{
+  background:var(--chat-gold); color:var(--chat-navy-deep); border:none;
+  border-radius:100px; padding:0 18px; font-family:inherit;
+  font-size:14px; font-weight:700; cursor:pointer; flex-shrink:0;
+}
+.ehon-chat-send:hover{filter:brightness(1.05);}
+.ehon-chat-send:focus-visible{outline:3px solid var(--chat-navy); outline-offset:2px;}
+
+.ehon-chat-note{
+  font-size:11px; color:#8A8070; text-align:center;
+  padding:0 14px 10px; background:var(--chat-paper-warm); line-height:1.7;
+  flex-shrink:0;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ehon-chat-launcher{transition:none;}
+}

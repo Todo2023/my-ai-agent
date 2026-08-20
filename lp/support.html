@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>受講中のサポート | えほんとコード</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/chat.css">
+<style>
+  :root{
+    --navy:#1F2A44;
+    --navy-deep:#141c30;
+    --paper:#FAF6EF;
+    --paper-warm:#F4EEE0;
+    --gold:#F2B84B;
+    --blue:#4C6B8A;
+    --ink:#2B2418;
+    --line:#E9DFC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Zen Maru Gothic', system-ui, sans-serif;
+    color:var(--ink); background:var(--paper);
+    line-height:1.9; -webkit-text-size-adjust:100%;
+  }
+  h1,h2,h3{font-family:'Klee One', 'Zen Maru Gothic', serif; font-weight:600;}
+  a{color:var(--blue);}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px;}
+
+  .page-head{
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    color:var(--paper); padding:52px 24px 44px;
+  }
+  .page-head .home{
+    font-size:13px; color:var(--gold); font-weight:700;
+    letter-spacing:.08em; display:inline-block; margin-bottom:14px;
+  }
+  .page-head h1{font-size:clamp(24px,3.6vw,32px); line-height:1.5;}
+  .page-head p{font-size:14.5px; color:#C9D0DE; margin-top:14px; max-width:600px;}
+
+  main{padding:44px 0 72px;}
+  .chat-mount{margin-bottom:44px;}
+
+  .helpbox{
+    background:var(--paper-warm); border:1px solid var(--line);
+    border-radius:18px; padding:28px 26px; margin-bottom:24px;
+  }
+  .helpbox h2{font-size:18px; color:var(--navy); margin-bottom:14px;}
+  .helpbox p{font-size:14.5px; color:#4A4030; margin-bottom:10px;}
+  .helpbox ul{margin:6px 0 0 20px;}
+  .helpbox li{font-size:14.5px; color:#4A4030; margin-bottom:8px;}
+  .helpbox .mail{font-weight:700; color:#8A5A00;}
+
+  footer{
+    background:var(--navy-deep); color:#9AA5B8; padding:36px 24px;
+    font-size:12.5px; text-align:center; line-height:1.9;
+  }
+  footer a{color:#C9D0DE; text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="wrap">
+    <a class="home" href="index.html">&larr; えほんとコード トップへ</a>
+    <h1>受講中のサポート</h1>
+    <p>つまずいたときは、まずアシスタントの「ほしの」に聞いてみてください。24時間、いつでも受け付けています。深夜でも、お子さんが寝たあとでも大丈夫です。</p>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="chat-mount" id="chat"></div>
+
+    <div class="helpbox">
+      <h2>質問するときのコツ</h2>
+      <p>次の3つを教えていただけると、原因が絞りやすくなります。</p>
+      <ul>
+        <li>お使いのパソコン(Windows か Mac か)</li>
+        <li>講座のどのステップで止まっているか</li>
+        <li>画面に出ているメッセージの文字</li>
+      </ul>
+    </div>
+
+    <div class="helpbox">
+      <h2>解決しないときは</h2>
+      <p>アシスタントで解決しなかった場合は、メールでご連絡ください。順番にお返事いたします。</p>
+      <p class="mail">【問い合わせ用メールアドレスを記入】</p>
+      <p style="font-size:13.5px; color:#7A6E5C;">お返事にはお時間をいただく場合があります。あらかじめご了承ください。</p>
+    </div>
+
+    <div class="helpbox">
+      <h2>入力しないでいただきたいこと</h2>
+      <p>チャットにご入力いただいた内容は、回答のために外部のサービスへ送信される場合があります。お子さまのお名前・住所・園や学校名など、個人が特定できる情報は入力しないでください。</p>
+      <p style="font-size:13.5px;">詳しくは<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>えほんとコード</strong></p>
+  <p><a href="index.html">トップページ</a>・<a href="tokushoho.html">特定商取引法に基づく表記</a>・<a href="privacy.html">プライバシーポリシー</a></p>
+</footer>
+
+<script src="assets/chat.js"></script>
+<script>EhonChat.mount('#chat', { embedded: true });</script>
+
+</body>
+</html>

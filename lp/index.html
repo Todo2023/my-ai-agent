@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/chat.css">
 <style>
   :root{
     --navy:#1F2A44;
@@ -298,6 +299,7 @@
       <div>
         <h3>専属のAIアシスタントが待機中</h3>
         <p>動画を観ていて「ここがわからない」と思ったら、そのままテキストチャットで質問できます。24時間、自分のタイミングで聞けるので、深夜や子どもが寝たあとのすきま時間にも安心です。</p>
+        <p style="margin-top:10px; font-size:13.5px;">この画面の右下からも試せます。<a href="support.html" style="color:var(--blue); text-decoration:underline;">サポートページはこちら</a></p>
       </div>
     </div>
   </div>
@@ -414,6 +416,10 @@
     container.appendChild(fragment);
   })();
 </script>
+
+<div id="chat"></div>
+<script src="assets/chat.js"></script>
+<script>EhonChat.mount('#chat');</script>
 
 </body>
 </html>
