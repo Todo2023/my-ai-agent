@@ -229,6 +229,18 @@
       "bytes": 10657
     },
     {
+      "slug": "todo-kun-no-umi",
+      "title": "トドくんの うみの だいぼうけん",
+      "author": "編集部",
+      "summary": "トドくんが、うみと そらと うちゅうを たびする おはなし。",
+      "age_min": 3,
+      "age_max": 5,
+      "reading_minutes": 7,
+      "cover": "p01.svg",
+      "pages": 12,
+      "bytes": 50363
+    },
+    {
       "slug": "tori-no-su",
       "title": "とりの す",
       "author": "編集部",

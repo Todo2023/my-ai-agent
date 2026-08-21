@@ -527,6 +527,204 @@ export const treehouse = (x, y, s = 1, lit = true) => `
 </g>`;
 
 
+/* ── 海の部品（2026-08-21） ──────────────────────
+   「トドくんの うみの だいぼうけん」のために足したぶん。
+   もとの話は自作のスライド。**絵は1枚も持ち込んでいない**
+   （スライドの写真は pngtree などの他人のもの。出典が11ページ目にある）。
+   ここにあるのは、その話に合わせて描き直した部品。          */
+
+const SEAL = "#d09257";        // トドの からだ
+const SEAL_D = "#b0763f";      // ひれ・かげ
+const SEAL_C = "#f2ddbe";      // おなかと 口もと
+
+/**
+ * トド。この棚の いきもの と同じで、**頭のまんなかが原点**。
+ * 地面に すわらせるときは standTodo(地面, 倍率) を使う。
+ *
+ * pose
+ *   sit  … すわって 上を むく（陸の絵）
+ *   swim … よこむきに およぐ（海の中の絵）
+ */
+export function todo(x, y, s = 1, opts = {}) {
+  const { pose = "sit", fur = SEAL, flip = false } = opts;
+  const dark = pose === "sit" ? SEAL_D : SEAL_D;
+
+  const face = `
+    <ellipse cx="-58" cy="-32" rx="9" ry="19" transform="rotate(-22 -58 -32)" fill="${dark}"/>
+    <ellipse cx="58" cy="-32" rx="9" ry="19" transform="rotate(22 58 -32)" fill="${dark}"/>
+    <circle cx="0" cy="0" r="66" fill="${fur}"/>
+    <ellipse cx="0" cy="30" rx="42" ry="30" fill="${SEAL_C}"/>
+    <g stroke="${SEAL_C}" stroke-width="4" stroke-linecap="round" opacity=".95">
+      <path d="M-30 24 L-92 12"/><path d="M-30 34 L-94 38"/>
+      <path d="M30 24 L92 12"/><path d="M30 34 L94 38"/>
+    </g>
+    <ellipse cx="0" cy="16" rx="13" ry="10" fill="#3b2a22"/>
+    <path d="M-15 40 q15 13 30 0" stroke="#3b2a22" stroke-width="6" fill="none" stroke-linecap="round"/>
+    ${EYE(-27, -8, 11)}${EYE(27, -8, 11)}
+    <circle cx="-47" cy="16" r="12" fill="#e79a9a" opacity=".45"/>
+    <circle cx="47" cy="16" r="12" fill="#e79a9a" opacity=".45"/>`;
+
+  const sit = `
+    <path d="M46 214 q92 6 132 -34 q-8 56 -58 72 q-44 12 -78 -8 Z" fill="${dark}"/>
+    <path d="M-52 22 C-98 92, -104 190, -76 232 C-42 278, 58 278, 90 232 C116 188, 92 88, 52 22 Z" fill="${fur}"/>
+    <ellipse cx="6" cy="168" rx="52" ry="76" fill="${SEAL_C}" opacity=".5"/>
+    <path d="M-56 118 C-112 154, -128 216, -104 244 C-78 254, -50 218, -40 176 Z" fill="${dark}"/>
+    <path d="M60 128 C112 162, 126 220, 102 246 C76 256, 50 222, 44 182 Z" fill="${dark}"/>
+    ${face}`;
+
+  // およぐ かたち。頭は右、からだは 左へ のびる
+  const swim = `
+    <path d="M-272 -30 C-336 -66, -408 -74, -440 -40 C-392 -18, -320 -4, -272 4 Z" fill="${dark}"/>
+    <path d="M-272 10 C-334 40, -396 74, -426 64 C-386 100, -316 68, -268 34 Z" fill="${dark}"/>
+    <path d="M-30 -52 C-140 -68, -256 -50, -296 -6 C-256 46, -140 66, -26 48 Z" fill="${fur}"/>
+    <path d="M-40 34 C-140 50, -230 38, -270 8 C-210 40, -130 54, -40 46 Z" fill="${SEAL_C}" opacity=".55"/>
+    <path d="M-96 26 C-128 92, -92 136, -40 126 C-70 96, -74 60, -80 34 Z" fill="${dark}"/>
+    <path d="M-120 -34 C-166 -92, -134 -140, -82 -136 C-108 -108, -108 -70, -104 -44 Z" fill="${dark}"/>
+    ${face}`;
+
+  return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">${
+    pose === "swim" ? swim : sit}</g>`;
+}
+
+/** 地面 g に すわる トドの原点 */
+export const standTodo = (g, s) => g - 264 * s;
+
+/** くじら。おおきさで 見せる ので、ほかより ずっと 大きい */
+export const whale = (x, y, s = 1, color = "#4a7fa8") => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-292 -10 C-370 -74, -448 -96, -486 -66 C-448 -34, -374 -12, -300 0
+           C-374 12, -448 34, -486 66 C-448 96, -370 74, -292 10 Z" fill="${color}"/>
+  <path d="M-300 0 C-300 -100, -120 -142, 60 -136 C210 -130, 300 -72, 300 -6
+           C300 60, 200 110, 60 116 C-120 124, -300 90, -300 0 Z" fill="${color}"/>
+  <path d="M40 92 C64 162, 146 182, 186 150 C132 142, 92 120, 72 86 Z" fill="${color}"/>
+  <path d="M-240 78 C-100 120, 120 114, 262 52 C160 120, -80 134, -240 78 Z" fill="#d7e9f2"/>
+  <path d="M-150 96 C-40 120, 110 112, 230 68" stroke="#d7e9f2" stroke-width="10" fill="none" opacity=".7"/>
+  <path d="M118 68 C198 64, 260 42, 296 6" stroke="#2f5c7c" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <circle cx="204" cy="-26" r="13" fill="#241812"/>
+  <g stroke="#e6f2f7" stroke-width="14" stroke-linecap="round" fill="none" opacity=".9">
+    <path d="M166 -122 q-14 -74 -66 -112"/><path d="M172 -124 q18 -68 0 -118"/><path d="M178 -122 q40 -52 92 -70"/>
+  </g>
+</g>`;
+
+/** こおり。すべりだいに つかう。flat=true で ただの 氷の いた */
+export const iceHill = (x, y, s = 1, flat = false) => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  ${flat
+    ? `<path d="M-300 0 L-250 -44 L250 -44 L300 0 Z" fill="#eaf4fa"/>
+       <path d="M-300 0 L300 0 L262 44 L-262 44 Z" fill="#c6dcea"/>`
+    : `<path d="M-320 40 L-90 -190 L60 -190 L320 40 Z" fill="#eaf4fa"/>
+       <path d="M-90 -190 L60 -190 L320 40 L150 40 Z" fill="#d5e8f3"/>
+       <path d="M-320 40 L320 40 L286 84 L-286 84 Z" fill="#c6dcea"/>`}
+</g>`;
+
+/** すな。うみべの 地面 */
+export const sand = (y = 880) =>
+  `<path d="M0 ${y} Q400 ${y - 44} 800 ${y - 6} T1600 ${y - 30} L1600 1000 L0 1000 Z" fill="#e8d6ac"/>`;
+
+/** おおきな なみ。まきこむ かたち */
+export const bigWave = (x, y, s = 1, color = "#3f8fb0") => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-560 520 C-520 120, -280 -140, 40 -142 C300 -144, 452 -20, 470 150 L470 520 Z" fill="${color}"/>
+  <path d="M40 -142 C300 -144, 452 -20, 470 150 C420 20, 286 -64, 96 -62 C-70 -60, -220 30, -300 190
+           C-250 -10, -110 -140, 40 -142 Z" fill="#eaf6fa"/>
+  <g stroke="#eaf6fa" stroke-width="13" fill="none" opacity=".65" stroke-linecap="round">
+    <path d="M-380 320 C-280 140, -140 40, 20 10"/>
+    <path d="M-300 440 C-200 280, -70 190, 90 160"/>
+  </g>
+</g>`;
+
+/** サーフボード */
+export const surfboard = (x, y, s = 1, rot = -14, color = "#e8a33c") => `
+<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+  <path d="M-170 0 C-120 -46, 120 -46, 170 0 C120 46, -120 46, -170 0 Z" fill="${color}"/>
+  <path d="M-150 0 L150 0" stroke="#fdf3e6" stroke-width="9" stroke-linecap="round"/>
+</g>`;
+
+/** にんぎょ。子どもの 上はんぶんに、さかなの おびれ */
+export const mermaid = (x, y, s = 1, tail = "#4fb0a8", hair = "#c2543f") => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-40 40 C-70 130, -40 200, 10 236 C-70 250, -120 214, -140 250 C-90 300, 30 300, 70 236 C110 176, 90 80, 44 36 Z" fill="${tail}"/>
+  <path d="M-64 -28 q0 -86 64 -86 q64 0 64 86 q4 96 -30 126 q12 -84 -34 -110 q-46 26 -34 110 q-34 -30 -30 -126 Z" fill="${hair}"/>
+  <path d="M-30 30 L34 30 L44 120 L-40 120 Z" fill="#f0c9a8"/>
+  <path d="M-46 116 a46 30 0 0 0 92 0 Z" fill="${tail}"/>
+  <circle cx="0" cy="-30" r="58" fill="#f0c9a8"/>
+  <path d="M-58 -44 a58 58 0 0 1 116 0 q-32 -30 -58 -26 q-26 -4 -58 26 Z" fill="${hair}"/>
+  ${EYE(-20, -22, 8)}${EYE(20, -22, 8)}
+  <path d="M-12 0 q12 12 24 0" stroke="#b9705c" stroke-width="6" fill="none" stroke-linecap="round"/>
+</g>`;
+
+/** サンゴ。海の そこに ならべる */
+export const corals = (seed = 21, y = 900, n = 5) => {
+  const r = rng(seed);
+  const cols = ["#e08a9a", "#e0a83c", "#7fb8a8"];
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const x = 90 + (i * (W - 180)) / Math.max(1, n - 1) + r() * 80 - 40;
+    const s = 0.7 + r() * 0.6;
+    const c = cols[(r() * 3) | 0];
+    out += `<g transform="translate(${x | 0} ${(y - r() * 30) | 0}) scale(${s.toFixed(2)})" fill="${c}">
+      <path d="M0 0 L0 -70" stroke="${c}" stroke-width="20" stroke-linecap="round"/>
+      <path d="M0 -40 L-44 -96" stroke="${c}" stroke-width="17" stroke-linecap="round"/>
+      <path d="M0 -50 L46 -110" stroke="${c}" stroke-width="17" stroke-linecap="round"/>
+      <circle cx="0" cy="-78" r="15"/><circle cx="-50" cy="-104" r="14"/><circle cx="52" cy="-118" r="14"/>
+      <ellipse cx="0" cy="-6" rx="34" ry="16"/><circle cx="-24" cy="-50" r="10"/><circle cx="26" cy="-62" r="10"/>
+    </g>`;
+  }
+  return out;
+};
+
+/** 水の あわ */
+export const bubbles = (seed = 22, n = 16) => {
+  const r = rng(seed);
+  let out = '<g fill="#ffffff" opacity=".38">';
+  for (let i = 0; i < n; i++) {
+    out += `<circle cx="${(r() * W) | 0}" cy="${(r() * 860) | 0}" r="${(r() * 16 + 6) | 0}"/>`;
+  }
+  return `${out}</g>`;
+};
+
+/** ほし。うちゅうの 絵に つかう */
+export const planet = (x, y, s = 1, color = "#c47ab0", ring = false) => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <circle cx="0" cy="0" r="78" fill="${color}"/>
+  <ellipse cx="-22" cy="-24" rx="26" ry="18" fill="#ffffff" opacity=".22"/>
+  ${ring ? `<ellipse cx="0" cy="6" rx="132" ry="30" fill="none" stroke="#f2d06b" stroke-width="14" opacity=".9"/>` : ""}
+</g>`;
+
+/** うちゅうの ヘルメット。頭に かぶせる（頭の 原点に あわせる） */
+export const helmet = (x, y, s = 1) => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <circle cx="0" cy="0" r="96" fill="#cfe8f2" opacity=".38"/>
+  <circle cx="0" cy="0" r="96" fill="none" stroke="#eaf6fa" stroke-width="8"/>
+  <path d="M-62 -52 a86 86 0 0 1 52 -30" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" opacity=".8"/>
+</g>`;
+
+/** まほうの じゅうたん */
+export const carpet = (x, y, s = 1, color = "#9a4f8f") => `
+<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-260 30 C-140 -30, 140 -30, 260 30 C140 76, -140 76, -260 30 Z" fill="${color}"/>
+  <path d="M-210 28 C-110 -6, 110 -6, 210 28" stroke="#f2d06b" stroke-width="9" fill="none"/>
+  <g stroke="${color}" stroke-width="8" stroke-linecap="round">
+    <path d="M-256 34 L-286 56"/><path d="M-200 52 L-222 78"/><path d="M-120 64 L-134 92"/>
+    <path d="M0 70 L0 100"/><path d="M120 64 L134 92"/><path d="M200 52 L222 78"/><path d="M256 34 L286 56"/>
+  </g>
+</g>`;
+
+/** 花の かんむり。頭の 原点に あわせて かぶせる */
+export const flowerCrown = (x, y, s = 1) => {
+  const cols = ["#e2645a", "#f2d06b", "#c47ab0", "#7fb8a8", "#e8a33c"];
+  let out = `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-66 -30 a66 40 0 0 1 132 0" stroke="#5f8f57" stroke-width="11" fill="none" stroke-linecap="round"/>`;
+  for (let i = 0; i < 5; i++) {
+    const a = (-160 + i * 40) * (Math.PI / 180);
+    const px = (Math.cos(a) * 68).toFixed(0), py = (Math.sin(a) * 44 - 24).toFixed(0);
+    out += `<g transform="translate(${px} ${py})" fill="${cols[i]}">
+      <circle cx="0" cy="-11" r="11"/><circle cx="-11" cy="4" r="11"/><circle cx="11" cy="4" r="11"/>
+      <circle cx="0" cy="0" r="8" fill="#fdf3e6"/></g>`;
+  }
+  return `${out}</g>`;
+};
+
 /* ── 水彩ふうの仕上げ ────────────────────────────
    紙のにじみと、ふちの ゆらぎ。**SVGのフィルタだけで作る。**
    画像を足さないので、容量も 通信も 増えない（0円のまま）。
