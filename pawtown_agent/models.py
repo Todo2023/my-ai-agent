@@ -1,4 +1,4 @@
-"""members / matches の型と、Googleフォーム回答の正規化。
+"""members / posts / matches の型と、Googleフォーム回答の正規化。
 
 フォームの回答は表記ゆれが多い（全角スペース、「、」区切り、「東京都 世田谷区」など）。
 LLMに渡す前にここで決定的に整形しておく。整形をLLMに任せると、
@@ -56,6 +56,12 @@ def normalize_pet_type(value) -> str:
     raise ValueError(f"ペットの種類を判別できません: {value!r}（犬 か 猫 で入力してください）")
 
 
+def _post_type(value) -> str:
+    """投稿方式を 'A' / 'B' / 'C' に寄せる。不明なら既定の方式B。"""
+    text = normalize_text(value).upper()
+    return text if text in ("A", "B", "C") else "B"
+
+
 def _to_float(value):
     text = normalize_text(value)
     if not text:
@@ -71,11 +77,14 @@ class Member:
     nickname: str
     email: str
     pet_type: str
+    pet_name: str = ""  # 物語の主役。UI上はこの名前で人格化して表示する
     breed: str = ""
     pet_age: float | None = None
     personality_tags: list[str] = dataclasses.field(default_factory=list)
     concern_tags: list[str] = dataclasses.field(default_factory=list)
     area: str = ""
+    default_post_type: str = "B"  # 初回に選んだ投稿方式を既定として覚える
+    points: int = 0
 
     @classmethod
     def from_row(cls, row: dict) -> "Member":
@@ -85,18 +94,27 @@ class Member:
             nickname=normalize_text(row.get("nickname")),
             email=normalize_text(row.get("email")),
             pet_type=normalize_pet_type(row.get("pet_type")),
+            pet_name=normalize_text(row.get("pet_name")),
             breed=normalize_text(row.get("breed")),
             pet_age=_to_float(row.get("pet_age")),
             personality_tags=normalize_tags(row.get("personality_tags")),
             concern_tags=normalize_tags(row.get("concern_tags")),
             area=normalize_text(row.get("area")),
+            default_post_type=_post_type(row.get("default_post_type")),
+            points=int(row.get("points") or 0),
         )
+
+    @property
+    def display_name(self) -> str:
+        """物語の主役名。未登録ならニックネームで代用する。"""
+        return self.pet_name or self.nickname
 
     def to_prompt_dict(self) -> dict:
         """LLMに渡す形。メールアドレスは含めない（渡す必要がないので渡さない）。"""
         return {
             "id": self.id,
             "nickname": self.nickname,
+            "pet_name": self.display_name,
             "pet_type": "犬" if self.pet_type == "dog" else "猫",
             "breed": self.breed or "不明",
             "pet_age": self.pet_age,
@@ -104,6 +122,33 @@ class Member:
             "concern_tags": self.concern_tags,
             "area": self.area or "不明",
         }
+
+
+@dataclasses.dataclass
+class Post:
+    """物語1本。raw_input には生成のもとになった入力を必ず残す。
+
+    「なぜこの物語になったのか」を後から追えないと、質が悪かったときに
+    入力が悪いのかプロンプトが悪いのかを切り分けられなくなる。
+    """
+
+    id: str
+    member_id: str
+    post_type: str
+    raw_input: str
+    generated_story: str
+    created_at: str = ""
+
+    @classmethod
+    def from_row(cls, row: dict) -> "Post":
+        return cls(
+            id=str(row.get("id", "")),
+            member_id=str(row.get("member_id", "")),
+            post_type=_post_type(row.get("post_type")),
+            raw_input=row.get("raw_input") or "",
+            generated_story=row.get("generated_story") or "",
+            created_at=str(row.get("created_at") or ""),
+        )
 
 
 @dataclasses.dataclass

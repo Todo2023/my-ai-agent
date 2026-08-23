@@ -1,4 +1,4 @@
-"""members / matches の読み書き。
+"""members / posts / matches の読み書き。
 
 本番は Supabase の REST API（PostgREST）を叩く。DEMO_MODE=1 のときは
 fakes.py のメモリ上のデータを使うので、Supabaseプロジェクトが無くても動く。
@@ -15,7 +15,7 @@ import uuid
 import requests
 
 import fakes
-from models import Match, Member
+from models import Match, Member, Post
 
 TIMEOUT_SECONDS = 15
 
@@ -91,6 +91,65 @@ def find_member_by_email(email: str) -> Member | None:
         if member.email.lower() == email.lower():
             return member
     return None
+
+
+def update_member(member_id: str, **fields) -> Member:
+    """プロフィールの一部を更新する（投稿方式の記憶など）。"""
+    if fakes.is_demo():
+        for row in fakes.demo_members_raw():
+            if row["id"] == member_id:
+                row.update(fields)
+                fakes.save_members()
+                return Member.from_row(row)
+        raise RuntimeError(f"会員 {member_id} が見つかりません。")
+    updated = _request("PATCH", f"/members?id=eq.{member_id}", json=fields)
+    if not updated:
+        raise RuntimeError(f"会員 {member_id} が見つかりません。")
+    return Member.from_row(updated[0])
+
+
+# --- posts -----------------------------------------------------------------
+
+
+def create_post(member_id: str, post_type: str, raw_input: str,
+                generated_story: str, question: str = "") -> Post:
+    row = {
+        "member_id": member_id,
+        "post_type": post_type,
+        "question": question or None,
+        "raw_input": raw_input,
+        "generated_story": generated_story,
+    }
+    if fakes.is_demo():
+        row = dict(row, id=str(uuid.uuid4()), created_at=fakes.now_iso())
+        fakes.demo_posts().append(row)
+        fakes.save_posts()
+        return Post.from_row(row)
+    created = _request("POST", "/posts", json=row)
+    return Post.from_row(created[0])
+
+
+def list_posts(member_id: str | None = None, limit: int = 50) -> list[Post]:
+    """新しい順に物語を返す。"""
+    if fakes.is_demo():
+        rows = sorted(fakes.demo_posts(), key=lambda row: row.get("created_at", ""), reverse=True)
+        if member_id:
+            rows = [row for row in rows if row["member_id"] == member_id]
+        rows = rows[:limit]
+    else:
+        query = f"/posts?select=*&order=created_at.desc&limit={limit}"
+        if member_id:
+            query += f"&member_id=eq.{member_id}"
+        rows = _request("GET", query)
+    return [Post.from_row(row) for row in rows]
+
+
+def latest_post_by_member() -> dict[str, Post]:
+    """会員ごとの最新の物語。レコメンドの材料に使う。"""
+    latest: dict[str, Post] = {}
+    for post in list_posts(limit=500):
+        latest.setdefault(post.member_id, post)
+    return latest
 
 
 # --- matches ---------------------------------------------------------------
@@ -186,8 +245,11 @@ def find_match_by_token(token: str) -> tuple[Match, str] | None:
 def stats() -> dict:
     """ダッシュボード用の件数。"""
     matches = list_matches()
+    posts = list_posts(limit=1000)
     return {
         "member_count": len(list_members()),
+        "post_count": len(posts),
+        "writer_count": len({post.member_id for post in posts}),
         "matched_count": sum(1 for m in matches if m.status == "matched"),
         "awaiting_count": sum(
             1 for m in matches if m.status in ("pending", "approved_a", "approved_b")

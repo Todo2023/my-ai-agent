@@ -16,13 +16,22 @@
 const QUESTIONS = {
   nickname: 'ニックネーム',
   email: 'メールアドレス',
+  pet_name: 'ペットのお名前',
   pet_type: 'ペットの種類',
   breed: '犬種・猫種',
   pet_age: 'ペットの年齢',
   personality_tags: 'ペットの性格（複数選択可）',
   concern_tags: '悩んでいること（複数選択可）',
   area: 'お住まいのエリア（都道府県・市区町村）',
+  default_post_type: '物語の作り方（あとから変更できます）',
 };
+
+/** 「物語の作り方」の選択肢を A / B / C に対応させる。選択肢の文言を変えたらここも直す。 */
+const POST_TYPE_CHOICES = [
+  { keyword: '一言', value: 'A' },   // 一言を書く（AIがふくらませます）
+  { keyword: '質問', value: 'B' },   // 毎日の質問に答える
+  { keyword: '写真', value: 'C' },   // 写真を送る
+];
 
 function installTrigger() {
   const form = FormApp.openByUrl(
@@ -45,15 +54,17 @@ function onFormSubmit(event) {
   const member = {
     nickname: text(answers[QUESTIONS.nickname]),
     email: text(answers[QUESTIONS.email]).toLowerCase(),
+    pet_name: text(answers[QUESTIONS.pet_name]),
     pet_type: petType(answers[QUESTIONS.pet_type]),
     breed: text(answers[QUESTIONS.breed]),
     pet_age: number(answers[QUESTIONS.pet_age]),
     personality_tags: tags(answers[QUESTIONS.personality_tags]),
     concern_tags: tags(answers[QUESTIONS.concern_tags]),
     area: text(answers[QUESTIONS.area]),
+    default_post_type: postType(answers[QUESTIONS.default_post_type]),
   };
 
-  if (!member.email || !member.nickname || !member.pet_type) {
+  if (!member.email || !member.nickname || !member.pet_type || !member.pet_name) {
     // 必須項目が欠けた回答は送らない。Supabase側の not null で弾かれるより、
     // ここでログに残したほうが原因が分かる
     console.error('必須項目が空のため登録しませんでした: ' + JSON.stringify(member));
@@ -110,6 +121,17 @@ function tags(value) {
     }
   });
   return seen;
+}
+
+/** 未回答・不明なときは方式B（質問に答える）。いちばん投稿ハードルが低い。 */
+function postType(value) {
+  const answer = text(value);
+  for (var i = 0; i < POST_TYPE_CHOICES.length; i++) {
+    if (answer.indexOf(POST_TYPE_CHOICES[i].keyword) !== -1) {
+      return POST_TYPE_CHOICES[i].value;
+    }
+  }
+  return 'B';
 }
 
 function petType(value) {

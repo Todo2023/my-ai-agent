@@ -1,11 +1,19 @@
-"""Pawtown マッチングエージェントの運用コマンド。
+"""Pawtown の運用コマンド。
 
-    python cli.py members                  会員一覧
-    python cli.py match <email|id>         その人のマッチ候補を探して登録・確認メール送信
-    python cli.py round                    まだ候補が出ていない全員に対して一括実行
-    python cli.py pending                  承認待ちのマッチ一覧
-    python cli.py respond <ID|受付番号> a|b yes|no   賛否を記録（揃えば紹介メール）
-    python cli.py stats                    件数の表示
+物語（主軸）:
+    python cli.py members                     会員一覧
+    python cli.py ask <email>                 今日の質問を出す（方式B）
+    python cli.py post <email> --text "…"     物語を作って保存する
+    python cli.py post <email> --type C --image photo.jpg
+    python cli.py feed [<email>]              物語フィード（レコメンド差し込み）
+
+つながり（副次機能）:
+    python cli.py connect <email> <email> [--send]   気になった相手とのマッチを作る
+    python cli.py match <email> [--send]             候補を探して確認メールを送る
+    python cli.py round                              未マッチの会員をまとめて処理
+    python cli.py pending                            承認待ち一覧
+    python cli.py respond <ID|受付番号> [a|b] yes|no  賛否を記録
+    python cli.py stats                              件数の表示
 
 メール送信の直前には必ず y/N を聞く。LLMの判断だけでは1通も出さない。
 """
@@ -15,12 +23,15 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import textwrap
 
 from dotenv import load_dotenv
 
 import fakes
+import feed as feed_module
 import flow
 import notify
+import stories
 import store
 from dashboard import print_stats
 
@@ -55,13 +66,108 @@ def _resolve_member(key: str):
     return member
 
 
+def _wrap(text: str, indent: str = "  ") -> str:
+    lines = []
+    for paragraph in text.splitlines():
+        lines.extend(textwrap.wrap(paragraph, width=60,
+                                   initial_indent=indent, subsequent_indent=indent)
+                     or [indent.rstrip()])
+    return "\n".join(lines)
+
+
+# --- 物語 -------------------------------------------------------------------
+
+
 def cmd_members(args):
     for member in store.list_members():
         pet = "犬" if member.pet_type == "dog" else "猫"
         print(
-            f"{member.id[:8]}  {member.nickname:<12} {pet}/{member.breed or '不明':<12} "
-            f"{member.area or '不明':<12} 悩み: {'、'.join(member.concern_tags) or '未登録'}"
+            f"{member.id[:8]}  {member.display_name:<6}（{member.nickname:<10}）"
+            f"{pet}/{member.breed or '不明':<12} 既定の投稿方式: "
+            f"{member.default_post_type} {stories.POST_TYPES[member.default_post_type]}"
         )
+
+
+def cmd_ask(args):
+    member = _resolve_member(args.member)
+    print(f"{member.display_name}ちゃんへの今日の質問:")
+    print(f"  {stories.question_for(member)}")
+    print(f"\n答えたら: python cli.py post {member.email} --text \"…\"")
+
+
+def cmd_post(args):
+    member = _resolve_member(args.member)
+    first_post = not store.list_posts(member_id=member.id, limit=1)
+    post_type = stories.normalize_post_type(args.type or member.default_post_type)
+
+    question = stories.question_for(member) if post_type == "B" else ""
+    if post_type == "B" and not args.text:
+        raise SystemExit(f"今日の質問「{question}」への回答を --text で渡してください。")
+
+    raw_input_text, story = stories.generate_story(
+        member, post_type, raw_input=args.text or "", question=question,
+        image_path=args.image,
+    )
+    post = store.create_post(member.id, post_type, raw_input_text, story, question)
+
+    print(f"{member.display_name}ちゃんの物語（方式{post_type}: {stories.POST_TYPES[post_type]}）")
+    if question:
+        print(f"  質問: {question}")
+    print()
+    print(_wrap(story))
+    print(f"\n  投稿ID: {post.id[:8]}")
+
+    # 初回に選んだ方式を既定として覚える。2回目以降は --remember を付けたときだけ
+    if args.type and stories.should_remember_default(
+            member, post_type, first_post, args.remember):
+        store.update_member(member.id, default_post_type=post_type)
+        print(f"  次からは方式{post_type}を既定にします（変更は --type で）。")
+
+
+def cmd_feed(args):
+    reader = _resolve_member(args.member) if args.member else None
+    items = feed_module.build_feed(reader, limit=args.limit)
+    if not items:
+        print("まだ物語がありません。")
+        return
+    for item in items:
+        member = item["member"]
+        if item["kind"] == "recommend":
+            print(f"\n  ── {item['reason']}")
+            print(f"     {member.display_name}ちゃんの物語:")
+            print(_wrap(item["post"].generated_story, indent="     "))
+            print(f"     つながりたい: python cli.py connect "
+                  f"{reader.email if reader else '<あなたのemail>'} {member.email}")
+        else:
+            post = item["post"]
+            print(f"\n{member.display_name}ちゃん（{member.breed}）  {post.created_at[:10]}"
+                  f"  方式{post.post_type}")
+            print(_wrap(post.generated_story))
+
+
+# --- つながり ---------------------------------------------------------------
+
+
+def _send_requests(match):
+    for message in flow.send_approval_requests(match):
+        print(message)
+
+
+def cmd_connect(args):
+    reader = _resolve_member(args.member)
+    partner = _resolve_member(args.partner)
+    if partner.id in store.paired_member_ids(reader.id):
+        print(f"{partner.nickname}さんとは、すでにマッチ候補として登録済みです。")
+        return
+    result = feed_module.connect(reader, partner)
+    match = result["match"]
+    print(f"マッチ候補を登録しました [{match.id[:8]}] "
+          f"スコア {match.match_score:g}")
+    print(_wrap(match.match_reason))
+    if args.send:
+        _send_requests(match)
+    else:
+        print("\n確認メールを送るには --send を付けて実行してください。")
 
 
 def cmd_match(args):
@@ -77,13 +183,12 @@ def cmd_match(args):
         )
         partner = store.get_member(partner_id)
         print(f"  [{match.id[:8]}] {partner.nickname}（スコア {match.match_score:g}）")
-        print(f"      {match.match_reason}")
+        print(_wrap(match.match_reason, indent="      "))
     if not args.send:
         print("\n確認メールを送るには --send を付けて実行してください。")
         return
     for match in created:
-        for message in flow.send_approval_requests(match):
-            print(message)
+        _send_requests(match)
 
 
 def cmd_round(args):
@@ -132,10 +237,37 @@ def cmd_stats(args):
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pawtown マッチングエージェント")
+    parser = argparse.ArgumentParser(
+        description="Pawtown（物語コミュニティ + さりげないマッチング）"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("members", help="会員一覧").set_defaults(func=cmd_members)
+
+    ask_parser = sub.add_parser("ask", help="今日の質問を出す（方式B）")
+    ask_parser.add_argument("member", help="メールアドレス または 会員ID")
+    ask_parser.set_defaults(func=cmd_ask)
+
+    post_parser = sub.add_parser("post", help="物語を作って保存する")
+    post_parser.add_argument("member", help="メールアドレス または 会員ID")
+    post_parser.add_argument("--type", choices=["A", "B", "C"],
+                             help="投稿方式（既定は会員ごとの default_post_type）")
+    post_parser.add_argument("--text", default="", help="一言 または 質問への回答")
+    post_parser.add_argument("--image", help="方式Cで使う写真のパス")
+    post_parser.add_argument("--remember", action="store_true",
+                             help="この方式を次回以降の既定にする")
+    post_parser.set_defaults(func=cmd_post)
+
+    feed_parser = sub.add_parser("feed", help="物語フィード")
+    feed_parser.add_argument("member", nargs="?", help="読む人（省略すると新着一覧のみ）")
+    feed_parser.add_argument("--limit", type=int, default=12)
+    feed_parser.set_defaults(func=cmd_feed)
+
+    connect_parser = sub.add_parser("connect", help="気になった相手とのマッチを作る")
+    connect_parser.add_argument("member", help="あなた")
+    connect_parser.add_argument("partner", help="お相手")
+    connect_parser.add_argument("--send", action="store_true", help="確認メールまで送る")
+    connect_parser.set_defaults(func=cmd_connect)
 
     match_parser = sub.add_parser("match", help="指定した会員のマッチ候補を探す")
     match_parser.add_argument("member", help="メールアドレス または 会員ID")

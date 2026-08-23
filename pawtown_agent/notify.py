@@ -56,7 +56,7 @@ def approval_request(member: Member, partner: Member, match: Match, side: str) -
     相手のメールアドレスも、相手が誰に紹介されているかも書かない。
     """
     token = match.token_a if side == "a" else match.token_b
-    subject = f"[{SERVICE_NAME}] {partner.nickname}さんとマッチしそうです"
+    subject = f"[{SERVICE_NAME}] {partner.display_name}ちゃんの飼い主さんとマッチしそうです"
     body = f"""{member.nickname}さん
 
 いつも{SERVICE_NAME}をご利用いただきありがとうございます。
@@ -64,7 +64,7 @@ def approval_request(member: Member, partner: Member, match: Match, side: str) -
 
 --------------------------------
 お相手: {partner.nickname}さん
-ペット: {"犬" if partner.pet_type == "dog" else "猫"} / {partner.breed or "種類は未登録"}
+ペット: {partner.display_name}ちゃん（{"犬" if partner.pet_type == "dog" else "猫"} / {partner.breed or "種類は未登録"}）
 悩んでいること: {"、".join(partner.concern_tags) or "未登録"}
 エリア: {partner.area or "未登録"}
 
@@ -72,7 +72,8 @@ def approval_request(member: Member, partner: Member, match: Match, side: str) -
 {match.match_reason}
 --------------------------------
 
-{partner.nickname}さんに紹介メッセージを送ってもよろしいですか？
+{partner.nickname}さん（{partner.display_name}ちゃんの飼い主さん）に
+紹介メッセージを送ってもよろしいですか？
 
 このメールに「はい」または「いいえ」とご返信ください。
 お二人とも「はい」とお答えになった場合にのみ、双方にご紹介のメールをお送りします。
@@ -96,14 +97,14 @@ def introduction(match: Match, member_a: Member, member_b: Member) -> tuple[str,
 このメールにそのまま返信いただければ、お二人でやりとりができます。
 
 --------------------------------
-{member_a.nickname}さん
+{member_a.nickname}さん と {member_a.display_name}ちゃん
  ペット: {"犬" if member_a.pet_type == "dog" else "猫"} / {member_a.breed or "種類は未登録"}\
 {f" / {member_a.pet_age:g}歳" if member_a.pet_age else ""}
  性格: {"、".join(member_a.personality_tags) or "未登録"}
  悩んでいること: {"、".join(member_a.concern_tags) or "未登録"}
  エリア: {member_a.area or "未登録"}
 
-{member_b.nickname}さん
+{member_b.nickname}さん と {member_b.display_name}ちゃん
  ペット: {"犬" if member_b.pet_type == "dog" else "猫"} / {member_b.breed or "種類は未登録"}\
 {f" / {member_b.pet_age:g}歳" if member_b.pet_age else ""}
  性格: {"、".join(member_b.personality_tags) or "未登録"}
@@ -114,7 +115,7 @@ def introduction(match: Match, member_a: Member, member_b: Member) -> tuple[str,
 お二人が合いそうだと考えた理由:
 {match.match_reason}
 
-まずは、共通の悩みについて情報交換されてはいかがでしょうか。
+まずは、お互いの子の物語の感想から話されてはいかがでしょうか。
 どうぞよろしくお願いいたします。
 
 {_footer()}
