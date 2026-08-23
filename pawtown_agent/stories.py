@@ -1,6 +1,8 @@
-"""物語生成（主軸機能）。
+"""「ひろば」の物語生成。
 
 飼い主ではなく「〇〇ちゃん」目線で、その子が一人称で語る短い日記を作る。
+町の4施設のうち、AIが本文を書くのは「ひろば」（うちの子紹介）だけ。
+質問・学び・グッズは飼い主の言葉をそのまま残す（town.py を参照）。
 投稿のきっかけによって3つの方式を使い分ける。
 
     A: 一言投稿 → AI脚色      通院・体調変化など、事実を外せない場面
@@ -17,6 +19,7 @@ import datetime
 import hashlib
 
 import llm
+import town
 from models import Member
 
 POST_TYPES = {
@@ -160,3 +163,20 @@ def generate_story(member: Member, post_type: str, raw_input: str = "",
         # 空返しはそのまま保存しない。テンプレートに落として運用を止めない
         return raw_input, _template_story(member, post_type, raw_input, question)
     return raw_input, story.strip()
+
+
+def compose(member: Member, category: str, text: str = "", post_type: str = "",
+            question: str = "", image_path: str | None = None) -> tuple[str, str]:
+    """投稿1本を作る。戻り値: (保存する入力, 表示する本文)
+
+    「ひろば」だけAIがペット目線の物語にする。
+    ほかの施設は飼い主の言葉をそのまま本文にする。相談や質問をAIに書き直させると、
+    事実でないことが混ざって相談として成立しなくなるため。
+    """
+    category = town.normalize(category)
+    if town.writes_story(category):
+        return generate_story(member, post_type or member.default_post_type,
+                              raw_input=text, question=question, image_path=image_path)
+    if not text.strip():
+        raise ValueError(f"「{town.place(category)}」への投稿には本文が必要です。")
+    return text.strip(), text.strip()

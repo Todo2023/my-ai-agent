@@ -23,21 +23,29 @@ create table if not exists members (
   created_at timestamptz not null default now()
 );
 
--- posts: 物語コンテンツ本体（主軸機能）
+-- posts: 投稿本体。category が「町のどの施設に貼られるか」を表す。
+--   showcase … ひろば（うちの子紹介）  AIがペット目線の物語を書く
+--   question … そうだん所（質問・相談）飼い主の言葉をそのまま残す
+--   learn    … まなび舎（学び）        同上
+--   goods    … マーケット（グッズ共有）同上
 --   raw_input には生成のもとになった入力を必ず残す。
 --   方式Bは回答、方式Aは飼い主の一言、方式Cは画像から取り出した情景。
 create table if not exists posts (
   id uuid primary key default gen_random_uuid(),
   member_id uuid not null references members(id) on delete cascade,
+  category text not null default 'showcase'
+    check (category in ('showcase', 'question', 'learn', 'goods')),
   post_type text not null check (post_type in ('A', 'B', 'C')),
+  title text,                            -- 一覧に出す見出し（質問・学び・グッズで使う）
   question text,                         -- 方式Bで出した質問。後から質問の当たり外れを見る
   raw_input text,
-  generated_story text not null,
+  generated_story text not null,         -- 表示する本文
   created_at timestamptz not null default now()
 );
 
 create index if not exists posts_member_idx on posts (member_id, created_at desc);
 create index if not exists posts_created_idx on posts (created_at desc);
+create index if not exists posts_category_idx on posts (category, created_at desc);
 
 -- matches: マッチ候補と、その承認状態（副次機能）
 --   status の遷移は flow.py が管理する:
@@ -79,6 +87,10 @@ create or replace view dashboard_stats as
 select
   (select count(*) from members where active) as member_count,
   (select count(*) from posts) as post_count,
+  (select count(*) from posts where category = 'showcase') as showcase_count,
+  (select count(*) from posts where category = 'question') as question_count,
+  (select count(*) from posts where category = 'learn') as learn_count,
+  (select count(*) from posts where category = 'goods') as goods_count,
   (select count(*) from posts where created_at > now() - interval '7 days') as post_count_7d,
   (select count(distinct member_id) from posts
      where created_at > now() - interval '7 days') as active_writer_count,
@@ -92,7 +104,7 @@ grant select on dashboard_stats to anon;
 -- 公開フィード用のビュー。物語とペット名だけを出し、飼い主は特定させない。
 -- （公開ページを作る段階で anon に grant する。既定では付けない）
 create or replace view public_feed as
-select p.id, p.created_at, p.generated_story,
+select p.id, p.created_at, p.category, p.title, p.generated_story,
        m.pet_name, m.pet_type, m.breed, m.area
 from posts p join members m on m.id = p.member_id
 where m.active
@@ -106,5 +118,8 @@ order by p.created_at desc;
 --   alter table members alter column pet_name set not null;
 --   alter table members add column if not exists default_post_type text not null default 'B';
 --   alter table members add column if not exists points int not null default 0;
---   -- そのうえで、上の posts テーブルとビューの作成だけを流す
+--   -- posts を作成済みの場合はカテゴリ列を足す
+--   alter table posts add column if not exists category text not null default 'showcase';
+--   alter table posts add column if not exists title text;
+--   -- そのうえで、上のインデックスとビューの作成を流す
 -- --------------------------------------------------------------------------

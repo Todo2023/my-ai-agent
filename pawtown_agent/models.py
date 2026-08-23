@@ -56,6 +56,17 @@ def normalize_pet_type(value) -> str:
     raise ValueError(f"ペットの種類を判別できません: {value!r}（犬 か 猫 で入力してください）")
 
 
+# 投稿カテゴリ。町のどの施設に貼られる投稿かを表す
+CATEGORY_IDS = ("showcase", "question", "learn", "goods")
+DEFAULT_CATEGORY = "showcase"
+
+
+def _category(value) -> str:
+    """投稿カテゴリを正規化する。不明ならうちの子紹介。"""
+    text = normalize_text(value).lower()
+    return text if text in CATEGORY_IDS else DEFAULT_CATEGORY
+
+
 def _post_type(value) -> str:
     """投稿方式を 'A' / 'B' / 'C' に寄せる。不明なら既定の方式B。"""
     text = normalize_text(value).upper()
@@ -126,7 +137,11 @@ class Member:
 
 @dataclasses.dataclass
 class Post:
-    """物語1本。raw_input には生成のもとになった入力を必ず残す。
+    """投稿1本。町のどこかの施設に貼られる。
+
+    category が showcase のときだけ generated_story にAIが書いた物語が入る。
+    質問・学び・グッズは飼い主自身の言葉をそのまま残す（AIに書かせない）。
+    raw_input には生成のもとになった入力を必ず残す。
 
     「なぜこの物語になったのか」を後から追えないと、質が悪かったときに
     入力が悪いのかプロンプトが悪いのかを切り分けられなくなる。
@@ -134,9 +149,11 @@ class Post:
 
     id: str
     member_id: str
+    category: str
     post_type: str
     raw_input: str
     generated_story: str
+    title: str = ""
     created_at: str = ""
 
     @classmethod
@@ -144,9 +161,11 @@ class Post:
         return cls(
             id=str(row.get("id", "")),
             member_id=str(row.get("member_id", "")),
+            category=_category(row.get("category")),
             post_type=_post_type(row.get("post_type")),
             raw_input=row.get("raw_input") or "",
             generated_story=row.get("generated_story") or "",
+            title=row.get("title") or "",
             created_at=str(row.get("created_at") or ""),
         )
 

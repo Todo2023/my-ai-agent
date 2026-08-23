@@ -1,4 +1,4 @@
-"""物語フィードと、その合間へのレコメンド差し込み。
+"""施設ごとの投稿一覧と、「ひろば」へのレコメンド差し込み。
 
 v2 の方針は「マッチング機能を前面に出さない」こと。
 独立したマッチング画面は作らず、物語を読んでいる流れの中で
@@ -128,20 +128,23 @@ def recommend(reader: Member, anchor: Post | None,
 
 
 def build_feed(reader: Member | None = None, limit: int = 12,
-               every: int = RECOMMEND_EVERY) -> list[dict]:
-    """物語フィードを組み立てる。
+               every: int = RECOMMEND_EVERY, category: str | None = None) -> list[dict]:
+    """施設の投稿一覧を組み立てる。
 
     戻り値の各要素は次のどちらか。
       {"kind": "post",      "post": Post, "member": Member}
       {"kind": "recommend", "post": Post, "member": Member, "reason": str}
 
     reader を渡さないときは、ただの新着一覧（レコメンドなし）を返す。
+    category を渡すとその施設の投稿だけを対象にする。
     """
     members = {member.id: member for member in store.list_members()}
-    posts = store.list_posts(limit=limit)
+    posts = store.list_posts(limit=limit, category=category)
 
     recommends = []
-    if reader is not None:
+    # レコメンドを差し込むのは「ひろば」だけ。質問やグッズ紹介の一覧に
+    # 「同じ悩みの子がいます」と物語を挟んでも文脈が合わない。
+    if reader is not None and category in (None, "showcase"):
         # 差し込みは every 本ごとに1枚。物語が少ないうちに枚数だけ増やすと、
         # フィードの末尾にレコメンドが並んで「広告」に見えるので、
         # 間隔を空けられる枚数までしか出さない。

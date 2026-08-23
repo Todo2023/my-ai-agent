@@ -112,10 +112,13 @@ def update_member(member_id: str, **fields) -> Member:
 
 
 def create_post(member_id: str, post_type: str, raw_input: str,
-                generated_story: str, question: str = "") -> Post:
+                generated_story: str, question: str = "",
+                category: str = "showcase", title: str = "") -> Post:
     row = {
         "member_id": member_id,
+        "category": category,
         "post_type": post_type,
+        "title": title or None,
         "question": question or None,
         "raw_input": raw_input,
         "generated_story": generated_story,
@@ -129,25 +132,34 @@ def create_post(member_id: str, post_type: str, raw_input: str,
     return Post.from_row(created[0])
 
 
-def list_posts(member_id: str | None = None, limit: int = 50) -> list[Post]:
-    """新しい順に物語を返す。"""
+def list_posts(member_id: str | None = None, limit: int = 50,
+               category: str | None = None) -> list[Post]:
+    """新しい順に投稿を返す。category を渡すとその施設の投稿だけ。"""
     if fakes.is_demo():
         rows = sorted(fakes.demo_posts(), key=lambda row: row.get("created_at", ""), reverse=True)
         if member_id:
             rows = [row for row in rows if row["member_id"] == member_id]
+        if category:
+            rows = [row for row in rows if row.get("category", "showcase") == category]
         rows = rows[:limit]
     else:
         query = f"/posts?select=*&order=created_at.desc&limit={limit}"
         if member_id:
             query += f"&member_id=eq.{member_id}"
+        if category:
+            query += f"&category=eq.{category}"
         rows = _request("GET", query)
     return [Post.from_row(row) for row in rows]
 
 
 def latest_post_by_member() -> dict[str, Post]:
-    """会員ごとの最新の物語。レコメンドの材料に使う。"""
+    """会員ごとの最新の物語。レコメンドの材料に使う。
+
+    レコメンドで見せるのは「ひろば」の物語だけ。質問やグッズ紹介を
+    「同じ悩みの子がいます」と差し込んでも意味が通らないため。
+    """
     latest: dict[str, Post] = {}
-    for post in list_posts(limit=500):
+    for post in list_posts(limit=500, category="showcase"):
         latest.setdefault(post.member_id, post)
     return latest
 
@@ -246,10 +258,15 @@ def stats() -> dict:
     """ダッシュボード用の件数。"""
     matches = list_matches()
     posts = list_posts(limit=1000)
+    counts = {
+        f"{category}_count": sum(1 for post in posts if post.category == category)
+        for category in ("showcase", "question", "learn", "goods")
+    }
     return {
         "member_count": len(list_members()),
         "post_count": len(posts),
         "writer_count": len({post.member_id for post in posts}),
+        **counts,
         "matched_count": sum(1 for m in matches if m.status == "matched"),
         "awaiting_count": sum(
             1 for m in matches if m.status in ("pending", "approved_a", "approved_b")

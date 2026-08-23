@@ -23,6 +23,7 @@ import notify
 import scoring
 import stories
 import store
+import town
 from models import Member
 
 
@@ -191,6 +192,69 @@ def test_default_post_type_is_remembered_only_on_the_first_choice(
         current, chosen, first_post, explicit, expected):
     person = member(default_post_type=current)
     assert stories.should_remember_default(person, chosen, first_post, explicit) is expected
+
+
+# --- 町（投稿カテゴリ） -----------------------------------------------------
+
+
+@pytest.mark.parametrize("value,expected", [
+    ("question", "question"), ("GOODS", "goods"), ("", "showcase"), (None, "showcase"),
+    ("そんな施設はない", "showcase"),
+])
+def test_category_falls_back_to_the_plaza(value, expected):
+    assert town.normalize(value) == expected
+
+
+def test_only_the_plaza_lets_ai_write_the_body():
+    assert town.writes_story("showcase")
+    assert not any(town.writes_story(c) for c in ("question", "learn", "goods"))
+
+
+def test_map_shows_every_place_with_its_callout():
+    places = town.map_counts()
+    assert [place["id"] for place in places] == ["showcase", "question", "learn", "goods"]
+    assert all(place["callout"] and place["count"] >= 0 for place in places)
+
+
+def test_question_post_is_kept_word_for_word_without_the_llm(with_llm):
+    calls = with_llm("AIが書き換えた文章")
+    text = "みんなは暑さ対策ってどんなことしてる？"
+    raw_input, body = stories.compose(member(), "question", text=text)
+    # 相談をAIに書き直させると、事実でないことが混ざって相談として成立しなくなる
+    assert (raw_input, body) == (text, text)
+    assert calls == []
+
+
+def test_plaza_post_goes_through_the_story_generator(with_llm):
+    calls = with_llm("物語本文")
+    _, body = stories.compose(member(), "showcase", text="誕生日だった", post_type="A")
+    assert body == "物語本文"
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize("category", ["question", "learn", "goods"])
+def test_other_places_require_the_owners_own_words(category):
+    with pytest.raises(ValueError):
+        stories.compose(member(), category, text="   ")
+
+
+def test_feed_can_be_narrowed_to_one_place():
+    items = feed_module.build_feed(_reader(), category="question")
+    assert items
+    assert all(item["post"].category == "question" for item in items)
+
+
+def test_recommendations_only_appear_in_the_plaza():
+    # 質問一覧に「同じ悩みの子がいます」と物語を挟んでも文脈が合わない
+    for category in ("question", "learn", "goods"):
+        kinds = {item["kind"] for item in feed_module.build_feed(_reader(), category=category, every=1)}
+        assert kinds <= {"post"}, category
+
+
+def test_recommendation_never_shows_a_question_as_a_story():
+    items = feed_module.build_feed(_reader(), every=1)
+    assert all(item["post"].category == "showcase"
+               for item in items if item["kind"] == "recommend")
 
 
 # --- スコアリング -----------------------------------------------------------
@@ -437,6 +501,7 @@ def test_stats_counts_stories_and_matches():
     stats = store.stats()
     assert stats["member_count"] == len(fakes.BASE_MEMBERS)
     assert stats["post_count"] == len(fakes.BASE_POSTS)
+    assert sum(stats[f"{category}_count"] for category in town.ORDER) == stats["post_count"]
     assert stats["writer_count"] >= 1
     assert stats["awaiting_count"] >= 1
     assert stats["matched_count"] == 0

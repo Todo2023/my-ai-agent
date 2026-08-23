@@ -44,9 +44,13 @@ HTML_TEMPLATE = """<!doctype html>
   <h1>__SERVICE_NAME__ 管理ダッシュボード</h1>
   <div class="cards">
     <div class="card"><div class="label">登録者数</div><div class="value" id="member_count">–</div></div>
-    <div class="card"><div class="label">物語（累計）</div><div class="value" id="post_count">–</div></div>
-    <div class="card"><div class="label">今週の物語</div><div class="value" id="post_count_7d">–</div></div>
+    <div class="card"><div class="label">投稿（累計）</div><div class="value" id="post_count">–</div></div>
+    <div class="card"><div class="label">今週の投稿</div><div class="value" id="post_count_7d">–</div></div>
     <div class="card"><div class="label">今週書いた人</div><div class="value" id="active_writer_count">–</div></div>
+    <div class="card"><div class="label">ひろば</div><div class="value" id="showcase_count">–</div></div>
+    <div class="card"><div class="label">そうだん所</div><div class="value" id="question_count">–</div></div>
+    <div class="card"><div class="label">まなび舎</div><div class="value" id="learn_count">–</div></div>
+    <div class="card"><div class="label">マーケット</div><div class="value" id="goods_count">–</div></div>
     <div class="card"><div class="label">マッチ成立数</div><div class="value" id="matched_count">–</div></div>
     <div class="card"><div class="label">承認待ち</div><div class="value" id="awaiting_count">–</div></div>
   </div>
@@ -70,7 +74,8 @@ async function load() {
     if (!response.ok) throw new Error("HTTP " + response.status);
     const stats = (await response.json())[0] || {};
     for (const key of ["member_count", "post_count", "post_count_7d",
-                       "active_writer_count", "matched_count", "awaiting_count"]) {
+                       "active_writer_count", "showcase_count", "question_count",
+                       "learn_count", "goods_count", "matched_count", "awaiting_count"]) {
       document.getElementById(key).textContent = stats[key] ?? "–";
     }
     updated.textContent = "最終更新: " + new Date().toLocaleString("ja-JP");
@@ -107,7 +112,11 @@ def print_stats():
     stats = store.stats()
     labels = {
         "member_count": "登録者数",
-        "post_count": "物語（累計）",
+        "post_count": "投稿（累計）",
+        "showcase_count": "ひろば",
+        "question_count": "そうだん所",
+        "learn_count": "まなび舎",
+        "goods_count": "マーケット",
         "writer_count": "書いた人",
         "matched_count": "マッチ成立数",
         "awaiting_count": "承認待ち",

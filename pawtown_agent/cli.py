@@ -1,11 +1,13 @@
 """Pawtown の運用コマンド。
 
-物語（主軸）:
+町（投稿）:
+    python cli.py map                         町の施設と投稿数
     python cli.py members                     会員一覧
-    python cli.py ask <email>                 今日の質問を出す（方式B）
-    python cli.py post <email> --text "…"     物語を作って保存する
+    python cli.py ask <email>                 今日の質問を出す（ひろば・方式B）
+    python cli.py post <email> --text "…"     ひろばに投稿（AIが物語にする）
     python cli.py post <email> --type C --image photo.jpg
-    python cli.py feed [<email>]              物語フィード（レコメンド差し込み）
+    python cli.py post <email> --category question --text "…"   そうだん所に投稿
+    python cli.py feed [<email>] [--category question]          施設の投稿一覧
 
 つながり（副次機能）:
     python cli.py connect <email> <email> [--send]   気になった相手とのマッチを作る
@@ -33,6 +35,7 @@ import flow
 import notify
 import stories
 import store
+import town
 from dashboard import print_stats
 
 DEMO_BANNER = (
@@ -66,6 +69,12 @@ def _resolve_member(key: str):
     return member
 
 
+def _headline(text: str, width: int = 28) -> str:
+    """一覧に出す見出し。本文の書き出しから作る。"""
+    first = text.strip().splitlines()[0] if text.strip() else ""
+    return first if len(first) <= width else first[:width] + "…"
+
+
 def _wrap(text: str, indent: str = "  ") -> str:
     lines = []
     for paragraph in text.splitlines():
@@ -76,6 +85,14 @@ def _wrap(text: str, indent: str = "  ") -> str:
 
 
 # --- 物語 -------------------------------------------------------------------
+
+
+def cmd_map(args):
+    print("Pawtown の町")
+    for place in town.map_counts():
+        print(f"\n  【{place['place']}】{place['callout']}")
+        print(f"    {place['label']}（{place['count']}件）  --category {place['id']}")
+        print(f"    例: {place['example']}")
 
 
 def cmd_members(args):
@@ -97,28 +114,44 @@ def cmd_ask(args):
 
 def cmd_post(args):
     member = _resolve_member(args.member)
+    category = town.normalize(args.category)
     first_post = not store.list_posts(member_id=member.id, limit=1)
     post_type = stories.normalize_post_type(args.type or member.default_post_type)
 
-    question = stories.question_for(member) if post_type == "B" else ""
-    if post_type == "B" and not args.text:
-        raise SystemExit(f"今日の質問「{question}」への回答を --text で渡してください。")
+    question = ""
+    if town.writes_story(category):
+        # ひろばだけ、AIがペット目線の物語にする
+        if post_type == "B":
+            question = stories.question_for(member)
+            if not args.text:
+                raise SystemExit(f"今日の質問「{question}」への回答を --text で渡してください。")
+    elif not args.text:
+        raise SystemExit(
+            f"「{town.place(category)}」への投稿には --text が必要です。"
+            f"（例: {town.CATEGORIES[category]['example']}）"
+        )
 
-    raw_input_text, story = stories.generate_story(
-        member, post_type, raw_input=args.text or "", question=question,
-        image_path=args.image,
+    raw_input_text, body = stories.compose(
+        member, category, text=args.text or "", post_type=post_type,
+        question=question, image_path=args.image,
     )
-    post = store.create_post(member.id, post_type, raw_input_text, story, question)
+    title = args.title or ("" if town.writes_story(category) else _headline(body))
+    post = store.create_post(member.id, post_type, raw_input_text, body,
+                             question, category=category, title=title)
 
-    print(f"{member.display_name}ちゃんの物語（方式{post_type}: {stories.POST_TYPES[post_type]}）")
+    print(f"【{town.place(category)}】{member.display_name}ちゃん / {member.nickname}さん")
+    if town.writes_story(category):
+        print(f"  方式{post_type}: {stories.POST_TYPES[post_type]}")
     if question:
         print(f"  質問: {question}")
+    if title:
+        print(f"  見出し: {title}")
     print()
-    print(_wrap(story))
+    print(_wrap(body))
     print(f"\n  投稿ID: {post.id[:8]}")
 
     # 初回に選んだ方式を既定として覚える。2回目以降は --remember を付けたときだけ
-    if args.type and stories.should_remember_default(
+    if args.type and town.writes_story(category) and stories.should_remember_default(
             member, post_type, first_post, args.remember):
         store.update_member(member.id, default_post_type=post_type)
         print(f"  次からは方式{post_type}を既定にします（変更は --type で）。")
@@ -126,9 +159,12 @@ def cmd_post(args):
 
 def cmd_feed(args):
     reader = _resolve_member(args.member) if args.member else None
-    items = feed_module.build_feed(reader, limit=args.limit)
+    category = town.normalize(args.category) if args.category else None
+    items = feed_module.build_feed(reader, limit=args.limit, category=category)
+    if category:
+        print(f"【{town.place(category)}】{town.CATEGORIES[category]['callout']}")
     if not items:
-        print("まだ物語がありません。")
+        print("まだ投稿がありません。")
         return
     for item in items:
         member = item["member"]
@@ -140,8 +176,12 @@ def cmd_feed(args):
                   f"{reader.email if reader else '<あなたのemail>'} {member.email}")
         else:
             post = item["post"]
-            print(f"\n{member.display_name}ちゃん（{member.breed}）  {post.created_at[:10]}"
-                  f"  方式{post.post_type}")
+            who = (f"{member.display_name}ちゃん（{member.breed}）"
+                   if post.category == "showcase" else f"{member.nickname}さん")
+            tail = f"  方式{post.post_type}" if post.category == "showcase" else ""
+            print(f"\n{who}  {post.created_at[:10]}  【{town.place(post.category)}】{tail}")
+            if post.title:
+                print(f"  {post.title}")
             print(_wrap(post.generated_story))
 
 
@@ -238,10 +278,11 @@ def cmd_stats(args):
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Pawtown（物語コミュニティ + さりげないマッチング）"
+        description="Pawtown（4つの施設がある町 + さりげないマッチング）"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
+    sub.add_parser("map", help="町の施設と投稿数").set_defaults(func=cmd_map)
     sub.add_parser("members", help="会員一覧").set_defaults(func=cmd_members)
 
     ask_parser = sub.add_parser("ask", help="今日の質問を出す（方式B）")
@@ -250,6 +291,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     post_parser = sub.add_parser("post", help="物語を作って保存する")
     post_parser.add_argument("member", help="メールアドレス または 会員ID")
+    post_parser.add_argument("--category", choices=list(town.CATEGORIES),
+                             default="showcase", help="どの施設に投稿するか（既定: showcase＝ひろば）")
+    post_parser.add_argument("--title", default="", help="見出し（省略時は本文の書き出し）")
     post_parser.add_argument("--type", choices=["A", "B", "C"],
                              help="投稿方式（既定は会員ごとの default_post_type）")
     post_parser.add_argument("--text", default="", help="一言 または 質問への回答")
@@ -258,8 +302,10 @@ def build_parser() -> argparse.ArgumentParser:
                              help="この方式を次回以降の既定にする")
     post_parser.set_defaults(func=cmd_post)
 
-    feed_parser = sub.add_parser("feed", help="物語フィード")
+    feed_parser = sub.add_parser("feed", help="施設の投稿一覧")
     feed_parser.add_argument("member", nargs="?", help="読む人（省略すると新着一覧のみ）")
+    feed_parser.add_argument("--category", choices=list(town.CATEGORIES),
+                             help="施設を絞る（省略すると町ぜんぶ）")
     feed_parser.add_argument("--limit", type=int, default=12)
     feed_parser.set_defaults(func=cmd_feed)
 
