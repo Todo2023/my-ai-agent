@@ -1,0 +1,142 @@
+@charset "utf-8";
+
+/*
+  ビジネスタウンの見た目
+
+  昔のRPGの画面に寄せている。
+  ・黒い背景に、白い二重枠のメッセージウィンドウ
+  ・ドット絵を拡大するので、拡大時にぼかさない（image-rendering）
+  ・スマホで親指が届く位置に十字キー
+  外部フォントは読み込まない（このリポジトリの決まり）。
+*/
+
+*{ box-sizing:border-box; }
+
+html, body{
+  margin:0; padding:0; height:100%;
+  background:#05070f;
+  color:#fff;
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+  user-select:none;
+}
+
+#stage{
+  max-width:560px; margin:0 auto; min-height:100%;
+  display:flex; flex-direction:column;
+  padding:env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom));
+}
+
+/* ── 上のおび ── */
+#hud{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 4px 8px;
+  font-size:13px; letter-spacing:.08em;
+}
+#area{ color:#cfe0ff; }
+#area::before{ content:"＠ "; color:#6f86b8; }
+.hud-btn{
+  margin-left:auto;
+  font:inherit; font-size:12px; letter-spacing:.08em;
+  color:#fff; background:#16203a; border:2px solid #fff;
+  border-radius:0; padding:6px 14px; cursor:pointer;
+}
+.hud-btn:active{ background:#2b3a63; }
+
+/* ── 街 ── */
+#screen{ position:relative; line-height:0; }
+#canvas{
+  width:100%; height:auto; display:block;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  border:3px solid #fff;
+  background:#2c4a2c;
+}
+
+/* 目の前に何かあるときのしるし */
+#hint{
+  position:absolute; left:50%; bottom:8px; transform:translateX(-50%);
+  background:#000; border:2px solid #fff; color:#fff;
+  font-size:12px; line-height:1.6; letter-spacing:.06em;
+  padding:4px 12px; white-space:nowrap;
+  animation:blink 1s steps(2, jump-none) infinite;
+}
+@keyframes blink{ 50%{ opacity:.35; } }
+
+/* ── 操作パネル ── */
+#pad{
+  margin-top:12px; display:flex; align-items:center; gap:14px;
+}
+.dpad{
+  display:grid; grid-template-columns:repeat(3, 52px); grid-template-rows:repeat(3, 52px);
+  gap:4px;
+}
+.dpad button{
+  font:inherit; font-size:16px; color:#fff;
+  background:#16203a; border:2px solid #5f7099; cursor:pointer;
+}
+.dpad button:active{ background:#3a4d80; }
+.dpad [data-dir="up"]   { grid-area:1 / 2; }
+.dpad [data-dir="left"] { grid-area:2 / 1; }
+.dpad [data-dir="down"] { grid-area:3 / 2; }
+.dpad [data-dir="right"]{ grid-area:2 / 3; }
+
+.acts{ flex:1; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+#a-btn{
+  font:inherit; font-size:14px; font-weight:700; letter-spacing:.1em; color:#05070f;
+  background:#ffd166; border:2px solid #fff; padding:16px 22px; cursor:pointer;
+}
+#a-btn:active{ background:#e0ac2b; }
+.keys{ margin:0; font-size:10.5px; white-space:nowrap; color:#6f86b8; line-height:1.6; text-align:right; }
+
+/* ── メッセージ枠 ── */
+#window{
+  /* 地図の上に重ねる。absolute にしてあるので、
+     中の ▼ や二重枠（::after）の基準もこの枠になる */
+  position:absolute; left:8px; right:8px; bottom:8px;
+  background:#000; border:3px solid #fff;
+  padding:12px 14px 14px;
+  min-height:92px;
+}
+#window::after{ /* 二重枠 */
+  content:""; position:absolute; inset:2px; border:1px solid #6f86b8; pointer-events:none;
+}
+#msg{
+  margin:0; font-size:13.5px; line-height:1.8; letter-spacing:.04em;
+  white-space:pre-wrap; word-break:break-word;
+}
+#next{
+  position:absolute; right:12px; bottom:8px; font-size:12px;
+  animation:blink 1s steps(2, jump-none) infinite;
+}
+#choices{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+#choices button{
+  font:inherit; font-size:13px; color:#fff;
+  background:#16203a; border:2px solid #fff; padding:9px 16px; cursor:pointer;
+}
+#choices button:active{ background:#2b3a63; }
+
+/* ── 一覧 ── */
+#list-panel{
+  position:fixed; inset:0; z-index:20; overflow:auto;
+  background:#05070f; padding:16px 14px calc(24px + env(safe-area-inset-bottom));
+}
+.list-head{ display:flex; align-items:center; gap:10px; }
+.list-head h2{ margin:0; font-size:16px; letter-spacing:.08em; }
+.list-note{ margin:10px 0 16px; font-size:12px; color:#8ea3cc; line-height:1.8; }
+#list-body{ display:grid; gap:10px; }
+.person-card{
+  width:100%; text-align:left; font:inherit; color:#fff; cursor:pointer;
+  background:#0d1428; border:2px solid #33436e; padding:12px 14px;
+}
+.person-card:active{ background:#1a2647; }
+.person-card b{ font-size:14px; }
+.person-card .role{ display:block; margin-top:4px; font-size:12px; color:#9fb4dd; line-height:1.7; }
+.person-card .where{ display:block; margin-top:6px; font-size:11px; color:#6f86b8; }
+
+@media (min-width:600px){
+  #msg{ font-size:15px; line-height:1.9; }
+  .dpad{ grid-template-columns:repeat(3, 58px); grid-template-rows:repeat(3, 58px); }
+}
