@@ -142,8 +142,13 @@ def build_feed(reader: Member | None = None, limit: int = 12,
 
     recommends = []
     if reader is not None:
-        own = store.list_posts(member_id=reader.id, limit=1)
-        recommends = recommend(reader, own[0] if own else None)
+        # 差し込みは every 本ごとに1枚。物語が少ないうちに枚数だけ増やすと、
+        # フィードの末尾にレコメンドが並んで「広告」に見えるので、
+        # 間隔を空けられる枚数までしか出さない。
+        allowed = min(MAX_RECOMMENDS, len(posts) // every)
+        if allowed > 0:
+            own = store.list_posts(member_id=reader.id, limit=1)
+            recommends = recommend(reader, own[0] if own else None, limit=allowed)
 
     # レコメンドで見せる物語は、通常の新着としては出さない（同じ物語を二度出さない）
     recommended_ids = {item["post"].id for item in recommends}
@@ -161,8 +166,6 @@ def build_feed(reader: Member | None = None, limit: int = 12,
         if pending and shown % every == 0:
             item = pending.pop(0)
             feed.append(dict(item, kind="recommend"))
-    for item in pending:
-        feed.append(dict(item, kind="recommend"))
     return feed
 
 

@@ -292,6 +292,22 @@ def test_recommended_story_is_not_also_shown_as_a_plain_post():
     assert recommended and not (recommended & plain)
 
 
+def test_recommendations_are_never_stacked_next_to_each_other():
+    # 物語が少ないうちに枚数だけ出すと、末尾にレコメンドが並んで広告に見える
+    for every in (1, 2, 3, 4):
+        kinds = [item["kind"] for item in feed_module.build_feed(_reader(), every=every)]
+        pairs = list(zip(kinds, kinds[1:]))
+        assert ("recommend", "recommend") not in pairs, f"every={every}"
+
+
+def test_recommendation_count_fits_the_number_of_stories(monkeypatch):
+    monkeypatch.setattr(feed_module, "MAX_RECOMMENDS", 5)
+    items = feed_module.build_feed(_reader(), every=3)
+    posts = [item for item in items if item["kind"] == "post"]
+    recommends = [item for item in items if item["kind"] == "recommend"]
+    assert len(recommends) <= max(1, len(posts) // 3)
+
+
 def test_recommendation_never_points_at_the_readers_own_story():
     reader = _reader()
     items = feed_module.build_feed(reader, limit=12, every=1)
