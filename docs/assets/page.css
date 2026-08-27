@@ -1,10 +1,6 @@
 /* ===== 下層ページ（FAQ・特定商取引法）専用 ===== */
 :root{--wrap:820px;}
 
-.header{padding:64px 0 40px;}
-.header h1{font-size:clamp(24px,3.6vw,32px);margin:0 0 14px;}
-.header p{color:var(--text-soft);font-size:14px;margin:0;max-width:560px;}
-
 section{padding:0 0 64px;}
 
 /* FAQ */
