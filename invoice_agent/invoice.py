@@ -31,6 +31,7 @@ ISSUER = {
 # 顧客マスタに無い顧客に使うデフォルト値
 DEFAULT_CONTACT = "辰巳"
 DEFAULT_PHRASE = "下記の通り、ご請求申し上げます。"
+DEFAULT_HONORIFIC = "御中"
 
 COUNTER_FILE = Path("invoice_counter.json")
 
@@ -71,21 +72,27 @@ def list_customer_names(excel_path: str) -> list[str]:
 
 
 def load_customer_master(excel_path: str, customer_name: str) -> dict:
-    """「顧客マスタ」シートから、担当者・請求文言を取得する。
+    """「顧客マスタ」シートから、担当者・請求文言・敬称を取得する。
 
     シートが無い、またはその顧客の行が無い場合はデフォルト値を使う。
-    列構成: 顧客名 / 担当者 / 請求文言
+    列構成: 顧客名 / 担当者 / 請求文言 / 敬称（任意。個人宛なら「様」など。空欄は「御中」）
     """
+    defaults = {"contact": DEFAULT_CONTACT, "phrase": DEFAULT_PHRASE, "honorific": DEFAULT_HONORIFIC}
     wb = openpyxl.load_workbook(excel_path)
     if "顧客マスタ" not in wb.sheetnames:
-        return {"contact": DEFAULT_CONTACT, "phrase": DEFAULT_PHRASE}
+        return defaults
 
     ws = wb["顧客マスタ"]
     for row in ws.iter_rows(min_row=2, values_only=True):
-        name, contact, phrase = row
+        name, contact, phrase = row[0], row[1], row[2]
+        honorific = row[3] if len(row) > 3 else None
         if name == customer_name:
-            return {"contact": contact or DEFAULT_CONTACT, "phrase": phrase or DEFAULT_PHRASE}
-    return {"contact": DEFAULT_CONTACT, "phrase": DEFAULT_PHRASE}
+            return {
+                "contact": contact or DEFAULT_CONTACT,
+                "phrase": phrase or DEFAULT_PHRASE,
+                "honorific": honorific or DEFAULT_HONORIFIC,
+            }
+    return defaults
 
 
 def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
@@ -185,7 +192,7 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
     pdf.set_xy(15, y0)
     pdf.set_font("IPAGothic", size=12)
     pdf.cell(95, 8, f"{customer_name}", border="B")
-    pdf.cell(15, 8, "御中")
+    pdf.cell(15, 8, master["honorific"])
 
     # 発行者情報（右側に重ねて描く固定ブロック）
     right_x = 120
