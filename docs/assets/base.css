@@ -37,7 +37,8 @@ a{color:inherit;}
 .tab-cta{margin-left:auto;padding-left:26px;color:var(--ink);}
 .tab:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
 @media (max-width:640px){
-  .tabs{gap:20px;}
+  .tabs{flex-wrap:wrap;overflow-x:visible;gap:4px 18px;}
+  .tab{font-size:12.5px;padding:9px 0;}
   .tab-cta{margin-left:0;padding-left:0;}
 }
 .nav-inner{max-width:var(--wrap);margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--hairline);}
