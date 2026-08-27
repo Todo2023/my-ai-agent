@@ -108,8 +108,11 @@ def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
     matter = None
     delivery_date = None
 
+    remarks = None
+
     for row in ws.iter_rows(min_row=2, values_only=True):
-        name, date_, item, quantity, unit_price, tax_rate, row_matter, row_delivery_date = row
+        name, date_, item, quantity, unit_price, tax_rate, row_matter, row_delivery_date = row[:8]
+        row_remarks = row[8] if len(row) > 8 else None
         if name != customer_name:
             continue
         quantity = quantity or 0
@@ -128,8 +131,10 @@ def load_items_for_customer(excel_path: str, customer_name: str) -> dict:
             matter = row_matter
         if delivery_date is None and row_delivery_date:
             delivery_date = row_delivery_date
+        if remarks is None and row_remarks:
+            remarks = row_remarks
 
-    return {"line_items": line_items, "matter": matter, "delivery_date": delivery_date}
+    return {"line_items": line_items, "matter": matter, "delivery_date": delivery_date, "remarks": remarks}
 
 
 def _format_date(value) -> str:
@@ -140,8 +145,10 @@ def _format_date(value) -> str:
     return str(value)
 
 
-def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) -> None:
-    """指定した顧客の請求書PDFを作る。"""
+def create_invoice_pdf(
+    customer_name: str, excel_path: str, output_path: str, issue_date: dt.date | None = None
+) -> None:
+    """指定した顧客の請求書PDFを作る。issue_date省略時は本日日付。"""
     data = load_items_for_customer(excel_path, customer_name)
     line_items = data["line_items"]
 
@@ -157,7 +164,7 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
     subtotal = subtotal_10 + subtotal_8
     total = subtotal + tax_10 + tax_8
 
-    issue_date = dt.date.today()
+    issue_date = issue_date or dt.date.today()
     due_date = compute_due_date(issue_date)
     invoice_number = next_invoice_number(issue_date)
 
@@ -175,10 +182,7 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
     pdf.set_x(15)
     pdf.cell(page_w, 5, f"No：{invoice_number}", align="R", new_x="LMARGIN", new_y="NEXT")
 
-    # 黒帯（デザイン用の帯）
-    pdf.set_fill_color(0, 0, 0)
-    pdf.rect(0, pdf.get_y() + 2, 210, 7, style="F")
-    pdf.set_y(pdf.get_y() + 15)
+    pdf.ln(6)
 
     # タイトル
     pdf.set_font("IPAGothic", size=22)
@@ -292,6 +296,12 @@ def create_invoice_pdf(customer_name: str, excel_path: str, output_path: str) ->
     pdf.cell(label_w, 9, "税込合計", align="R")
     pdf.cell(val_w, 9, f"¥{total:,}", align="R", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
+
+    if data["remarks"]:
+        pdf.set_x(15)
+        pdf.set_font("IPAGothic", size=9)
+        pdf.cell(page_w, 6, f"備考　{data['remarks']}", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
 
     # 振込先・支払期日
     pdf.set_x(15)
