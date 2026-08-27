@@ -52,6 +52,7 @@ a{color:inherit;}
 .header{padding:64px 0 40px;}
 .header h1{font-size:clamp(24px,3.6vw,32px);margin:0 0 14px;}
 .header p{color:var(--text-soft);font-size:14px;margin:0;max-width:620px;}
+.schedule-note{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--red-deep);letter-spacing:.04em;}
 
 /* ---------- 共通部品 ---------- */
 .kicker{font-size:11px;letter-spacing:.22em;color:var(--red);margin-bottom:14px;text-transform:uppercase;}
