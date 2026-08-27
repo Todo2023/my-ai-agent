@@ -24,7 +24,23 @@ a{color:inherit;}
 
 /* ---------- nav ---------- */
 .nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--hairline);}
-.nav-inner{max-width:var(--wrap);margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.tabbar{background:transparent;}
+.tabbar-inner{max-width:var(--wrap);margin:0 auto;padding:0 28px;}
+.tabs{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{position:relative;flex:none;padding:13px 0;font-size:13px;color:var(--text-soft);text-decoration:none;letter-spacing:.04em;white-space:nowrap;transition:color .2s;}
+.tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:transparent;transition:background .2s;}
+.tab:hover{color:var(--ink);}
+.tab:hover::after{background:var(--hairline-strong);}
+.tab.is-current{color:var(--red-deep);font-weight:500;}
+.tab.is-current::after{background:var(--red);}
+.tab-cta{margin-left:auto;padding-left:26px;color:var(--ink);}
+.tab:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
+@media (max-width:640px){
+  .tabs{gap:20px;}
+  .tab-cta{margin-left:0;padding-left:0;}
+}
+.nav-inner{max-width:var(--wrap);margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--hairline);}
 .logo{font-family:'Shippori Mincho';font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--ink);text-decoration:none;}
 .logo em{font-style:normal;color:var(--red);}
 .navlink{font-size:12.5px;color:var(--text-soft);text-decoration:none;border-bottom:1px solid var(--hairline-strong);padding-bottom:2px;transition:.2s;}
