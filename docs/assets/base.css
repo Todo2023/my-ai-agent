@@ -29,6 +29,8 @@ a{color:inherit;}
 .logo em{font-style:normal;color:var(--red);}
 .navlink{font-size:12.5px;color:var(--text-soft);text-decoration:none;border-bottom:1px solid var(--hairline-strong);padding-bottom:2px;transition:.2s;}
 .navlink:hover{color:var(--red);border-color:var(--red);}
+.navsoon{display:inline-flex;align-items:baseline;gap:10px;font-size:12.5px;color:var(--text-soft);letter-spacing:.02em;}
+.navsoon em{font-style:normal;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);padding:2px 8px;white-space:nowrap;}
 
 /* ---------- 共通部品 ---------- */
 .kicker{font-size:11px;letter-spacing:.22em;color:var(--red);margin-bottom:14px;text-transform:uppercase;}
