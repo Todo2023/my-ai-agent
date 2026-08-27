@@ -141,7 +141,7 @@ def _format_date(value) -> str:
     if isinstance(value, dt.datetime):
         value = value.date()
     if isinstance(value, dt.date):
-        return f"{value.month}月{value.day}日"
+        return f"{value.year}年{value.month}月{value.day}日"
     return str(value)
 
 
