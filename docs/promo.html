@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>思考力×AI統合講座（学生向け）｜2026年10月1日 本格開始</title>
-<meta name="description" content="思考の型を鍛える回とAIを実装する回を、同じ月次サイクルで回す大学生向けの講座。2026年10月1日 本格開始、9月に無料デモを実施予定。">
+<title>問いを磨く、AIで動かす。｜合同会社Todo</title>
+<meta name="description" content="思考力×AI講座（学生向け）。2026年10月1日 本格開始、9月に無料デモを実施予定です。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="問いを磨く、AIで動かす。｜思考力×AI統合講座（学生向け）">
-<meta property="og:description" content="2026年10月1日 本格開始。その前に、9月に無料デモを実施予定です。">
+<meta property="og:title" content="問いを磨く、AIで動かす。｜思考力×AI講座（学生向け）">
+<meta property="og:description" content="2026年10月1日 本格開始。9月に無料デモを実施予定です。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -16,46 +16,32 @@
 </head>
 <body>
 
-<header class="promo-bar">
-  <div class="logo">合同会社To<em>do</em> — 思考力×AI講座（学生向け）</div>
-  <div class="badge">2026年10月1日 本格開始</div>
-</header>
+<main class="stage">
+  <div class="stage-inner">
+    <p class="kick">合同会社Todo — 思考力×AI講座（学生向け）</p>
+    <h1 class="brand">問いを磨く、<span class="u">AIで動かす</span>。</h1>
 
-<main class="promo-main">
-  <div class="promo-inner">
-    <span class="eyebrow">Monthly Subscription — 大学生向け・紹介制</span>
+    <form class="askform" id="ask">
+      <input type="text" id="q" name="q" autocomplete="off" aria-label="聞いてみたいこと" placeholder="聞いてみたいことを入力" autofocus>
+      <button type="submit">送信</button>
+    </form>
 
-    <p class="redpen-line">よくある問い</p>
-    <p class="strike">AIって、結局なにに使えるんですか？</p>
-    <div class="caret"><span class="mark">⌃</span>朱を入れると、問いはこう変わる</div>
-    <p class="fixed">自分の<span class="u">意思決定</span>に、<br>AIをどう組み込むか？</p>
-
-    <p class="promo-sub">
-      AIが「答え」を返してくれる時代に価値が残るのは、答えではなく<b>問いの立て方</b>のほう。
-      思考の型を鍛える回とAIを実装する回を、同じ月次サイクルで回します。
-    </p>
-
-    <div class="dates">
-      <div class="date">
-        <div class="dwhen">2026年9月</div>
-        <div class="dtitle">無料デモ（日程調整中）</div>
-        <div class="ddesc">実際の講義とSlackでのやり取りを、そのまま体験していただきます。</div>
-      </div>
-      <div class="date">
-        <div class="dwhen">2026年10月1日</div>
-        <div class="dtitle">本格開始</div>
-        <div class="ddesc">月次サイクルとSlackでの質問受付が、正式にスタートします。</div>
-      </div>
-    </div>
-
-    <div class="promo-cta">
-      <a href="mailto:todo.inc.2023.10.13@gmail.com?subject=思考力×AI統合講座（学生向け）デモ・お問い合わせ" class="btn btn-primary">デモの案内を受け取る</a>
-      <span class="note">日程が決まりましたら、ご連絡いただいた方から順にご案内します。</span>
-    </div>
+    <p class="hint"><em>2026年10月1日 本格開始</em>　9月に無料デモを実施予定です。</p>
   </div>
 </main>
 
-<footer class="promo-foot">合同会社Todo　お問い合わせ：<a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></footer>
+<footer class="foot">合同会社Todo　<a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></footer>
+
+<script>
+document.getElementById('ask').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var v = document.getElementById('q').value.trim();
+  var subject = '思考力×AI講座（学生向け）お問い合わせ';
+  var body = v ? v + '\n\n' : '';
+  location.href = 'mailto:todo.inc.2023.10.13@gmail.com?subject=' +
+    encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+});
+</script>
 
 </body>
 </html>
