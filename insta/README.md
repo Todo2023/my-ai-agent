@@ -27,13 +27,24 @@ Playwright を入れる手もあったが、**Chromium を1回起動して canva
 
 ## 使い方
 
+**最初に1回だけ。** 毎日1件ずつの順番を決める。
+
+```bash
+node insta/tools/unei.mjs plan        # 53冊の順番と、いつ出す予定かを決める
+```
+
 **毎日さわるのはこれ。**
 
 ```bash
-node insta/tools/unei.mjs             # いまの状態（残り何冊か・きょう出す1件）
-node insta/tools/unei.mjs next        # 次の候補を出す（決めない）
-node insta/tools/unei.mjs set <slug>  # きょう出す1件を決める
-node insta/tools/unei.mjs done        # 出したことを記録する
+node insta/tools/unei.mjs             # きょう出す1件（もう決まっている）
+node insta/tools/unei.mjs done        # 出したことを記録する（次の1件に進む）
+```
+
+**ときどき。**
+
+```bash
+node insta/tools/unei.mjs next        # この先の予定を見る
+node insta/tools/unei.mjs set <slug>  # 順番に割り込んで差し替える
 node insta/tools/unei.mjs stats       # 反応の集計
 ```
 
@@ -56,15 +67,13 @@ python3 -m http.server 8000           # → http://localhost:8000/insta/ で目�
 
 ## 1日の流れ
 
-**どれを出すかは機械が決めない。** `next` は候補を並べるだけで、`today` は書き換えない。
-書き換わるのは `set` を打ったときだけ。
+**毎日えらぶ手間は無い。** `plan` で順番を決めてあるので、きょうの1件はもう決まっている。
 
 ```bash
-node insta/tools/unei.mjs next          # ① 候補を見る
-node insta/tools/unei.mjs set akai-kasa # ② 自分で決める
-python3 -m http.server 8000             # ③ 画面で画像とキャプションを確かめる
-                                        # ④ Instagram アプリから手で出す
-node insta/tools/unei.mjs done          # ⑤ 出したと記録する
+node insta/tools/unei.mjs               # ① きょうの1件を見る
+python3 -m http.server 8000             # ② 画面で画像とキャプションを確かめる
+                                        # ③ Instagram アプリから手で出す
+node insta/tools/unei.mjs done          # ④ 出したと記録する（次の1件に進む）
 ```
 
 反応が分かったら、あとから足す。
@@ -73,20 +82,43 @@ node insta/tools/unei.mjs done          # ⑤ 出したと記録する
 node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 ```
 
-### 候補の並べ方（これしか見ていない）
+### 送信は自動化していない
 
-1. **まだ出していないもの**だけ
-2. **直近3件と対象年齢が重ならないもの**を上に（同じ層に続けて当てない）
-3. あとは slug 順。毎回同じ順に出して、迷わないようにする
+**③だけは人が押す。** 投稿は取り消せない操作なので、その前に必ず人の目を入れる
+（`../CLAUDE.md`：外部への送信・削除など取り消せない操作の前には人間の確認を挟む）。
 
-凝ったことはしていない。**上から選ぶ必要もない**。全部見て自分で決めてよい。
+自動になったのは「**どれを出すか毎日えらぶ**」ところだけ。
+
+### 1日飛ばしても、絵本は飛ばされない
+
+きょうの1件は**日付では選んでいない**。「queue のうち、まだ出していない先頭」で選ぶ。
+
+日付で選ぶと、出せなかった日の絵本が永久に出せなくなる。そうならないようにしてある。
+飛ばしたぶんは予定が後ろにずれるだけ。`status` が「何日ぶん遅れているか」を出す。
+
+### 順番の決め方（これしか見ていない）
+
+**対象年齢が続けて重ならないように散らす**。それだけ。
+
+```
+あかい かさ 3〜5歳 → あかりを けす まえに 6〜9歳 → まるを さがして 0〜2歳
+→ あかい み 1〜3歳 → はしを わたって 3〜5歳 → …
+```
+
+同じ層に何日も続けて当てないため。凝ったことはしていない。
+
+気が変わったら `set` で割り込める。`done` で記録すると、次からはまた順番どおりに戻る。
 
 ### 記録の形（`posted.json`）
 
 ```json
 {
-  "today": "moko-mori",
+  "today": "",
   "unrecorded": 1,
+  "schedule": {
+    "start": "2026-08-29",
+    "queue": ["akai-kasa", "akari-o-kesu-mae", "maru-sagashi", "..."]
+  },
   "posted": [
     { "slug": "akai-kasa", "date": "2026-08-26", "likes": 30, "saves": 9, "note": "" }
   ]
@@ -96,7 +128,9 @@ node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 | | |
 | --- | --- |
 | `posted.json` | **手で書く記録。生成物ではない**。`build-posts.mjs` は触らない |
-| `today` | きょう出す1件。`index.html` の一番上に大きく出る |
+| `schedule.queue` | 毎日1件ずつ出す順番。`plan` が作る |
+| `schedule.start` | 1件目を出す予定の日。予定日は `start` からの日数で数える |
+| `today` | **割り込み用**。ここに slug を書くと、その日だけ順番より優先される。ふだんは空 |
 | `posted` | 出したものの記録。`slug` と `date` は必須。**同じ絵本を2回出さないための記録** |
 | `unrecorded` | 出したが、どれを出したか分からないぶんの件数。分かったら `posted` に足して減らす |
 
@@ -105,10 +139,11 @@ node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 
 ## 残りがどれだけもつか
 
-絵本は53冊。`unei.mjs` が週3回・5回・7回で何ヶ月ぶんかを出す。
+絵本は53冊。**1日1件で出すと、53日で尽きる。**
+`plan` を打った日から数えて、最後の1件がいつになるかを `status` と画面に出す。
 
-**絵本が尽きる前に、次の絵本を作るか、出す頻度を落とすかを決めればよい。**
-いまは週3回でも4ヶ月ぶんある。
+**尽きる前に、次の絵本を作るか、出す頻度を落とすかを決めればよい。**
+頻度を落とすなら、毎日出さずに飛ばすだけでよい（絵本は飛ばされない）。
 
 ## いまできること
 

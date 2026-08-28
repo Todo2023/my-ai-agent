@@ -100,6 +100,20 @@ function card(p, doneRec) {
 }
 
 /**
+ * きょう出す1件を決める。**unei.mjs の pickToday と同じ規則**。
+ *
+ *   1. today に書いてあって、まだ出していなければ それ（手で割り込んだぶん）
+ *   2. なければ schedule.queue のうち、まだ出していない先頭
+ *
+ * 日付では選ばない。1日飛ばしても絵本が飛ばされないようにするため。
+ */
+function pickToday(state) {
+  const done = new Set((state.posted || []).filter((r) => r.slug).map((r) => r.slug));
+  if (state.today && !done.has(state.today)) return state.today;
+  return (state.schedule?.queue || []).find((slug) => !done.has(slug)) ?? null;
+}
+
+/**
  * 運用の状態を1行にする。**posted.json は手で書く記録**なので、
  * 無くても・壊れていても、下書きは見られるようにしておく。
  */
@@ -118,7 +132,17 @@ function showUnei(posts, state) {
   put("出した", `${done.length}件`);
   put("まだ", `${left}件`);
   if (state.unrecorded) put("記録漏れ", `${state.unrecorded}件`);
-  if (left > 0) put("週3回なら", `あと約${Math.floor(left / 3 / 4.345)}ヶ月`);
+
+  // 毎日1件ずつの順番があるなら、最後の1件が何日になるかを出す
+  const queue = state.schedule?.queue;
+  if (queue?.length && state.schedule.start) {
+    const end = new Date(`${state.schedule.start}T00:00:00`);
+    end.setDate(end.getDate() + queue.length - 1);
+    const p2 = (n) => String(n).padStart(2, "0");
+    put("1日1件なら", `${end.getFullYear()}/${p2(end.getMonth() + 1)}/${p2(end.getDate())}まで`);
+  } else if (left > 0) {
+    put("週3回なら", `あと約${Math.floor(left / 3 / 4.345)}ヶ月`);
+  }
 
   box.hidden = false;
   return new Map(done.map((r) => [r.slug, r]));
@@ -137,7 +161,7 @@ async function main() {
       const r2 = await fetch("posted.json", { cache: "no-cache" });
       if (r2.ok) {
         const state = await r2.json();
-        today = showToday(posts, state.today);
+        today = showToday(posts, pickToday(state));
         doneBySlug = showUnei(posts, state);
       }
     } catch (err) {
