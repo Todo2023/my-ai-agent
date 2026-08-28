@@ -76,6 +76,34 @@ CLAUDE.md のデータスキーマと 1:1。フォームの5セクションが�
 - 管理画面 … 「まだつないでいません」と出る
 - **現時点の費用はゼロ**
 
+## スキーマは手元で実際に流して確かめてある（2026-08-28）
+
+Supabase につなぐ前に、手元の PostgreSQL 16 に `supabase/schema.sql` を流し、
+Supabase と同じロール（`anon` / `authenticated` / `service_role`）と
+同じ GRANT（テーブルは全開放し、**RLS だけを門番にする**）を再現して確かめた。
+
+| 確かめたこと | 結果 |
+| --- | --- |
+| `schema.sql` が最後まで通る | 通る |
+| 2回続けて流しても壊れない | 壊れない |
+| anon で登録できる（`ai_consent = true`） | できる |
+| anon で `ai_consent = false` の登録 | **弾かれる** |
+| anon で `profiles` / `matches` / `admins` を読む | **すべて0行** |
+| ログイン済みでも `admins` に無い人が読む | **0行** |
+| `admins` に入っている人が読む | 見える |
+| `admins` に無い人が `profiles` を書き換える | **0行更新** |
+| 未ログイン・claims 空で `is_admin()` | エラーにならず `false` |
+| `profiles` の行を消したとき | `matches` も消える。`generation_logs` は残り `from_profile` が NULL |
+| ログイン中の管理者が `profiles` を削除 | **0行**（削除は SQL / Table Editor 専用） |
+| `monthly_cost` ビュー | 管理者として読める |
+
+`verify.sql` のほうも、わざと4通りに壊して（anonにselectポリシーを足す／
+admins を空にする／RLSを切る／同意なし登録を許す）**全部エラーになることを確認**した。
+通るだけの検査になっていない。
+
+**本番の Supabase で同じになる保証まではない**（手元はロールとGRANTを真似ただけ）。
+つないだあとに `verify.sql` をもう一度実行すること。
+
 ## 費用
 
 | | |
@@ -150,8 +178,21 @@ supabase functions deploy generate-matches
 
 ### 5. つないだあとに確認すること
 
+**まず [`../../supabase/verify.sql`](../../supabase/verify.sql) を SQL Editor に貼って実行する。**
+データは1件も作らない。読むだけ。費用はゼロ。
+
+| 出たもの | 意味 |
+| --- | --- |
+| `Success. No rows returned` | 全部通った。先に進んでよい |
+| 赤いエラーで `NG:` から始まる文 | そこが通っていない。**文面のとおりに直す** |
+
+これが下のチェックのうち、**機械で確かめられるぶん（anonで読めない・RLSが有効・
+admins が空でない・同意なしの登録が弾かれる）をまとめて見てくれる。**
+残りは人が触って確かめる。
+
+- [ ] `verify.sql` が `Success` で終わる
 - [ ] フォームから登録できる（Table Editor に行が増える）
-- [ ] **anon キーで `select * from profiles` を叩くと 0 行**（＝他人には読めない）
+- [ ] **anon キーで `select * from profiles` を叩くと 0 行**（`verify.sql` が同じことを見ている）
 - [ ] `purpose_tags` が配列として入っている
 - [ ] 通信を切って送信 → 失敗メッセージが出て、下書きが残る
 - [ ] 管理画面にログインできる。`admins` にないアドレスでは入れない

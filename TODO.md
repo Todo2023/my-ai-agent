@@ -22,6 +22,10 @@
 
 ### つないだ直後に必ず確認すること
 
+- [ ] **SQL Editor に [`supabase/verify.sql`](supabase/verify.sql) を貼って実行する**
+      `Success. No rows returned` なら通っている。`NG:` から始まる赤いエラーが出たら、
+      その文面のとおりに直す。データは作らないので費用ゼロ。
+      （anonで読めない／RLSが有効／`admins` が空でない／同意なし登録が弾かれる、をまとめて見る）
 - [ ] **自分で1件テスト登録してみる**（体験を自分で確かめる意味もある）
 - [ ] Table Editor に行が増えている
 - [ ] **anon キーで `select * from profiles` を叩いて 0 行**
