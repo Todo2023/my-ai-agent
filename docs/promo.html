@@ -83,6 +83,21 @@
 <footer class="foot">合同会社Todo　<a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></footer>
 
 <script>
+/* ------------------------------------------------------------------
+   Googleフォーム設定
+
+   1) FORM_URL に、作成したフォームの「送信 → リンク」のURLを貼る
+      例: https://docs.google.com/forms/d/e/1FAIpQLSxxxxxxxx/viewform
+   2) ENTRY_Q は任意。トップの入力欄に打った文章を、フォームの
+      「聞いてみたいこと」欄に最初から入れておきたい場合に設定する
+      （事前入力したURLに含まれる entry.123456789 の部分をそのまま貼る）
+
+   FORM_URL が空のあいだは、このページ内の入力フォーム（メール送信）が
+   そのまま使われる。
+------------------------------------------------------------------- */
+var FORM_URL = '';
+var ENTRY_Q  = '';
+
 (function () {
   var top_ = document.getElementById('view-top');
   var form_ = document.getElementById('view-form');
@@ -95,7 +110,19 @@
 
   document.getElementById('ask').addEventListener('submit', function (e) {
     e.preventDefault();
-    document.getElementById('f-msg').value = document.getElementById('q').value.trim();
+    var q = document.getElementById('q').value.trim();
+
+    if (FORM_URL) {
+      var url = FORM_URL;
+      if (ENTRY_Q && q) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') +
+               'usp=pp_url&' + ENTRY_Q + '=' + encodeURIComponent(q);
+      }
+      location.href = url;
+      return;
+    }
+
+    document.getElementById('f-msg').value = q;
     show(form_);
     document.getElementById('f-name').focus();
   });
