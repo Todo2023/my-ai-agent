@@ -41,10 +41,10 @@
       "id": "zensha-03",
       "business": "zensha",
       "title": "AIエージェント教材 invoice_agent の README が空（0バイト）",
-      "state": "進行中",
-      "background": "CLAUDE.md は「各エージェントの現在地はそれぞれの README に書く」と決めているが、invoice_agent/README.md は0バイト。ゲート2〜5の成果物（gate2_findings.md, gate3_notes.md, gate4_findings.md, gate5_blog_draft.md, 評価データ）が揃っている一番進んだ題材で、記録だけが無い状態。",
+      "state": "完了",
+      "background": "CLAUDE.md は「各エージェントの現在地はそれぞれの README に書く」と決めているが、invoice_agent/README.md は0バイトだった。ゲート2〜5の成果物（gate2_findings.md, gate3_notes.md, gate4_findings.md, gate5_blog_draft.md, 評価データ）が揃っている一番進んだ題材で、記録だけが無い状態。",
       "evidence": "既存の成果物から書き起こせるため、代表の判断を待たずに進められる。",
-      "next_action": "支援チームが既存のゲート成果物から README を起こす。",
+      "next_action": "なし。README を起こし、あわせて欠けていた demo.py（APIキー無しで動く確認手段）も用意した。",
       "owner": "支援チーム",
       "source": "invoice_agent/ / CLAUDE.md / README-agents.md"
     },

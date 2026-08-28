@@ -37,7 +37,25 @@ from invoice import create_invoice_pdf, list_customer_names
 
 load_dotenv()
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+# APIキーは、実際にLLMを呼ぶ直前に読む。
+# ここで読んでしまうと、キーが無い環境では import しただけで落ちて、
+# demo.py（キー無しで動かす確認手段）が作れなくなる。
+_client = None
+
+
+def get_client():
+    global _client
+    if _client is None:
+        key = os.environ.get("GEMINI_API_KEY")
+        if not key:
+            raise RuntimeError(
+                "GEMINI_API_KEY が設定されていません。\n"
+                "Google AI Studio (https://aistudio.google.com/apikey) で無料のキーを作り、\n"
+                ".env に GEMINI_API_KEY=... と書いてください。\n"
+                "キー無しで動きを見たい場合は demo.py を実行してください。"
+            )
+        _client = genai.Client(api_key=key)
+    return _client
 EXCEL_PATH = "sample_data.xlsx"
 MODEL = "gemma-4-26b-a4b-it"
 
@@ -82,7 +100,7 @@ def parse_node(state: State) -> dict:
 - out_of_scope: 請求書作成と無関係な指示（雑談・天気など）なら true
 """
     start = time.perf_counter()
-    response = client.models.generate_content(
+    response = get_client().models.generate_content(
         model=MODEL,
         contents=prompt,
         config=types.GenerateContentConfig(
