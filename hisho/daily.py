@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = os.path.join(HERE, "items.json")
 
 # 日次で見るときの並び。手が要るものを上に置く。
-STATE_ORDER = ["判断待ち", "止まっている", "手つかず", "進行中", "順調", "完了"]
+STATE_ORDER = ["判断待ち", "止まっている", "手つかず", "進行中", "順調", "完了", "対象外"]
 
 
 def load(path):
@@ -58,7 +58,8 @@ def render(data, biz, items, brief=False):
     for it in items:
         counts[it["state"]] = counts.get(it["state"], 0) + 1
     breakdown = " / ".join("%s %d件" % (s, counts[s]) for s in STATE_ORDER if s in counts)
-    waiting = sum(1 for it in items if it["owner"] == "代表" and it["state"] != "完了")
+    closed = ("完了", "対象外")
+    waiting = sum(1 for it in items if it["owner"] == "代表" and it["state"] not in closed)
     out.append("**%d件**（%s）" % (len(items), breakdown))
     out.append("")
     out.append("うち **代表の判断・作業が要るもの：%d件**" % waiting)

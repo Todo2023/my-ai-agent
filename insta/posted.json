@@ -1,12 +1,10 @@
 {
-  "_note": "手で書く記録。build-posts.mjs は**この中身を触らない**（生成物ではない）。",
-  "_today": "きょう出す1件の slug。insta/index.html の一番上に大きく出る。出したら posted に足して、次の slug に書き換える。",
+  "_note": "手で書く記録。build-posts.mjs は**この中身を触らない**（生成物ではない）。書き換えは tools/unei.mjs か、手で直接。",
+  "_today": "きょう出す1件の slug。insta/index.html の一番上に大きく出る。決めるのは人（unei.mjs set）。",
+  "_posted": "出したものの記録。slug と date は必須。likes / saves / note はあとから足してよい。",
+  "_unrecorded": "出したが、どれを出したか記録していないぶんの件数。分かったら posted に足して、この数を減らす。",
+
   "today": "moko-mori",
-  "posted": [
-    {
-      "slug": "",
-      "date": "",
-      "note": "1件目は手で出したが、どれを出したか記録していなかった。分かったらここに足す。"
-    }
-  ]
+  "unrecorded": 1,
+  "posted": []
 }

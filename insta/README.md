@@ -27,6 +27,18 @@ Playwright を入れる手もあったが、**Chromium を1回起動して canva
 
 ## 使い方
 
+**毎日さわるのはこれ。**
+
+```bash
+node insta/tools/unei.mjs             # いまの状態（残り何冊か・きょう出す1件）
+node insta/tools/unei.mjs next        # 次の候補を出す（決めない）
+node insta/tools/unei.mjs set <slug>  # きょう出す1件を決める
+node insta/tools/unei.mjs done        # 出したことを記録する
+node insta/tools/unei.mjs stats       # 反応の集計
+```
+
+**下書きを作り直すときだけ、これ。**
+
 ```bash
 node insta/tools/build-posts.mjs      # 画像とキャプションの下書きを作る
 python3 -m http.server 8000           # → http://localhost:8000/insta/ で目で確かめる
@@ -40,22 +52,63 @@ python3 -m http.server 8000           # → http://localhost:8000/insta/ で目�
 | `posts.json` | キャプションの下書き。**生成物** |
 | `index.html` | 並べて確かめる画面。**noindex のまま**（中の作業画面） |
 | `tools/build-posts.mjs` | 上の2つを作る。手元で走らせる |
+| `tools/unei.mjs` | 毎日の運用。**書き換えるのは `posted.json` だけ** |
 
-## きょう出す1件を決める
+## 1日の流れ
 
-**どれを出すかは機械が決めない。** `posted.json` の `today` に slug を1つ書く。
-`index.html` の一番上に、その1件が大きく出る（画像・手順・キャプション）。
+**どれを出すかは機械が決めない。** `next` は候補を並べるだけで、`today` は書き換えない。
+書き換わるのは `set` を打ったときだけ。
 
-```json
-{ "today": "moko-mori", "posted": [] }
+```bash
+node insta/tools/unei.mjs next          # ① 候補を見る
+node insta/tools/unei.mjs set akai-kasa # ② 自分で決める
+python3 -m http.server 8000             # ③ 画面で画像とキャプションを確かめる
+                                        # ④ Instagram アプリから手で出す
+node insta/tools/unei.mjs done          # ⑤ 出したと記録する
 ```
 
-出したら、`posted` に `{"slug": "...", "date": "2026-08-20"}` を足して、
-`today` を次の絵本に書き換える。**同じ絵本を2回出さないための記録。**
+反応が分かったら、あとから足す。
+
+```bash
+node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
+```
+
+### 候補の並べ方（これしか見ていない）
+
+1. **まだ出していないもの**だけ
+2. **直近3件と対象年齢が重ならないもの**を上に（同じ層に続けて当てない）
+3. あとは slug 順。毎回同じ順に出して、迷わないようにする
+
+凝ったことはしていない。**上から選ぶ必要もない**。全部見て自分で決めてよい。
+
+### 記録の形（`posted.json`）
+
+```json
+{
+  "today": "moko-mori",
+  "unrecorded": 1,
+  "posted": [
+    { "slug": "akai-kasa", "date": "2026-08-26", "likes": 30, "saves": 9, "note": "" }
+  ]
+}
+```
 
 | | |
 | --- | --- |
-| `posted.json` | **手で書く。生成物ではない**。`build-posts.mjs` は触らない |
+| `posted.json` | **手で書く記録。生成物ではない**。`build-posts.mjs` は触らない |
+| `today` | きょう出す1件。`index.html` の一番上に大きく出る |
+| `posted` | 出したものの記録。`slug` と `date` は必須。**同じ絵本を2回出さないための記録** |
+| `unrecorded` | 出したが、どれを出したか分からないぶんの件数。分かったら `posted` に足して減らす |
+
+`likes` / `saves` は**書かなくてよい**。書いた件数が3件に満たないうちは、
+`stats` は傾向を出さずに止まる。少ない数から「この年齢が効く」と決めると、たいてい外れるため。
+
+## 残りがどれだけもつか
+
+絵本は53冊。`unei.mjs` が週3回・5回・7回で何ヶ月ぶんかを出す。
+
+**絵本が尽きる前に、次の絵本を作るか、出す頻度を落とすかを決めればよい。**
+いまは週3回でも4ヶ月ぶんある。
 
 ## いまできること
 
@@ -76,6 +129,36 @@ APIを繋ぐ前でも、今日から発信を始められます。
 
 ③を足すときの注意。**Meta は画像を公開URLから取りに来る**ので、
 `images/*.jpg` が `main` に入っていないと投稿できない。手で出すぶんには関係ない。
+
+### X（旧Twitter）に広げるとき
+
+**Instagram がまわり出してから足す。** 先に両方作らない。
+
+足すときは `insta/` と同じ形を `x/` に作る（`build-posts.mjs` 相当・`posted.json`・
+`unei.mjs` 相当）。1つの道具で2つのSNSを両方見る作りにはしない。
+**片方が壊れたときに、もう片方まで止まるため。**
+
+いま先回りして用意しておくことは何もない。
+画像の比率が違う（Instagram は 4:5、X は 16:9 が基本）ので、
+どのみち画像は作り直しになる。
+
+## これは自分用の道具
+
+**人に使わせるものにはしない。** 会社サイトから link することも、
+サービスとして出すこともしない（2026-08-28に決めた前提）。
+
+そのうえで、次の2つは**これまでどおり公開のまま**。ここを非公開にすると
+お金がかかるため（`../CLAUDE.md` の第一ルール）。
+
+| | なぜ公開のままか |
+| --- | --- |
+| 絵本（`../ehon/`） | 「プロフィールのリンクから読めます」がキャプションの核。読めないと投稿の意味がなくなる |
+| 投稿画像（`images/`） | APIで投稿するとき、**Meta が公開URLから取りに来る** |
+
+リポジトリごと非公開にすると、**GitHub Pages の配信が有料プラン限定**になり、
+GitHub Actions の無料枠にも上限がつく。**やらない。**
+
+この画面（`index.html`）だけは `noindex` の作業画面のまま。検索には出ない。
 
 ## 触らない場所
 
