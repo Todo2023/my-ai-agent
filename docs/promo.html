@@ -18,29 +18,110 @@
 
 <main class="stage">
   <div class="stage-inner">
-    <p class="kick">合同会社Todo — 思考力×AI講座（学生向け）</p>
-    <h1 class="brand">問いを磨く、<span class="u">AIで動かす</span>。</h1>
 
-    <form class="askform" id="ask">
-      <input type="text" id="q" name="q" autocomplete="off" aria-label="聞いてみたいこと" placeholder="聞いてみたいことを入力" autofocus>
-      <button type="submit">送信</button>
-    </form>
+    <!-- 1画面目 -->
+    <div class="view is-active" id="view-top">
+      <p class="kick">合同会社Todo — 思考力×AI講座（学生向け）</p>
+      <h1 class="brand">問いを磨く、<span class="u">AIで動かす</span>。</h1>
 
-    <p class="hint"><em>2026年10月1日 本格開始</em>　9月に無料デモを実施予定です。</p>
+      <form class="askform" id="ask">
+        <input type="text" id="q" autocomplete="off" aria-label="聞いてみたいこと" placeholder="聞いてみたいことを入力" autofocus>
+        <button type="submit">送信</button>
+      </form>
+
+      <p class="hint"><em>2026年10月1日 本格開始</em>　9月に無料デモを実施予定です。</p>
+    </div>
+
+    <!-- 2画面目 -->
+    <div class="view" id="view-form">
+      <div class="form-head">
+        <h2>9月の無料デモに申し込む</h2>
+        <p>下記をご記入のうえ送信してください。日程が決まり次第、ご案内をお送りします。</p>
+      </div>
+
+      <form id="demo">
+        <div class="fields">
+          <div class="field">
+            <label for="f-name">お名前<span class="req">必須</span></label>
+            <input type="text" id="f-name" required autocomplete="name" placeholder="山田 太郎（ニックネーム可）">
+          </div>
+          <div class="field">
+            <label for="f-mail">メールアドレス<span class="req">必須</span></label>
+            <input type="email" id="f-mail" required autocomplete="email" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="f-belong">ご所属</label>
+            <input type="text" id="f-belong" placeholder="◯◯大学 3年／研究テーマなど">
+          </div>
+          <div class="field">
+            <label for="f-when">参加しやすい時間帯</label>
+            <select id="f-when">
+              <option value="">選択しない</option>
+              <option>平日の昼</option>
+              <option>平日の夜</option>
+              <option>土日の昼</option>
+              <option>土日の夜</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg">聞いてみたいこと</label>
+            <textarea id="f-msg" placeholder="いま困っていること、デモで見たいことなど"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">この内容で送信</button>
+          <button type="button" class="back" id="back">← 戻る</button>
+        </div>
+        <p class="form-note">送信ボタンを押すと、ご利用のメールソフトが立ち上がり、入力内容が本文に入った状態で開きます。そのまま送信してください。<br>いただいた情報はデモのご案内にのみ使用します。</p>
+      </form>
+    </div>
+
   </div>
 </main>
 
 <footer class="foot">合同会社Todo　<a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></footer>
 
 <script>
-document.getElementById('ask').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var v = document.getElementById('q').value.trim();
-  var subject = '思考力×AI講座（学生向け）お問い合わせ';
-  var body = v ? v + '\n\n' : '';
-  location.href = 'mailto:todo.inc.2023.10.13@gmail.com?subject=' +
-    encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-});
+(function () {
+  var top_ = document.getElementById('view-top');
+  var form_ = document.getElementById('view-form');
+
+  function show(el) {
+    [top_, form_].forEach(function (v) { v.classList.toggle('is-active', v === el); });
+    document.documentElement.classList.toggle('scrollable', el === form_);
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById('ask').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('f-msg').value = document.getElementById('q').value.trim();
+    show(form_);
+    document.getElementById('f-name').focus();
+  });
+
+  document.getElementById('back').addEventListener('click', function () {
+    show(top_);
+    document.getElementById('q').focus();
+  });
+
+  document.getElementById('demo').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = function (id) { return document.getElementById(id).value.trim(); };
+    var body = [
+      'お名前：' + v('f-name'),
+      'メールアドレス：' + v('f-mail'),
+      'ご所属：' + (v('f-belong') || '（未記入）'),
+      '参加しやすい時間帯：' + (v('f-when') || '（未選択）'),
+      '',
+      '聞いてみたいこと：',
+      v('f-msg') || '（未記入）',
+      ''
+    ].join('\n');
+    location.href = 'mailto:todo.inc.2023.10.13@gmail.com?subject=' +
+      encodeURIComponent('9月の無料デモ 申し込み') + '&body=' + encodeURIComponent(body);
+  });
+})();
 </script>
 
 </body>

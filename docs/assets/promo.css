@@ -33,3 +33,35 @@ body{display:flex;flex-direction:column;min-height:100dvh;overflow:hidden;}
 @media (max-height:520px){
   .brand{font-size:clamp(22px,5vw,30px);}
 }
+
+/* ---------- 2画面目：デモ申し込みフォーム ---------- */
+.view{display:none;}
+.view.is-active{display:block;}
+
+.form-head{text-align:left;margin:0 0 clamp(16px,2.6vh,26px);}
+.form-head h2{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(19px,min(3vw,3.6vh),26px);color:var(--ink);margin:0 0 8px;}
+.form-head p{font-size:clamp(12px,1.7vh,13.5px);color:var(--text-soft);margin:0;}
+
+.fields{display:flex;flex-direction:column;gap:clamp(10px,1.8vh,16px);text-align:left;}
+.field label{display:block;font-size:11.5px;letter-spacing:.08em;color:var(--text-soft);margin-bottom:5px;}
+.field label .req{color:var(--red);margin-left:5px;}
+.field input,.field textarea,.field select{width:100%;font:inherit;font-size:clamp(13px,1.8vh,14.5px);color:var(--ink);
+  background:#fff;border:1px solid var(--hairline-strong);padding:10px 14px;border-radius:4px;}
+.field textarea{resize:vertical;min-height:clamp(56px,9vh,88px);line-height:1.7;}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(173,53,39,.08);}
+
+.form-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:clamp(14px,2.4vh,24px) 0 0;text-align:left;}
+.form-actions button[type="submit"]{border:none;border-radius:999px;background:var(--ink);color:#fff;cursor:pointer;font:inherit;
+  font-size:clamp(13px,1.8vh,14px);letter-spacing:.04em;padding:12px 30px;transition:background .2s;}
+.form-actions button[type="submit"]:hover{background:var(--red-deep);}
+.back{background:none;border:none;padding:0;font:inherit;font-size:12.5px;color:var(--text-soft);cursor:pointer;
+  border-bottom:1px solid var(--hairline-strong);}
+.back:hover{color:var(--red);border-color:var(--red);}
+.form-note{margin:clamp(12px,2vh,18px) 0 0;font-size:11.5px;color:var(--text-soft);text-align:left;line-height:1.8;}
+
+#view-form .stage-inner,.view#view-form{max-width:520px;}
+
+/* フォーム表示中はスクロール可（内容が切れないように） */
+html.scrollable,html.scrollable body{height:auto;}
+html.scrollable body{overflow:visible;min-height:100dvh;}
+html.scrollable .stage{align-items:flex-start;padding-top:clamp(24px,6vh,64px);padding-bottom:clamp(16px,3vh,32px);}
