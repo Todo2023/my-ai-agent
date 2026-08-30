@@ -37,8 +37,12 @@ node insta/tools/unei.mjs plan        # 53冊の順番と、いつ出す予定�
 
 ```bash
 node insta/tools/unei.mjs             # きょう出す1件（もう決まっている）
-node insta/tools/unei.mjs done        # 出したことを記録する（次の1件に進む）
+                                      # → 画面で画像とキャプションを見る
+node insta/tools/unei.mjs ok          # 見た。出してよい（**人がやる**）
+node insta/tools/unei.mjs post        # OKしたものだけ出す（**機械がやる**）
 ```
+
+手で出したときは `post` の代わりに `done` で記録する。
 
 **ときどき。**
 
@@ -72,22 +76,94 @@ python3 -m http.server 8000           # → http://localhost:8000/insta/ で目�
 ```bash
 node insta/tools/unei.mjs               # ① きょうの1件を見る
 python3 -m http.server 8000             # ② 画面で画像とキャプションを確かめる
-                                        # ③ Instagram アプリから手で出す
-node insta/tools/unei.mjs done          # ④ 出したと記録する（次の1件に進む）
+node insta/tools/unei.mjs ok            # ③ 「これでいい」と決める（人）
+node insta/tools/unei.mjs post          # ④ 出す（機械）
 ```
 
-反応が分かったら、あとから足す。
+反応が分かったら、あとから足す（`posted.json` に直接書いてもよい）。
 
 ```bash
 node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 ```
 
-### 送信は自動化していない
+### OKしたものしか出ない
 
-**③だけは人が押す。** 投稿は取り消せない操作なので、その前に必ず人の目を入れる
-（`../CLAUDE.md`：外部への送信・削除など取り消せない操作の前には人間の確認を挟む）。
+**`post` は `ok` が付いていないと、何もせずに終わる。** 1回に出すのは1件だけ。
 
-自動になったのは「**どれを出すか毎日えらぶ**」ところだけ。
+```
+えらぶ  … 機械（plan で決めた順番）
+見る    … 人（画面で画像とキャプションを確かめる）
+きめる  … 人（ok）           ← ここが「取り消せない操作の前の確認」
+出す    … 機械（post）
+```
+
+これで `../CLAUDE.md` の「外部への送信・削除など取り消せない操作の前には人間の確認を挟む」
+を守っている。**人の確認を飛ばして出す道は作っていない。**
+
+気が変わったら `unok` でOKを外せる。外せば `post` しても出ない。
+
+### 出す前に、機械が確かめること
+
+`post` は送る前にこれを見る。ひとつでも駄目なら送らずに止まる。
+
+| | なぜ |
+| --- | --- |
+| OKが付いているか | 付いていなければ何もしない |
+| すでに出していないか | 同じ絵本を2回出さないため |
+| キャプションが2,200文字以内か | 超えると Instagram に弾かれる |
+| ハッシュタグが30個以内か | 同上 |
+| **画像が公開URLから取れるか** | **Meta が公開URLから画像を取りに来る。**取れないと投稿が失敗する |
+
+`--dry-run` を付けると、ここまで見て**送らずに**止まる。中身の確認に使う。
+
+```bash
+node insta/tools/unei.mjs post --dry-run
+```
+
+## Instagram につなぐ
+
+**まだつないでいない。** `post` を実際に動かすには、次が要る。
+**どれも私（支援チーム）では用意できない。代表がやること。**
+
+| | |
+| --- | --- |
+| Instagram のアカウント種別 | **プロアカウント**（ビジネス または クリエイター）。個人アカウントでは API で投稿できない |
+| Facebookページ | Instagram と連携させる。Meta の投稿APIはページ経由でしか動かない |
+| Meta の開発者アプリ | 無料。Instagram Graph API を有効にする |
+| 長期アクセストークン | **60日で切れる。**切れたら取り直す |
+| Instagram ユーザーID | 上のページから取れる数字 |
+
+**費用はゼロ。** Meta は投稿APIに課金しない。ただし手続きは面倒で、
+アカウント種別の変更が要る場合がある。
+
+取れたら、環境変数で渡す。**リポジトリにも `posted.json` にも書かない。**
+
+```bash
+export IG_ACCESS_TOKEN='...'
+export IG_USER_ID='...'
+node insta/tools/unei.mjs post
+```
+
+毎回打つのが面倒なら `.env` に書いて読み込む。`.gitignore` に入れてある。
+
+> **トークンをこのリポジトリに入れないこと。** 公開リポジトリなので、
+> 一度入れたら取り消せない。消してもGitの履歴に残る。
+
+### 画像は公開されている必要がある
+
+Meta は `image_url`（`https://todo2023.github.io/my-ai-agent/insta/images/...`）を
+**自分で取りに来る**。だから絵本を作り直したら、`main` にマージしてから `post` する。
+
+順番はこう。
+
+```bash
+node insta/tools/build-posts.mjs   # 画像とキャプションを作る
+git add -A && git commit && git push
+# main にマージ → GitHub Pages に反映されるのを待つ
+node insta/tools/unei.mjs post     # ここで初めて Meta が取りに来られる
+```
+
+`post` は送る前に画像が取れるか確かめるので、間違えても投稿は失敗せずに止まる。
 
 ### 1日飛ばしても、絵本は飛ばされない
 
@@ -114,6 +190,7 @@ node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 ```json
 {
   "today": "",
+  "approved": "",
   "unrecorded": 1,
   "schedule": {
     "start": "2026-08-29",
@@ -131,6 +208,7 @@ node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 | `schedule.queue` | 毎日1件ずつ出す順番。`plan` が作る |
 | `schedule.start` | 1件目を出す予定の日。予定日は `start` からの日数で数える |
 | `today` | **割り込み用**。ここに slug を書くと、その日だけ順番より優先される。ふだんは空 |
+| `approved` | 人が「出してよい」と決めた slug。`post` はここに入っているものしか出さない。ふだんは空 |
 | `posted` | 出したものの記録。`slug` と `date` は必須。**同じ絵本を2回出さないための記録** |
 | `unrecorded` | 出したが、どれを出したか分からないぶんの件数。分かったら `posted` に足して減らす |
 
@@ -147,23 +225,27 @@ node insta/tools/unei.mjs done --likes 30 --saves 9 --note "夜に出した"
 
 ## いまできること
 
-**手で投稿できます。** `index.html` で画像とキャプションを見て、
+**トークンが無くても、手で投稿できます。** `index.html` で画像とキャプションを見て、
 キャプションをコピーし、画像を保存して、Instagram アプリから出すだけです。
-APIを繋ぐ前でも、今日から発信を始められます。
+出したら `done` で記録します。
+
+**トークンを用意すれば、`ok` → `post` で出せます。** 上の「Instagram につなぐ」を読んでください。
+
+```
+① 絵本を棚に出す      … クリエイティブ担当
+② 下書きを作る        … 機械（build-posts.mjs）
+③ 順番を決める        … 機械（plan）
+④ 見る               … 人（画面）
+⑤ これでいいと決める   … 人（ok）      ← 取り消せない操作の前の確認
+⑥ 出す               … 機械（post）
+```
 
 ## この先（まだ作っていない）
 
-投稿そのものの自動化は、Instagram のトークンが揃ってから足します。
-**「全自動」にはしません**（`../CLAUDE.md`：取り消せない操作の前に人の確認を挟む）。
-
-```
-① 絵本を棚に出す      … いまの流れのまま
-② 下書きを作る        … この道具（機械）
-③ 見て、OKなら投稿    … ここだけ人が押す
-```
-
-③を足すときの注意。**Meta は画像を公開URLから取りに来る**ので、
-`images/*.jpg` が `main` に入っていないと投稿できない。手で出すぶんには関係ない。
+- **毎朝ひとりでに `post` が走る形**（GitHub Actions など）。作っていない。
+  作るとしてもOKの仕組みは外さない。**OKが無ければ何も出ない**ままにする
+- 反応（いいね・保存）をAPIで取ってきて `posted.json` に自動で入れる。
+  いまは手で書く
 
 ### X（旧Twitter）に広げるとき
 

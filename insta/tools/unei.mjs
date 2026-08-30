@@ -5,18 +5,24 @@
  *   node insta/tools/unei.mjs plan       # 毎日1件ずつの順番を決める（最初に1回）
  *   node insta/tools/unei.mjs next       # この先の予定を見る
  *   node insta/tools/unei.mjs set <slug> # 順番に割り込んで、きょうの1件を差し替える
- *   node insta/tools/unei.mjs done       # 出したことを記録する（次の1件に進む）
+ *   node insta/tools/unei.mjs ok         # 見て確かめた。出してよい（人がやる）
+ *   node insta/tools/unei.mjs post       # OKしたものだけ Instagram に出す（機械がやる）
+ *   node insta/tools/unei.mjs done       # 手で出したときに記録する
  *   node insta/tools/unei.mjs stats      # 反応の集計
  *
  * ■ どこにも送らない
  *   Instagram にも、ほかのどこにも繋がない。読むのと、posted.json を書くだけ。
  *   投稿は人がアプリから出す（insta/README.md）。
  *
- * ■ 順番は機械、出すかどうかは人
+ * ■ 順番は機械、出してよいと決めるのは人
  *   plan で「毎日1件ずつ、どの順で出すか」を先に決めて queue に書く。
  *   きょうの1件は、その queue のうち **まだ出していない先頭** に決まる。
- *   毎日えらぶ手間は無くなるが、**出すのは人**。送信は自動化していない。
  *   気が変わったら set で割り込める。
+ *
+ * ■ 投稿は「人がOK → 機械が出す」
+ *   post は **ok を打ってあるものしか出さない。** OKが無ければ何もせずに終わる。
+ *   これで CLAUDE.md の「取り消せない操作の前に人の確認を挟む」を守っている。
+ *   ok を打つ前に、必ず画面で画像とキャプションを見ること。
  *
  * ■ 依存パッケージなし
  *   このリポジトリは package.json を持たない。標準の node だけで動く。
@@ -347,6 +353,171 @@ async function cmdDone(opts) {
   console.log("");
 }
 
+/* ──────────────────────────────── ok ─────────────────────────────── */
+
+/**
+ * 「見て確かめた。出してよい」を記録する。**人が打つ。**
+ * これが無いと post は何も出さない。
+ */
+async function cmdOk(opts) {
+  const { state, byslug } = await load();
+  const pick = pickToday(state);
+  const slug = opts.slug || pick?.slug;
+  if (!slug) throw new Error("出すものがありません。plan で順番を作ってください。");
+
+  const p = byslug.get(slug);
+  if (!p) throw new Error(`${slug} は posts.json にありません。`);
+  if (realPosts(state).some((r) => r.slug === slug)) {
+    throw new Error(`${slug} は すでに出しています。`);
+  }
+
+  state.approved = slug;
+  await save(state);
+
+  console.log("");
+  console.log(`「${p.title}」を出してよい、と記録しました。`);
+  console.log("");
+  console.log("  出す:  node insta/tools/unei.mjs post");
+  console.log("  やめる: node insta/tools/unei.mjs unok");
+  console.log("");
+}
+
+async function cmdUnok() {
+  const { state, byslug } = await load();
+  if (!state.approved) {
+    console.log("\nOKは付いていません。\n");
+    return;
+  }
+  const t = byslug.get(state.approved)?.title ?? state.approved;
+  state.approved = "";
+  await save(state);
+  console.log(`\n「${t}」のOKを取り消しました。post しても出ません。\n`);
+}
+
+/* ─────────────────────────────── post ────────────────────────────── */
+
+const GRAPH = "https://graph.facebook.com/v21.0";
+
+/**
+ * OKしたものだけを Instagram に出す。**機械がやる。**
+ *
+ * 歯止め（CLAUDE.md の決まり）
+ *   1. ok が付いていなければ何もしない。付いていても1回に1件だけ
+ *   2. すでに出したものは出さない
+ *   3. トークンは環境変数から読む。リポジトリにも posted.json にも書かない
+ *   4. 画像が公開URLで取れることを、送る前に確かめる
+ *      （Meta は公開URLから画像を取りに来る。取れないと投稿が失敗する）
+ *   5. --dry-run を付けると、何を送るかだけ出して送らない
+ */
+async function cmdPost(opts) {
+  const { state, byslug } = await load();
+
+  const slug = state.approved;
+  if (!slug) {
+    console.log("");
+    console.log("OKが付いていないので、何も出しませんでした。");
+    console.log("画面で確かめてから: node insta/tools/unei.mjs ok");
+    console.log("");
+    return;
+  }
+
+  const p = byslug.get(slug);
+  if (!p) throw new Error(`${slug} は posts.json にありません。OKを外してください（unok）。`);
+  if (realPosts(state).some((r) => r.slug === slug)) {
+    throw new Error(`${slug} は すでに出しています。OKを外してください（unok）。`);
+  }
+
+  const token = process.env.IG_ACCESS_TOKEN;
+  const igUser = process.env.IG_USER_ID;
+
+  console.log("");
+  console.log(`出すもの: ${p.title}`);
+  console.log(`画像:     ${p.image_url}`);
+  console.log(`文字数:   ${p.caption_length}　ハッシュタグ: ${p.hashtag_count}`);
+  console.log("");
+
+  // Instagram 側の上限。超えると弾かれる
+  if (p.caption_length > 2200) throw new Error("キャプションが2,200文字を超えています。");
+  if (p.hashtag_count > 30) throw new Error("ハッシュタグが30個を超えています。");
+
+  // 画像が公開URLから取れるか。Meta がここを取りに来る
+  const head = await fetch(p.image_url, { method: "HEAD" }).catch((e) => ({ ok: false, status: e.message }));
+  if (!head.ok) {
+    throw new Error(
+      `画像を公開URLから取れません（${head.status}）。\n` +
+      `  ${p.image_url}\n` +
+      "\n" +
+      "  404 のとき … まだ main にマージしていないか、GitHub Pages に反映されていない。\n" +
+      "                作り直したなら build-posts.mjs のあと main にマージすること。\n" +
+      "  403 のとき … その端末から外に出られていない（社内プロキシなど）。\n" +
+      "                ブラウザで上のURLを開いて、画像が見えるか確かめる。\n" +
+      "\n" +
+      "  Meta はここから画像を取りに来るので、取れないと投稿できません。"
+    );
+  }
+  console.log("○ 画像は公開URLから取れました。");
+
+  if (opts.dryRun) {
+    console.log("");
+    console.log("--dry-run なので、ここで止めます。実際には送っていません。");
+    console.log("");
+    return;
+  }
+
+  if (!token || !igUser) {
+    throw new Error(
+      "IG_ACCESS_TOKEN と IG_USER_ID が設定されていません。\n" +
+      "  用意のしかたは insta/README.md の「Instagram につなぐ」を読んでください。\n" +
+      "  中身を見るだけなら --dry-run を付けてください。"
+    );
+  }
+
+  // ① 下書き（コンテナ）を作る
+  const create = await fetch(`${GRAPH}/${igUser}/media`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ image_url: p.image_url, caption: p.caption, access_token: token }),
+  });
+  const created = await create.json();
+  if (!create.ok || !created.id) {
+    throw new Error(`下書きを作れませんでした: ${JSON.stringify(created)}`);
+  }
+  console.log(`○ 下書きを作りました（${created.id}）。`);
+
+  // ② 公開する。ここから先は取り消せない
+  const pub = await fetch(`${GRAPH}/${igUser}/media_publish`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ creation_id: created.id, access_token: token }),
+  });
+  const published = await pub.json();
+  if (!pub.ok || !published.id) {
+    throw new Error(
+      `公開できませんでした: ${JSON.stringify(published)}\n` +
+      "  下書きは残っている場合があります。Instagram 側を確認してください。"
+    );
+  }
+
+  // ③ 記録して、OKと割り込みを解除する
+  const rec = { slug, date: today(), media_id: published.id };
+  state.posted = [...(state.posted || []), rec];
+  state.approved = "";
+  if (state.today === slug) state.today = "";
+  await save(state);
+
+  console.log(`○ 出しました（${published.id}）。`);
+  console.log("");
+
+  const nextPick = pickToday(state);
+  if (nextPick) {
+    console.log(`次は「${byslug.get(nextPick.slug)?.title ?? nextPick.slug}」。もう決まっています。`);
+    console.log("画面で確かめて ok を打つまで、post しても出ません。");
+  } else {
+    console.log("これで全部出し終えました。");
+  }
+  console.log("");
+}
+
 /* ─────────────────────────────── stats ───────────────────────────── */
 
 async function cmdStats() {
@@ -433,6 +604,7 @@ function parseArgs(argv) {
     else if (a === "--note") opts.note = argv[++i];
     else if (a === "--date") opts.date = argv[++i];
     else if (a === "--start") opts.start = argv[++i];
+    else if (a === "--dry-run") opts.dryRun = true;
     else if (a === "-n") opts.n = Number(argv[++i]);
     else rest.push(a);
   }
@@ -448,6 +620,9 @@ async function main() {
     case "plan":   return cmdPlan(opts);
     case "next":   return cmdNext(opts.n);
     case "set":    return cmdSet(rest[0]);
+    case "ok":     return cmdOk({ ...opts, slug: rest[0] });
+    case "unok":   return cmdUnok();
+    case "post":   return cmdPost(opts);
     case "done":   return cmdDone({ ...opts, slug: rest[0] });
     case "stats":  return cmdStats();
     default:
@@ -457,7 +632,10 @@ async function main() {
   node insta/tools/unei.mjs plan       毎日1件ずつの順番を決める（最初に1回）
   node insta/tools/unei.mjs next       この先の予定を見る
   node insta/tools/unei.mjs set <slug> 順番に割り込んで差し替える
-  node insta/tools/unei.mjs done       出したことを記録する（次に進む）
+  node insta/tools/unei.mjs ok         見て確かめた。出してよい（人）
+  node insta/tools/unei.mjs unok       OKを取り消す
+  node insta/tools/unei.mjs post       OKしたものだけ出す（機械）
+  node insta/tools/unei.mjs done       手で出したときに記録する
   node insta/tools/unei.mjs stats      反応の集計
 `);
       process.exitCode = 1;
