@@ -318,6 +318,17 @@
       "next_action": "なし。在庫が減ったら「何冊書いて」と言うだけ。手順は CLAUDE_team.md のクリエイティブ担当の節。",
       "owner": "支援チーム",
       "source": "CLAUDE_team.md / CLAUDE.md"
+    },
+    {
+      "id": "ehon-09",
+      "business": "ehon",
+      "title": "Instagram に実際につなぐ。Meta 側の用意だけが残っている",
+      "state": "判断待ち",
+      "background": "2026-08-29、代表から「チェックしてOKしたものだけ自動で反映したい」との依頼。unei.mjs に ok / unok / post を実装し、OKが付いているものだけを1件ずつ出す形にした。CLAUDE.md の「取り消せない操作の前に人の確認を挟む」は満たしている。",
+      "evidence": "コード側は動作確認済み（OKが無ければ何もしない・二重投稿を止める・文字数とタグ数の上限・画像が公開URLから取れるかの確認・--dry-run）。残るのは Meta 側の用意で、Instagram プロアカウント化／Facebookページ連携／開発者アプリ／長期トークンが要る。**いずれも無料でカード登録も不要**、自分のアカウントだけなら App Review も不要（2026-08-29 に確認）。支援チームでは取得できないため止まっている。",
+      "next_action": "代表が Meta 側を用意してトークンとユーザーIDを取る。手順と費用は insta/README.md の「Instagram につなぐ」。取れたら post --dry-run で一緒に確かめてから1件目を出す。手続き中に支払い方法の登録を求められたら、そこで止めて相談する。",
+      "owner": "代表",
+      "source": "insta/README.md / insta/tools/unei.mjs"
     }
   ]
 }
