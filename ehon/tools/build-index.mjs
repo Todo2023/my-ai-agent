@@ -64,6 +64,7 @@ for (const slug of dirs) {
     summary: book.summary || "",
     age_min: Number(book.age_min ?? 0),
     age_max: Number(book.age_max ?? 99),
+    genre: book.genre || "そのほか",
     reading_minutes: Number(book.reading_minutes ?? Math.max(1, Math.round(book.pages.length / 2))),
     cover: book.cover || book.pages[0].image,
     pages: book.pages.length,

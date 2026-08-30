@@ -4,6 +4,7 @@
   "author": "編集部",
   "age_min": 0,
   "age_max": 2,
+  "genre": "さがす",
   "reading_minutes": 4,
   "cover": "p01.svg",
   "summary": "まるい ものを、ひとつ ずつ みつけて いきます。",
