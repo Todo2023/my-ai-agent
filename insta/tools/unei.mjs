@@ -396,7 +396,19 @@ async function cmdUnok() {
 
 /* ─────────────────────────────── post ────────────────────────────── */
 
-const GRAPH = "https://graph.facebook.com/v21.0";
+/**
+ * つなぎ先。**2とおりある。**
+ *
+ *   ① Instagram ログイン（既定）… Facebookページが要らない。graph.instagram.com
+ *   ② Facebookログイン          … Facebookページが要る。graph.facebook.com
+ *
+ * ①で足りるので、既定は①。②にするときだけ IG_API_BASE を渡す。
+ *   IG_API_BASE=https://graph.facebook.com/v21.0
+ *
+ * バージョンでエラーになるときは、番号を外したものを渡す。
+ *   IG_API_BASE=https://graph.instagram.com
+ */
+const GRAPH = process.env.IG_API_BASE || "https://graph.instagram.com/v21.0";
 
 /**
  * OKしたものだけを Instagram に出す。**機械がやる。**
@@ -434,6 +446,7 @@ async function cmdPost(opts) {
   console.log(`出すもの: ${p.title}`);
   console.log(`画像:     ${p.image_url}`);
   console.log(`文字数:   ${p.caption_length}　ハッシュタグ: ${p.hashtag_count}`);
+  console.log(`つなぎ先: ${GRAPH}`);
   console.log("");
 
   // Instagram 側の上限。超えると弾かれる
