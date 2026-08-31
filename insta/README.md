@@ -130,7 +130,7 @@ node insta/tools/unei.mjs post --dry-run
 | Instagram のアカウント種別 | **プロアカウント**（ビジネス または クリエイター）。個人アカウントでは API で投稿できない |
 | Facebookページ | Instagram と連携させる。Meta の投稿APIはページ経由でしか動かない |
 | Meta の開発者アプリ | Instagram Graph API を有効にする。**自分のアカウントだけなら開発モードのままでよい** |
-| 長期アクセストークン | **60日で切れる。**切れたら取り直す |
+| アクセストークン | 下の手順4で取る。**切れることがある**（手順5で確かめる） |
 | Instagram ユーザーID | 上のページから取れる数字 |
 
 ### 費用（2026-08-29 に調べた）
@@ -151,7 +151,8 @@ node insta/tools/unei.mjs post --dry-run
 
 #### 無料の代わりに払うもの（お金ではなく手間）
 
-- **トークンが60日で切れる。**切れたら取り直す。年6回の作業になる
+- **トークンが切れることがある。**切れたら取り直す（10分ほど）。
+  ページトークンは無期限になることが多いが、当てにしない。手順5で確かめる
 - レート制限がある（おおむね200回/時）。**うちは1日1件なので関係ない**
 - Meta は仕様を変える。動かなくなったら直す必要がある
 
@@ -169,6 +170,126 @@ node insta/tools/unei.mjs post --dry-run
 - <https://zernio.com/blog/instagram-api>
 - <https://qiita.com/lasymits/items/20b64a01adb3bc82bf79>
 - <https://dev.classmethod.jp/articles/instagram-graph-api-approved-for-review/>
+- <https://zenn.dev/eito_blog/articles/25863b3844ece7>
+- <https://zenn.dev/yamatoiizuka/articles/f2272e2ecea15d>
+- <https://qiita.com/kazukinagata/items/f3c6166837a1d3f36061>
+
+**Meta の公式ドキュメントそのものは、この手順を書いた環境から開けなかった**
+（社内プロキシが `developers.facebook.com` を塞いでいた）。
+上は日本語の解説記事をつき合わせたもの。**画面で食い違ったら、画面のほうが正しい。**
+
+### 手順（上から順に。全部無料）
+
+> Meta の画面は名前がよく変わる。**下の名前が見つからないときは、近い名前を探す。**
+> 手順そのもの（何を作って何を取るか）は変わっていない。
+
+#### 1. Instagram をプロアカウントにする
+
+**個人アカウントのままでは API で投稿できない。** ここが最初の関門。
+
+1. Instagram アプリ → 自分のプロフィール → 右上の三本線（≡）
+2. 「設定とプライバシー」→「アカウントの種類とツール」
+3. 「**プロアカウントに切り替える**」
+4. カテゴリを選ぶ →「**ビジネス**」を選ぶ
+
+**クリエイターでも投稿APIは使えるが、ビジネスのほうがページ連携が素直。**
+迷ったらビジネス。あとから変えられる。
+
+> **えほんの棚は、専用のアカウントで運用すること。**
+> 代表の個人アカウントをプロにしない。実名非公開の方針（`../CLAUDE_team.md`）と、
+> 私生活の投稿が混ざるのを避けるため。
+
+#### 2. Facebookページを作って、Instagram とつなぐ
+
+**Meta の投稿APIはページ経由でしか動かない。** ページは実質「APIの入口」で、
+Facebook側に何か投稿する必要はない。
+
+1. Facebook → 「ページ」→「**新しいページを作成**」（無料）
+2. ページ名を決める。カテゴリは「本・雑誌」あたり
+3. Instagram とつなぐ。**どちらの画面からでもよい**
+   - Instagram 側 … プロフェッショナルダッシュボード →「Facebookページをリンク」
+   - Facebook 側 … ページの「設定」→「リンク済みのアカウント」→「Instagram」→「アカウントをリンク」
+
+> **ページ名とプロフィールに実名を出さないこと。** ページは公開される。
+> 屋号だけにする（`../CLAUDE_team.md`：実名非公開が原則）。
+
+#### 3. Meta の開発者アプリを作る
+
+1. <https://developers.facebook.com/> → 右上から**開発者登録**（無料）
+2. 「マイアプリ」→「**アプリを作成**」
+3. ユースケースは「**その他**」→ タイプは「**ビジネス**」
+4. 出来たアプリに、製品として「**Instagram**（Instagram Graph API）」を追加
+5. 「アプリの設定」→「ベーシック」で **アプリID** と **app secret** を控える
+
+**審査（App Review）は要らない。** 自分のアカウントだけなら開発モードのままでよい。
+
+#### 4. トークンとIDを取る（4つのステップ）
+
+**① 短期トークンを取る**（1時間で切れる。次で交換するための踏み台）
+
+<https://developers.facebook.com/tools/explorer/>（グラフAPIエクスプローラ）で、
+
+- 「Metaアプリ」… さっき作ったアプリ
+- 「ユーザーまたはページ」… **自分のユーザー**
+- 「アクセス許可」… 下の5つを入れる
+
+```
+instagram_basic
+instagram_content_publish     ← 投稿にはこれが必須
+pages_show_list
+pages_read_engagement
+business_management
+```
+
+→「アクセストークンを生成」。出た文字列が**短期トークン**。
+
+**② 長期トークンに交換する**（60日）
+
+ブラウザのアドレス欄にそのまま貼って開けばよい。
+
+```
+https://graph.facebook.com/v21.0/oauth/access_token
+  ?grant_type=fb_exchange_token
+  &client_id=【アプリID】
+  &client_secret=【app secret】
+  &fb_exchange_token=【①の短期トークン】
+```
+
+返ってきた JSON の `access_token` が**長期ユーザートークン**。
+
+**③ ページのトークンを取る**
+
+```
+https://graph.facebook.com/v21.0/me/accounts?access_token=【②の長期トークン】
+```
+
+返ってきた `data` の中から、さっき作ったページを探す。
+
+- `id` … **ページID**（次で使う）
+- `access_token` … **ページトークン**。これが `IG_ACCESS_TOKEN` になる
+
+**④ Instagram の アカウントID を取る**
+
+```
+https://graph.facebook.com/v21.0/【ページID】
+  ?fields=instagram_business_account
+  &access_token=【③のページトークン】
+```
+
+返ってきた `instagram_business_account.id` が `IG_USER_ID`。
+
+> `instagram_business_account` が返ってこないときは、**2の連携ができていない。**
+> Instagram 側がプロアカウントになっているかも確かめる。
+
+#### 5. 有効期限を確かめる
+
+<https://developers.facebook.com/tools/debug/accesstoken/> に③のトークンを貼る。
+
+- 「有効期限」が **「受け取らない」/「なし」** … 当面切れない
+- 日付が出る … **その日までに取り直す**
+
+ページトークンは無期限になることが多いが、**当てにしないこと。**
+切れたら①からやり直す（10分ほどで終わる）。カレンダーに入れておくとよい。
 
 ### トークンの渡しかた
 
