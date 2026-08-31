@@ -1,0 +1,598 @@
+<title>エージェント動作仕様ビューア</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #eef0f4;
+    --surface: #ffffff;
+    --surface-2: #f6f7fa;
+    --ink: #14171d;
+    --ink-2: #3d4553;
+    --muted: #6b7484;
+    --line: #d8dde5;
+    --line-strong: #b9c1cd;
+    --accent: #1f6f8b;
+    --accent-soft: #dbeaf0;
+    --llm: #9a5b00;
+    --llm-soft: #f6e8d2;
+    --code: #1f6f8b;
+    --code-soft: #d9eaf1;
+    --human: #a01f5c;
+    --human-soft: #f6dce9;
+    --ext: #4a5a2f;
+    --ext-soft: #e5ecd6;
+    --shadow: 0 1px 2px rgba(20, 23, 29, .06), 0 8px 24px rgba(20, 23, 29, .05);
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+    --body: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101317;
+      --surface: #171b21;
+      --surface-2: #1d222a;
+      --ink: #e9edf3;
+      --ink-2: #c2c9d4;
+      --muted: #8d97a6;
+      --line: #2a313b;
+      --line-strong: #3b444f;
+      --accent: #6fc0dc;
+      --accent-soft: #17323d;
+      --llm: #e0a355;
+      --llm-soft: #33270f;
+      --code: #6fc0dc;
+      --code-soft: #12303a;
+      --human: #eb84b6;
+      --human-soft: #38152a;
+      --ext: #a9c47a;
+      --ext-soft: #232c17;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101317;
+    --surface: #171b21;
+    --surface-2: #1d222a;
+    --ink: #e9edf3;
+    --ink-2: #c2c9d4;
+    --muted: #8d97a6;
+    --line: #2a313b;
+    --line-strong: #3b444f;
+    --accent: #6fc0dc;
+    --accent-soft: #17323d;
+    --llm: #e0a355;
+    --llm-soft: #33270f;
+    --code: #6fc0dc;
+    --code-soft: #12303a;
+    --human: #eb84b6;
+    --human-soft: #38152a;
+    --ext: #a9c47a;
+    --ext-soft: #232c17;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+  code, .mono { font-family: var(--mono); font-size: .84em; }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 28px 20px 72px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px;
+    padding-bottom: 18px; border-bottom: 1px solid var(--line-strong);
+  }
+  header.top h1 { font-size: 25px; letter-spacing: .01em; }
+  header.top p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; padding: 3px 10px; border: 1px solid var(--line-strong);
+    background: var(--surface); white-space: nowrap;
+  }
+  .dot { width: 9px; height: 9px; flex: none; }
+  .dot.llm { background: var(--llm); }
+  .dot.code { background: var(--code); }
+  .dot.human { background: var(--human); }
+  .dot.ext { background: var(--ext); }
+
+  nav.agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0 18px; }
+  nav.agents button {
+    text-align: left; font: inherit; color: inherit; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 12px 14px; display: grid; gap: 2px;
+  }
+  nav.agents button:hover { border-color: var(--line-strong); }
+  nav.agents button[aria-selected="true"] {
+    border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); background: var(--surface);
+  }
+  nav.agents .an { font-family: var(--display); font-weight: 700; font-size: 15px; }
+  nav.agents .af { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  nav.agents .ag { font-size: 12px; color: var(--ink-2); }
+
+  .spec {
+    background: var(--surface); border: 1px solid var(--line); padding: 16px 18px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px 26px;
+    box-shadow: var(--shadow);
+  }
+  .spec dt { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .spec dd { margin: 2px 0 0; font-size: 13.5px; color: var(--ink-2); }
+  .spec dd strong { color: var(--ink); font-weight: 500; }
+
+  .scenarios { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 14px; align-items: center; }
+  .scenarios .lbl { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .scenarios button {
+    font: inherit; font-size: 13px; cursor: pointer; padding: 5px 12px;
+    background: var(--surface); color: var(--ink-2); border: 1px solid var(--line);
+  }
+  .scenarios button:hover { border-color: var(--line-strong); }
+  .scenarios button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .stage { grid-template-columns: 1fr; } nav.agents { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .panel > header {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid var(--line); font-size: 11px; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .input-line { padding: 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .input-line .who { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .input-line .txt { font-size: 15px; margin-top: 2px; }
+  .input-line .txt::before { content: "❯ "; color: var(--accent); font-family: var(--mono); }
+
+  ol.steps { list-style: none; margin: 0; padding: 6px 0; }
+  ol.steps li { position: relative; }
+  .step {
+    width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+    background: none; border: 0; border-left: 3px solid transparent;
+    padding: 9px 14px 9px 12px; display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: baseline;
+  }
+  .step:hover { background: var(--surface-2); }
+  .step .num { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .step .name { font-family: var(--mono); font-size: 13px; }
+  .step .sum { font-size: 12.5px; color: var(--muted); display: block; }
+  .step .kind { font-size: 10.5px; letter-spacing: .06em; padding: 1px 7px; white-space: nowrap; }
+  .kind.llm { background: var(--llm-soft); color: var(--llm); }
+  .kind.code { background: var(--code-soft); color: var(--code); }
+  .kind.human { background: var(--human-soft); color: var(--human); }
+  .kind.ext { background: var(--ext-soft); color: var(--ext); }
+  li[data-active="true"] .step { background: var(--surface-2); border-left-color: var(--accent); }
+  li[data-state="future"] .step { opacity: .42; }
+  .step:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .controls { display: flex; gap: 8px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); background: var(--surface-2); }
+  .controls button {
+    font: inherit; font-size: 13px; cursor: pointer; padding: 5px 14px;
+    background: var(--surface); border: 1px solid var(--line-strong); color: var(--ink);
+  }
+  .controls button:hover { border-color: var(--accent); }
+  .controls button:disabled { opacity: .4; cursor: default; border-color: var(--line); }
+  .controls .pos { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .detail { padding: 14px 16px; display: grid; gap: 12px; }
+  .detail h3 { font-size: 16px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .detail .why { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+  .detail .src { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .io { display: grid; gap: 8px; }
+  .io .row { display: grid; grid-template-columns: 62px 1fr; gap: 10px; align-items: start; font-size: 12.5px; }
+  .io .k { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  .io .v { font-family: var(--mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); padding: 7px 9px; white-space: pre-wrap; overflow-x: auto; }
+  .gate-note {
+    border-left: 3px solid var(--human); background: var(--human-soft);
+    padding: 9px 12px; font-size: 12.5px; color: var(--ink-2);
+  }
+  .state-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .state-table th, .state-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .state-table th { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .state-table td.key { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+  .state-table td.val { font-family: var(--mono); font-size: 11.5px; word-break: break-word; }
+  .state-table tr[data-changed="true"] td.val { background: var(--accent-soft); }
+  .state-empty { padding: 14px; color: var(--muted); font-size: 12.5px; }
+
+  .outcome { padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13px; }
+  .outcome .k { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .outcome .v { margin-top: 3px; white-space: pre-wrap; }
+
+  footer.notes { margin-top: 28px; border-top: 1px solid var(--line-strong); padding-top: 18px; }
+  footer.notes h2 { font-size: 15px; margin-bottom: 8px; }
+  footer.notes ul { margin: 0; padding-left: 1.2em; color: var(--ink-2); font-size: 13.5px; }
+  footer.notes li { margin-bottom: 5px; }
+  footer.notes .fine { color: var(--muted); font-size: 12px; margin-top: 14px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .detail { animation: fade .18s ease-out; }
+    @keyframes fade { from { opacity: .35; } to { opacity: 1; } }
+  }
+</style>
+
+<div class="shell">
+  <header class="top">
+    <div>
+      <h1>エージェント動作仕様ビューア</h1>
+      <p>3つのエージェントが1回の指示をどう処理するかを、ステップ単位で追える画面。どこをLLMが判断し、どこを決定的なコードが固め、どこで人間の承認が入るかを色で区別している。</p>
+    </div>
+    <div class="legend">
+      <span class="chip"><span class="dot llm"></span>LLM判断</span>
+      <span class="chip"><span class="dot code"></span>固定処理</span>
+      <span class="chip"><span class="dot ext"></span>外部I/O</span>
+      <span class="chip"><span class="dot human"></span>人間の承認</span>
+    </div>
+  </header>
+
+  <nav class="agents" id="agents" role="tablist" aria-label="エージェント"></nav>
+
+  <dl class="spec" id="spec"></dl>
+
+  <div class="scenarios" id="scenarios"><span class="lbl">シナリオ</span></div>
+
+  <div class="stage">
+    <section class="panel" aria-label="実行トレース">
+      <div class="input-line">
+        <div class="who">入力</div>
+        <div class="txt" id="input-text"></div>
+      </div>
+      <ol class="steps" id="steps"></ol>
+      <div class="controls">
+        <button id="prev" type="button">← 前へ</button>
+        <button id="next" type="button">次へ →</button>
+        <button id="play" type="button">自動再生</button>
+        <span class="pos" id="pos"></span>
+      </div>
+      <div class="outcome">
+        <div class="k">この時点でユーザーに見えているもの</div>
+        <div class="v" id="outcome"></div>
+      </div>
+    </section>
+
+    <div style="display:grid; gap:16px;">
+      <section class="panel" aria-label="ステップの詳細">
+        <header>ステップの詳細</header>
+        <div class="detail" id="detail"></div>
+      </section>
+      <section class="panel" aria-label="状態">
+        <header id="state-title">状態</header>
+        <div id="state"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer class="notes">
+    <h2>この画面の読み方</h2>
+    <ul>
+      <li><strong>LLM判断（橙）</strong>のステップだけがモデルへの呼び出し。ここがレイテンシとコストのほぼ全てを占める。<code>invoice_agent</code> は1リクエスト1回に固定されている。</li>
+      <li><strong>固定処理（青）</strong>は決定的なPythonコード。表記ゆれの吸収・計算・PDF生成・ユーザーに見せる文面の組み立ては全てこちら側。LLMが嘘の完了報告をしても、画面に出る文言はコードが作った事実だけになる。</li>
+      <li><strong>人間の承認（赤）</strong>は不可逆な操作の直前に必ず置く。LangGraph の <code>interrupt</code>、CLIの <code>[y/N]</code> がその実装。ここを迂回する変更は入れない。</li>
+      <li><code>travel_agent</code> に承認ゲートが無いのは、外部への副作用が読み取り専用の検索だけだから。<strong>承認ゲートの有無は、副作用が不可逆かどうかで決まる</strong>。</li>
+    </ul>
+    <p class="fine">出典：<code>invoice_agent/graph_agent.py</code>、<code>meeting_agent/agent.py</code>・<code>cli.py</code>、<code>travel_agent/agent.py</code>・<code>search.py</code>。数値は <code>invoice_agent/gate4_findings.md</code>（評価データセット22件・モデル gemma-4-26b-a4b-it）の実測値。トレースの文面は、実装のプロンプト・分岐・出力テンプレートから再現したもので、実行のたびに変わる箇所がある。</p>
+  </footer>
+</div>
+
+<script>
+const AGENTS = [
+  {
+    id: "invoice",
+    name: "請求書エージェント",
+    file: "invoice_agent/graph_agent.py",
+    gate: "ゲート5まで通過済み",
+    stateTitle: "State（LangGraph）",
+    spec: {
+      "構成": "LangGraph（7ノード）／状態は <strong>checkpoints.sqlite</strong> に保存",
+      "LLMの役割": "<strong>情報抽出のみ</strong>（parseノード1回）。ツール選択はさせない",
+      "モデル": "gemma-4-26b-a4b-it（成功率 <strong>90.9%</strong>／平均 <strong>1.14秒</strong>／219.6トークン）",
+      "外部I/O": "sample_data.xlsx の読み取り、請求書PDFの書き出し",
+      "承認ゲート": "<strong>あり</strong>（interrupt：顧客名が不明なとき／未対応の要求が含まれるとき）",
+      "失敗時": "チェックポイントから再開。最初からやり直しにはならない"
+    },
+    scenarios: [
+      {
+        id: "happy", label: "そのまま作成", input: "A社の請求書を作って",
+        steps: [
+          { kind: "llm", name: "parse", sum: "自然文から顧客名・対応外要求・範囲外フラグを抽出", why: "LLMの仕事はここだけ。JSONスキーマ（response_schema）で出力形式を固定し、ツールは一切呼ばせない。実行の判断はこの後の固定処理が行う。", src: "graph_agent.py :: parse_node（LLM呼び出し 1回・実測 約1.1秒）",
+            in: '指示: "A社の請求書を作って"', out: '{"customer_name": "A社", "all_customers": false,\n "unsupported_requests": [], "out_of_scope": false}',
+            state: { customer_name: '"A社"', all_customers: "false", unsupported_requests: "[]", out_of_scope: "false" } },
+          { kind: "code", name: "resolve_customer", sum: "Excelの顧客マスタと突き合わせて実在顧客に解決", why: "表記ゆれの吸収はLLMではなく difflib による決定的な処理。同じ入力なら必ず同じ結果になる。", src: "graph_agent.py :: resolve_customer_node（sample_data.xlsx を読む）",
+            in: 'customer_name = "A社"', out: 'resolved_customer = "A社"（完全一致）',
+            state: { resolved_customer: '"A社"' } },
+          { kind: "code", name: "route_after_resolve", sum: "範囲外でなく、顧客も確定、対応外要求なし → generate へ", why: "分岐条件はコードに書かれた if 文。LLMに「次に何をするか」を選ばせないことで、存在しないツールを呼んで落ちる失敗（ゲート2 #21）を構造的に防いでいる。", src: "graph_agent.py :: route_after_resolve",
+            in: "out_of_scope=false / resolved_customer=A社 / unsupported=[]", out: '"generate"', state: {} },
+          { kind: "ext", name: "generate", sum: "請求書PDFを作成（invoice.py・LLMは登場しない）", why: "Excelを読む→計算する→PDFに書く、という決まった処理だけを行う。請求書番号の採番と支払期日（翌々月末日ではなく翌月末日）もここで確定する。", src: "graph_agent.py :: generate_node → invoice.py :: create_invoice_pdf",
+            in: 'customer = "A社", EXCEL_PATH = "sample_data.xlsx"', out: "invoice_A社.pdf を書き出し",
+            state: { message: '"A社の請求書を作成しました（invoice_A社.pdf）。"' } }
+        ],
+        outcomes: ["", "", "", "", "A社の請求書を作成しました（invoice_A社.pdf）。"]
+      },
+      {
+        id: "unsupported", label: "未対応の要求 → 承認", input: "a社様の請求書、割引10%つけて作って",
+        steps: [
+          { kind: "llm", name: "parse", sum: "顧客名と「割引10%」という対応外の要求を抽出", why: "対応していない要求を検出することもLLMの担当。ただし検出するだけで、実行するかどうかは判断させない。", src: "graph_agent.py :: parse_node",
+            in: '指示: "a社様の請求書、割引10%つけて作って"', out: '{"customer_name": "a社様", "all_customers": false,\n "unsupported_requests": ["割引10%"], "out_of_scope": false}',
+            state: { customer_name: '"a社様"', unsupported_requests: '["割引10%"]', all_customers: "false", out_of_scope: "false" } },
+          { kind: "code", name: "resolve_customer", sum: "「a社様」→「A社」に正規化（小文字・敬称を除去）", why: "ゲート2で見つかった #10「a社」#11「A社様」への対応。_normalize() で敬称と大小文字を落とし、それでも一致しなければ difflib で近い候補を探す。", src: "graph_agent.py :: resolve_customer_node / _normalize",
+            in: '"a社様" → 正規化 "a社"', out: 'resolved_customer = "A社"',
+            state: { resolved_customer: '"A社"' } },
+          { kind: "human", name: "ask_confirm", sum: "対応できない要求がある旨を提示し、作成の可否を人間に聞く", why: "無確認で実行してしまった失敗（ゲート2 #15）への対応。PDF確定は不可逆なので、その手前に承認ゲートを置く。LangGraph の interrupt でグラフを停止し、状態はチェックポイントに保存される。",
+            src: "graph_agent.py :: ask_confirm_node（interrupt）",
+            in: "unsupported_requests = [\"割引10%\"]", out: '次の要求には対応していません: 割引10%\nA社の標準フォーマットの請求書（これらを反映しないもの）を作成してよいですか？（はい/いいえ）',
+            gate: "ここでグラフは停止する。人間が「はい」と答えるまでPDFは作られない。", state: {} },
+          { kind: "code", name: "route_after_confirm", sum: "「はい」→ approved=true → generate へ", why: "承認の判定もコード側。「はい/yes/y/ok」以外は全て拒否として cancelled に流れる。曖昧な返事を好意的に解釈しない。", src: "graph_agent.py :: ask_confirm_node / route_after_confirm",
+            in: '人間の回答: "はい"', out: 'approved = true → "generate"', state: { approved: "true" } },
+          { kind: "ext", name: "generate", sum: "標準フォーマットでPDFを作成し、未反映の要求を文面に明記", why: "「割引を反映した」と嘘の報告をしないよう、ユーザーに見せる文面はコード側で組み立てる。未対応要求は必ず注記として付く。", src: "graph_agent.py :: generate_node",
+            in: 'customer = "A社", unsupported = ["割引10%"]', out: "invoice_A社.pdf を書き出し（割引は未反映）",
+            state: { message: '"A社の請求書を作成しました（invoice_A社.pdf）。\\n\\nなお、次の要求には対応していないため反映されていません: 割引10%"' } }
+        ],
+        outcomes: ["", "", "", "次の要求には対応していません: 割引10%\nA社の標準フォーマットの請求書（これらを反映しないもの）を作成してよいですか？（はい/いいえ）", "", "A社の請求書を作成しました（invoice_A社.pdf）。\n\nなお、次の要求には対応していないため反映されていません: 割引10%"]
+      },
+      {
+        id: "ask", label: "顧客名が不明 → 聞き返す", input: "請求書を作っておいて",
+        steps: [
+          { kind: "llm", name: "parse", sum: "顧客名が読み取れず null", why: "読み取れないものを推測で埋めさせない。null をそのまま返させることで、後段が「聞き返す」判断をできる。", src: "graph_agent.py :: parse_node",
+            in: '指示: "請求書を作っておいて"', out: '{"customer_name": null, "all_customers": false,\n "unsupported_requests": [], "out_of_scope": false}',
+            state: { customer_name: "null", all_customers: "false", unsupported_requests: "[]", out_of_scope: "false" } },
+          { kind: "code", name: "resolve_customer", sum: "解決対象が無いので resolved_customer は null のまま", why: "ここで「一番それらしい顧客」を勝手に選ばない。曖昧なら推測せず人に聞く、が設計方針。", src: "graph_agent.py :: resolve_customer_node",
+            in: "customer_name = null", out: "resolved_customer = null", state: { resolved_customer: "null" } },
+          { kind: "human", name: "ask_customer", sum: "登録済みの顧客名を提示して聞き返す", why: "選択肢（Excelに実在する顧客名）を添えて聞くことで、回答がそのまま次の resolve で解決できる形になる。", src: "graph_agent.py :: ask_customer_node（interrupt）",
+            in: "list_customer_names(sample_data.xlsx)", out: "どの顧客の請求書を作成しますか？（登録済み: A社, B社, C社, …）",
+            gate: "回答を受け取ると resolve_customer に戻る（ask_customer → resolve_customer のループ）。", state: {} },
+          { kind: "code", name: "resolve_customer", sum: "人間の回答「B社」を解決", why: "聞き返した答えも、そのまま信じずに顧客マスタと突き合わせる。", src: "graph_agent.py :: resolve_customer_node",
+            in: '人間の回答: "B社"', out: 'resolved_customer = "B社"', state: { customer_name: '"B社"', resolved_customer: '"B社"' } },
+          { kind: "ext", name: "generate", sum: "B社の請求書PDFを作成", why: "分岐を抜けて確定した1件だけを作る。", src: "graph_agent.py :: generate_node",
+            in: 'customer = "B社"', out: "invoice_B社.pdf を書き出し", state: { message: '"B社の請求書を作成しました（invoice_B社.pdf）。"' } }
+        ],
+        outcomes: ["", "", "", "どの顧客の請求書を作成しますか？（登録済み: A社, B社, C社, …）", "", "B社の請求書を作成しました（invoice_B社.pdf）。"]
+      },
+      {
+        id: "oos", label: "業務範囲外 → 断る", input: "今日の札幌の天気を教えて",
+        steps: [
+          { kind: "llm", name: "parse", sum: "請求書作成と無関係と判定（out_of_scope = true）", why: "範囲外の判定もフラグとして返させるだけ。断り文句をLLMに書かせない。", src: "graph_agent.py :: parse_node",
+            in: '指示: "今日の札幌の天気を教えて"', out: '{"customer_name": null, "all_customers": false,\n "unsupported_requests": [], "out_of_scope": true}',
+            state: { customer_name: "null", out_of_scope: "true", unsupported_requests: "[]", all_customers: "false" } },
+          { kind: "code", name: "resolve_customer", sum: "顧客名が無いので null のまま通過", why: "ノードの順序は固定。範囲外の判定は次のルーティングで効く。", src: "graph_agent.py :: resolve_customer_node",
+            in: "customer_name = null", out: "resolved_customer = null", state: { resolved_customer: "null" } },
+          { kind: "code", name: "out_of_scope", sum: "定型の断り文を返して終了", why: "文面は固定文字列。LLMに書かせると、できない仕事を「やっておきます」と答えてしまう余地が残る。", src: "graph_agent.py :: out_of_scope_node",
+            in: "out_of_scope = true", out: "定型メッセージ",
+            state: { message: '"このエージェントは請求書作成専用です。「A社の請求書を作って」のように指示してください。"' } }
+        ],
+        outcomes: ["", "", "", "このエージェントは請求書作成専用です。「A社の請求書を作って」のように指示してください。"]
+      },
+      {
+        id: "cancel", label: "承認が拒否された", input: "全顧客分の請求書を、消費税10%込みで作って",
+        steps: [
+          { kind: "llm", name: "parse", sum: "全顧客分の要求と、対応外の「消費税10%込み」を抽出", why: "「全顧客分をまとめて作る」はゲート2 #9 への対応として後から追加した経路。", src: "graph_agent.py :: parse_node",
+            in: '指示: "全顧客分の請求書を、消費税10%込みで作って"', out: '{"customer_name": null, "all_customers": true,\n "unsupported_requests": ["消費税10%込み"], "out_of_scope": false}',
+            state: { all_customers: "true", unsupported_requests: '["消費税10%込み"]', customer_name: "null", out_of_scope: "false" } },
+          { kind: "code", name: "resolve_customer", sum: "全顧客分なので個別の解決はしない", why: "all_customers が true のときは顧客名の解決を飛ばし、対応外要求の有無だけで分岐する。", src: "graph_agent.py :: resolve_customer_node / route_after_resolve",
+            in: "all_customers = true", out: '"ask_confirm"', state: { resolved_customer: "null" } },
+          { kind: "human", name: "ask_confirm", sum: "全顧客分を標準フォーマットで作ってよいか確認", why: "複数のPDFを一度に確定させる操作なので、単発よりむしろ承認の価値が大きい。", src: "graph_agent.py :: ask_confirm_node（interrupt）",
+            in: 'unsupported_requests = ["消費税10%込み"]', out: "次の要求には対応していません: 消費税10%込み\n全顧客の標準フォーマットの請求書（これらを反映しないもの）を作成してよいですか？（はい/いいえ）",
+            gate: "人間の回答が「はい」以外なら、1件もPDFは作られない。", state: {} },
+          { kind: "code", name: "cancelled", sum: "「いいえ」→ 何も作らずに終了", why: "拒否されたときに「代わりに◯◯しておきました」と別の処理を勝手に走らせない。止めるときは完全に止める。", src: "graph_agent.py :: route_after_confirm → cancelled_node",
+            in: '人間の回答: "いいえ" → approved = false', out: "PDFは1件も作られない",
+            state: { approved: "false", message: '"作成をキャンセルしました。"' } }
+        ],
+        outcomes: ["", "", "", "次の要求には対応していません: 消費税10%込み\n全顧客の標準フォーマットの請求書（これらを反映しないもの）を作成してよいですか？（はい/いいえ）", "作成をキャンセルしました。"]
+      }
+    ]
+  },
+  {
+    id: "meeting",
+    name: "Meet共有エージェント",
+    file: "meeting_agent/agent.py",
+    gate: "ゲート1〜2相当",
+    stateTitle: "会話で確定した情報",
+    spec: {
+      "構成": "Gemini Function Calling の対話ループ（<strong>ツール選択はLLM</strong>）",
+      "LLMの役割": "6つのツールから次に呼ぶものを自分で選ぶ。文面の下書きも担当",
+      "モデル": "gemini-3.6-flash（429時は20秒待って最大5回リトライ）",
+      "外部I/O": "Googleカレンダー（読み書き）／Chatwork（読み・送信）",
+      "承認ゲート": "<strong>あり</strong>：送信直前に CLI が <code>[y/N]</code> を必ず出す",
+      "デモモード": "python demo.py はGoogle・Chatwork・Geminiを一切叩かない"
+    },
+    scenarios: [
+      {
+        id: "send", label: "予定作成 → 送信", input: "明日15時からA社と定例。Meetを作って、A社のルームに送っておいて",
+        steps: [
+          { kind: "llm", name: "LLM（1回目）", sum: "「明日15時」を現在日時から解決し、create_meeting を選ぶ", why: "LLMは今日の日付を知らないため、システムプロンプト冒頭に現在日時を差し込んでいる。これが無いと「明日」を勝手な日付に解釈する。", src: "agent.py :: _system_instruction / SYSTEM_PROMPT",
+            in: '現在日時: 2026-09-01(火) 10:00 (Asia/Tokyo)\nユーザー: "明日15時からA社と定例。Meetを作って…"', out: 'ツール呼び出し: create_meeting(title="A社定例", start="2026-09-02T15:00", minutes=60)',
+            state: { 日時: "2026-09-02(水) 15:00-16:00", タイトル: '"A社定例"' } },
+          { kind: "ext", name: "create_meeting", sum: "Googleカレンダーに Meet 付きの予定を作成", why: "設定された全カレンダーに同じ予定を入れ、Meet URLは1つだけ発行する。カレンダーへの書き込みは取り消し可能なので、ここには承認を置いていない。", src: "gcal.py :: create_meeting",
+            in: "title / start / minutes", out: "https://meet.google.com/xxx-yyyy-zzz", state: { Meet_URL: "https://meet.google.com/xxx-yyyy-zzz" } },
+          { kind: "llm", name: "LLM（2回目）", sum: "送信先が名前しか分からないので list_chatwork_rooms を選ぶ", why: "room_id を推測させない。候補が複数あって絞り切れないときは、勝手に決めずユーザーに確認するようプロンプトで指示している。", src: "agent.py :: SYSTEM_PROMPT 進め方2",
+            in: '送信先: "A社のルーム"', out: "ツール呼び出し: list_chatwork_rooms()", state: {} },
+          { kind: "ext", name: "list_chatwork_rooms / list_chatwork_members", sum: "room_id と宛先の account_id を取得", why: "[To:account_id 名前] の記法を使うには account_id が要る。これも実データから引く。", src: "chatwork.py",
+            in: "Chatwork API（読み取り）", out: "room_id = 12345678 / 山田: account_id = 98765", state: { room_id: "12345678", 宛先: "山田（98765）" } },
+          { kind: "llm", name: "LLM（3回目）", sum: "送信本文を組み立てる（Markdown不可・日時と Meet URL を必ず含む）", why: "文面の作成はLLMに任せている数少ない箇所。ただし送信するかどうかの判断は握らせない。", src: "agent.py :: SYSTEM_PROMPT 本文の作り方",
+            in: "日時 / タイトル / Meet URL / account_id", out: "[To:98765 山田様]\n明日9/2(水) 15:00-16:00 の定例のURLです。\nhttps://meet.google.com/xxx-yyyy-zzz\nよろしくお願いいたします。", state: {} },
+          { kind: "human", name: "confirm_send", sum: "送信先と本文を画面に出して [y/N] を待つ", why: "LLMの判断だけでは送らせない。この確認は CLI 側のフック（set_confirm_hook）として送信関数の内側に挟まっており、LLMがプロンプトを無視しても迂回できない。", src: "cli.py :: confirm_send → chatwork.py :: send_chatwork_message",
+            in: "room_id = 12345678 / 上の本文", out: "この内容で送信しますか？ [y/N]:",
+            gate: "y 以外はすべて拒否。Enterだけでも送信されない。", state: {} },
+          { kind: "ext", name: "send_chatwork_message", sum: "承認された場合のみ実際に送信", why: "戻り値に [DRY RUN] や [デモ] が含まれる場合は実送信していないことを必ず明記させる。CLI側でもバナーを出し、LLMの報告だけに依存しない。", src: "chatwork.py :: send_chatwork_message",
+            in: "承認: y", out: "送信完了（message_id を返す）", state: { 送信: "完了" } }
+        ],
+        outcomes: ["", "", "", "", "", "", "この内容で送信しますか？ [y/N]:", "A社のルームに送信しました。"]
+      },
+      {
+        id: "deny", label: "送信を拒否した場合", input: "（上と同じ指示で、確認に N と答える）",
+        steps: [
+          { kind: "human", name: "confirm_send", sum: "本文を確認し、N を入力", why: "承認ゲートの目的は「止められること」。ここで止まれば外部への副作用はゼロ。", src: "cli.py :: confirm_send",
+            in: "この内容で送信しますか？ [y/N]:", out: "N", gate: "EOF・Ctrl+C も拒否として扱う（例外を握って False を返す）。", state: { 送信: "しない" } },
+          { kind: "code", name: "送信の中止", sum: "送信関数が拒否を返し、Chatwork API は呼ばれない", why: "確認フックは送信関数の内部にあるため、LLMが再度 send を呼んでも同じ確認が再度出る。", src: "chatwork.py :: send_chatwork_message",
+            in: "confirm = False", out: "[送信せず] 承認されなかったため送信していません", state: {} },
+          { kind: "llm", name: "LLM（報告）", sum: "送っていないことを明示して報告", why: "「送信しました」と報告してよいのは本当に送られた場合だけ、とプロンプトで縛っている。ゲート2で見つけた嘘の完了報告への対応。", src: "agent.py :: SYSTEM_PROMPT 進め方4",
+            in: "ツールの戻り値: [送信せず]…", out: "送信は行っていません。文面を直しますか？", state: {} }
+        ],
+        outcomes: ["", "この内容で送信しますか？ [y/N]:", "", "送信は行っていません。文面を直しますか？"]
+      }
+    ]
+  },
+  {
+    id: "travel",
+    name: "旅行プランエージェント",
+    file: "travel_agent/agent.py",
+    gate: "ゲート1相当",
+    stateTitle: "ヒアリングで埋まった項目",
+    spec: {
+      "構成": "Gemini Function Calling の対話ループ（ツールは web_search 1つ）",
+      "LLMの役割": "ヒアリング・検索するかの判断・旅程の生成（<strong>ほぼ全て</strong>）",
+      "モデル": "gemma-4-26b-a4b-it（429時は20秒待って最大5回リトライ）",
+      "外部I/O": "DuckDuckGo検索（ddgs・APIキー不要）※読み取りのみ",
+      "承認ゲート": "<strong>なし</strong>：不可逆な副作用が無いため（予約機能を足すなら必須になる）",
+      "現状の限界": "出力の良し悪しを機械的に判定しにくく、ゲート4の計測が難しい題材"
+    },
+    scenarios: [
+      {
+        id: "plan", label: "ヒアリング → 検索 → 提案", input: "9月に2泊3日で北海道に行きたい。予算は一人5万くらい",
+        steps: [
+          { kind: "llm", name: "LLM（1回目）", sum: "埋まっていない項目（同行者・興味）だけを聞き返す", why: "すでに分かっている情報は聞き直さない、とプロンプトで指示している。埋まった項目を再質問するのは体験を最も損なう失敗。", src: "agent.py :: SYSTEM_PROMPT",
+            in: '"9月に2泊3日で北海道…予算は一人5万くらい"', out: "どなたと行かれますか？また、グルメ・自然・歴史などで特に興味のあるものはありますか？",
+            state: { 目的地: "北海道", 日数: "2泊3日", 時期: "9月", 予算: "一人5万円" } },
+          { kind: "llm", name: "LLM（2回目）", sum: "残りの条件が埋まり、店の営業時間は確証が無いと判断して検索を選ぶ", why: "営業時間・料金・予約可否など、学習データだけでは古い情報は断定せずに検索してから答える、というのがこのエージェントの数少ない明示ルール。", src: "agent.py :: SYSTEM_PROMPT / search.py",
+            in: '"友人2人と。海鮮が食べたい"', out: 'ツール呼び出し: web_search("古平 港寿し 営業時間")',
+            state: { 同行者: "友人2人", 興味: "海鮮・グルメ" } },
+          { kind: "ext", name: "web_search", sum: "DuckDuckGoで上位5件のタイトル・概要・URLを取得", why: "APIキー不要のDuckDuckGoを使い、ゲート1の条件「外部の何かを最低1つ叩く」を満たしている。読み取り専用なので承認ゲートは不要。", src: "search.py :: web_search（MAX_RESULTS = 5）",
+            in: 'query = "古平 港寿し 営業時間"', out: "- 港寿し（古平）: 営業時間 11:00-14:00 / 17:00-20:00 …（URL）\n- 食べログ: …（URL）", state: {} },
+          { kind: "llm", name: "LLM（3回目）", sum: "検索結果を根拠として添えつつ、日程表形式の旅程を提案", why: "調べた場合は情報源を簡潔に添える。分からなかった場合は正直に伝え、ユーザー自身での確認を促す。", src: "agent.py :: SYSTEM_PROMPT",
+            in: "ヒアリング結果 + 検索結果", out: "【1日目】新千歳 → 小樽（運河・寿司）…\n【2日目】積丹半島（青の洞窟・港寿し 11:00-14:00 出典: 食べログ）…\n【3日目】…\n予算内訳: 交通2.2万 / 宿1.6万 / 食費1.0万",
+            state: { 提案: "3日分の旅程 + 予算内訳" } }
+        ],
+        outcomes: ["", "どなたと行かれますか？また、グルメ・自然・歴史などで特に興味のあるものはありますか？", "", "", "【1日目】新千歳 → 小樽（運河・寿司）…\n【2日目】積丹半島（青の洞窟・港寿し 11:00-14:00 出典: 食べログ）…\n【3日目】…\n予算内訳: 交通2.2万 / 宿1.6万 / 食費1.0万"]
+      }
+    ]
+  }
+];
+
+const KIND_LABEL = { llm: "LLM判断", code: "固定処理", human: "人間の承認", ext: "外部I/O" };
+
+let ai = 0, si = 0, step = 0, timer = null;
+
+const $ = (id) => document.getElementById(id);
+
+function agent() { return AGENTS[ai]; }
+function scenario() { return agent().scenarios[si]; }
+
+function renderAgents() {
+  $("agents").innerHTML = AGENTS.map((a, i) => `
+    <button role="tab" aria-selected="${i === ai}" data-i="${i}">
+      <span class="an">${a.name}</span>
+      <span class="af">${a.file}</span>
+      <span class="ag">${a.gate}</span>
+    </button>`).join("");
+  $("agents").querySelectorAll("button").forEach((b) => {
+    b.onclick = () => { ai = +b.dataset.i; si = 0; step = 0; stop(); renderAll(); };
+  });
+}
+
+function renderSpec() {
+  $("spec").innerHTML = Object.entries(agent().spec)
+    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+}
+
+function renderScenarios() {
+  const el = $("scenarios");
+  el.innerHTML = '<span class="lbl">シナリオ</span>' + agent().scenarios
+    .map((s, i) => `<button type="button" aria-pressed="${i === si}" data-i="${i}">${s.label}</button>`).join("");
+  el.querySelectorAll("button").forEach((b) => {
+    b.onclick = () => { si = +b.dataset.i; step = 0; stop(); renderAll(); };
+  });
+}
+
+function renderSteps() {
+  const sc = scenario();
+  $("input-text").textContent = sc.input;
+  $("steps").innerHTML = sc.steps.map((s, i) => `
+    <li data-active="${i === step - 1}" data-state="${i < step ? "past" : "future"}">
+      <button class="step" type="button" data-i="${i}">
+        <span class="num">${String(i + 1).padStart(2, "0")}</span>
+        <span><span class="name">${s.name}</span><span class="sum">${s.sum}</span></span>
+        <span class="kind ${s.kind}">${KIND_LABEL[s.kind]}</span>
+      </button>
+    </li>`).join("");
+  $("steps").querySelectorAll("button").forEach((b) => {
+    b.onclick = () => { step = +b.dataset.i + 1; stop(); renderTrace(); };
+  });
+  $("pos").textContent = `${step} / ${sc.steps.length}`;
+  $("prev").disabled = step === 0;
+  $("next").disabled = step >= sc.steps.length;
+  const outs = sc.outcomes || [];
+  const text = outs[step] || (step === 0 ? "（まだ何も表示されていない）" : "（このステップでは、まだユーザーには何も返っていない）");
+  $("outcome").textContent = text;
+}
+
+function renderDetail() {
+  const sc = scenario();
+  if (step === 0) {
+    $("detail").innerHTML = `<p class="why">「次へ →」または左のステップをクリックすると、その時点で何が起きているかを表示します。矢印キーでも移動できます。</p>`;
+    return;
+  }
+  const s = sc.steps[step - 1];
+  $("detail").innerHTML = `
+    <h3><span class="kind ${s.kind}">${KIND_LABEL[s.kind]}</span><span class="mono">${s.name}</span></h3>
+    <p class="why">${s.why}</p>
+    <div class="src">${s.src}</div>
+    ${s.gate ? `<div class="gate-note">${s.gate}</div>` : ""}
+    <div class="io">
+      <div class="row"><span class="k">入力</span><span class="v">${escapeHtml(s.in)}</span></div>
+      <div class="row"><span class="k">出力</span><span class="v">${escapeHtml(s.out)}</span></div>
+    </div>`;
+}
+
+function renderState() {
+  const sc = scenario();
+  $("state-title").textContent = agent().stateTitle;
+  const acc = {}; const changed = new Set();
+  for (let i = 0; i < step; i++) {
+    const delta = sc.steps[i].state || {};
+    for (const [k, v] of Object.entries(delta)) {
+      acc[k] = v;
+      if (i === step - 1) changed.add(k);
+    }
+  }
+  const keys = Object.keys(acc);
+  if (!keys.length) {
+    $("state").innerHTML = `<div class="state-empty">まだ何も確定していません。</div>`;
+    return;
+  }
+  $("state").innerHTML = `<table class="state-table">
+    <thead><tr><th>キー</th><th>値</th></tr></thead>
+    <tbody>${keys.map((k) => `<tr data-changed="${changed.has(k)}">
+      <td class="key">${escapeHtml(k)}</td><td class="val">${escapeHtml(acc[k])}</td></tr>`).join("")}</tbody>
+  </table>`;
+}
+
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+function renderTrace() { renderSteps(); renderDetail(); renderState(); }
+function renderAll() { renderAgents(); renderSpec(); renderScenarios(); renderTrace(); }
+
+function stop() { if (timer) { clearInterval(timer); timer = null; $("play").textContent = "自動再生"; } }
+
+$("next").onclick = () => { if (step < scenario().steps.length) { step++; renderTrace(); } };
+$("prev").onclick = () => { if (step > 0) { step--; renderTrace(); } };
+$("play").onclick = () => {
+  if (timer) { stop(); return; }
+  if (step >= scenario().steps.length) step = 0;
+  $("play").textContent = "停止";
+  timer = setInterval(() => {
+    if (step >= scenario().steps.length) { stop(); return; }
+    step++; renderTrace();
+  }, 1900);
+  renderTrace();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight") { stop(); $("next").click(); }
+  if (e.key === "ArrowLeft") { stop(); $("prev").click(); }
+});
+
+renderAll();
+</script>

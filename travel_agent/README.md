@@ -15,11 +15,12 @@ Gemini のFunction Callingで `web_search`（DuckDuckGo検索、APIキー不要�
 ## セットアップ
 
 1. [Google AI Studio](https://aistudio.google.com/apikey) でGemini APIキーを無料で発行する
-2. 依存関係をインストール
+2. 依存関係をインストール（依存管理は uv に統一しています）
    ```bash
    cd travel_agent
-   pip install -r requirements.txt
+   uv sync
    ```
+   uv を入れていない場合は `pip install -r requirements.txt` でも動きます。
 3. APIキーを設定
    ```bash
    cp .env.example .env
@@ -29,7 +30,7 @@ Gemini のFunction Callingで `web_search`（DuckDuckGo検索、APIキー不要�
 ## 実行
 
 ```bash
-python cli.py
+uv run python cli.py
 ```
 
 対話形式で行き先・日数・予算などを聞かれるので、思いついたことから答えてください。

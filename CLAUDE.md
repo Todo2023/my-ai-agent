@@ -18,17 +18,19 @@
 
 | ディレクトリ | 題材 | 到達ゲート | 依存管理 |
 | --- | --- | --- | --- |
-| `invoice_agent/` | 自然文の指示から請求書PDFを作る | ゲート5まで通過済み | uv（`pyproject.toml` / `uv.lock`） |
-| `meeting_agent/` | Googleカレンダー＋Chatworkで Meet URL を共有 | ゲート1〜2相当 | pip（`requirements.txt`） |
-| `travel_agent/` | 対話形式で旅行プランを提案 | ゲート1相当 | pip（`requirements.txt`） |
+| `invoice_agent/` | 自然文の指示から請求書PDFを作る | ゲート5まで通過済み | uv |
+| `meeting_agent/` | Googleカレンダー＋Chatworkで Meet URL を共有 | ゲート1〜2相当 | uv |
+| `travel_agent/` | 対話形式で旅行プランを提案 | ゲート1相当 | uv |
+
+依存管理は3題材とも **uv に統一**（各ディレクトリの `pyproject.toml` / `uv.lock`）。ルート `README.md` 1.5節で uv を指定しているため、それに合わせている。`meeting_agent` / `travel_agent` の `requirements.txt` は、uv を入れていない人向けの互換用に残してあるが、**依存を追加・更新するときは `pyproject.toml` 側を正とし、`requirements.txt` も揃える**。
 
 `README.md`（ルート）はカリキュラム本体。ゲートの通過条件・レビュー制度・参考資料はすべてここに書かれている。**作業前に該当ゲートの節を読むこと。**
 
 ---
 
-## 実行方法（環境ごとに違うので注意）
+## 実行方法
 
-### invoice_agent（uv）
+### invoice_agent
 
 ```bash
 cd invoice_agent
@@ -41,19 +43,18 @@ uv run gate2_run.py                            # ゲート2版：失敗ケース
 - **`agent.py` は捨てずに残す。** ゲート2の失敗分析の対象そのものであり、`graph_agent.py` との対比が学習資産。「古いから消す」という判断はしない。
 - 評価結果は `eval_results_<モデル名>.json` に生データを残す。サマリだけ書き換えて生データを消さない。
 
-### meeting_agent / travel_agent（pip）
+### meeting_agent / travel_agent
 
 ```bash
 cd meeting_agent
-pip install -r requirements.txt
-python demo.py     # APIキー不要のデモ（Google/Chatwork/Geminiを一切叩かない）
-pytest             # ネットワークもAPIキーも不要
+uv run python demo.py          # APIキー不要のデモ（Google/Chatwork/Geminiを一切叩かない）
+uv run --group dev pytest      # ネットワークもAPIキーも不要
+uv run python cli.py           # 本番（GEMINI_API_KEY / CHATWORK_API_TOKEN が必要）
 ```
 
 ```bash
 cd travel_agent
-pip install -r requirements.txt
-python cli.py
+uv run python cli.py
 ```
 
 ### APIキー
@@ -134,9 +135,8 @@ python cli.py
 
 ## 未決定・保留中の項目
 
-- `invoice_agent/README.md` が空のまま。他2つの題材にはREADMEがある。
 - `meeting_agent` / `travel_agent` のゲート2以降（失敗ケース30件・構造化・計測）が未着手。
-- 依存管理が invoice_agent だけ uv、他2つは pip で不統一。統一するかどうか未決定。
+- `meeting_agent` / `travel_agent` の `requirements.txt` を将来的に廃止するかどうか（現状は互換用に併存）。
 - オブザーバビリティ（Langfuse / LangSmith）が未導入。現状の計測は `eval_run.py` の自前計測のみ。
 - MCP接続が未実装（現状はGemini Function Callingのみ）。
 
