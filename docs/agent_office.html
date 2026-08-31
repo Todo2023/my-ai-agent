@@ -1,0 +1,652 @@
+<title>エージェントカンパニー</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+  :root {
+    --floor: #e7e1d3;
+    --floor-line: #d5cdba;
+    --chrome: #22262e;
+    --chrome-2: #2e343e;
+    --chrome-line: #454d5a;
+    --ink: #1b1f26;
+    --paper: #fbfaf6;
+    --paper-2: #f1eee4;
+    --line: #c6bfae;
+    --muted: #7a7364;
+    --gold: #e8b74a;
+    --llm: #d08415;
+    --llm-bg: #fbeed3;
+    --code: #2b7fa8;
+    --code-bg: #dceaf2;
+    --ext: #5e8a3c;
+    --ext-bg: #e2eed5;
+    --human: #c03a6d;
+    --human-bg: #f8dde8;
+    --dept-a: #c98a12;
+    --dept-b: #2b6fa8;
+    --dept-c: #4f8a3a;
+    --pixel: "DotGothic16", "Hiragino Kaku Gothic ProN", monospace;
+    --ui: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #171a20;
+    color: var(--ink);
+    font-family: var(--pixel);
+    font-size: 15px;
+    -webkit-font-smoothing: none;
+  }
+  .frame { max-width: 1240px; margin: 0 auto; padding: 12px; }
+
+  /* ---------- 上部バー ---------- */
+  .hud {
+    display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap;
+    background: var(--chrome); border: 2px solid #000; color: #f2efe6; padding: 8px;
+  }
+  .hud .title {
+    display: grid; align-content: center; padding: 4px 12px;
+    background: var(--chrome-2); border: 1px solid var(--chrome-line); min-width: 210px;
+  }
+  .hud .title b { font-size: 16px; letter-spacing: .04em; }
+  .hud .title span { font-size: 11px; color: #9aa3b1; font-family: var(--ui); }
+  .stat {
+    background: var(--chrome-2); border: 1px solid var(--chrome-line);
+    padding: 5px 14px; display: grid; align-content: center; min-width: 108px;
+  }
+  .stat .k { font-size: 10.5px; color: #98a1af; font-family: var(--ui); letter-spacing: .06em; }
+  .stat .v { font-size: 21px; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+  .stat.llm .v { color: var(--gold); }
+  .stat.gate .v { color: #ff8fb4; }
+  .stat.done .v { color: #8fd68a; }
+  .clock { margin-left: auto; display: grid; align-content: center; padding: 0 10px;
+           font-size: 18px; color: #cfd6e0; font-variant-numeric: tabular-nums; }
+  .hud .ctrl { display: flex; gap: 6px; align-items: center; }
+  .hud button {
+    font-family: var(--pixel); font-size: 13px; cursor: pointer; color: #f2efe6;
+    background: #3a424e; border: 1px solid #5b6472; padding: 6px 12px;
+  }
+  .hud button:hover { background: #4a5462; }
+  .hud button[aria-pressed="true"] { background: var(--gold); color: #201c10; border-color: #f0cd77; }
+  .hud button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- レイアウト ---------- */
+  .stage { display: grid; grid-template-columns: 216px minmax(0, 1fr) 268px; gap: 8px; margin-top: 8px; }
+  @media (max-width: 1080px) { .stage { grid-template-columns: 1fr; } }
+
+  .room {
+    background: var(--floor);
+    background-image: linear-gradient(var(--floor-line) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--floor-line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    border: 2px solid #000; position: relative;
+  }
+  .room > .tag {
+    position: absolute; top: -2px; left: -2px; z-index: 3;
+    background: var(--ink); color: #f6f2e6; font-size: 12px; padding: 3px 10px;
+    border: 2px solid #000; font-family: var(--ui); font-weight: 700; letter-spacing: .03em;
+  }
+
+  /* 社長室 */
+  .boss { padding: 30px 12px 12px; display: grid; gap: 10px; align-content: start; min-height: 240px; }
+  .boss .desk { display: grid; justify-items: center; gap: 4px; }
+  .boss .name { font-size: 12px; background: var(--paper); border: 1px solid var(--line); padding: 1px 8px; }
+  .queue { display: grid; gap: 6px; }
+  .queue .empty { font-size: 12px; color: var(--muted); background: var(--paper-2); border: 1px dashed var(--line); padding: 8px; text-align: center; }
+  .card {
+    background: var(--paper); border: 2px solid var(--human); box-shadow: 3px 3px 0 rgba(0,0,0,.18);
+    padding: 8px; display: grid; gap: 6px; animation: pop .18s ease-out;
+  }
+  .card .from { font-size: 11px; color: var(--human); font-family: var(--ui); font-weight: 700; }
+  .card .what { font-size: 12.5px; line-height: 1.5; }
+  .card .row { display: flex; gap: 6px; }
+  .card button {
+    flex: 1; font-family: var(--pixel); font-size: 13px; cursor: pointer; padding: 5px 0;
+    border: 2px solid #000; background: var(--paper-2); color: var(--ink);
+  }
+  .card button.ok { background: #cfe6c0; }
+  .card button.ok:hover { background: #b9dda4; }
+  .card button.ng:hover { background: #f0cfd9; }
+  .card button:focus-visible { outline: 2px solid var(--human); outline-offset: 1px; }
+
+  /* 部署 */
+  .depts { display: grid; gap: 8px; }
+  .dept { min-height: 156px; padding: 26px 8px 8px; position: relative; overflow: hidden; }
+  .dept[data-c="a"] { background-color: #f3ead6; }
+  .dept[data-c="b"] { background-color: #e2ecf5; }
+  .dept[data-c="c"] { background-color: #e6efdd; }
+  .dept[data-c="a"] > .tag { background: var(--dept-a); }
+  .dept[data-c="b"] > .tag { background: var(--dept-b); }
+  .dept[data-c="c"] > .tag { background: var(--dept-c); }
+  .dept .file { position: absolute; top: 5px; right: 8px; font-size: 10.5px; color: #857c68; font-family: var(--ui); }
+
+  .board {
+    position: absolute; left: 10px; top: 34px; width: 190px;
+    background: var(--paper); border: 2px solid #000; box-shadow: 3px 3px 0 rgba(0,0,0,.16);
+  }
+  .board .bh { background: var(--ink); color: #f6f2e6; font-size: 10.5px; padding: 2px 6px; font-family: var(--ui); }
+  .board .bl { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; padding: 2px 6px; border-bottom: 1px dotted var(--line); }
+  .board .bl:last-child { border-bottom: 0; }
+  .board .bl.on { background: #fff2cf; }
+  .board .bl .st { color: var(--muted); }
+  .board .bl.on .st { color: var(--llm); }
+
+  .floorarea { position: absolute; left: 214px; right: 176px; top: 30px; bottom: 8px; }
+  .actor { position: absolute; transition: left .55s cubic-bezier(.4,.1,.3,1), top .55s cubic-bezier(.4,.1,.3,1); }
+  .actor .sprite { animation: bob 1.1s steps(2, end) infinite; }
+  .actor[data-busy="true"] .sprite { animation-duration: .45s; }
+  .actor .label {
+    position: absolute; left: 50%; transform: translateX(-50%); top: 46px; white-space: nowrap;
+    font-size: 10px; background: rgba(255,255,255,.85); border: 1px solid var(--line); padding: 0 4px;
+  }
+  .bubble {
+    position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%);
+    background: var(--paper); border: 2px solid #000; padding: 3px 8px; font-size: 12px;
+    white-space: nowrap; box-shadow: 2px 2px 0 rgba(0,0,0,.2); animation: pop .16s ease-out;
+  }
+  .bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -5px;
+    border: 5px solid transparent; border-top-color: #000;
+  }
+  .bubble.llm { background: var(--llm-bg); }
+  .bubble.code { background: var(--code-bg); }
+  .bubble.ext { background: var(--ext-bg); }
+  .bubble.human { background: var(--human-bg); border-color: var(--human); }
+  .bubble .dots::after { content: "..."; animation: dots 1s steps(4, end) infinite; }
+
+  .status {
+    position: absolute; right: 8px; top: 34px; width: 158px;
+    background: var(--paper); border: 2px solid #000; padding: 6px 8px; display: grid; gap: 3px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,.16);
+  }
+  .status .sk { font-size: 10.5px; color: var(--muted); font-family: var(--ui); }
+  .status .sv { font-size: 12.5px; line-height: 1.45; }
+  .status .kind { font-size: 10.5px; padding: 0 6px; display: inline-block; font-family: var(--ui); }
+  .kind.llm { background: var(--llm-bg); color: var(--llm); }
+  .kind.code { background: var(--code-bg); color: var(--code); }
+  .kind.ext { background: var(--ext-bg); color: var(--ext); }
+  .kind.human { background: var(--human-bg); color: var(--human); }
+  .bar { height: 7px; background: var(--paper-2); border: 1px solid var(--line); }
+  .bar i { display: block; height: 100%; background: var(--gold); transition: width .4s ease; }
+
+  .gate-flag {
+    position: absolute; inset: 0; border: 3px solid var(--human); pointer-events: none;
+    animation: flash 1s steps(2, end) infinite; z-index: 2;
+  }
+
+  /* 右チャット */
+  .chat { display: flex; flex-direction: column; min-height: 300px; max-height: 620px; }
+  .chat .tag { position: static; }
+  .chat .log { flex: 1; overflow-y: auto; padding: 8px; display: grid; gap: 7px; align-content: start; }
+  .msg { display: grid; gap: 2px; animation: slide .2s ease-out; }
+  .msg .who { font-size: 10.5px; color: var(--muted); font-family: var(--ui); }
+  .msg .txt {
+    background: var(--paper); border: 1px solid var(--line); padding: 4px 8px; font-size: 12px; line-height: 1.5;
+    box-shadow: 2px 2px 0 rgba(0,0,0,.08);
+  }
+  .msg[data-k="human"] .txt { background: var(--human-bg); border-color: var(--human); }
+  .msg[data-k="llm"] .txt { background: var(--llm-bg); }
+  .msg[data-k="ext"] .txt { background: var(--ext-bg); }
+  .msg[data-k="boss"] { justify-items: end; }
+  .msg[data-k="boss"] .txt { background: #dfe7f2; border-color: #9db3cc; }
+
+  /* 下部ティッカー */
+  .ticker {
+    margin-top: 8px; background: var(--chrome); border: 2px solid #000; color: #dfe4ec;
+    display: flex; gap: 12px; align-items: center; padding: 6px 10px; font-size: 12.5px; overflow: hidden;
+  }
+  .ticker .now { color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ticker .line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .legend { display: flex; gap: 6px; margin-left: auto; white-space: nowrap; }
+  .legend span { font-size: 10.5px; padding: 1px 7px; font-family: var(--ui); }
+
+  .note {
+    margin-top: 8px; background: var(--chrome); border: 2px solid #000; color: #c8cedb;
+    padding: 10px 12px; font-family: var(--ui); font-size: 12.5px; line-height: 1.75;
+  }
+  .note b { color: #f0e6cd; }
+  .note code { font-family: var(--pixel); color: var(--gold); }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes pop { from { transform: translateX(-50%) scale(.8); opacity: 0; } }
+  @keyframes slide { from { transform: translateY(6px); opacity: 0; } }
+  @keyframes dots { 0% { content: "."; } 33% { content: ".."; } 66% { content: "..."; } }
+  @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+  @media (prefers-reduced-motion: reduce) {
+    .actor .sprite, .gate-flag, .bubble .dots::after { animation: none; }
+    .actor { transition: none; }
+  }
+</style>
+
+<div class="frame">
+  <div class="hud">
+    <div class="title"><b>エージェントカンパニー</b><span>my-ai-agent ／ 3部署が同時に稼働中</span></div>
+    <div class="stat llm"><span class="k">LLM呼び出し</span><span class="v" id="s-llm">0</span></div>
+    <div class="stat gate"><span class="k">承認待ち</span><span class="v" id="s-gate">0</span></div>
+    <div class="stat done"><span class="k">完了</span><span class="v" id="s-done">0</span></div>
+    <div class="stat"><span class="k">中止</span><span class="v" id="s-cancel">0</span></div>
+    <div class="ctrl">
+      <button type="button" id="btn-play" aria-pressed="true">■ 一時停止</button>
+      <button type="button" id="btn-speed">速度 ×1</button>
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+
+  <div class="stage">
+    <section class="room boss" aria-label="社長室">
+      <span class="tag">社長室（あなた）</span>
+      <div class="desk">
+        <div id="boss-sprite"></div>
+        <div class="name">承認だけが仕事</div>
+      </div>
+      <div class="queue" id="queue"></div>
+    </section>
+
+    <div class="depts" id="depts"></div>
+
+    <section class="room chat" aria-label="実行報告グループ">
+      <span class="tag">実行報告グループ</span>
+      <div class="log" id="log"></div>
+    </section>
+  </div>
+
+  <div class="ticker">
+    <span class="now" id="tick-time">--:--:--</span>
+    <span class="line" id="tick-line">起動しました。</span>
+    <span class="legend">
+      <span class="kind llm">LLM判断</span>
+      <span class="kind code">固定処理</span>
+      <span class="kind ext">外部I/O</span>
+      <span class="kind human">人間の承認</span>
+    </span>
+  </div>
+
+  <p class="note">
+    3部署はそれぞれ <code>invoice_agent</code> / <code>meeting_agent</code> / <code>travel_agent</code> の実装に対応。歩いているのは各エージェントの担当者で、
+    <b>橙＝LLMが判断しているステップ</b>、<b>青＝決定的なコード</b>、<b>緑＝外部I/O</b>、<b>桃＝人間の承認</b>。
+    担当者が社長室に来たら処理は本当に止まります。<b>承認を押すまでPDFは確定せず、Chatworkへは1文字も送信されません</b>。却下すればその案件は何も残さず終了します。
+    旅行プラン部だけ社長室に来ないのは、外部への操作が読み取り専用の検索しかなく、取り消せない副作用が無いためです。
+  </p>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   各部署 = リポジトリ内のエージェント1つ。
+   steps は実装の分岐（graph_agent.py のノード / Function Calling のツール選択）に対応する。
+------------------------------------------------------------------ */
+const SPRITES = {
+  boss:  { suit: "#2c3038", hair: "#241c14", tie: "#a8323f" },
+  a_llm: { suit: "#c98a12", hair: "#3a2a12", tie: "#f5e2b0" },
+  a_cod: { suit: "#2f3b46", hair: "#1e2228", tie: "#8fc0d8" },
+  b_llm: { suit: "#2b6fa8", hair: "#20303c", tie: "#d7e8f4" },
+  b_cod: { suit: "#3d4a56", hair: "#1c2228", tie: "#b9cfe0" },
+  c_llm: { suit: "#4f8a3a", hair: "#26301c", tie: "#dcecc8" },
+  c_cod: { suit: "#41504a", hair: "#1d2622", tie: "#c4dcc8" }
+};
+
+function sprite(key, scale = 1) {
+  const s = SPRITES[key];
+  const w = 26 * scale, h = 42 * scale;
+  return `<svg class="sprite" width="${w}" height="${h}" viewBox="0 0 26 42" shape-rendering="crispEdges" aria-hidden="true">
+    <rect x="6" y="2" width="14" height="5" fill="${s.hair}"/>
+    <rect x="6" y="7" width="14" height="9" fill="#e9c9a8"/>
+    <rect x="9" y="10" width="2" height="2" fill="#22262e"/>
+    <rect x="15" y="10" width="2" height="2" fill="#22262e"/>
+    <rect x="4" y="16" width="18" height="17" fill="${s.suit}"/>
+    <rect x="11" y="16" width="4" height="10" fill="${s.tie}"/>
+    <rect x="1" y="17" width="3" height="13" fill="${s.suit}"/>
+    <rect x="22" y="17" width="3" height="13" fill="${s.suit}"/>
+    <rect x="5" y="33" width="6" height="9" fill="#20242b"/>
+    <rect x="15" y="33" width="6" height="9" fill="#20242b"/>
+  </svg>`;
+}
+
+const DEPTS = [
+  {
+    id: "invoice", c: "a", name: "請求書部", file: "invoice_agent/graph_agent.py",
+    members: [
+      { id: "llm", key: "a_llm", label: "抽出AI", home: [6, 52] },
+      { id: "cod", key: "a_cod", label: "名寄せ・PDF係", home: [44, 52] }
+    ],
+    board: ["parse", "resolve_customer", "ask_confirm / ask_customer", "generate"],
+    runs: [
+      { input: "A社の請求書を作って", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "parse", say: "顧客名を抽出中", desc: "自然文から顧客名・対応外要求・範囲外フラグをJSONで抽出", log: "指示を解析：A社／対応外要求なし" },
+        { bi: 1, by: "cod", kind: "code", node: "resolve_customer", say: "顧客マスタと照合", desc: "Excelの顧客名と突き合わせ（difflibで表記ゆれ吸収）", log: "顧客を確定：A社" },
+        { bi: 3, by: "cod", kind: "ext", node: "generate", say: "PDF作成", desc: "invoice.py が計算してPDFを書き出す（LLMは不在）", log: "invoice_A社.pdf を作成" }
+      ], done: "A社の請求書を作成しました（invoice_A社.pdf）。" },
+      { input: "a社様の請求書、割引10%つけて作って", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "parse", say: "対応外の要求を検出", desc: "「割引10%」を unsupported_requests として抽出", log: "対応外の要求を検出：割引10%" },
+        { bi: 1, by: "cod", kind: "code", node: "resolve_customer", say: "「a社様」→「A社」", desc: "敬称と大小文字を落として正規化（ゲート2 #10/#11 への対応）", log: "表記ゆれを吸収：a社様 → A社" },
+        { bi: 2, by: "cod", kind: "human", node: "ask_confirm", say: "社長、確認をお願いします", desc: "PDF確定は不可逆。interrupt でグラフを停止して人に聞く",
+          ask: "「割引10%」には対応していません。A社の標準フォーマットで作成してよいですか？", log: "承認待ち：割引10%は未対応のまま作成してよいか" },
+        { bi: 3, by: "cod", kind: "ext", node: "generate", say: "PDF作成", desc: "未反映の要求は文面に明記して作成", log: "invoice_A社.pdf を作成（割引は未反映）" }
+      ], done: "A社の請求書を作成しました。なお「割引10%」は対応していないため反映されていません。",
+         cancelled: "作成をキャンセルしました。PDFは1件も作られていません。" },
+      { input: "請求書を作っておいて", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "parse", say: "顧客名が読み取れない", desc: "customer_name は null。推測で埋めさせない", log: "顧客名を特定できず（null）" },
+        { bi: 1, by: "cod", kind: "code", node: "resolve_customer", say: "解決できません", desc: "それらしい顧客を勝手に選ばない", log: "解決不能：聞き返しへ" },
+        { bi: 2, by: "cod", kind: "human", node: "ask_customer", say: "どの顧客ですか？", desc: "登録済みの顧客名を添えて聞き返す（interrupt）",
+          ask: "どの顧客の請求書を作成しますか？（登録済み: A社, B社, C社）", approveLabel: "B社で", log: "承認待ち：顧客名の確認" },
+        { bi: 3, by: "cod", kind: "ext", node: "generate", say: "PDF作成", desc: "回答された顧客名も、必ずマスタと突き合わせてから作る", log: "invoice_B社.pdf を作成" }
+      ], done: "B社の請求書を作成しました（invoice_B社.pdf）。",
+         cancelled: "顧客が確定しないため中止しました。" },
+      { input: "今日の札幌の天気を教えて", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "parse", say: "業務範囲外と判定", desc: "out_of_scope = true を返すだけ。断り文句は書かせない", log: "業務範囲外と判定" },
+        { bi: -1, by: "cod", kind: "code", node: "out_of_scope", say: "定型文で返答", desc: "文面は固定文字列。できない仕事を安請け合いさせない", log: "定型の断り文を返して終了" }
+      ], done: "このエージェントは請求書作成専用です。" }
+    ]
+  },
+  {
+    id: "meeting", c: "b", name: "Meet共有部", file: "meeting_agent/agent.py",
+    members: [
+      { id: "llm", key: "b_llm", label: "会話AI", home: [6, 52] },
+      { id: "cod", key: "b_cod", label: "カレンダー・送信係", home: [44, 52] }
+    ],
+    board: ["create_meeting", "room_idの特定", "本文の作成", "confirm → 送信"],
+    runs: [
+      { input: "明日15時からA社と定例。Meetを作ってA社のルームに送って", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "LLM", say: "「明日」を日付に変換", desc: "システムプロンプト冒頭の現在日時を基準に計算し、create_meeting を選ぶ", log: "日時を解決：9/2(水) 15:00-16:00" },
+        { bi: 0, by: "cod", kind: "ext", node: "create_meeting", say: "カレンダーに登録", desc: "Meet付きの予定を作成（取り消せるので承認は挟まない）", log: "Meet URL を発行" },
+        { bi: 1, by: "llm", kind: "llm", node: "LLM", say: "room_idを調べる", desc: "送信先を推測させず list_chatwork_rooms で実データを引く", log: "送信先を特定：room_id 12345678" },
+        { bi: 2, by: "llm", kind: "llm", node: "LLM", say: "本文を作成中", desc: "日時・タイトル・Meet URLを含む文面を下書き（Markdown不可）", log: "送信文面の下書きが完成" },
+        { bi: 3, by: "cod", kind: "human", node: "confirm_send", say: "この内容で送りますか？", desc: "確認は送信関数の内側のフック。LLMがプロンプトを無視しても迂回できない",
+          ask: "[To:98765 山田様] 明日9/2(水) 15:00-16:00 の定例のURLです。https://meet.google.com/… を room 12345678 へ送信しますか？",
+          approveLabel: "y（送信）", rejectLabel: "N（中止）", log: "承認待ち：Chatworkへの送信" },
+        { bi: 3, by: "cod", kind: "ext", node: "send_chatwork_message", say: "送信しました", desc: "承認された場合のみ実送信。戻り値をそのまま報告させる", log: "Chatworkへ送信完了" }
+      ], done: "A社のルームに送信しました。",
+         cancelled: "送信していません。文面を直しますか？" },
+      { input: "来週火曜10時の打ち合わせ、URLだけ先に共有して", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "LLM", say: "既存の予定を検索", desc: "まず list_meetings で該当予定とMeet URLを探す", log: "既存の予定からMeet URLを取得" },
+        { bi: 1, by: "llm", kind: "llm", node: "LLM", say: "送信先の候補が2件…", desc: "絞り切れないときは勝手に決めず、ユーザーに確認する", log: "送信先の候補が複数あり確認が必要" },
+        { bi: 3, by: "cod", kind: "human", node: "確認", say: "どちらのルームへ？", desc: "room_idの推測は事故の元。必ず人に選ばせる",
+          ask: "送信先の候補が2件あります（A社定例ルーム / A社サポート）。どちらに送りますか？",
+          approveLabel: "定例ルーム", rejectLabel: "送らない", log: "承認待ち：送信先ルームの選択" },
+        { bi: 3, by: "cod", kind: "ext", node: "send_chatwork_message", say: "送信しました", desc: "選ばれたルームにのみ送信", log: "A社定例ルームへ送信完了" }
+      ], done: "A社定例ルームにMeet URLを送信しました。",
+         cancelled: "送信先が確定しないため送信していません。" }
+    ]
+  },
+  {
+    id: "travel", c: "c", name: "旅行プラン部", file: "travel_agent/agent.py",
+    members: [
+      { id: "llm", key: "c_llm", label: "プランナーAI", home: [6, 52] },
+      { id: "cod", key: "c_cod", label: "検索係", home: [44, 52] }
+    ],
+    board: ["ヒアリング", "web_search", "旅程の生成"],
+    runs: [
+      { input: "9月に2泊3日で北海道。予算は一人5万くらい", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "LLM", say: "足りない条件を質問", desc: "すでに分かっている情報は聞き直さない", log: "同行者と興味をヒアリング" },
+        { bi: 1, by: "llm", kind: "llm", node: "LLM", say: "営業時間は要確認", desc: "学習データだけでは古い情報は断定せず、検索してから答える", log: "検索が必要と判断：店舗の営業時間" },
+        { bi: 1, by: "cod", kind: "ext", node: "web_search", say: "DuckDuckGoで検索", desc: "APIキー不要の検索。読み取り専用なので承認ゲートは不要", log: "検索結果を5件取得" },
+        { bi: 2, by: "llm", kind: "llm", node: "LLM", say: "旅程を組み立て中", desc: "出典を添えて日程表形式で提案する", log: "3日分の旅程と予算内訳を生成" }
+      ], done: "【1日目】小樽 →【2日目】積丹（港寿し 11:00-14:00 出典: 食べログ）→【3日目】札幌／予算内訳つき" },
+      { input: "予算を3万に落とせる？", steps: [
+        { bi: 0, by: "llm", kind: "llm", node: "LLM", say: "内訳を組み替え中", desc: "会話の文脈を保持したまま再計算する", log: "予算条件の変更を反映" },
+        { bi: 1, by: "cod", kind: "ext", node: "web_search", say: "宿の相場を検索", desc: "価格帯は変わりやすいので都度検索する", log: "宿泊費の相場を再取得" },
+        { bi: 2, by: "llm", kind: "llm", node: "LLM", say: "代替案を提示", desc: "削れない費用は正直に伝え、ユーザー自身の確認を促す", log: "交通手段の変更で3.1万まで圧縮" }
+      ], done: "宿をゲストハウスに変更し3.1万まで圧縮。交通費は繁忙期のため要確認です。" }
+    ]
+  }
+];
+
+/* ---------------- 状態 ---------------- */
+const stats = { llm: 0, gate: 0, done: 0, cancel: 0 };
+let paused = false, speed = 1;
+const SPEEDS = [1, 2, 4];
+let speedIdx = 0;
+
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toTimeString().slice(0, 8);
+
+$("boss-sprite").innerHTML = sprite("boss", 1.15);
+
+/* 部署のDOMを組み立てる */
+const runners = DEPTS.map((d, di) => {
+  const el = document.createElement("section");
+  el.className = "room dept";
+  el.dataset.c = d.c;
+  el.innerHTML = `
+    <span class="tag">${d.name}</span>
+    <span class="file">${d.file}</span>
+    <div class="board">
+      <div class="bh">処理の流れ</div>
+      ${d.board.map((b, i) => `<div class="bl" data-i="${i}"><span>${b}</span><span class="st">－</span></div>`).join("")}
+    </div>
+    <div class="floorarea"></div>
+    <div class="status">
+      <span class="sk">いまの指示</span>
+      <span class="sv" data-f="input">待機中</span>
+      <span class="sk">処理中のステップ</span>
+      <span class="sv" data-f="step">－</span>
+      <div class="bar"><i style="width:0%"></i></div>
+    </div>`;
+  $("depts").appendChild(el);
+
+  const floor = el.querySelector(".floorarea");
+  const actors = {};
+  d.members.forEach((m) => {
+    const a = document.createElement("div");
+    a.className = "actor";
+    a.style.left = m.home[0] + "%";
+    a.style.top = m.home[1] + "%";
+    a.innerHTML = sprite(m.key) + `<span class="label">${m.label}</span>`;
+    floor.appendChild(a);
+    actors[m.id] = { el: a, home: m.home };
+  });
+
+  return { d, el, floor, actors, runIdx: di % d.runs.length, stepIdx: 0, waiting: null, phase: "idle", t: 0 };
+});
+
+/* ---------------- 表示ユーティリティ ---------------- */
+function setStat(k, v) { stats[k] = v; $("s-" + k).textContent = v; }
+
+function chat(who, text, kind) {
+  const log = $("log");
+  const m = document.createElement("div");
+  m.className = "msg";
+  m.dataset.k = kind || "";
+  m.innerHTML = `<span class="who">${who}</span><span class="txt"></span>`;
+  m.querySelector(".txt").textContent = text;
+  log.appendChild(m);
+  while (log.children.length > 40) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+}
+
+function ticker(text) {
+  $("tick-time").textContent = now();
+  $("tick-line").textContent = text;
+}
+
+function bubble(actor, kind, text, thinking) {
+  clearBubble(actor);
+  const b = document.createElement("div");
+  b.className = "bubble " + kind;
+  b.innerHTML = `<span>${text}</span>${thinking ? '<span class="dots"></span>' : ""}`;
+  actor.el.appendChild(b);
+  actor.el.dataset.busy = "true";
+}
+function clearBubble(actor) {
+  actor.el.querySelectorAll(".bubble").forEach((b) => b.remove());
+  actor.el.dataset.busy = "false";
+}
+function moveTo(actor, x, y) { actor.el.style.left = x + "%"; actor.el.style.top = y + "%"; }
+
+function setField(r, f, text) { r.el.querySelector(`[data-f="${f}"]`).textContent = text; }
+function setBar(r, pct) { r.el.querySelector(".bar i").style.width = pct + "%"; }
+function markBoard(r, bi) {
+  r.el.querySelectorAll(".bl").forEach((bl, i) => {
+    const on = i === bi;
+    bl.classList.toggle("on", on);
+    bl.lastElementChild.textContent = on ? "実行中" : (bi > i ? "済" : "－");
+  });
+}
+function clearBoard(r) {
+  r.el.querySelectorAll(".bl").forEach((bl) => { bl.classList.remove("on"); bl.lastElementChild.textContent = "－"; });
+}
+
+/* ---------------- 承認キュー（社長室） ---------------- */
+function enqueue(r, step, onAnswer) {
+  setStat("gate", stats.gate + 1);
+  const flag = document.createElement("div");
+  flag.className = "gate-flag";
+  r.el.appendChild(flag);
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<span class="from">${r.d.name} からの確認</span>
+    <span class="what"></span>
+    <div class="row">
+      <button class="ok" type="button">${step.approveLabel || "承認"}</button>
+      <button class="ng" type="button">${step.rejectLabel || "却下"}</button>
+    </div>`;
+  card.querySelector(".what").textContent = step.ask;
+  $("queue").appendChild(card);
+  renderQueueEmpty();
+
+  const finish = (ok) => {
+    card.remove(); flag.remove();
+    setStat("gate", stats.gate - 1);
+    renderQueueEmpty();
+    chat("社長（あなた）", ok ? (step.approveLabel || "承認") : (step.rejectLabel || "却下"), "boss");
+    onAnswer(ok);
+  };
+  card.querySelector(".ok").onclick = () => finish(true);
+  card.querySelector(".ng").onclick = () => finish(false);
+}
+
+function renderQueueEmpty() {
+  const q = $("queue");
+  const empty = q.querySelector(".empty");
+  const hasCards = q.querySelectorAll(".card").length > 0;
+  if (!hasCards && !empty) {
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "承認待ちはありません";
+    q.appendChild(e);
+  }
+  if (hasCards && empty) empty.remove();
+}
+renderQueueEmpty();
+
+/* ---------------- 進行 ---------------- */
+function startRun(r) {
+  const run = r.d.runs[r.runIdx];
+  r.stepIdx = 0;
+  setField(r, "input", run.input);
+  setField(r, "step", "受付");
+  setBar(r, 0);
+  clearBoard(r);
+  chat(r.d.name, "指示を受けました：" + run.input, "");
+  ticker(`${r.d.name}：${run.input}`);
+  r.phase = "step";
+  r.t = 700;
+}
+
+function runStep(r) {
+  const run = r.d.runs[r.runIdx];
+  const step = run.steps[r.stepIdx];
+  const actor = r.actors[step.by];
+  const other = r.actors[step.by === "llm" ? "cod" : "llm"];
+
+  setField(r, "step", `${step.node}｜${step.desc}`);
+  setBar(r, Math.round((r.stepIdx / run.steps.length) * 100));
+  markBoard(r, step.bi);
+  clearBubble(other);
+  moveTo(other, other.home[0], other.home[1]);
+
+  if (step.kind === "llm") setStat("llm", stats.llm + 1);
+
+  if (step.kind === "human") {
+    moveTo(actor, 1, 4);
+    bubble(actor, "human", step.say, false);
+    chat(r.d.name, step.log, "human");
+    ticker(`${r.d.name}：承認待ち — ${step.ask}`);
+    r.phase = "waiting";
+    enqueue(r, step, (ok) => {
+      clearBubble(actor);
+      moveTo(actor, actor.home[0], actor.home[1]);
+      if (ok) {
+        r.stepIdx++;
+        r.phase = "step";
+        r.t = 600;
+      } else {
+        setStat("cancel", stats.cancel + 1);
+        const msg = run.cancelled || "中止しました。";
+        chat(r.d.name, msg, "");
+        ticker(`${r.d.name}：${msg}`);
+        setField(r, "step", "中止（副作用なし）");
+        setBar(r, 100);
+        clearBoard(r);
+        r.phase = "cooldown";
+        r.t = 2600;
+      }
+    });
+    return;
+  }
+
+  const pos = step.kind === "ext" ? [72, 62] : [step.by === "llm" ? 14 : 40, 30];
+  moveTo(actor, pos[0], pos[1]);
+  bubble(actor, step.kind, step.say, step.kind === "llm");
+  chat(r.d.name, step.log, step.kind);
+  ticker(`${r.d.name}：${step.node} — ${step.desc}`);
+
+  r.phase = "running";
+  r.t = step.kind === "llm" ? 1700 : 1300;
+}
+
+function finishStep(r) {
+  const run = r.d.runs[r.runIdx];
+  const step = run.steps[r.stepIdx];
+  clearBubble(r.actors[step.by]);
+  r.stepIdx++;
+  if (r.stepIdx < run.steps.length) {
+    r.phase = "step";
+    r.t = 350;
+  } else {
+    setStat("done", stats.done + 1);
+    setBar(r, 100);
+    setField(r, "step", "完了");
+    clearBoard(r);
+    Object.values(r.actors).forEach((a) => moveTo(a, a.home[0], a.home[1]));
+    chat(r.d.name, run.done, "");
+    ticker(`${r.d.name}：完了 — ${run.done}`);
+    r.phase = "cooldown";
+    r.t = 2800;
+  }
+}
+
+/* 60msごとに各部署を進める。承認待ちの部署だけが止まる */
+setInterval(() => {
+  $("clock").textContent = now();
+  if (paused) return;
+  runners.forEach((r) => {
+    if (r.phase === "waiting") return;
+    r.t -= 60 * speed;
+    if (r.t > 0) return;
+    if (r.phase === "idle") { startRun(r); return; }
+    if (r.phase === "step") { runStep(r); return; }
+    if (r.phase === "running") { finishStep(r); return; }
+    if (r.phase === "cooldown") {
+      r.runIdx = (r.runIdx + 1) % r.d.runs.length;
+      startRun(r);
+    }
+  });
+}, 60);
+
+/* 起動を少しずつずらす */
+runners.forEach((r, i) => { r.phase = "idle"; r.t = 400 + i * 1200; });
+
+$("btn-play").onclick = () => {
+  paused = !paused;
+  $("btn-play").textContent = paused ? "▶ 再開" : "■ 一時停止";
+  $("btn-play").setAttribute("aria-pressed", String(!paused));
+};
+$("btn-speed").onclick = () => {
+  speedIdx = (speedIdx + 1) % SPEEDS.length;
+  speed = SPEEDS[speedIdx];
+  $("btn-speed").textContent = "速度 ×" + speed;
+};
+
+chat("システム", "3部署の稼働を開始しました。承認が必要になると社長室にカードが出ます。", "");
+</script>
