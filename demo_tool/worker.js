@@ -64,6 +64,8 @@ const AMOUNT = /[0-9][0-9,]*\s*円/;
 const MAX_INPUT = 400;
 /* 資料ページからの質問。デモの問いより長くなるので別枠にする */
 const MAX_ASK = 600;
+/* 提出するワーク。質問より長くなる */
+const MAX_WORK = 4000;
 /* 同じ人からの連投を止める。1時間に何件まで受けるか */
 const ASK_PER_HOUR = 10;
 const MAX_QUESTION = 90;
@@ -289,6 +291,212 @@ async function listAsks(url, env) {
   return json({ questions: questions.reverse() });
 }
 
+/* ------------------------------------------------------------------
+   教材を配る。
+
+   なぜサーバーが配るか:
+   公開サイトに本文を置くと、パスワードをかけてもURLを知る人には読めます。
+   本文とスライドは非公開リポジトリから KV に載せ、ここが
+   「その人に解放されている回だけ」を取り出して返します。
+   解放されていない回は、URLを直接叩いても返しません。
+
+   解放の決まり:
+   - 番号のない回（はじめに）は、いつでも開く
+   - 番号のある回は「提出した回の次まで」かつ「支払いで解放された回まで」
+     の、**小さいほう**まで開く。順番に進んでもらいつつ、
+     先払いしていない回は提出しても開かないようにするため。
+   ------------------------------------------------------------------ */
+
+/** 受講者の記録。無ければ null */
+async function member(env, code) {
+  if (!env.DEMO_KV || !code) return null;
+  const raw = await env.DEMO_KV.get(`member:${code}`);
+  return raw ? JSON.parse(raw) : null;
+}
+
+/** 一覧。載せていなければ空 */
+async function lessonIndex(env) {
+  if (!env.DEMO_KV) return [];
+  const raw = await env.DEMO_KV.get("index");
+  return raw ? JSON.parse(raw) : [];
+}
+
+/** どこまで提出したか。まだなら -1 */
+async function progressOf(env, code) {
+  if (!env.DEMO_KV) return -1;
+  const raw = await env.DEMO_KV.get(`prog:${code}`);
+  return raw === null ? -1 : Number(raw);
+}
+
+/** 最初に提出を求める回の位置。デモと「はじめに」はここに数えない */
+function firstGating(index) {
+  const i = index.findIndex((e) => e.gates);
+  return i === -1 ? index.length : i;
+}
+
+/** i 番目の回が、その人に開いているか */
+function isOpen(index, i, progress, paidThrough) {
+  const entry = index[i];
+  if (!entry) return false;
+  if (!entry.gates) return true;             // デモ・はじめには常に開く
+  const byWork = progress + 1;               // 提出した回の次まで
+  const byPaid = paidThrough ?? -1;          // 支払いで解放された回まで
+  return i <= Math.min(byWork, byPaid);
+}
+
+/** 合言葉を確かめ、一覧と解放状態を返す。入り口はここ1つ */
+async function whoAmI(env, code) {
+  const who = await member(env, code);
+  if (!who) return { error: "合言葉が違います" };
+  const index = await lessonIndex(env);
+  const stored = await progressOf(env, code);
+  // まだ何も出していない人は、最初の1回だけ開いた状態から始める
+  const progress = stored === -1 ? firstGating(index) - 1 : stored;
+  const paidThrough = who.paidThrough ?? -1;
+  return {
+    who, index, progress, paidThrough,
+    lessons: index.map((e, i) => ({
+      slug: e.slug, label: e.label, title: e.title, date: e.date,
+      written: e.written, open: isOpen(index, i, progress, paidThrough),
+      done: e.gates && i <= progress,
+    })),
+  };
+}
+
+async function handleMe(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+  return json({ name: me.who.name || "", lessons: me.lessons });
+}
+
+async function handleLesson(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const slug = String(body.slug || "").trim();
+
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+
+  const i = me.index.findIndex((e) => e.slug === slug);
+  if (i === -1) return json({ error: "その回はありません" }, 404);
+  if (!isOpen(me.index, i, me.progress, me.paidThrough)) {
+    // 何が足りないのかを言う。黙って断ると、受講者が理由を推測できない
+    const reason = i > me.paidThrough
+      ? "この回はまだお申し込みの範囲に入っていません"
+      : "前の回のワークを提出すると開きます";
+    return json({ error: reason, locked: true }, 403);
+  }
+
+  const raw = await env.DEMO_KV.get(`lesson:${slug}`);
+  if (!raw) return json({ error: "この回はまだ用意できていません" }, 404);
+  const data = JSON.parse(raw);
+  const next = me.index[i + 1];
+  return json({
+    ...data,
+    prev: i > 0 ? { slug: me.index[i - 1].slug, label: me.index[i - 1].label } : null,
+    next: next ? { slug: next.slug, label: next.label, open: isOpen(me.index, i + 1, me.progress, me.paidThrough) } : null,
+    submitted: !!data.gates && i <= me.progress,
+  });
+}
+
+/** スライド画像。本文と同じ鍵で守る（画像だけ抜かれては意味がない） */
+async function handleSlide(url, env) {
+  const code = (url.searchParams.get("code") || "").trim().toUpperCase();
+  const slug = (url.searchParams.get("slug") || "").trim();
+  const page = (url.searchParams.get("p") || "").trim();
+  if (!/^\d{2}$/.test(page)) return new Response("bad page", { status: 400 });
+
+  const me = await whoAmI(env, code);
+  if (me.error) return new Response("forbidden", { status: 403 });
+  const i = me.index.findIndex((e) => e.slug === slug);
+  if (i === -1 || !isOpen(me.index, i, me.progress, me.paidThrough)) {
+    return new Response("forbidden", { status: 403 });
+  }
+
+  const b64 = await env.DEMO_KV.get(`slide:${slug}:${page}`);
+  if (!b64) return new Response("not found", { status: 404 });
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  return new Response(bytes, {
+    headers: {
+      "Content-Type": "image/png",
+      "Access-Control-Allow-Origin": "*",
+      // 受講者のブラウザにだけ短く置く。共有キャッシュには載せない
+      "Cache-Control": "private, max-age=3600",
+    },
+  });
+}
+
+/** ワークの提出。これで次の回が開く */
+async function handleSubmit(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const slug = String(body.slug || "").trim();
+  const text = String(body.text || "").trim();
+
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+  if (!text) return json({ error: "ワークが空です" }, 400);
+  if (text.length > MAX_WORK) {
+    return json({ error: `長すぎます。${MAX_WORK}文字以内で入れてください` }, 400);
+  }
+
+  const i = me.index.findIndex((e) => e.slug === slug);
+  if (i === -1) return json({ error: "その回はありません" }, 404);
+  if (!isOpen(me.index, i, me.progress, me.paidThrough)) {
+    return json({ error: "この回はまだ開いていません", locked: true }, 403);
+  }
+
+  const entry = me.index[i];
+  await env.DEMO_KV.put(
+    `work:${code}:${slug}:${Date.now()}`,
+    JSON.stringify({ code, name: me.who.name || "", slug, label: entry.label, text, at: new Date().toISOString() }),
+    { expirationTtl: 60 * 60 * 24 * 365 }
+  );
+
+  // 提出は進むだけ。出し直しても前に戻さない
+  const progress = entry.gates ? Math.max(me.progress, i) : me.progress;
+  if (progress !== me.progress) await env.DEMO_KV.put(`prog:${code}`, String(progress));
+
+  const slack = await toSlack(env, {
+    lesson: `${entry.label} ${entry.title}`,
+    slide: "",
+    name: `${me.who.name || code}（ワーク提出）`,
+    text,
+  });
+
+  const nextEntry = me.index[i + 1];
+  const nowOpen = nextEntry ? isOpen(me.index, i + 1, progress, me.paidThrough) : false;
+  return json({
+    ok: true,
+    delivered: slack.sent,
+    next: nextEntry ? { slug: nextEntry.slug, label: nextEntry.label, open: nowOpen } : null,
+    // 次が開かない理由を、そのまま伝える
+    blocked: nextEntry && !nowOpen ? "次の回は、お申し込みの範囲に入ってから開きます" : "",
+  });
+}
+
+/** 受講者の登録・支払い範囲の更新。合鍵が要る */
+async function handleMember(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  if (!code) return json({ error: "合言葉がありません" }, 400);
+
+  const now = (await member(env, code)) || {};
+  const rec = {
+    name: body.name !== undefined ? String(body.name) : (now.name || ""),
+    paidThrough: body.paidThrough !== undefined ? Number(body.paidThrough) : (now.paidThrough ?? -1),
+    audience: body.audience !== undefined ? String(body.audience) : (now.audience || "student"),
+  };
+  await env.DEMO_KV.put(`member:${code}`, JSON.stringify(rec));
+  return json({ ok: true, code, ...rec });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -301,6 +509,13 @@ export default {
       });
     }
     const url = new URL(request.url);
+
+    // 教材の配信。合言葉ごとに、開いている回だけを返す
+    if (url.pathname === "/me" && request.method === "POST") return handleMe(request, env);
+    if (url.pathname === "/lesson" && request.method === "POST") return handleLesson(request, env);
+    if (url.pathname === "/slide" && request.method === "GET") return handleSlide(url, env);
+    if (url.pathname === "/submit" && request.method === "POST") return handleSubmit(request, env);
+    if (url.pathname === "/member" && request.method === "POST") return handleMember(request, url, env);
 
     // 資料ページからの質問。デモの書き換えとは別の入り口にする
     if (url.pathname === "/ask") {
