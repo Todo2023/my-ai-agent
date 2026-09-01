@@ -26,7 +26,9 @@ CLAUDE.md の設計ルールに従っています。
   個人名が混ざった出力は、画面に出す前に落とします。一度表示された文言は取り消せないためです。
 - 検査に落ちたら1回だけ作り直させ、それでも駄目なら「うまく書き換えられませんでした」と正直に返します。
 
-検査の試験は `node test_worker.mjs` で走ります（ネットワークもAPIキーも使いません）。
+試験は `node test_worker.mjs` で走ります（**18件**／ネットワークもGeminiも使いません）。
+Geminiへの通信を差し替えて、返ってきた内容ごとに何が起きるかを確かめています。
+「2回とも検査に落ちた場合、落とした内容が画面に漏れないこと」もここで見ています。
 
 ## 無料枠と、止まる可能性
 
@@ -34,7 +36,7 @@ Gemini の無料枠には **1分あたり**と**1日あたり**の上限があ�
 **デモ当日は同時アクセスが重なるため、ここが一番止まりやすい場所です。**
 
 そのため 429 は異常ではなく想定内として扱い、画面には
-「いま混み合っています。少し待ってから、もう一度送ってください」と出します。黙って失敗させません。
+「いま混み合っています。**20秒ほど**待ってから、もう一度送ってください」と出します。黙って失敗させません。
 
 アクセスコードで人数を絞れるので、配る枚数で負荷を調整できます。
 
@@ -74,8 +76,11 @@ wrangler secret put ACCESS_CODES
 貼る内容の例（コードは推測されにくい文字列にする）:
 
 ```json
-{"TODO-S-4K7Q":{"audience":"student","max_uses":null},"TODO-P-9XR2":{"audience":"pro","max_uses":null}}
+{"TODO-S-DGX7V":{"audience":"student","max_uses":null},"TODO-S-7TGFH":{"audience":"student","max_uses":null},"TODO-P-TVQQR":{"audience":"pro","max_uses":null},"TODO-P-WJPJ4":{"audience":"pro","max_uses":null}}
 ```
+
+コードは見間違えやすい文字（`0` `O` `1` `I` `S` `5` `B` `8`）を避けて作ってあります。
+口頭やスクリーンショットで伝えても取り違えにくくするためです。
 
 `max_uses` を `null` にすると無制限、`3` にすると3回までです。
 **あとから `wrangler secret put ACCESS_CODES` をやり直すだけで変えられます。**
@@ -91,10 +96,10 @@ wrangler deploy
 
 ### 5. 動作を確かめる
 
+PowerShell では次のように打ちます（`〇〇` は自分のURLに置き換える）。
+
 ```
-curl -X POST https://todo-demo-tool.〇〇.workers.dev \
-  -H "Content-Type: application/json" \
-  -d '{"code":"TODO-S-4K7Q","audience":"student","text":"AIって結局何に使えるんですか"}'
+curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev -H "Content-Type: application/json" -d '{\"code\":\"TODO-S-DGX7V\",\"audience\":\"student\",\"text\":\"AIって結局何に使えるんですか\"}'
 ```
 
 書き換えた問いと説明が返れば成功です。
