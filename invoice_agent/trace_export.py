@@ -7,6 +7,10 @@
 承認ゲート（interrupt）はシナリオごとに回答を台本として与える。人が座っていなくても
 一通り流し切るための割り切りで、**本番の承認を自動化するものではない**。
 
+このスクリプトは実際に generate ノードまで通すため、副作用としてサンプルPDFが作られ、
+請求書番号の連番（invoice_counter.json）も進む。デモのために本番の採番を汚さないよう、
+実行前後で連番ファイルを退避・復元し、この実行で増えたPDFは後片付けする。
+
 使い方:
     uv run trace_export.py            # docs/trace_data.js を書き出す
     uv run trace_export.py --dry      # LLMを呼ばずに、書き出し先と台本だけ確認する
@@ -15,11 +19,35 @@
 """
 
 import argparse
+import contextlib
 import datetime as dt
 import json
 from pathlib import Path
 
-OUTPUT = Path(__file__).resolve().parent.parent / "docs" / "trace_data.js"
+HERE = Path(__file__).resolve().parent
+OUTPUT = HERE.parent / "docs" / "trace_data.js"
+COUNTER_FILE = HERE / "invoice_counter.json"
+
+
+@contextlib.contextmanager
+def no_side_effects():
+    """請求書番号の連番を元に戻し、この実行で増えたPDFを消す。"""
+    counter_before = COUNTER_FILE.read_text() if COUNTER_FILE.exists() else None
+    pdfs_before = {p.name for p in HERE.glob("*.pdf")}
+    try:
+        yield
+    finally:
+        if counter_before is None:
+            COUNTER_FILE.unlink(missing_ok=True)
+        else:
+            COUNTER_FILE.write_text(counter_before)
+        created = sorted(p for p in HERE.glob("*.pdf") if p.name not in pdfs_before)
+        for p in created:
+            p.unlink()
+        if created:
+            print(f"後片付け: この実行で作られたPDF {len(created)}件を削除しました")
+        print("請求書番号の連番は実行前の状態に戻しました")
+
 
 # 画面の表示用メタ情報。ノード名 → (種別, 処理の流れの行番号, 吹き出し, 説明)
 # 種別: llm=LLM判断 / code=決定的な処理 / ext=外部I/O / human=人間の承認
@@ -154,7 +182,8 @@ def main() -> None:
 
     import graph_agent
 
-    runs = [run_scenario(s, i) for i, s in enumerate(SCENARIOS)]
+    with no_side_effects():
+        runs = [run_scenario(s, i) for i, s in enumerate(SCENARIOS)]
     payload = {
         "generated_at": f"{dt.datetime.now():%Y-%m-%d %H:%M}",
         "model": graph_agent.MODEL,
