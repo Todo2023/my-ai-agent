@@ -3,7 +3,9 @@
 **中身のテキストだけ書いてください。見た目はこちらで持ちます。**
 
 - 元原稿：`curriculum/lesson-00.md` 〜 `lesson-12.md`（デモ1回＋本編12回の全13回）
+- スライドの元：`curriculum/slides_src/lesson-NN.pptx`（**docs/ の外に置いています**。後述）
 - 表示用ページ：`docs/lesson-00.html` 〜 と `docs/lessons.html`（**自動で作られます。直接編集しないでください**）
+- スライドの画像：`docs/slides/lesson-NN/01.png`〜（**自動で作られます**）
 
 ## 手順
 
@@ -150,3 +152,25 @@ python -c "import hashlib;print(hashlib.sha256('新しいパスワード'.encode
 一覧の「全◯回」も自動で数え直します。
 
 **消した回の `docs/lesson-NN.html` は自動では消えません。**手で削除してください。
+
+## スライドについて
+
+受講者には**ページの中で読んでもらいます。ファイルは配りません。**
+各回のページの上部にスライドが埋め込まれていて、「次 →」ボタンか矢印キーで送れます。
+
+### 元ファイルを docs/ に置かない理由
+
+`docs/` の中身は、そのままWebに出ます。**PowerPointを docs/ に置いた時点で、
+URLを知っている人がダウンロードできる状態**になります。
+そのため元は `curriculum/slides_src/` に置き、**出来上がった画像だけ**を `docs/` に入れています。
+
+なお、画像そのものは保存できます。**これは「配らない」であって「守る」ではありません。**
+外に出せない情報はスライドに載せないでください。
+
+### スライドを差し替えるとき
+
+**この変換はTodoさんのPCでは行いません。**LibreOfficeという別のソフトが要るためです。
+差し替えたい `.pptx` を**Claudeに渡してください。**こちらで変換して入れます。
+
+（こちらでの手順：`curriculum/slides_src/` に置いて
+`uv run --with pymupdf curriculum/slides.py` → `uv run curriculum/build.py`）
