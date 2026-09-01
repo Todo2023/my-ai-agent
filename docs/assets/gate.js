@@ -2,8 +2,22 @@
    ※ 静的サイトのためクライアント側判定です。ページのHTMLは
    ブラウザの開発者ツールから読めます。機密情報は載せないでください。 */
 (function () {
-  var HASH = '642905494fc12dfadc1787f908d2783cced3b48a9c62261a432db88ce297ec32';
-  var KEY = 'todo-site-gate';
+  /* 鍵は2つある。どちらを使うかは、読み込む側の script タグで指定する。
+     指定が無ければLP用（既定）。ファイルを2つに分けないのは、
+     直す場所を1か所に保つため。 */
+  var GATES = {
+    site:   { hash: '642905494fc12dfadc1787f908d2783cced3b48a9c62261a432db88ce297ec32',
+              key: 'todo-site-gate',
+              lead: '公開前のプレビューです。ご案内したパスワードを入力してください。' },
+    lesson: { hash: '28a9541e7c11809449fa1accc220bd07c1a46f0ef85c6039dffdb7242121c307',
+              key: 'todo-lesson-gate',
+              lead: '受講者向けの資料です。お申し込み後にご案内したパスワードを入力してください。' }
+  };
+  var me = document.currentScript;
+  var gateName = (me && me.getAttribute('data-gate')) || 'site';
+  var conf = GATES[gateName] || GATES.site;
+  var HASH = conf.hash;
+  var KEY = conf.key;
 
   try { if (sessionStorage.getItem(KEY) === HASH) return; } catch (e) {}
 
@@ -41,7 +55,7 @@
       '<div class="gate-box">' +
       '<div class="k">Preview</div>' +
       '<h1>合同会社Todo — 思考力×AI講座</h1>' +
-      '<p>公開前のプレビューです。ご案内したパスワードを入力してください。</p>' +
+      '<p>' + conf.lead + '</p>' +
       '<form><input type="password" autocomplete="current-password" aria-label="パスワード" placeholder="パスワード" autofocus><button type="submit">表示する</button></form>' +
       '<p class="gate-err" role="status"></p>' +
       '</div>';
