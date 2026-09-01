@@ -42,7 +42,7 @@ const MAX_INPUT = 400;
 const MAX_QUESTION = 90;
 const MAX_EXPLANATION = 220;
 
-function buildPrompt(audience, text) {
+export function buildPrompt(audience, text) {
   const a = AUDIENCE[audience];
   return `あなたは「思考力×AI統合講座」の添削担当です。${a.context}から、次の問い（または一文）が届きました。
 
@@ -77,17 +77,19 @@ function buildPrompt(audience, text) {
 ${text}`;
 }
 
+/* Gemini の REST は型名を大文字で受け取る。小文字は版によって弾かれるため、
+   デモ当日に初めて 400 が返る事故を避けてこの形にしている。 */
 const SCHEMA = {
-  type: "object",
+  type: "OBJECT",
   properties: {
-    question: { type: "string" },
-    explanation: { type: "string" },
+    question: { type: "STRING" },
+    explanation: { type: "STRING" },
   },
   required: ["question", "explanation"],
 };
 
 /** 出力を機械的に検査する。LLM に守らせるのではなく、ここで落とす。 */
-function check(result, original) {
+export function check(result, original) {
   const q = (result.question || "").trim();
   const e = (result.explanation || "").trim();
   const problems = [];
@@ -138,6 +140,9 @@ async function useCode(env, code) {
 }
 
 async function askGemini(env, prompt) {
+  if (!env.GEMINI_API_KEY) {
+    return { error: "GEMINI_API_KEY が登録されていません（wrangler secret put GEMINI_API_KEY）" };
+  }
   const model = env.GEMINI_MODEL || MODEL;
   const res = await fetch(`${ENDPOINT(model)}?key=${env.GEMINI_API_KEY}`, {
     method: "POST",
@@ -203,7 +208,10 @@ export default {
     for (let attempt = 0; attempt < 2; attempt++) {
       const out = await askGemini(env, prompt);
       if (out.rateLimited) {
-        return json({ error: "いま混み合っています。少し待ってから、もう一度送ってください", retry: true }, 429);
+        return json({
+          error: "いま混み合っています。20秒ほど待ってから、もう一度送ってください",
+          retry: true, retryAfterSeconds: 20,
+        }, 429);
       }
       if (out.error) return json({ error: out.error }, 502);
 
@@ -223,5 +231,7 @@ export default {
         return json({ error: "うまく書き換えられませんでした。言い回しを変えて、もう一度試してください", retry: true }, 422);
       }
     }
+    // ここには来ない想定。来たときに応答なしで落ちないための保険
+    return json({ error: "うまく書き換えられませんでした。もう一度試してください", retry: true }, 500);
   },
 };
