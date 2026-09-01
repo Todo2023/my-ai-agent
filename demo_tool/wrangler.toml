@@ -4,10 +4,11 @@ main = "worker.js"
 compatibility_date = "2026-01-01"
 
 # 利用回数と利用ログを置く場所。無料枠は 1日10万読み取り / 1000書き込み。
-# デモの規模なら使い切らない。id は wrangler kv namespace create で発行された値に差し替える。
+# デモの規模なら使い切らない。この id は 2026-09-01 に wrangler kv namespace create で発行されたもの。
+# 識別子であって鍵ではないため、ここに書いてよい（読み書きにはCloudflareの認証が要る）。
 [[kv_namespaces]]
 binding = "DEMO_KV"
-id = "ここに wrangler が発行した ID を貼る"
+id = "4e1b83785ddc4e63a3cac2d263ace7c4"
 
 [vars]
 # 1コードあたりの利用回数の上限。数字にすると上限あり、空にすると無制限。
