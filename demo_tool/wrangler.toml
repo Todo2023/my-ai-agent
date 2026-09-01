@@ -1,0 +1,19 @@
+# Cloudflare Workers の設定。デプロイの手順は README.md を参照。
+name = "todo-demo-tool"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# 利用回数と利用ログを置く場所。無料枠は 1日10万読み取り / 1000書き込み。
+# デモの規模なら使い切らない。id は wrangler kv namespace create で発行された値に差し替える。
+[[kv_namespaces]]
+binding = "DEMO_KV"
+id = "ここに wrangler が発行した ID を貼る"
+
+[vars]
+# 1コードあたりの利用回数の上限。数字にすると上限あり、空にすると無制限。
+# コードに直書きせず、ここだけを変えれば済むようにしてある（仕様書の意図）。
+DEFAULT_MAX_USES = ""
+GEMINI_MODEL = "gemini-3.6-flash"
+
+# GEMINI_API_KEY と ACCESS_CODES は secret として登録する（README 参照）。
+# ここには絶対に書かない。このファイルは GitHub に入る。
