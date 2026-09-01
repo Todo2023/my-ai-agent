@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 限定公開。アクセスコードを持つ人だけが使う。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>問いを、磨いてみる。｜思考力×AI統合講座 デモ</title>
+<meta name="description" content="曖昧な問いを、意思決定に直結する問いに書き換えて返します。思考力×AI統合講座のデモ体験ツール。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/hero.css">
+<style>
+.demo{padding:56px 0 72px;max-width:660px;}
+.demo .lead{font-size:14.5px;color:var(--text-soft);margin:0 0 34px;}
+
+.field{margin-bottom:22px;}
+.field label{display:block;font-size:12px;letter-spacing:.1em;color:var(--text-soft);
+  margin-bottom:9px;text-transform:uppercase;}
+.field textarea,.field input{width:100%;font:inherit;font-size:15px;padding:14px 16px;
+  border:1px solid var(--hairline-strong);background:#fff;color:var(--ink);border-radius:0;}
+.field textarea{min-height:130px;resize:vertical;line-height:1.8;}
+.field textarea:focus,.field input:focus{outline:2px solid var(--red);outline-offset:2px;}
+.field .hint{font-size:12.5px;color:var(--text-soft);margin:8px 0 0;}
+.counter{float:right;font-size:12px;color:var(--text-soft);font-variant-numeric:tabular-nums;}
+.counter.over{color:var(--red-deep);}
+
+.actions{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+.btn[disabled]{opacity:.45;cursor:not-allowed;}
+.status{font-size:13px;color:var(--text-soft);}
+
+.answer{margin-top:44px;border-top:1px solid var(--hairline-strong);padding-top:34px;}
+.answer .k{font-size:11px;letter-spacing:.22em;color:var(--red);margin-bottom:16px;text-transform:uppercase;}
+.was{font-size:13px;color:var(--text-soft);margin:0 0 8px;}
+.was span{color:#b3ada0;text-decoration:line-through;text-decoration-color:var(--red);}
+.now{font-family:'Shippori Mincho',serif;font-size:clamp(20px,3.4vw,29px);font-weight:700;
+  line-height:1.6;color:var(--ink);margin:0 0 24px;}
+.why{font-size:14px;color:var(--ink);border-left:3px solid var(--red);background:var(--red-bg);
+  padding:18px 22px;margin:0;}
+
+.cta{margin-top:40px;border-top:1px solid var(--hairline);padding-top:32px;}
+.cta h2{font-family:'Shippori Mincho',serif;font-size:19px;margin:0 0 10px;}
+.cta p{font-size:13.6px;color:var(--text-soft);margin:0 0 22px;max-width:44ch;}
+
+.notice{border:1px dashed var(--hairline-strong);padding:16px 18px;font-size:13.4px;
+  color:var(--text-soft);margin:0 0 28px;}
+.notice.bad{border-style:solid;border-color:var(--red);color:var(--red-deep);background:var(--red-bg);margin-top:30px;}
+
+@media (prefers-reduced-motion:no-preference){
+  .answer{animation:rise .45s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">合同会社To<em>do</em> — 思考力×AI講座</a>
+    <span class="navsoon">デモ体験<em>限定公開</em></span>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section class="demo">
+    <span class="eyebrow">Demo — 問いを磨く</span>
+    <h1 class="fixed" style="margin:0 0 22px;">その問い、<br>答えが返る形になっていますか？</h1>
+    <p class="lead" id="lead">
+      いま手元にある、うまく言葉にできない問いを1つ入れてください。
+      <b>意思決定に直結する問い</b>に書き換えて返します。書き換えの理由も一緒に出します。
+    </p>
+
+    <div class="notice" id="setup" hidden>
+      このページはまだ接続先が設定されていません。<code>docs/demo.html</code> の <code>API_URL</code> に、
+      Cloudflare Workers の URL を入れてください。
+    </div>
+
+    <form id="form">
+      <div class="field" id="codefield">
+        <label for="code">アクセスコード</label>
+        <input id="code" name="code" autocomplete="off" spellcheck="false" placeholder="お渡ししたコードを入れてください">
+      </div>
+
+      <div class="field">
+        <label for="text">あなたの問い<span class="counter" id="counter">0 / 400</span></label>
+        <textarea id="text" name="text" maxlength="400" placeholder=""></textarea>
+        <p class="hint" id="hint"></p>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="go">問いを磨く</button>
+        <span class="status" id="status"></span>
+      </div>
+    </form>
+
+    <div id="answer" hidden></div>
+  </section>
+
+  <footer>合同会社Todo　思考力×AI統合講座　<a href="index.html">学生向け</a>　<a href="pro.html">社会人・個人事業主向け</a>　<a href="contact.html">お問い合わせ</a>　<a href="tokushoho.html">特定商取引法に基づく表記</a></footer>
+</main>
+
+<script>
+/* 接続先。wrangler deploy が表示した URL をここに入れる。 */
+const API_URL = "";
+
+/* 学生向け／社会人向けで変えるのは、呼びかけと例文と申込先だけ。
+   書き換えの中身はサーバ側の1つのプロンプトで共通。 */
+const COPY = {
+  student: {
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。エントリーシートの一文でも、ゼミの問いでも構いません。<b>意思決定に直結する問い</b>に書き換えて返します。',
+    placeholder: '例：AIって結局何に使えるんですか\n例：御社の企業理念に共感しました\n例：もっと具体的に書きたいです',
+    hint: 'そのままコピーして貼って構いません。整えなくて大丈夫です。',
+    ctaTitle: '10月1日から、これを毎月やります。',
+    ctaBody: '月1回の講義、Slackでの常時接点、提出物への添削。少人数（10名程度）で運営します。紹介コードをお持ちの方は、そのままお申し込みいただけます。',
+    ctaHref: 'apply.html',
+    ctaLabel: 'お申し込み・お問い合わせ',
+  },
+  pro: {
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。提案書の一文でも、業務の判断に迷っている点でも構いません。<b>意思決定に直結する問い</b>に書き換えて返します。',
+    placeholder: '例：AIを活用して業務効率化を図りたい\n例：この施策は成長につながると思います\n例：何から手をつけるべきか分からない',
+    hint: '守秘に関わる部分は伏せて構いません。伏せたままでも書き換えは成立します。',
+    ctaTitle: '10月1日から、これを毎月やります。',
+    ctaBody: '題材はご自身の実務です。練習用の課題は使いません。料金は学生向けとは別に設定します。まずは今の課題を聞かせてください。',
+    ctaHref: 'contact.html',
+    ctaLabel: 'お問い合わせ・お申し込み',
+  },
+};
+
+const params = new URLSearchParams(location.search);
+const audience = params.get('audience') === 'pro' ? 'pro' : 'student';
+const copy = COPY[audience];
+
+const $ = (id) => document.getElementById(id);
+$('lead').innerHTML = copy.lead;
+$('text').placeholder = copy.placeholder;
+$('hint').textContent = copy.hint;
+
+const preset = params.get('code');
+if (preset) {
+  $('code').value = preset.trim().toUpperCase();
+  $('codefield').hidden = true;
+}
+if (!API_URL) $('setup').hidden = false;
+
+$('text').addEventListener('input', (e) => {
+  const n = e.target.value.length;
+  const c = $('counter');
+  c.textContent = n + ' / 400';
+  c.classList.toggle('over', n >= 400);
+});
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function showAnswer(original, data) {
+  $('answer').hidden = false;
+  $('answer').innerHTML =
+    '<div class="answer">' +
+      '<div class="k">書き換えました</div>' +
+      '<p class="was">元の問い：<span>' + escapeHtml(original) + '</span></p>' +
+      '<p class="now">' + escapeHtml(data.question) + '</p>' +
+      '<p class="why">' + escapeHtml(data.explanation) + '</p>' +
+      '<div class="cta">' +
+        '<h2>' + copy.ctaTitle + '</h2>' +
+        '<p>' + copy.ctaBody + '</p>' +
+        '<a class="btn btn-primary" href="' + copy.ctaHref + '">' + copy.ctaLabel + '</a>' +
+      '</div>' +
+    '</div>';
+  $('answer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showError(message) {
+  $('answer').hidden = false;
+  $('answer').innerHTML = '<div class="notice bad">' + escapeHtml(message) + '</div>';
+}
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = $('text').value.trim();
+  if (!text) { $('status').textContent = '問いを入れてください。'; return; }
+  if (!API_URL) { showError('接続先が設定されていません。運営に連絡してください。'); return; }
+
+  $('go').disabled = true;
+  $('status').textContent = '磨いています…';
+  $('answer').hidden = true;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: $('code').value.trim().toUpperCase(), audience, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      // 429（混雑）も 422（書き換え失敗）も、原因を隠さずそのまま伝える
+      showError(data.error || 'うまくいきませんでした。もう一度試してください。');
+    } else {
+      showAnswer(text, data);
+    }
+  } catch {
+    showError('通信に失敗しました。電波の届く場所で、もう一度試してください。');
+  } finally {
+    $('go').disabled = false;
+    $('status').textContent = '';
+  }
+});
+</script>
+
+</body>
+</html>
