@@ -34,8 +34,10 @@ APIキーは `.env` から読み込みます（`GEMINI_API_KEY`）。
 echo 'GEMINI_API_KEY=＜取得したキー＞' > .env
 ```
 
-PDFの日本語フォントとして IPAゴシック（`/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf`）を
-使います。無い場合は `invoice.py` の `FONT_PATH` を環境に合わせて書き換えてください。
+PDFの日本語フォントは `invoice.py` が環境に合わせて自動で探します（Linux: IPAゴシック、
+Windows: メイリオ／游ゴシック／MSゴシック、macOS: ヒラギノ角ゴ）。Windows・macOSの標準フォントは
+TTC形式で fpdf2 がそのまま読めないため、先頭の1書体だけをTTFに書き出して使います。
+別のフォントを使いたい場合は、環境変数 `INVOICE_FONT_PATH` にパスを設定してください。
 
 ## 実行方法
 

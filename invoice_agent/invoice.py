@@ -10,12 +10,53 @@
 import datetime as dt
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 import openpyxl
 from fpdf import FPDF
 
-FONT_PATH = "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf"
+# 日本語フォントの探索順。環境ごとに置き場所が違うため、実在するものを先頭から選ぶ。
+# 先頭のIPAゴシックはLinux（開発時の標準環境）で、これがあるときの出力は従来と変わらない。
+FONT_CANDIDATES = [
+    "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",       # Linux: IPAゴシック
+    "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",      # Linux: 別系統の日本語ゴシック
+    r"C:\Windows\Fonts\meiryo.ttc",                          # Windows: メイリオ
+    r"C:\Windows\Fonts\YuGothM.ttc",                         # Windows: 游ゴシック Medium
+    r"C:\Windows\Fonts\msgothic.ttc",                        # Windows: MS ゴシック
+    "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",            # macOS: ヒラギノ角ゴ
+]
+
+
+def resolve_font_path() -> str:
+    """PDFに使う日本語フォントのパスを決める。
+
+    fpdf2 は TTC（複数書体をまとめたファイル）をそのまま読めないため、
+    WindowsやmacOSの標準フォントを使う場合は1書体だけをTTFに書き出して渡す。
+    環境変数 INVOICE_FONT_PATH があれば、それを最優先で使う。
+    """
+    import os
+
+    override = os.environ.get("INVOICE_FONT_PATH")
+    candidates = [override] if override else FONT_CANDIDATES
+
+    for path in candidates:
+        if not path or not Path(path).exists():
+            continue
+        if not path.lower().endswith(".ttc"):
+            return path
+        # TTCの先頭の書体をTTFとして一時ファイルに書き出す（毎回作り直さないようキャッシュ）
+        from fontTools.ttLib import TTFont
+
+        cached = Path(tempfile.gettempdir()) / f"invoice_font_{Path(path).stem}.ttf"
+        if not cached.exists():
+            TTFont(path, fontNumber=0).save(cached)
+        return str(cached)
+
+    raise FileNotFoundError(
+        "日本語フォントが見つかりませんでした。使いたいフォントのパスを "
+        "環境変数 INVOICE_FONT_PATH に設定してください（例: C:\\Windows\\Fonts\\meiryo.ttc）。"
+    )
 
 ISSUER = {
     "name": "合同会社To do",
@@ -172,7 +213,7 @@ def create_invoice_pdf(
     pdf.set_margins(15, 15, 15)
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-    pdf.add_font("IPAGothic", "", FONT_PATH)
+    pdf.add_font("IPAGothic", "", resolve_font_path())
     page_w = pdf.w - pdf.l_margin - pdf.r_margin  # 180mm
 
     # 発行日・No（右上）
