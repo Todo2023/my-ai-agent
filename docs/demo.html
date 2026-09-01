@@ -102,8 +102,9 @@
 </main>
 
 <script>
-/* 接続先。wrangler deploy が表示した URL をここに入れる。 */
-const API_URL = "";
+/* 接続先。2026-09-01 の wrangler deploy で作られた Worker。
+   ここが空だと、画面に「接続先が設定されていません」と出る。 */
+const API_URL = "https://todo-demo-tool.todo-inc-2023-10-13.workers.dev";
 
 /* 学生向け／社会人向けで変えるのは、呼びかけと例文と申込先だけ。
    書き換えの中身はサーバ側の1つのプロンプトで共通。 */
