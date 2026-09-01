@@ -72,7 +72,7 @@
           <span class="asker-state" id="ask-state" role="status"></span>
         </div>
         <input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">
-        <p class="writer-note">運営に直接届きます。名前は空でも構いません。答えはSlackでお返しします。</p>
+        <p class="writer-note">運営に直接届きます。名前は空でも構いません。<b>質問は24時間以内に回答します。</b>答えはSlackでお返しします。</p>
       </div>
     </div>
   </section>
@@ -215,7 +215,11 @@
       askSend.disabled = false;
       if (!res.ok) { askSay(res.d.error || '送れませんでした'); return; }
       ask.value = '';
-      askSay('送りました。ありがとうございます');
+      /* 運営に通知が飛んだかどうかを、そのまま伝える。
+         「送りました」とだけ出すと、届いていないときに誰も気づけない */
+      askSay(res.d.delivered
+        ? '送りました。24時間以内にお返事します'
+        : '受け付けました。ただ運営への通知が届いていない可能性があります。Slackでも一声かけてください');
     }).catch(function () {
       askSend.disabled = false;
       askSay('送れませんでした。通信を確かめて、もう一度お願いします');
