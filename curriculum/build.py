@@ -23,7 +23,7 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / "docs"
 
 # 冒頭の情報欄で使う項目。ここに無いキーは本文の前の注記として扱う
-META_KEYS = ["回", "種別", "題", "日付", "所要", "ねらい"]
+META_KEYS = ["回", "種別", "題", "日付", "所要", "ねらい", "スライド"]
 
 EMPTY_MARKS = ("未記入", "（未記入）", "TODO", "未定")
 
@@ -230,7 +230,7 @@ HEAD = """<!DOCTYPE html>
 <nav class="nav">
   <div class="nav-inner">
     <a class="logo" href="lessons.html">合同会社To<em>do</em> — 講座資料</a>
-    <a class="navlink" href="lessons.html">10回の一覧 →</a>
+    <a class="navlink" href="lessons.html">資料の一覧 →</a>
   </div>
 </nav>
 
@@ -261,12 +261,18 @@ def render_lesson(lesson: Lesson, prev: Lesson | None, nxt: Lesson | None) -> st
     if nxt:
         nav.append(f'<a href="{nxt.slug}.html">第{html.escape(str(nxt.number))}回 →</a>')
 
+    slide = ""
+    if m.get("スライド"):
+        slide = (f'<a class="slide" href="{html.escape(m["スライド"])}" download>'
+                 "スライドをダウンロード<em>PowerPoint</em></a>")
+
     return (HEAD.format(title=html.escape(lesson.title))
             + f"""  <div class="lesson-head">
     <div class="kicker">第{html.escape(str(lesson.number))}回{badge}</div>
     <h1>{inline(lesson.title)}</h1>
     {aim}
     <div class="facts">{factline}</div>
+    {slide}
   </div>
 
   <article class="body">
