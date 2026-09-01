@@ -30,18 +30,35 @@
     <div class="facts"><span><em>日付</em>2026-10-01</span><span><em>所要</em>60分</span><span><em>種別</em>思考力</span></div>
   </div>
 
-  <figure class="deck" data-slug="lesson-01" data-total="13">
-    <div class="deck-stage">
-      <img id="deck-img" src="slides/lesson-01/01.png" alt="第1回 スライド 1"
-           draggable="false" decoding="async">
+  <section class="studio" data-slug="lesson-01" data-total="13">
+    <div class="studio-inner">
+      <div class="deck">
+        <div class="deck-stage">
+          <img id="deck-img" src="slides/lesson-01/01.png" alt="第1回 スライド 1"
+               draggable="false" decoding="async">
+        </div>
+        <div class="deck-bar">
+          <button type="button" class="deck-btn" id="deck-prev" aria-label="前のスライド" disabled>← 前</button>
+          <span class="deck-count"><b id="deck-now">1</b> / 13<em>矢印キーでも進みます</em></span>
+          <button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>
+        </div>
+      </div>
+
+      <div class="writer">
+        <div class="writer-head">
+          <label for="work">ワークを書く</label>
+          <span class="writer-state" id="work-state" role="status"></span>
+        </div>
+        <textarea id="work" spellcheck="false"
+          placeholder="スライドを見ながら、ここに書いてください。&#10;書いたものは、コピーしてSlackの公開スレッドに投稿します。"></textarea>
+        <div class="writer-bar">
+          <button type="button" class="deck-btn" id="work-copy">コピーする</button>
+          <button type="button" class="deck-btn writer-clear" id="work-clear">消す</button>
+          <p class="writer-note">この欄は<b>あなたのブラウザの中にだけ</b>残ります。運営には届きません。書けたらコピーして、Slackに貼って提出してください。</p>
+        </div>
+      </div>
     </div>
-    <figcaption class="deck-bar">
-      <button type="button" class="deck-btn" id="deck-prev" aria-label="前のスライド" disabled>← 前</button>
-      <span class="deck-count"><b id="deck-now">1</b> / 13</span>
-      <button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>
-    </figcaption>
-    <p class="deck-note">矢印キーでも進めます。</p>
-  </figure>
+  </section>
 
   <article class="body">
       <h2>この回の目的</h2>
@@ -79,43 +96,81 @@
 </main>
 
 <script>
-/* スライドを送る。画像を入れ替えるだけで、外には何も送らない。 */
 (function () {
-  var deck = document.querySelector('.deck');
-  if (!deck) return;
-  var total = Number(deck.dataset.total);
-  var slug = deck.dataset.slug;
+  var studio = document.querySelector('.studio');
+  if (!studio) return;
+
+  /* --- スライドを送る。画像を入れ替えるだけで、外には何も送らない --- */
+  var total = Number(studio.dataset.total);
+  var slug = studio.dataset.slug;
   var img = document.getElementById('deck-img');
   var now = document.getElementById('deck-now');
   var prev = document.getElementById('deck-prev');
   var next = document.getElementById('deck-next');
   var i = 1;
 
-  // 次の1枚を先に読み込んでおく。押した瞬間に白くならないように
-  function preload(n) {
-    if (n < 1 || n > total) return;
-    var im = new Image();
-    im.src = 'slides/' + slug + '/' + String(n).padStart(2, '0') + '.png';
-  }
+  function src(n) { return 'slides/' + slug + '/' + String(n).padStart(2, '0') + '.png'; }
+  function preload(n) { if (n >= 1 && n <= total) { new Image().src = src(n); } }
 
   function show(n) {
     i = Math.min(Math.max(n, 1), total);
-    img.src = 'slides/' + slug + '/' + String(i).padStart(2, '0') + '.png';
+    img.src = src(i);
     img.alt = img.alt.replace(/スライド \d+/, 'スライド ' + i);
     now.textContent = i;
     prev.disabled = i === 1;
     next.disabled = i === total;
     preload(i + 1);
   }
-
   prev.addEventListener('click', function () { show(i - 1); });
   next.addEventListener('click', function () { show(i + 1); });
   document.addEventListener('keydown', function (e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.key === 'ArrowLeft') { show(i - 1); }
-    if (e.key === 'ArrowRight') { show(i + 1); }
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft') show(i - 1);
+    if (e.key === 'ArrowRight') show(i + 1);
   });
   preload(2);
+
+  /* --- ワーク欄。書いたものはこのブラウザにだけ残す --- */
+  var box = document.getElementById('work');
+  var state = document.getElementById('work-state');
+  var KEY = 'todo-work-' + slug;
+  var timer;
+
+  function say(text) {
+    state.textContent = text;
+    clearTimeout(timer);
+    timer = setTimeout(function () { state.textContent = ''; }, 2200);
+  }
+
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved) { box.value = saved; state.textContent = '前回の続きを開いています'; }
+  } catch (e) {}
+
+  var saveTimer;
+  box.addEventListener('input', function () {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try { localStorage.setItem(KEY, box.value); say('保存しました'); } catch (e) {}
+    }, 600);
+  });
+
+  document.getElementById('work-copy').addEventListener('click', function () {
+    if (!box.value.trim()) { say('まだ何も書かれていません'); return; }
+    navigator.clipboard.writeText(box.value).then(
+      function () { say('コピーしました。Slackに貼ってください'); },
+      function () { box.select(); say('選択しました。Ctrl+Cでコピーしてください'); }
+    );
+  });
+
+  document.getElementById('work-clear').addEventListener('click', function () {
+    if (!box.value.trim()) return;
+    if (!confirm('書いた内容を消します。よろしいですか。')) return;
+    box.value = '';
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    say('消しました');
+    box.focus();
+  });
 })();
 </script>
 
