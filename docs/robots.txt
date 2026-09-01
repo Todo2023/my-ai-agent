@@ -1,0 +1,5 @@
+# デモ日（2026-09-21）までは宣伝用ページのみを公開する。
+# 本体ページは noindex を各HTMLに入れてある（robots.txt で弾くと noindex を読ませられないため、
+# ここでは crawl を止めない）。
+User-agent: *
+Allow: /
