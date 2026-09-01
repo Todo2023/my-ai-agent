@@ -2,7 +2,7 @@
 
 **中身のテキストだけ書いてください。見た目はこちらで持ちます。**
 
-- 元原稿：`curriculum/lesson-00.md` 〜 `lesson-09.md`（デモを含めて全10回）
+- 元原稿：`curriculum/lesson-00.md` 〜 `lesson-12.md`（デモ1回＋本編12回の全13回）
 - 表示用ページ：`docs/lesson-00.html` 〜 と `docs/lessons.html`（**自動で作られます。直接編集しないでください**）
 
 ## 手順
@@ -112,3 +112,13 @@ AIって結局何に使えるの | 自分の意思決定にAIをどう組み込�
 
 `uv run --with pytest python -m pytest curriculum/test_build.py -q` で12件走ります。
 書式を増やしたいときは、ここに1件足してから直してください。
+
+## 回を増やす・減らす
+
+`curriculum/lesson-NN.md` を足すか消すだけです。**番号は連番でなくても動きます**が、
+ファイル名の順に並ぶので、2桁（`lesson-10.md`）で揃えてください。
+
+足したあとは `uv run curriculum/build.py` を実行してください。
+一覧の「全◯回」も自動で数え直します。
+
+**消した回の `docs/lesson-NN.html` は自動では消えません。**手で削除してください。
