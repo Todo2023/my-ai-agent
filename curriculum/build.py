@@ -223,7 +223,7 @@ HEAD = """<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/lesson.css">
-<script src="assets/gate.js"></script>
+<script src="assets/gate.js" data-gate="lesson"></script>
 </head>
 <body>
 
