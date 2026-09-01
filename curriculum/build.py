@@ -292,7 +292,7 @@ def render_index(lessons: list[Lesson]) -> str:
             + f"""  <div class="lesson-head">
     <div class="kicker">Curriculum</div>
     <h1>講座資料</h1>
-    <p class="aim">デモを含めた全10回。書き上がった回から順に開けるようになります。</p>
+    <p class="aim">デモ1回と本編{len(lessons) - 1}回。書き上がった回から順に開けるようになります。</p>
     <div class="facts"><span><em>書けている回</em>{done} / {len(lessons)}</span></div>
   </div>
 
