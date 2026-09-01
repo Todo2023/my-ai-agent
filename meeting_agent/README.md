@@ -24,9 +24,11 @@ https://meet.google.com/xxx-yyyy-zzz
 
 ```bash
 cd meeting_agent
-pip install -r requirements.txt
-python demo.py
+uv run python demo.py
 ```
+
+依存管理は uv に統一しています（`pyproject.toml` / `uv.lock`）。uv を入れていない場合は
+`pip install -r requirements.txt` のうえ `python demo.py` でも動きます。
 
 > Windowsの場合、タイムゾーン解決に `tzdata` が必要です（requirements.txt に含めています）。
 > `No time zone found with key Asia/Tokyo` と出たら `pip install tzdata` を実行してください。
@@ -72,7 +74,7 @@ Chatwork にログインし、右上のアカウント名 →「サービス連�
 
 ```bash
 cd meeting_agent
-pip install -r requirements.txt
+uv sync
 cp .env.example .env
 # .env を編集して GEMINI_API_KEY と CHATWORK_API_TOKEN を設定
 ```
@@ -80,7 +82,7 @@ cp .env.example .env
 ## 実行
 
 ```bash
-python cli.py
+uv run python cli.py
 ```
 
 終了するには `exit` または `quit` と入力してください。
@@ -146,7 +148,7 @@ Googleカレンダーの設定 →「特定のユーザーとの共有」→ 相
 ネットワークもAPIキーも使わずに実行できます。
 
 ```bash
-pytest
+uv run --group dev pytest
 ```
 
 日時解釈・文面整形といった決定的な処理に加えて、

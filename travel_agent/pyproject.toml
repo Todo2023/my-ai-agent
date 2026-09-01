@@ -1,0 +1,11 @@
+[project]
+name = "travel-agent"
+version = "0.1.0"
+description = "対話形式で旅行プランを提案するエージェント"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ddgs>=9.0.0",
+    "google-genai>=2.16.0",
+    "python-dotenv>=1.0.0",
+]
