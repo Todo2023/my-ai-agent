@@ -347,16 +347,24 @@ def render_lesson(lesson: Lesson, prev: Lesson | None, nxt: Lesson | None) -> st
     if nxt:
         nav.append(f'<a href="{nxt.slug}.html">第{html.escape(str(nxt.number))}回 →</a>')
 
-    slide = ""
+    info = f"""<div class="info">
+        <div class="kicker">第{html.escape(str(lesson.number))}回{badge}</div>
+        <h1>{inline(lesson.title)}</h1>
+        {aim}
+        <div class="facts">{factline}</div>
+      </div>"""
+
     n = SLIDES.get(lesson.slug, 0)
     if n:
-        first = f"slides/{lesson.slug}/01.png"
-        slide = f'''
-  <section class="studio" data-slug="{lesson.slug}" data-total="{n}">
+        # スライドがある回は、この情報を横に寄せてスライドを上に出す
+        head = f'''  <section class="studio" data-slug="{lesson.slug}" data-total="{n}">
     <div class="studio-inner">
+      {info}
+
       <div class="deck">
         <div class="deck-stage">
-          <img id="deck-img" src="{first}" alt="第{html.escape(str(lesson.number))}回 スライド 1"
+          <img id="deck-img" src="slides/{lesson.slug}/01.png"
+               alt="第{html.escape(str(lesson.number))}回 スライド 1"
                draggable="false" decoding="async">
         </div>
         <div class="deck-bar">
@@ -381,15 +389,12 @@ def render_lesson(lesson: Lesson, prev: Lesson | None, nxt: Lesson | None) -> st
       </div>
     </div>
   </section>'''
+    else:
+        head = f'  <div class="lesson-head">\n    {info}\n  </div>'
 
     return (HEAD.format(title=html.escape(lesson.title))
-            + f"""  <div class="lesson-head">
-    <div class="kicker">第{html.escape(str(lesson.number))}回{badge}</div>
-    <h1>{inline(lesson.title)}</h1>
-    {aim}
-    <div class="facts">{factline}</div>
-  </div>
-{slide}
+            + head
+            + f"""
 
   <article class="body">
       {render_blocks(lesson.blocks)}

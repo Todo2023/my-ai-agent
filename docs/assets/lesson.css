@@ -2,6 +2,7 @@
 :root{--wrap:760px;}
 
 .lesson-head{padding:60px 0 34px;border-bottom:1px solid var(--hairline);}
+.studio{padding-top:24px;}
 .lesson-head h1{font-size:clamp(23px,3.6vw,32px);margin:0 0 16px;line-height:1.5;}
 .lesson-head .aim{margin:0;color:var(--text-soft);font-size:14.2px;max-width:56ch;}
 .kicker .wip{display:inline-block;margin-left:10px;font-size:10px;letter-spacing:.12em;
@@ -85,7 +86,14 @@
   background:var(--bg-soft);border-top:1px solid var(--hairline);
   border-bottom:1px solid var(--hairline);padding:28px 24px 30px;
 }
-.studio-inner{max-width:1140px;margin:0 auto;display:grid;gap:26px;}
+.studio-inner{max-width:1400px;margin:0 auto;display:grid;gap:26px;}
+
+/* --- 横に寄せた見出し --- */
+.studio .info{align-self:start;}
+.studio .info h1{font-size:clamp(20px,2.4vw,26px);margin:0 0 12px;line-height:1.5;}
+.studio .info .aim{margin:0;color:var(--text-soft);font-size:13.4px;}
+.studio .info .facts{margin-top:16px;flex-direction:column;gap:7px 0;align-items:flex-start;}
+.studio .info .facts span{display:flex;gap:9px;align-items:baseline;}
 
 /* --- スライド --- */
 .deck-stage{background:#1d2330;border:1px solid var(--hairline-strong);
@@ -120,6 +128,19 @@
 .writer-clear{color:var(--text-soft);}
 .writer-note{margin:0;flex:1;min-width:280px;font-size:12.2px;color:var(--text-soft);line-height:1.8;}
 .writer-note b{color:var(--ink);font-weight:500;}
+
+/* 広い画面では、見出しを左の柱にしてスライドを上に出す */
+@media (min-width:1080px){
+  .studio-inner{
+    grid-template-columns:238px minmax(0,1fr);
+    grid-template-areas:"info deck" "info writer";
+    column-gap:34px;row-gap:24px;
+  }
+  .studio .info{grid-area:info;position:sticky;top:24px;
+    padding-right:26px;border-right:1px solid var(--hairline);}
+  .studio .deck{grid-area:deck;}
+  .studio .writer{grid-area:writer;}
+}
 
 /* 画面が低いときは、スライドを詰めてワーク欄が視界に入るようにする */
 @media (min-width:900px) and (max-height:820px){
