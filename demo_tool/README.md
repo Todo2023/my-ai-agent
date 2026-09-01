@@ -76,8 +76,11 @@ wrangler secret put ACCESS_CODES
 貼る内容の例（コードは推測されにくい文字列にする）:
 
 ```json
-{"TODO-S-DGX7V":{"audience":"student","max_uses":null},"TODO-S-7TGFH":{"audience":"student","max_uses":null},"TODO-P-TVQQR":{"audience":"pro","max_uses":null},"TODO-P-WJPJ4":{"audience":"pro","max_uses":null}}
+{"TODO-G1-HHVA3":{"audience":"student","max_uses":null},"TODO-G2-NDN4R":{"audience":"student","max_uses":null},"TODO-G3-7VVGU":{"audience":"student","max_uses":null},"TODO-G4-9LMVJ":{"audience":"student","max_uses":null},"TODO-PR-4DHTL":{"audience":"pro","max_uses":null}}
 ```
+
+**学年ごとに1本ずつ、計5本**です。どの学年から使われたかが利用ログで分かります。
+`max_uses` は `null`（無制限）。デモの目的は体験してもらうことなので、途中で止めません。
 
 コードは見間違えやすい文字（`0` `O` `1` `I` `S` `5` `B` `8`）を避けて作ってあります。
 口頭やスクリーンショットで伝えても取り違えにくくするためです。
@@ -99,7 +102,7 @@ wrangler deploy
 PowerShell では次のように打ちます（`〇〇` は自分のURLに置き換える）。
 
 ```
-curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev -H "Content-Type: application/json" -d '{\"code\":\"TODO-S-DGX7V\",\"audience\":\"student\",\"text\":\"AIって結局何に使えるんですか\"}'
+curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev -H "Content-Type: application/json" -d '{\"code\":\"TODO-G1-HHVA3\",\"audience\":\"student\",\"text\":\"AIって結局何に使えるんですか\"}'
 ```
 
 書き換えた問いと説明が返れば成功です。
@@ -115,19 +118,17 @@ curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev -H "Content-Type: app
 
 申し込みのときに学年を聞くので、**配るリンクに学年を入れておきます。** 開いた人は選ばずに始められます。
 
-| 学年 | リンクに付けるもの | 出てくる例 |
-| --- | --- | --- |
-| 大学1年 | `?audience=g1` | 履修・サークル・バイト・初レポート |
-| 大学2年 | `?audience=g2` | ゼミ選び・専門の勉強・インターン |
-| 大学3年 | `?audience=g3` | 就活の準備・自己分析・ES |
-| 大学4年・院 | `?audience=g4` | 論文・進路の決定・面接 |
-| 社会人・個人事業主 | `?audience=pro` | 提案書・業務改善・事業へのAI導入 |
+**そのまま配るリンク**（問い合わせの返信に、相手の学年のものを1行貼るだけ）:
 
-配る形：
+| 相手 | 貼るリンク |
+| --- | --- |
+| 大学1年 | `https://todo2023.github.io/my-ai-agent/demo.html?audience=g1&code=TODO-G1-HHVA3` |
+| 大学2年 | `https://todo2023.github.io/my-ai-agent/demo.html?audience=g2&code=TODO-G2-NDN4R` |
+| 大学3年 | `https://todo2023.github.io/my-ai-agent/demo.html?audience=g3&code=TODO-G3-7VVGU` |
+| 大学4年・院 | `https://todo2023.github.io/my-ai-agent/demo.html?audience=g4&code=TODO-G4-9LMVJ` |
+| 社会人・個人事業主 | `https://todo2023.github.io/my-ai-agent/demo.html?audience=pro&code=TODO-PR-4DHTL` |
 
-```
-https://todo2023.github.io/my-ai-agent/demo.html?audience=g1&code=TODO-S-DGX7V
-```
+出てくる例文は学年で変わります（1年＝履修・サークル・バイト、3年＝就活・ES、社会人＝提案書・業務改善など）。
 
 **学年を付けずに配ると、開いた本人に選んでもらう欄が出ます**（初期値は大学1年）。
 学年が分からない相手に送るときは、こちらで構いません。

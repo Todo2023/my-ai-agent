@@ -167,6 +167,7 @@ const COPY = {
   },
 };
 
+const KEYHINT = 'Enterで送信、Shift+Enterで改行できます。';
 const HINT = 'そのままコピーして貼って構いません。整えなくて大丈夫です。';
 const HINT_PRO = '守秘に関わる部分は伏せて構いません。伏せたままでも書き換えは成立します。';
 
@@ -194,7 +195,7 @@ if (!COPY[asked]) {
 function applyCopy() {
   $('lead').innerHTML = copy.lead;
   $('text').placeholder = copy.placeholder;
-  $('hint').textContent = audience === 'pro' ? HINT_PRO : HINT;
+  $('hint').textContent = (audience === 'pro' ? HINT_PRO : HINT) + KEYHINT;
 }
 applyCopy();
 
@@ -204,6 +205,15 @@ if (preset) {
   $('codefield').hidden = true;
 }
 if (!API_URL) $('setup').hidden = false;
+
+/* Enterで送信する。ただし日本語の変換を確定するEnterでは送らない。
+   ここを見ないと、漢字に変換した瞬間に送信されてしまう。 */
+$('text').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.isComposing || e.keyCode === 229) return;   // 変換中
+  e.preventDefault();
+  $('form').requestSubmit();
+});
 
 $('text').addEventListener('input', (e) => {
   const n = e.target.value.length;
