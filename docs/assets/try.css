@@ -1,0 +1,42 @@
+/* ===== トップの「試してみる」帯 専用 ===== */
+/* ヒーローの直後に置く。ここだけ紙の色を変えて、ページの中で1か所だけ手触りを変える */
+
+.try{
+  margin:0 -28px;padding:72px 28px 78px;
+  background:var(--bg-soft);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+}
+.try-head{max-width:600px;margin:0 0 44px;}
+.try-head h2{font-family:'Shippori Mincho',serif;font-weight:600;
+  font-size:clamp(21px,2.8vw,28px);margin:0 0 16px;color:var(--ink);}
+.try-head p{margin:0;font-size:14.2px;color:var(--text-soft);}
+.try-head b{color:var(--ink);font-weight:500;}
+
+.try-demo{
+  background:#fff;border:1px solid var(--hairline-strong);
+  padding:34px 34px 30px;max-width:640px;
+}
+.try-label{margin:0 0 10px;font-size:11px;letter-spacing:.16em;color:var(--text-soft);text-transform:uppercase;}
+.try-in{
+  position:relative;display:inline-block;margin:0;
+  font-family:'Shippori Mincho',serif;font-size:clamp(16px,2.2vw,19px);color:#b3ada0;font-weight:500;
+}
+.try-in::after{content:"";position:absolute;left:-1%;right:-1%;top:52%;height:1px;background:var(--red);}
+.try-arrow{margin:20px 0;color:var(--red);font-size:17px;line-height:1;}
+.try-out{
+  margin:0 0 20px;font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:clamp(19px,3vw,26px);line-height:1.6;color:var(--ink);
+}
+.try-out .u{color:var(--red);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px;}
+.try-why{
+  margin:0;padding-top:18px;border-top:1px solid var(--hairline);
+  font-size:13.4px;color:var(--text-soft);
+}
+
+.try-cta{margin-top:36px;}
+.try-note{margin:18px 0 0;font-size:12.8px;color:var(--text-soft);line-height:1.9;}
+.try-note b{color:var(--ink);font-weight:500;}
+
+@media (max-width:640px){
+  .try{padding:56px 24px 60px;margin:0 -24px;}
+  .try-demo{padding:26px 22px 24px;}
+}
