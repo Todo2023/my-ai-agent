@@ -58,6 +58,22 @@
           <p class="writer-note">この欄は<b>あなたのブラウザの中にだけ</b>残ります。運営には届きません。書けたらコピーして、Slackに貼って提出してください。</p>
         </div>
       </div>
+
+      <div class="asker">
+        <div class="asker-head">
+          <label for="ask">このスライドについて質問する</label>
+          <span class="asker-where" id="ask-where">スライド 1</span>
+        </div>
+        <textarea id="ask" rows="3"
+          placeholder="分からなかったところを、そのまま書いてください。&#10;どのスライドを見ていたかは自動でつきます。"></textarea>
+        <div class="asker-bar">
+          <input id="ask-name" type="text" autocomplete="name" placeholder="お名前（任意）">
+          <button type="button" class="deck-btn asker-send" id="ask-send">運営に送る</button>
+          <span class="asker-state" id="ask-state" role="status"></span>
+        </div>
+        <input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">
+        <p class="writer-note">運営に直接届きます。名前は空でも構いません。答えはSlackでお返しします。</p>
+      </div>
     </div>
   </section>
 
@@ -171,6 +187,66 @@
     try { localStorage.removeItem(KEY); } catch (e) {}
     say('消しました');
     box.focus();
+  });
+
+  /* --- 質問を運営に送る。届け先はSlack（サーバ側で中継する） --- */
+  var ASK_URL = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev/ask';
+  var ask = document.getElementById('ask');
+  var askName = document.getElementById('ask-name');
+  var askSend = document.getElementById('ask-send');
+  var askState = document.getElementById('ask-state');
+  var askWhere = document.getElementById('ask-where');
+  var NAMEKEY = 'todo-ask-name';
+
+  try {
+    var savedName = localStorage.getItem(NAMEKEY);
+    if (savedName) askName.value = savedName;
+  } catch (e) {}
+
+  function askSay(text) { askState.textContent = text; }
+
+  /* 見ているスライドの番号を、送るときに自動でつける */
+  function markWhere() { askWhere.textContent = 'スライド ' + i; }
+  prev.addEventListener('click', markWhere);
+  next.addEventListener('click', markWhere);
+  document.addEventListener('keydown', markWhere);
+
+  function send() {
+    var text = ask.value.trim();
+    if (!text) { askSay('質問が空です'); ask.focus(); return; }
+    askSend.disabled = true;
+    askSay('送っています…');
+    try { localStorage.setItem(NAMEKEY, askName.value.trim()); } catch (e) {}
+
+    fetch(ASK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lesson: (studio.querySelector('.kicker') || {}).textContent + ' ' + document.title.split('｜')[0],
+        slide: String(i),
+        name: askName.value.trim(),
+        text: text,
+        website: document.getElementById('ask-website').value
+      })
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    }).then(function (res) {
+      askSend.disabled = false;
+      if (!res.ok) { askSay(res.d.error || '送れませんでした'); return; }
+      ask.value = '';
+      askSay('送りました。ありがとうございます');
+    }).catch(function () {
+      askSend.disabled = false;
+      askSay('送れませんでした。通信を確かめて、もう一度お願いします');
+    });
+  }
+
+  askSend.addEventListener('click', send);
+  ask.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return;
+    if (e.isComposing || e.keyCode === 229) return;   /* 変換中 */
+    e.preventDefault();
+    send();
   });
 })();
 </script>
