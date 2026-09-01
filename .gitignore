@@ -1,0 +1,3 @@
+
+# trace_export.py が出力する実行ログ（実データを含みうるのでコミットしない）
+docs/trace_data.js

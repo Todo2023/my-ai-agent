@@ -38,10 +38,15 @@ uv run agent.py "A社の請求書を作って"          # ゲート1版：LLMに
 uv run graph_agent.py "A社の請求書を作って"    # ゲート3版：LangGraphワークフロー（現行の本命）
 uv run eval_run.py <モデル名>                  # ゲート4版：評価データセット22件を実行
 uv run gate2_run.py                            # ゲート2版：失敗ケース30件の一括実行
+uv run trace_export.py                         # ゲート5版：実行トレースを docs/trace_data.js に書き出す
 ```
 
 - **`agent.py` は捨てずに残す。** ゲート2の失敗分析の対象そのものであり、`graph_agent.py` との対比が学習資産。「古いから消す」という判断はしない。
 - 評価結果は `eval_results_<モデル名>.json` に生データを残す。サマリだけ書き換えて生データを消さない。
+
+### 説明用の画面（ゲート5）
+
+`docs/agent_office.html` は、3題材の動きを1画面で見せるデモ用のHTML（依存なし・ブラウザで開くだけ）。`trace_export.py` が出力した `docs/trace_data.js` があれば請求書部が実ログに切り替わり、無ければ同梱の再現データで動く。**実ログは実データを含みうるのでコミットしない**（`.gitignore` 済み）。
 
 ### meeting_agent / travel_agent
 

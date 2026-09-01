@@ -44,7 +44,14 @@ uv run graph_agent.py "A社の請求書を作って"    # ゲート3版：LangGr
 uv run agent.py "A社の請求書を作って"          # ゲート1版：LLMにツールを選ばせる素朴な実装
 uv run gate2_run.py                            # ゲート2：失敗ケース30件の一括実行
 uv run eval_run.py <モデル名>                  # ゲート4：評価データセット22件を実行
+uv run trace_export.py                         # ゲート5：実行トレースを画面用に書き出す
 ```
+
+`trace_export.py` は、`graph.stream()` でノードの実行順を外から観測して
+`docs/trace_data.js` を書き出すスクリプトです（`graph_agent.py` には手を入れていません）。
+書き出すと `docs/agent_office.html` をローカルで開いたときに、請求書部が実測のレイテンシ・
+トークン数つきの実ログに切り替わります。出力はコミットしません（`.gitignore` 済み）。
+承認ゲートの回答はスクリプト内の台本で与えます。**本番の承認を自動化するものではありません。**
 
 `make_sample_data.py` / `make_template.py` はサンプルのExcelデータとテンプレートを生成する
 スクリプトです。`test_llm.py` はAPIキーの疎通確認だけを行う使い捨てスクリプトです。
@@ -58,6 +65,7 @@ uv run eval_run.py <モデル名>                  # ゲート4：評価デー�
 | `invoice.py` | Excelを読んでPDFを作る決定的な処理。**LLMは一切登場しない** |
 | `eval_run.py` / `eval_dataset.json` | ゲート4の評価データセット（22件）と実行スクリプト |
 | `gate2_run.py` | ゲート2の失敗ケース30件を一括実行するスクリプト |
+| `trace_export.py` | ゲート5の説明用画面（`docs/agent_office.html`）に流す実行トレースを書き出す |
 | `gate2_findings.md` 〜 `gate5_blog_draft.md` | 各ゲートの成果物（失敗分析・設計メモ・計測結果・デモノート・記事ドラフト） |
 | `eval_results_<モデル名>.json` | 評価の生データ（1ケースごとの成否・レイテンシ・トークン数） |
 

@@ -200,6 +200,27 @@
   .legend { display: flex; gap: 6px; margin-left: auto; white-space: nowrap; }
   .legend span { font-size: 10.5px; padding: 1px 7px; font-family: var(--ui); }
 
+  .detail {
+    margin-top: 8px; background: var(--paper); border: 2px solid #000;
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0;
+  }
+  @media (max-width: 760px) { .detail { grid-template-columns: 1fr; } }
+  .detail .dl { padding: 10px 12px; display: grid; gap: 6px; align-content: start; }
+  .detail .dr { padding: 10px 12px; border-left: 2px solid #000; display: grid; gap: 6px; align-content: start; }
+  @media (max-width: 760px) { .detail .dr { border-left: 0; border-top: 2px solid #000; } }
+  .detail .head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .detail .head b { font-size: 14px; }
+  .detail .why { font-size: 12.5px; line-height: 1.7; font-family: var(--ui); color: #2c313a; }
+  .detail .src { font-size: 11px; color: var(--muted); font-family: var(--ui); }
+  .detail .k { font-size: 10.5px; color: var(--muted); font-family: var(--ui); }
+  .detail .v {
+    font-size: 12px; line-height: 1.6; background: var(--paper-2); border: 1px solid var(--line);
+    padding: 6px 8px; white-space: pre-wrap; overflow-x: auto;
+  }
+  .detail .pinned { font-size: 11px; font-family: var(--ui); color: var(--human); }
+  .dept.sel { outline: 3px solid var(--gold); outline-offset: -3px; }
+  .src-badge { align-self: center; font-size: 10.5px; font-family: var(--ui); padding: 1px 7px; border: 1px solid var(--chrome-line); color: #cfd6e0; }
+
   .note {
     margin-top: 8px; background: var(--chrome); border: 2px solid #000; color: #c8cedb;
     padding: 10px 12px; font-family: var(--ui); font-size: 12.5px; line-height: 1.75;
@@ -229,6 +250,7 @@
       <button type="button" id="btn-play" aria-pressed="true">■ 一時停止</button>
       <button type="button" id="btn-speed">速度 ×1</button>
     </div>
+    <span class="src-badge" id="src-badge">再現データ</span>
     <div class="clock" id="clock">--:--:--</div>
   </div>
 
@@ -250,6 +272,19 @@
     </section>
   </div>
 
+  <div class="detail" id="detail">
+    <div class="dl">
+      <div class="head"><span class="kind" id="d-kind">－</span><b id="d-node">ステップを選ぶと表示されます</b></div>
+      <div class="why" id="d-why">部署の枠をクリックするとその部署に固定、もう一度クリックで解除。何も固定していないときは、いま動いているステップを自動で表示します。</div>
+      <div class="src" id="d-src"></div>
+      <div class="pinned" id="d-pinned"></div>
+    </div>
+    <div class="dr">
+      <span class="k">入力</span><span class="v" id="d-in">－</span>
+      <span class="k">出力</span><span class="v" id="d-out">－</span>
+    </div>
+  </div>
+
   <div class="ticker">
     <span class="now" id="tick-time">--:--:--</span>
     <span class="line" id="tick-line">起動しました。</span>
@@ -266,9 +301,17 @@
     <b>橙＝LLMが判断しているステップ</b>、<b>青＝決定的なコード</b>、<b>緑＝外部I/O</b>、<b>桃＝人間の承認</b>。
     担当者が社長室に来たら処理は本当に止まります。<b>承認を押すまでPDFは確定せず、Chatworkへは1文字も送信されません</b>。却下すればその案件は何も残さず終了します。
     旅行プラン部だけ社長室に来ないのは、外部への操作が読み取り専用の検索しかなく、取り消せない副作用が無いためです。
+    部署の枠をクリックすると、下の詳細欄をその部署に固定できます。
+  </p>
+  <p class="note">
+    右上のバッジが<b>「再現データ」</b>のときは、実装の分岐から起こした台本で動いています。実際の実行ログに切り替えるには、
+    <code>cd invoice_agent &amp;&amp; uv run trace_export.py</code> を実行してください（Gemini APIキーが必要／無料枠で足ります）。
+    <code>docs/trace_data.js</code> が生成され、この画面をローカルで開くと請求書部が<b>実測のレイテンシとトークン数つきの実ログ</b>に差し替わります。
+    生成物はコミットしません（<code>.gitignore</code> 済み）。ファイルが無ければ、いまと同じ再現データで動きます。
   </p>
 </div>
 
+<script src="trace_data.js" onerror="void 0"></script>
 <script>
 /* ------------------------------------------------------------------
    各部署 = リポジトリ内のエージェント1つ。
@@ -390,9 +433,65 @@ const DEPTS = [
   }
 ];
 
+/* ステップの詳細。say をキーに DEPTS のステップへ結合する */
+const DETAIL = {
+  "顧客名を抽出中": { src: "graph_agent.py :: parse_node（LLM呼び出しはワークフロー全体でここ1回だけ）",
+    in: '指示: "A社の請求書を作って"', out: '{"customer_name": "A社", "all_customers": false,\n "unsupported_requests": [], "out_of_scope": false}' },
+  "顧客マスタと照合": { src: "graph_agent.py :: resolve_customer_node → invoice.py :: list_customer_names",
+    in: 'customer_name = "A社"', out: 'resolved_customer = "A社"（完全一致）' },
+  "PDF作成": { src: "graph_agent.py :: generate_node → invoice.py :: create_invoice_pdf（LLMは登場しない）",
+    in: 'customer, sample_data.xlsx', out: 'invoice_<顧客名>.pdf を書き出し（請求書番号を採番、支払期日=翌月末日）' },
+  "対応外の要求を検出": { src: "graph_agent.py :: parse_node",
+    in: '指示: "a社様の請求書、割引10%つけて作って"', out: '{"customer_name": "a社様",\n "unsupported_requests": ["割引10%"], "out_of_scope": false}' },
+  "「a社様」→「A社」": { src: "graph_agent.py :: _normalize / difflib.get_close_matches（cutoff 0.6）",
+    in: '"a社様" → 正規化 "a社"', out: 'resolved_customer = "A社"' },
+  "社長、確認をお願いします": { src: "graph_agent.py :: ask_confirm_node（LangGraph の interrupt でグラフが停止）",
+    in: 'unsupported_requests = ["割引10%"]', out: '人間の回答待ち。「はい/yes/y/ok」以外はすべて cancelled へ' },
+  "顧客名が読み取れない": { src: "graph_agent.py :: parse_node",
+    in: '指示: "請求書を作っておいて"', out: '{"customer_name": null, …}（推測で埋めさせない）' },
+  "解決できません": { src: "graph_agent.py :: resolve_customer_node → route_after_resolve",
+    in: "customer_name = null", out: '"ask_customer"（それらしい顧客を勝手に選ばない）' },
+  "どの顧客ですか？": { src: "graph_agent.py :: ask_customer_node（interrupt）",
+    in: "list_customer_names(sample_data.xlsx)", out: "登録済みの顧客名を添えて聞き返す。回答後は resolve_customer に戻る" },
+  "業務範囲外と判定": { src: "graph_agent.py :: parse_node",
+    in: '指示: "今日の札幌の天気を教えて"', out: '{"out_of_scope": true, …}' },
+  "定型文で返答": { src: "graph_agent.py :: out_of_scope_node（固定文字列）",
+    in: "out_of_scope = true", out: '"このエージェントは請求書作成専用です。…"' },
+
+  "「明日」を日付に変換": { src: "agent.py :: _system_instruction（システムプロンプト冒頭に現在日時を差し込む）",
+    in: '現在日時: 2026-09-01(火) 10:00 (Asia/Tokyo)\nユーザー: "明日15時からA社と定例…"', out: 'create_meeting(title="A社定例", start="2026-09-02T15:00", minutes=60)' },
+  "カレンダーに登録": { src: "gcal.py :: create_meeting（設定された全カレンダーに同じ予定・Meet URLは1つ）",
+    in: "title / start / minutes", out: "https://meet.google.com/xxx-yyyy-zzz" },
+  "room_idを調べる": { src: "chatwork.py :: list_chatwork_rooms / list_chatwork_members",
+    in: '送信先: "A社のルーム"', out: "room_id = 12345678 / 山田: account_id = 98765" },
+  "本文を作成中": { src: "agent.py :: SYSTEM_PROMPT「本文の作り方」（Chatworkは Markdown 不可）",
+    in: "日時 / タイトル / Meet URL / account_id", out: "[To:98765 山田様]\n明日9/2(水) 15:00-16:00 の定例のURLです。\nhttps://meet.google.com/…" },
+  "この内容で送りますか？": { src: "cli.py :: confirm_send → chatwork.py :: set_confirm_hook（送信関数の内側のフック）",
+    in: "room_id と本文", out: "この内容で送信しますか？ [y/N]:（y 以外はすべて拒否。EOF・Ctrl+C も拒否）" },
+  "送信しました": { src: "chatwork.py :: send_chatwork_message（[DRY RUN] / [デモ] の場合は未送信であることを必ず明記）",
+    in: "承認: y", out: "送信完了（message_id）" },
+  "既存の予定を検索": { src: "gcal.py :: list_meetings", in: "来週火曜10時の打ち合わせ", out: "該当予定と Meet URL" },
+  "送信先の候補が2件…": { src: "agent.py :: SYSTEM_PROMPT 進め方2（絞り切れないときは勝手に決めない）",
+    in: "list_chatwork_rooms()", out: "A社定例ルーム / A社サポート の2件" },
+  "どちらのルームへ？": { src: "cli.py :: confirm_send", in: "候補2件", out: "人間の選択待ち" },
+
+  "足りない条件を質問": { src: "agent.py :: SYSTEM_PROMPT（すでに分かっている情報は聞き直さない）",
+    in: '"9月に2泊3日で北海道。予算は一人5万くらい"', out: "同行者と興味関心を質問" },
+  "営業時間は要確認": { src: "agent.py :: SYSTEM_PROMPT（学習データだけでは古い情報は断定しない）",
+    in: '"友人2人と。海鮮が食べたい"', out: 'web_search("古平 港寿し 営業時間")' },
+  "DuckDuckGoで検索": { src: "search.py :: web_search（ddgs・APIキー不要・MAX_RESULTS = 5）",
+    in: 'query = "古平 港寿し 営業時間"', out: "- 港寿し（古平）: 営業時間 11:00-14:00 …（URL）ほか4件" },
+  "旅程を組み立て中": { src: "agent.py :: SYSTEM_PROMPT（出典を添える／分からなければ正直に伝える）",
+    in: "ヒアリング結果 + 検索結果", out: "3日分の日程表と予算内訳" },
+  "内訳を組み替え中": { src: "agent.py :: TravelAgent.chat（会話履歴を保持したまま再計算）",
+    in: '"予算を3万に落とせる？"', out: "宿と交通の見直し案" },
+  "宿の相場を検索": { src: "search.py :: web_search", in: 'query = "小樽 ゲストハウス 相場"', out: "宿泊費の相場（5件）" },
+  "代替案を提示": { src: "agent.py :: SYSTEM_PROMPT", in: "再検索の結果", out: "3.1万まで圧縮した代替案＋要確認事項" }
+};
+
 /* ---------------- 状態 ---------------- */
 const stats = { llm: 0, gate: 0, done: 0, cancel: 0 };
-let paused = false, speed = 1;
+let paused = false, speed = 1, selected = null;
 const SPEEDS = [1, 2, 4];
 let speedIdx = 0;
 
@@ -400,6 +499,22 @@ const $ = (id) => document.getElementById(id);
 const now = () => new Date().toTimeString().slice(0, 8);
 
 $("boss-sprite").innerHTML = sprite("boss", 1.15);
+
+/* 実ログ（trace_export.py が書き出した trace_data.js）があれば請求書部を差し替える */
+(function applyTrace() {
+  const t = window.TRACE_DATA;
+  if (!t || !Array.isArray(t.runs) || !t.runs.length) return;
+  // 実ログには担当者の割り当てが無いので、種別から補う（LLM判断＝抽出AI、それ以外＝係）
+  t.runs.forEach((run) => (run.steps || []).forEach((st) => {
+    if (!st.by) st.by = st.kind === "llm" ? "llm" : "cod";
+    if (typeof st.bi !== "number") st.bi = -1;
+  }));
+  DEPTS[0].runs = t.runs;
+  const b = $("src-badge");
+  b.textContent = `実ログ ${t.generated_at || ""}${t.model ? " / " + t.model : ""}`;
+  b.style.borderColor = "#8fd68a";
+  b.style.color = "#8fd68a";
+})();
 
 /* 部署のDOMを組み立てる */
 const runners = DEPTS.map((d, di) => {
@@ -435,10 +550,29 @@ const runners = DEPTS.map((d, di) => {
     actors[m.id] = { el: a, home: m.home };
   });
 
-  return { d, el, floor, actors, runIdx: di % d.runs.length, stepIdx: 0, waiting: null, phase: "idle", t: 0 };
+  const runner = { d, el, floor, actors, runIdx: di % d.runs.length, stepIdx: 0, waiting: null, phase: "idle", t: 0 };
+  el.addEventListener("click", () => {
+    selected = selected === runner ? null : runner;
+    runners.forEach((x) => x.el.classList.toggle("sel", x === selected));
+    $("d-pinned").textContent = selected ? `${selected.d.name} に固定中（もう一度クリックで解除）` : "";
+  });
+  return runner;
 });
 
 /* ---------------- 表示ユーティリティ ---------------- */
+function showDetail(r, step) {
+  if (selected && selected !== r) return;
+  const d = step.detail || DETAIL[step.say] || {};
+  const kindEl = $("d-kind");
+  kindEl.className = "kind " + step.kind;
+  kindEl.textContent = { llm: "LLM判断", code: "固定処理", ext: "外部I/O", human: "人間の承認" }[step.kind];
+  $("d-node").textContent = `${r.d.name}｜${step.node}`;
+  $("d-why").textContent = step.desc;
+  $("d-src").textContent = d.src || r.d.file;
+  $("d-in").textContent = d.in || "－";
+  $("d-out").textContent = d.out || (step.ask || "－");
+}
+
 function setStat(k, v) { stats[k] = v; $("s-" + k).textContent = v; }
 
 function chat(who, text, kind) {
@@ -556,6 +690,7 @@ function runStep(r) {
   moveTo(other, other.home[0], other.home[1]);
 
   if (step.kind === "llm") setStat("llm", stats.llm + 1);
+  showDetail(r, step);
 
   if (step.kind === "human") {
     moveTo(actor, 1, 4);
