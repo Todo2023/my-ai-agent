@@ -166,10 +166,22 @@ await t("上限なしのコードは何度でも使える", async () => {
   }
 });
 
-await t("学生向けと社会人向けで、渡す前提が変わる", async () => {
+await t("学年ごとに、渡す前提が変わる", async () => {
   const { buildPrompt } = await import("./worker.js");
-  assert.ok(buildPrompt("student", "x").includes("大学生"));
+  assert.ok(buildPrompt("g1", "x").includes("履修"), "1年には履修の文脈");
+  assert.ok(buildPrompt("g1", "x").includes("サークル"));
+  assert.ok(buildPrompt("g3", "x").includes("就職活動"), "3年には就活の文脈");
+  assert.ok(buildPrompt("g4", "x").includes("修士論文"), "4年・院には論文の文脈");
   assert.ok(buildPrompt("pro", "x").includes("個人事業主"));
+  // 1年生に就活の話をしない、4年生に履修の話をしない
+  assert.ok(!buildPrompt("g1", "x").includes("就職活動"));
+  assert.ok(!buildPrompt("g4", "x").includes("履修"));
+});
+
+await t("知らない学年が来ても落ちず、汎用の前提に戻る", async () => {
+  stubGemini([{ body: GOOD }]);
+  const res = await worker.fetch(post({ code: "OK-CODE", audience: "g9", text: "テスト" }), env());
+  assert.strictEqual(res.status, 200);
 });
 
 console.log(`\n${passed}件すべて通りました\n`);
