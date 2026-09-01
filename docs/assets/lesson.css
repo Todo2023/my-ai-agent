@@ -77,3 +77,11 @@
   .lrow{grid-template-columns:64px 1fr;gap:6px 14px;}
   .lrow .ld,.lrow .ls{grid-column:2;text-align:left;}
 }
+
+/* 資料のダウンロード */
+.slide{display:inline-flex;align-items:baseline;gap:12px;margin-top:22px;
+  font-size:13.5px;color:var(--ink);text-decoration:none;
+  border:1px solid var(--hairline-strong);padding:11px 18px;transition:.2s;}
+.slide em{font-style:normal;font-size:10.5px;letter-spacing:.12em;color:var(--text-soft);}
+.slide:hover{border-color:var(--red);color:var(--red-deep);}
+.slide:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
