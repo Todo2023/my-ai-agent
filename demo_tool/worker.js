@@ -20,7 +20,30 @@ const MODEL = "gemini-3.6-flash";
 const ENDPOINT = (model) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
+/* 申し込みのときに学年を聞くので、その学年の生活に届く言い方で書き換える。
+   1年生に就活の例を出しても遠い。4年生に履修の例を出しても遅い。
+   student は学年が分からないときの受け皿として残す。 */
 const AUDIENCE = {
+  g1: {
+    label: "大学1年",
+    context: "履修の組み方、サークル選び、アルバイト、初めてのレポートに迷っている大学1年生",
+    subject: "履修・サークル・バイト・レポート",
+  },
+  g2: {
+    label: "大学2年",
+    context: "ゼミ選び、専門科目の学び方、インターンに行くかどうかを考え始めた大学2年生",
+    subject: "ゼミ選び・専門の勉強・インターン",
+  },
+  g3: {
+    label: "大学3年",
+    context: "就職活動の準備、エントリーシート、自己分析、研究室配属を控えた大学3年生",
+    subject: "就活の準備・自己分析・研究室",
+  },
+  g4: {
+    label: "大学4年・院生",
+    context: "卒業論文や修士論文、進路の最終決定、面接を抱えた大学4年生・大学院生",
+    subject: "論文・進路の決定・面接",
+  },
   student: {
     label: "大学生",
     context: "就職活動のエントリーシート、ゼミや研究の問い、進路の迷いを抱えている大学生",
@@ -191,7 +214,7 @@ export default {
     }
 
     const code = String(body.code || "").trim().toUpperCase();
-    const audience = body.audience === "pro" ? "pro" : "student";
+    const audience = AUDIENCE[body.audience] ? body.audience : "student";
     const text = String(body.text || "").trim();
 
     if (!text) return json({ error: "問いが空です" }, 400);

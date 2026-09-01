@@ -19,6 +19,9 @@
 .field{margin-bottom:22px;}
 .field label{display:block;font-size:12px;letter-spacing:.1em;color:var(--text-soft);
   margin-bottom:9px;text-transform:uppercase;}
+.field select{width:100%;font:inherit;font-size:15px;padding:13px 14px;
+  border:1px solid var(--hairline-strong);background:#fff;color:var(--ink);border-radius:0;}
+.field select:focus{outline:2px solid var(--red);outline-offset:2px;}
 .field textarea,.field input{width:100%;font:inherit;font-size:15px;padding:14px 16px;
   border:1px solid var(--hairline-strong);background:#fff;color:var(--ink);border-radius:0;}
 .field textarea{min-height:130px;resize:vertical;line-height:1.8;}
@@ -78,6 +81,18 @@
     </div>
 
     <form id="form">
+      <div class="field" id="gradefield" hidden>
+        <label for="grade">いまの学年</label>
+        <select id="grade" name="grade">
+          <option value="g1">大学1年</option>
+          <option value="g2">大学2年</option>
+          <option value="g3">大学3年</option>
+          <option value="g4">大学4年・大学院</option>
+          <option value="pro">社会人・個人事業主</option>
+        </select>
+        <p class="hint">学年に合わせて、例と書き換え方が変わります。</p>
+      </div>
+
       <div class="field" id="codefield">
         <label for="code">アクセスコード</label>
         <input id="code" name="code" autocomplete="off" spellcheck="false" placeholder="お渡ししたコードを入れてください">
@@ -106,22 +121,45 @@
    ここが空だと、画面に「接続先が設定されていません」と出る。 */
 const API_URL = "https://todo-demo-tool.todo-inc-2023-10-13.workers.dev";
 
-/* 学生向け／社会人向けで変えるのは、呼びかけと例文と申込先だけ。
-   書き換えの中身はサーバ側の1つのプロンプトで共通。 */
+/* 申し込みのときに学年を聞くので、その学年の生活に届く例文を出す。
+   1年生に就活の例を出しても遠く、4年生に履修の例を出しても遅い。
+   変えるのは呼びかけ・例文・申込先だけで、書き換えの考え方はサーバ側の1つで共通。 */
+const STUDENT_CTA = {
+  ctaTitle: '10月1日から、これを毎月やります。',
+  ctaBody: '月1回の講義、Slackでの常時接点、提出物への添削。少人数（10名程度）で運営します。AIの契約や追加費用は必要ありません。',
+  ctaHref: 'apply.html',
+  ctaLabel: 'お申し込み・お問い合わせ',
+};
+
 const COPY = {
+  g1: {
+    ...STUDENT_CTA,
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。履修でもサークルでもバイトでも、書きかけのレポートの一文でも構いません。<b>答えが返る形</b>に書き換えて返します。',
+    placeholder: '例：大学生活、どう過ごせばいいですか\n例：サークルどれ入ればいいですか\n例：このレポート、大丈夫ですか',
+  },
+  g2: {
+    ...STUDENT_CTA,
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。ゼミ選びでも、専門の勉強でも、インターンに行くかどうかでも構いません。<b>答えが返る形</b>に書き換えて返します。',
+    placeholder: '例：ゼミ、どこを選べばいいですか\n例：インターンって行った方がいいですか\n例：この分野、自分に向いてますか',
+  },
+  g3: {
+    ...STUDENT_CTA,
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。エントリーシートの一文でも、自己分析で詰まっている点でも構いません。<b>答えが返る形</b>に書き換えて返します。',
+    placeholder: '例：自己分析ってどうやるんですか\n例：御社の企業理念に共感しました\n例：ガクチカ、これで伝わりますか',
+  },
+  g4: {
+    ...STUDENT_CTA,
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。論文のテーマでも、進路の迷いでも、面接の回答でも構いません。<b>答えが返る形</b>に書き換えて返します。',
+    placeholder: '例：卒論のテーマ、どう絞ればいいですか\n例：先行研究を整理しました\n例：この回答で面接、大丈夫ですか',
+  },
   student: {
-    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。エントリーシートの一文でも、ゼミの問いでも構いません。<b>意思決定に直結する問い</b>に書き換えて返します。',
-    placeholder: '例：AIって結局何に使えるんですか\n例：御社の企業理念に共感しました\n例：もっと具体的に書きたいです',
-    hint: 'そのままコピーして貼って構いません。整えなくて大丈夫です。',
-    ctaTitle: '10月1日から、これを毎月やります。',
-    ctaBody: '月1回の講義、Slackでの常時接点、提出物への添削。少人数（10名程度）で運営します。紹介コードをお持ちの方は、そのままお申し込みいただけます。',
-    ctaHref: 'apply.html',
-    ctaLabel: 'お申し込み・お問い合わせ',
+    ...STUDENT_CTA,
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。レポートの一文でも、進路の迷いでも構いません。<b>答えが返る形</b>に書き換えて返します。',
+    placeholder: '例：AIって結局何に使えるんですか\n例：このレポート、大丈夫ですか\n例：どうすれば充実した大学生活になりますか',
   },
   pro: {
-    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。提案書の一文でも、業務の判断に迷っている点でも構いません。<b>意思決定に直結する問い</b>に書き換えて返します。',
+    lead: 'いま手元にある、うまく言葉にできない問いを1つ入れてください。提案書の一文でも、業務の判断に迷っている点でも構いません。<b>答えが返る形</b>に書き換えて返します。',
     placeholder: '例：AIを活用して業務効率化を図りたい\n例：この施策は成長につながると思います\n例：何から手をつけるべきか分からない',
-    hint: '守秘に関わる部分は伏せて構いません。伏せたままでも書き換えは成立します。',
     ctaTitle: '10月1日から、これを毎月やります。',
     ctaBody: '題材はご自身の実務です。練習用の課題は使いません。料金は学生向けとは別に設定します。まずは今の課題を聞かせてください。',
     ctaHref: 'contact.html',
@@ -129,14 +167,36 @@ const COPY = {
   },
 };
 
-const params = new URLSearchParams(location.search);
-const audience = params.get('audience') === 'pro' ? 'pro' : 'student';
-const copy = COPY[audience];
+const HINT = 'そのままコピーして貼って構いません。整えなくて大丈夫です。';
+const HINT_PRO = '守秘に関わる部分は伏せて構いません。伏せたままでも書き換えは成立します。';
 
+const params = new URLSearchParams(location.search);
 const $ = (id) => document.getElementById(id);
-$('lead').innerHTML = copy.lead;
-$('text').placeholder = copy.placeholder;
-$('hint').textContent = copy.hint;
+
+/* 申し込み時に学年を聞いてあるので、リンクに ?audience=g1 のように入れて配る。
+   入っていないときだけ、本人に選んでもらう。 */
+const asked = params.get('audience');
+let audience = COPY[asked] ? asked : 'student';
+let copy = COPY[audience];
+
+if (!COPY[asked]) {
+  $('gradefield').hidden = false;
+  $('grade').value = 'g1';
+  audience = 'g1';
+  copy = COPY[audience];
+  $('grade').addEventListener('change', (e) => {
+    audience = e.target.value;
+    copy = COPY[audience];
+    applyCopy();
+  });
+}
+
+function applyCopy() {
+  $('lead').innerHTML = copy.lead;
+  $('text').placeholder = copy.placeholder;
+  $('hint').textContent = audience === 'pro' ? HINT_PRO : HINT;
+}
+applyCopy();
 
 const preset = params.get('code');
 if (preset) {
