@@ -286,4 +286,147 @@ await t("質問の入り口は、デモの書き換えを巻き込まない", as
   assert.strictEqual([...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("use:")).length, 0);
 });
 
+/* ---- 教材の配信と、解放の決まり ---- */
+
+const INDEX = [
+  { slug: "lesson-00",  label: "第0回",    numbered: true,  gates: false, title: "デモ",       date: "", written: true, slides: 0 },
+  { slug: "lesson-00b", label: "はじめに", numbered: false, gates: false, title: "付き合い方", date: "", written: true, slides: 0 },
+  { slug: "lesson-01",  label: "第1回",    numbered: true,  gates: true, title: "問いを立てる", date: "", written: true, slides: 2 },
+  { slug: "lesson-02",  label: "第2回",    numbered: true,  gates: true, title: "役割分担",   date: "", written: true, slides: 0 },
+  { slug: "lesson-03",  label: "第3回",    numbered: true,  gates: true, title: "構造化",     date: "", written: true, slides: 0 },
+];
+
+/** 教材を載せた状態の env を作る */
+function envWithLessons(memberRec = { name: "山田", paidThrough: 3 }, extra = {}) {
+  const e = env(extra);
+  e.DEMO_KV.store.set("index", JSON.stringify(INDEX));
+  for (const x of INDEX) {
+    e.DEMO_KV.store.set(`lesson:${x.slug}`, JSON.stringify({ ...x, body: `<p>${x.title}の本文</p>` }));
+  }
+  // 1x1 の透明PNG
+  e.DEMO_KV.store.set("slide:lesson-01:01",
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
+  if (memberRec) e.DEMO_KV.store.set("member:CODE1", JSON.stringify(memberRec));
+  return e;
+}
+
+function api(path, body) {
+  return new Request("https://example.workers.dev" + path, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+await t("合言葉が違えば、一覧すら返さない", async () => {
+  const res = await worker.fetch(api("/me", { code: "SHIRANAI" }), envWithLessons());
+  assert.strictEqual(res.status, 403);
+});
+
+await t("最初は、第0回と「はじめに」だけが開く", async () => {
+  const res = await worker.fetch(api("/me", { code: "CODE1" }), envWithLessons());
+  const open = (await res.json()).lessons.filter((x) => x.open).map((x) => x.slug);
+  assert.deepStrictEqual(open, ["lesson-00", "lesson-00b", "lesson-01"],
+    "デモ・はじめに・そして提出前でも第1回までは開く");
+});
+
+await t("開いていない回は、直接叩いても本文を返さない", async () => {
+  const e = envWithLessons();
+  const res = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-03" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 403);
+  assert.strictEqual(body.locked, true);
+  assert.ok(!("body" in body), "本文は含めない");
+});
+
+await t("ワークを出すと、次の回が開く", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  const before = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-02" }), e);
+  assert.strictEqual(before.status, 403, "出す前は閉じている");
+
+  const sub = await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "書きました" }), e);
+  const subBody = await sub.json();
+  assert.strictEqual(sub.status, 200);
+  assert.strictEqual(subBody.next.slug, "lesson-02");
+  assert.strictEqual(subBody.next.open, true);
+
+  const after = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-02" }), e);
+  assert.strictEqual(after.status, 200, "出したあとは開く");
+  assert.ok((await after.json()).body.includes("役割分担の本文"));
+});
+
+await t("2つ先までは開かない", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "x" }), e);
+  const res = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-03" }), e);
+  assert.strictEqual(res.status, 403);
+});
+
+await t("支払いの範囲を超えた回は、提出しても開かない", async () => {
+  // 支払いは第1回（i=2）まで。ワークを出しても第2回（i=3）は開かない
+  const e = envWithLessons({ name: "山田", paidThrough: 2 });
+  stubSlack();
+  const sub = await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "x" }), e);
+  const subBody = await sub.json();
+  assert.strictEqual(subBody.next.open, false, "次は開かない");
+  assert.ok(subBody.blocked.includes("お申し込みの範囲"), "理由を返す");
+  const res = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-02" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 403);
+  assert.ok(body.error.includes("お申し込みの範囲"), "理由を支払い側だと伝える");
+});
+
+await t("提出前の回は、理由を「前の回を出せば開く」と伝える", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 });
+  const res = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-03" }), e);
+  assert.ok((await res.json()).error.includes("提出すると開きます"));
+});
+
+await t("出し直しても、進み具合は戻らない", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "x" }), e);
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-00", text: "y" }), e);
+  const res = await worker.fetch(api("/lesson", { code: "CODE1", slug: "lesson-02" }), e);
+  assert.strictEqual(res.status, 200, "第2回は開いたまま");
+});
+
+await t("提出したワークは残り、Slackにも流れる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 3 }, { SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  const seen = stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "私の答え" }), e);
+  const keys = [...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("work:CODE1:lesson-01:"));
+  assert.strictEqual(keys.length, 1);
+  assert.ok(seen[0].body.text.includes("私の答え"));
+  assert.ok(seen[0].body.text.includes("ワーク提出"));
+});
+
+await t("スライド画像も同じ鍵で守る", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 2 });
+  const ng = await worker.fetch(new Request("https://example.workers.dev/slide?code=CODE1&slug=lesson-03&p=01"), e);
+  assert.strictEqual(ng.status, 403, "閉じた回の画像は返さない");
+  const ok = await worker.fetch(new Request("https://example.workers.dev/slide?code=CODE1&slug=lesson-01&p=01"), e);
+  assert.strictEqual(ok.status, 200);
+  assert.strictEqual(ok.headers.get("Content-Type"), "image/png");
+});
+
+await t("受講者の登録は、合鍵がある人だけができる", async () => {
+  const e = envWithLessons(null, { ASK_ADMIN_KEY: "himitsu" });
+  const ng = await worker.fetch(api("/member?key=chigau", { code: "NEW1", name: "新人", paidThrough: 4 }), e);
+  assert.strictEqual(ng.status, 403);
+  const ok = await worker.fetch(api("/member?key=himitsu", { code: "NEW1", name: "新人", paidThrough: 4 }), e);
+  assert.strictEqual(ok.status, 200);
+  const me = await worker.fetch(api("/me", { code: "NEW1" }), e);
+  assert.strictEqual(me.status, 200);
+});
+
+await t("支払い範囲だけを更新しても、名前は消えない", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 1 }, { ASK_ADMIN_KEY: "himitsu" });
+  await worker.fetch(api("/member?key=himitsu", { code: "CODE1", paidThrough: 4 }), e);
+  const rec = JSON.parse(e.DEMO_KV.store.get("member:CODE1"));
+  assert.strictEqual(rec.name, "山田");
+  assert.strictEqual(rec.paidThrough, 4);
+});
+
 console.log(`\n${passed}件すべて通りました\n`);

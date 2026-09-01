@@ -11,32 +11,74 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/lesson.css">
-<script src="assets/gate.js" data-gate="lesson"></script>
 </head>
 <body>
 
 <nav class="nav">
   <div class="nav-inner">
     <a class="logo" href="lessons.html">合同会社To<em>do</em> — 講座資料</a>
-    <a class="navlink" href="lessons.html">資料の一覧 →</a>
+    <a class="navlink" href="index.html">トップへ →</a>
   </div>
 </nav>
 
-<main class="wrap">
-  <div class="lesson-head">
-    <div class="kicker">Curriculum</div>
-    <h1>講座資料</h1>
-    <p class="aim">デモ1回と本編12回。書き上がった回から順に開けるようになります。</p>
-    <div class="facts"><span><em>書けている回</em>13 / 13</span></div>
-  </div>
-
-  <div class="lessonlist">
-    <a class="lrow is-done" href="lesson-00.html"><span class="ln">第0回</span><span class="lt">デモ（体験ツール）</span><span class="ld">2026-09-21</span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-01.html"><span class="ln">第1回</span><span class="lt">問いを立てる</span><span class="ld">2026-10-01</span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-02.html"><span class="ln">第2回</span><span class="lt">AIとの役割分担</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-03.html"><span class="ln">第3回</span><span class="lt">構造化・仮説構築</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-04.html"><span class="ln">第4回</span><span class="lt">情報収集・要約のAI活用</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-05.html"><span class="ln">第5回</span><span class="lt">リサーチ設計</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-06.html"><span class="ln">第6回</span><span class="lt">データ整理・分析のAI活用</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-07.html"><span class="ln">第7回</span><span class="lt">結論から書く・話す</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-08.html"><span class="ln">第8回</span><span class="lt">文章生成・提案書支援のAI活用</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-09.html"><span class="ln">第9回</span><span class="lt">発表・アウトプット</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-10.html"><span class="ln">第10回</span><span class="lt">自動化・ミニ制作</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-11.html"><span class="ln">第11回</span><span class="lt">フィードバックを力に変える</span><span class="ld"></span><span class="ls">書けています</span></a><a class="lrow is-done" href="lesson-12.html"><span class="ln">第12回</span><span class="lt">AIとの付き合い方をアップデートし続ける</span><span class="ld"></span><span class="ls">書けています</span></a>
-  </div>
-
-  <div class="lesson-nav"></div>
-  <footer>合同会社Todo　思考力×AI統合講座　受講者向け資料　<a href="lessons.html">一覧</a></footer>
+<main class="wrap" id="main">
+  <div class="lesson-head"><p class="aim">読み込んでいます…</p></div>
 </main>
 
+<footer>合同会社Todo　思考力×AI統合講座　受講者向け資料</footer>
+
+<script src="assets/course.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('main');
+  var esc = Course.esc;
+
+  function render(data) {
+    var rows = data.lessons.map(function (x) {
+      var state = !x.open ? '鍵' : (x.done ? '提出済み' : (x.written ? '読めます' : '準備中'));
+      var cls = !x.open ? 'is-locked' : (x.done ? 'is-done' : (x.written ? 'is-open' : 'is-wip'));
+      var inner =
+        '<span class="ln">' + esc(x.label) + '</span>'
+        + '<span class="lt">' + esc(x.title) + '</span>'
+        + '<span class="ld">' + esc(x.date) + '</span>'
+        + '<span class="ls">' + state + '</span>';
+      return x.open
+        ? '<a class="lrow ' + cls + '" href="lesson.html?r=' + encodeURIComponent(x.slug) + '">' + inner + '</a>'
+        : '<div class="lrow ' + cls + '" aria-disabled="true">' + inner + '</div>';
+    }).join('');
+
+    var open = data.lessons.filter(function (x) { return x.open; }).length;
+    main.innerHTML =
+      '<div class="lesson-head">'
+      + '<div class="kicker">Curriculum</div>'
+      + '<h1>講座資料</h1>'
+      + '<p class="aim">ワークを提出すると、次の回が開きます。'
+      + '先の回は、開くまで手元に届きません。</p>'
+      + '<div class="facts"><span><em>いま読める回</em>' + open + ' / ' + data.lessons.length + '</span>'
+      + (data.name ? '<span><em>ようこそ</em>' + esc(data.name) + 'さん</span>' : '')
+      + '</div></div>'
+      + '<div class="lessonlist">' + rows + '</div>'
+      + '<p class="signout"><button type="button" class="deck-btn" id="signout">この端末から合言葉を消す</button></p>';
+
+    document.getElementById('signout').addEventListener('click', function () {
+      if (!confirm('次に開くとき、もう一度合言葉が要ります。よろしいですか。')) return;
+      Course.setCode('');
+      location.reload();
+    });
+  }
+
+  function start() {
+    if (!Course.code()) { Course.askCode(main, render); return; }
+    Course.api('/me').then(function (res) {
+      if (!res.ok) { Course.setCode(''); Course.askCode(main, render); return; }
+      render(res.d);
+    }).catch(function () {
+      main.innerHTML = '<div class="lesson-head"><p class="aim">'
+        + '読み込めませんでした。通信を確かめて、ページを開き直してください。</p></div>';
+    });
+  }
+  start();
+})();
+</script>
 </body>
 </html>

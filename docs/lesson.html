@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 受講者限定。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>講座資料｜思考力×AI統合講座</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 講座資料</a>
+    <a class="navlink" href="lessons.html">資料の一覧 →</a>
+  </div>
+</nav>
+
+<main class="wrap lesson" id="main">
+  <div class="lesson-head"><p class="aim">読み込んでいます…</p></div>
+</main>
+
+<script src="assets/course.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('main');
+  var esc = Course.esc;
+  var slug = new URLSearchParams(location.search).get('r') || '';
+  var state = { i: 1, total: 0, slug: slug };
+
+  function shell(html) { main.innerHTML = html; }
+
+  function notice(text, back) {
+    shell('<div class="lesson-head"><h1>' + esc(text) + '</h1>'
+      + (back ? '<p class="aim"><a href="lessons.html">資料の一覧に戻る →</a></p>' : '') + '</div>');
+  }
+
+  function deckHtml(d) {
+    if (!d.slides) return '';
+    return '<div class="deck">'
+      + '<div class="deck-stage"><img id="deck-img" src="' + Course.slideUrl(d.slug, '01')
+      + '" alt="' + esc(d.label) + ' スライド 1" draggable="false" decoding="async"></div>'
+      + '<div class="deck-bar">'
+      + '<button type="button" class="deck-btn" id="deck-prev" aria-label="前のスライド" disabled>← 前</button>'
+      + '<span class="deck-count"><b id="deck-now">1</b> / ' + d.slides
+      + '<em>矢印キーでも進みます</em></span>'
+      + '<button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>'
+      + '</div></div>';
+  }
+
+  function writerHtml(d) {
+    if (!d.gates) return '';
+    return '<div class="writer">'
+      + '<div class="writer-head"><label for="work">ワークを書いて提出する</label>'
+      + '<span class="writer-state" id="work-state" role="status">'
+      + (d.submitted ? '提出済みです。書き直して出し直せます' : '') + '</span></div>'
+      + '<textarea id="work" spellcheck="false" placeholder="スライドを見ながら、ここに書いてください。&#10;'
+      + '提出すると、次の回が開きます。"></textarea>'
+      + '<div class="writer-bar">'
+      + '<button type="button" class="deck-btn asker-send" id="work-send">提出する</button>'
+      + '<button type="button" class="deck-btn writer-clear" id="work-clear">消す</button>'
+      + '<p class="writer-note">書きかけは<b>あなたのブラウザの中にだけ</b>残ります。'
+      + '<b>提出すると運営に届き、次の回が開きます。</b></p>'
+      + '</div></div>';
+  }
+
+  function askerHtml(d) {
+    if (!d.slides) return '';
+    return '<div class="asker">'
+      + '<div class="asker-head"><label for="ask">このスライドについて質問する</label>'
+      + '<span class="asker-where" id="ask-where">スライド 1</span></div>'
+      + '<textarea id="ask" rows="3" placeholder="分からなかったところを、そのまま書いてください。&#10;'
+      + 'どのスライドを見ていたかは自動でつきます。"></textarea>'
+      + '<div class="asker-bar">'
+      + '<button type="button" class="deck-btn asker-send" id="ask-send">運営に送る</button>'
+      + '<span class="asker-state" id="ask-state" role="status"></span></div>'
+      + '<input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">'
+      + '<p class="writer-note">運営に直接届きます。<b>質問は24時間以内に回答します。</b>'
+      + '答えはSlackでお返しします。</p></div>';
+  }
+
+  function render(d) {
+    document.title = d.title + '｜思考力×AI統合講座';
+    state.total = d.slides;
+    state.i = 1;
+
+    var facts = [['日付', d.date], ['所要', d.dur], ['種別', d.kind]]
+      .filter(function (p) { return p[1]; })
+      .map(function (p) { return '<span><em>' + p[0] + '</em>' + esc(p[1]) + '</span>'; }).join('');
+    var info = '<div class="info"><div class="kicker">' + esc(d.label)
+      + (d.written ? '' : '<span class="wip">準備中</span>') + '</div>'
+      + '<h1>' + esc(d.title) + '</h1>'
+      + (d.aim ? '<p class="aim">' + esc(d.aim) + '</p>' : '')
+      + '<div class="facts">' + facts + '</div></div>';
+
+    var nav = [];
+    if (d.prev) nav.push('<a href="lesson.html?r=' + encodeURIComponent(d.prev.slug) + '">← ' + esc(d.prev.label) + '</a>');
+    nav.push('<a href="lessons.html">一覧</a>');
+    if (d.next) {
+      nav.push(d.next.open
+        ? '<a href="lesson.html?r=' + encodeURIComponent(d.next.slug) + '">' + esc(d.next.label) + ' →</a>'
+        : '<span class="navlocked">' + esc(d.next.label) + '（ワークを提出すると開きます）</span>');
+    }
+
+    var top = d.slides
+      ? '<section class="studio"><div class="studio-inner">'
+        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + '</div></section>'
+      : '<div class="lesson-head">' + info + '</div>' + writerHtml(d);
+
+    shell(top + '<article class="body">' + d.body + '</article>'
+      + '<div class="lesson-nav">' + nav.join('　') + '</div>'
+      + '<footer>合同会社Todo　思考力×AI統合講座　受講者向け資料　<a href="lessons.html">一覧</a></footer>');
+
+    if (d.slides) wireDeck(d);
+    if (d.gates) wireWriter(d);
+    if (d.slides) wireAsker(d);
+  }
+
+  function wireDeck(d) {
+    var img = document.getElementById('deck-img');
+    var now = document.getElementById('deck-now');
+    var prev = document.getElementById('deck-prev');
+    var next = document.getElementById('deck-next');
+    var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+
+    function show(n) {
+      state.i = Math.min(Math.max(n, 1), state.total);
+      img.src = Course.slideUrl(d.slug, pad(state.i));
+      img.alt = esc(d.label) + ' スライド ' + state.i;
+      now.textContent = state.i;
+      prev.disabled = state.i === 1;
+      next.disabled = state.i === state.total;
+      if (state.i < state.total) new Image().src = Course.slideUrl(d.slug, pad(state.i + 1));
+      var where = document.getElementById('ask-where');
+      if (where) where.textContent = 'スライド ' + state.i;
+    }
+    prev.addEventListener('click', function () { show(state.i - 1); });
+    next.addEventListener('click', function () { show(state.i + 1); });
+    document.addEventListener('keydown', function (e) {
+      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowLeft') show(state.i - 1);
+      if (e.key === 'ArrowRight') show(state.i + 1);
+    });
+    if (state.total > 1) new Image().src = Course.slideUrl(d.slug, '02');
+  }
+
+  function wireWriter(d) {
+    var box = document.getElementById('work');
+    var say = document.getElementById('work-state');
+    var send = document.getElementById('work-send');
+    var KEY = 'todo-work-' + d.slug;
+    var timer;
+
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved) { box.value = saved; say.textContent = '前回の続きを開いています'; }
+    } catch (e) {}
+
+    box.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        try { localStorage.setItem(KEY, box.value); } catch (e) {}
+      }, 600);
+    });
+
+    document.getElementById('work-clear').addEventListener('click', function () {
+      if (!box.value.trim()) return;
+      if (!confirm('書いた内容を消します。よろしいですか。')) return;
+      box.value = '';
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      box.focus();
+    });
+
+    send.addEventListener('click', function () {
+      var text = box.value.trim();
+      if (!text) { say.textContent = 'まだ何も書かれていません'; box.focus(); return; }
+      send.disabled = true;
+      say.textContent = '提出しています…';
+      Course.api('/submit', { slug: d.slug, text: text }).then(function (res) {
+        send.disabled = false;
+        if (!res.ok) { say.textContent = res.d.error || '提出できませんでした'; return; }
+        try { localStorage.setItem(KEY, text); } catch (e) {}
+        if (res.d.next && res.d.next.open) {
+          say.textContent = '提出しました。' + res.d.next.label + 'が開きました';
+          setTimeout(function () { location.href = 'lesson.html?r=' + encodeURIComponent(res.d.next.slug); }, 1200);
+        } else {
+          say.textContent = '提出しました。' + (res.d.blocked || 'ありがとうございます');
+        }
+      }).catch(function () {
+        send.disabled = false;
+        say.textContent = '提出できませんでした。通信を確かめて、もう一度お願いします';
+      });
+    });
+  }
+
+  function wireAsker(d) {
+    var ask = document.getElementById('ask');
+    var send = document.getElementById('ask-send');
+    var say = document.getElementById('ask-state');
+
+    function go() {
+      var text = ask.value.trim();
+      if (!text) { say.textContent = '質問が空です'; ask.focus(); return; }
+      send.disabled = true;
+      say.textContent = '送っています…';
+      Course.api('/ask', {
+        lesson: d.label + ' ' + d.title,
+        slide: String(state.i),
+        text: text,
+        website: document.getElementById('ask-website').value,
+      }).then(function (res) {
+        send.disabled = false;
+        if (!res.ok) { say.textContent = res.d.error || '送れませんでした'; return; }
+        ask.value = '';
+        say.textContent = res.d.delivered
+          ? '送りました。24時間以内にお返事します'
+          : '受け付けました。ただ運営への通知が届いていない可能性があります。Slackでも一声かけてください';
+      }).catch(function () {
+        send.disabled = false;
+        say.textContent = '送れませんでした。通信を確かめて、もう一度お願いします';
+      });
+    }
+    send.addEventListener('click', go);
+    ask.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return;
+      if (e.isComposing || e.keyCode === 229) return;   /* 変換中 */
+      e.preventDefault();
+      go();
+    });
+  }
+
+  function load() {
+    Course.api('/lesson', { slug: slug }).then(function (res) {
+      if (res.ok) { render(res.d); return; }
+      notice(res.d.error || '開けませんでした', true);
+    }).catch(function () { notice('読み込めませんでした', true); });
+  }
+
+  function start() {
+    if (!slug) { location.replace('lessons.html'); return; }
+    if (!Course.code()) { Course.askCode(main, load); return; }
+    load();
+  }
+  start();
+})();
+</script>
+</body>
+</html>
