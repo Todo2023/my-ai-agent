@@ -129,17 +129,43 @@
 .writer-note{margin:0;flex:1;min-width:280px;font-size:12.2px;color:var(--text-soft);line-height:1.8;}
 .writer-note b{color:var(--ink);font-weight:500;}
 
+/* --- 質問欄。ワーク欄と違い、書いたものは運営に届く --- */
+.asker{display:flex;flex-direction:column;
+  padding-top:20px;border-top:1px solid var(--hairline);}
+.asker-head{display:flex;align-items:baseline;gap:14px;margin-bottom:9px;}
+.asker-head label{font-family:'Shippori Mincho',serif;font-weight:600;font-size:15px;}
+.asker-where{font-size:12px;color:var(--text-soft);letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;}
+.asker textarea{
+  width:100%;min-height:84px;resize:vertical;font:inherit;font-size:14.6px;
+  line-height:1.95;padding:14px 16px;background:#fff;color:var(--ink);
+  border:1px solid var(--hairline-strong);border-radius:0;
+}
+.asker textarea:focus{outline:2px solid var(--red);outline-offset:2px;}
+.asker-bar{display:flex;align-items:center;gap:12px;margin:12px 0 10px;flex-wrap:wrap;}
+.asker-bar input[type=text]{font:inherit;font-size:14px;padding:9px 12px;
+  min-width:180px;background:#fff;color:var(--ink);
+  border:1px solid var(--hairline-strong);border-radius:0;}
+.asker-bar input[type=text]:focus{outline:2px solid var(--red);outline-offset:2px;}
+.asker-send{background:var(--ink);color:#fff;border-color:transparent;}
+.asker-send:hover:not(:disabled){background:var(--red-deep);}
+.asker-send:disabled{opacity:.55;cursor:default;}
+.asker-state{font-size:12.5px;color:var(--red-deep);letter-spacing:.04em;}
+/* 人には見せない。機械よけの空欄 */
+.asker-trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
+
 /* 広い画面では、見出しを左の柱にしてスライドを上に出す */
 @media (min-width:1080px){
   .studio-inner{
     grid-template-columns:238px minmax(0,1fr);
-    grid-template-areas:"info deck" "info writer";
+    grid-template-areas:"info deck" "info writer" "info asker";
     column-gap:34px;row-gap:24px;
   }
   .studio .info{grid-area:info;position:sticky;top:24px;
     padding-right:26px;border-right:1px solid var(--hairline);}
   .studio .deck{grid-area:deck;}
   .studio .writer{grid-area:writer;}
+  .studio .asker{grid-area:asker;}
 }
 
 /* 画面が低いときは、スライドを詰めてワーク欄が視界に入るようにする */

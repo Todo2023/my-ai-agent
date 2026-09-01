@@ -15,6 +15,9 @@ function fakeKV() {
     store,
     async get(k) { return store.has(k) ? store.get(k) : null; },
     async put(k, v) { store.set(k, v); },
+    async list({ prefix = "" } = {}) {
+      return { keys: [...store.keys()].filter((k) => k.startsWith(prefix)).sort().map((name) => ({ name })) };
+    },
   };
 }
 
@@ -182,6 +185,105 @@ await t("知らない学年が来ても落ちず、汎用の前提に戻る", as
   stubGemini([{ body: GOOD }]);
   const res = await worker.fetch(post({ code: "OK-CODE", audience: "g9", text: "テスト" }), env());
   assert.strictEqual(res.status, 200);
+});
+
+/* ---- 資料ページからの質問（/ask） ---- */
+
+function ask(body, headers = {}) {
+  return new Request("https://example.workers.dev/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.9", ...headers },
+    body: JSON.stringify(body),
+  });
+}
+
+/** Slackへの送信を差し替える。届いた本文を覚えておく */
+function stubSlack(status = 200) {
+  const seen = [];
+  globalThis.fetch = async (url, init) => {
+    seen.push({ url, body: JSON.parse(init.body) });
+    return new Response("ok", { status });
+  };
+  return seen;
+}
+
+await t("質問はSlackに届き、KVにも残る", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  const seen = stubSlack();
+  const res = await worker.fetch(ask({ lesson: "問いを立てる", slide: "5", name: "山田", text: "ここが分かりません" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(body.delivered, true, "Slackに届いたと返る");
+  assert.ok(seen[0].body.text.includes("ここが分かりません"), "本文が入っている");
+  assert.ok(seen[0].body.text.includes("スライド 5"), "どのスライドか分かる");
+  assert.ok(seen[0].body.text.includes("山田"));
+  const keys = [...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("ask:"));
+  assert.strictEqual(keys.length, 1, "KVにも残る");
+});
+
+await t("Slackが落ちていても、質問は失わない", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  stubSlack(500);
+  const res = await worker.fetch(ask({ lesson: "第1回", text: "質問です" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(body.delivered, false, "届かなかったことは正直に返す");
+  const keys = [...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("ask:"));
+  assert.strictEqual(keys.length, 1, "それでもKVには残っている");
+});
+
+await t("Slackが未設定でも受け取り、KVに残す", async () => {
+  const e = env();
+  const res = await worker.fetch(ask({ lesson: "第1回", text: "質問です" }), e);
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual((await res.json()).delivered, false);
+  assert.strictEqual([...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("ask:")).length, 1);
+});
+
+await t("空の質問と長すぎる質問は受けない", async () => {
+  const e = env();
+  assert.strictEqual((await worker.fetch(ask({ text: "   " }), e)).status, 400);
+  assert.strictEqual((await worker.fetch(ask({ text: "あ".repeat(601) }), e)).status, 400);
+});
+
+await t("隠し欄が埋まっていたら、機械とみなして捨てる", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  const seen = stubSlack();
+  const res = await worker.fetch(ask({ text: "宣伝です", website: "http://spam" }), e);
+  assert.strictEqual(res.status, 200, "機械には成功したように見せる");
+  assert.strictEqual(seen.length, 0, "Slackには流さない");
+  assert.strictEqual([...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("ask:")).length, 0);
+});
+
+await t("短い時間の連投は止める", async () => {
+  const e = env();
+  for (let i = 0; i < 10; i++) {
+    assert.strictEqual((await worker.fetch(ask({ text: "質問" + i }), e)).status, 200);
+  }
+  assert.strictEqual((await worker.fetch(ask({ text: "11件目" }), e)).status, 429);
+});
+
+await t("溜まった質問は、合鍵がある人だけが読める", async () => {
+  const e = env({ ASK_ADMIN_KEY: "himitsu" });
+  await worker.fetch(ask({ lesson: "第1回", text: "ひとつめ" }), e);
+  const ng = await worker.fetch(new Request("https://example.workers.dev/ask?key=chigau"), e);
+  assert.strictEqual(ng.status, 403, "鍵が違えば読めない");
+  const ok = await worker.fetch(new Request("https://example.workers.dev/ask?key=himitsu"), e);
+  assert.strictEqual(ok.status, 200);
+  assert.strictEqual((await ok.json()).questions[0].text, "ひとつめ");
+});
+
+await t("鍵を設定していなければ、誰も読めない", async () => {
+  const res = await worker.fetch(new Request("https://example.workers.dev/ask?key="), env());
+  assert.strictEqual(res.status, 403);
+});
+
+await t("質問の入り口は、デモの書き換えを巻き込まない", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  stubSlack();
+  await worker.fetch(ask({ text: "質問" }), e);
+  // 質問はアクセスコードを使わない＝デモの利用回数は増えない
+  assert.strictEqual([...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("use:")).length, 0);
 });
 
 console.log(`\n${passed}件すべて通りました\n`);

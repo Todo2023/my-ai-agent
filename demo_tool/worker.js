@@ -62,6 +62,10 @@ const PERSONAL_NAMES = ["小森", "辰巳", "大谷"];
 const AMOUNT = /[0-9][0-9,]*\s*円/;
 
 const MAX_INPUT = 400;
+/* 資料ページからの質問。デモの問いより長くなるので別枠にする */
+const MAX_ASK = 600;
+/* 同じ人からの連投を止める。1時間に何件まで受けるか */
+const ASK_PER_HOUR = 10;
 const MAX_QUESTION = 90;
 const MAX_EXPLANATION = 220;
 
@@ -193,17 +197,118 @@ async function askGemini(env, prompt) {
   }
 }
 
+/* ------------------------------------------------------------------
+   資料ページ（lesson-NN.html）からの質問を受け取る。
+   届け先はSlackの Incoming Webhook。Slackが未設定でも質問は
+   KVに残るので、受け取り損ねることはない（読み方は README 参照）。
+   ------------------------------------------------------------------ */
+
+/** 1時間あたりの件数を数える。KVが無ければ数えない（動きは止めない） */
+async function askRateOk(env, ip) {
+  if (!env.DEMO_KV || !ip) return true;
+  const bucket = Math.floor(Date.now() / (1000 * 60 * 60));
+  const key = `askrate:${ip}:${bucket}`;
+  const n = Number((await env.DEMO_KV.get(key)) || 0);
+  if (n >= ASK_PER_HOUR) return false;
+  await env.DEMO_KV.put(key, String(n + 1), { expirationTtl: 60 * 60 * 2 });
+  return true;
+}
+
+/** Slackへ流す。webhookが無ければ何もしない（呼び出し側はKVに残す） */
+async function toSlack(env, q) {
+  if (!env.SLACK_WEBHOOK_URL) return { sent: false, reason: "webhook未設定" };
+  const where = q.slide ? `${q.lesson}／スライド ${q.slide}` : q.lesson;
+  const text = `:raising_hand: *${where}* ／ ${q.name}\n>>> ${q.text}`;
+  try {
+    const res = await fetch(env.SLACK_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) return { sent: false, reason: `Slackが ${res.status} を返しました` };
+    return { sent: true };
+  } catch (e) {
+    return { sent: false, reason: "Slackに届きませんでした" };
+  }
+}
+
+async function handleAsk(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "読み取れない要求です" }, 400);
+  }
+
+  // 入力欄を隠して置いてある。人は触らないので、埋まっていれば機械
+  if (String(body.website || "").trim()) return json({ ok: true });
+
+  const text = String(body.text || "").trim();
+  if (!text) return json({ error: "質問が空です" }, 400);
+  if (text.length > MAX_ASK) {
+    return json({ error: `長すぎます。${MAX_ASK}文字以内で入れてください` }, 400);
+  }
+
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  if (!(await askRateOk(env, ip))) {
+    return json({ error: "短い時間に送りすぎです。しばらく待ってから送ってください" }, 429);
+  }
+
+  const q = {
+    lesson: String(body.lesson || "").slice(0, 40) || "回の指定なし",
+    slide: String(body.slide || "").slice(0, 8),
+    name: String(body.name || "").trim().slice(0, 40) || "名前なし",
+    text,
+    at: new Date().toISOString(),
+  };
+
+  // 先に残す。Slackが落ちていても質問そのものは失わない
+  if (env.DEMO_KV) {
+    await env.DEMO_KV.put(`ask:${Date.now()}`, JSON.stringify(q), {
+      expirationTtl: 60 * 60 * 24 * 180,
+    });
+  }
+
+  const slack = await toSlack(env, q);
+  return json({ ok: true, delivered: slack.sent });
+}
+
+/** 運営が溜まった質問を見るための読み出し。合鍵が要る */
+async function listAsks(url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  if (!env.DEMO_KV) return json({ questions: [] });
+  const list = await env.DEMO_KV.list({ prefix: "ask:" });
+  const questions = [];
+  for (const k of list.keys.slice(-100)) {
+    const v = await env.DEMO_KV.get(k.name);
+    if (v) questions.push(JSON.parse(v));
+  }
+  return json({ questions: questions.reverse() });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         },
       });
     }
+    const url = new URL(request.url);
+
+    // 資料ページからの質問。デモの書き換えとは別の入り口にする
+    if (url.pathname === "/ask") {
+      if (request.method === "GET") return listAsks(url, env);
+      if (request.method !== "POST") return json({ error: "POST で送ってください" }, 405);
+      return handleAsk(request, env);
+    }
+
     if (request.method !== "POST") return json({ error: "POST で送ってください" }, 405);
 
     let body;

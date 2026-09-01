@@ -107,6 +107,62 @@ curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev -H "Content-Type: app
 
 書き換えた問いと説明が返れば成功です。
 
+## 資料ページからの質問を Slack で受け取る
+
+受講者が `lesson-NN.html` のスライドの下から質問を送ると、**その質問と「どのスライドを見ていたか」がSlackに届きます。**
+
+### 1. Slack で受け口を作る
+
+1. https://api.slack.com/apps を開き、**Create New App → From scratch**
+2. 名前は「講座の質問」など。ワークスペースは自分のものを選ぶ
+3. 左の **Incoming Webhooks** を開き、スイッチを **On**
+4. **Add New Webhook to Workspace** → 質問を流したいチャンネルを選ぶ
+5. 出てきた `https://hooks.slack.com/services/...` をコピーする
+
+無料プランで使えます。
+
+### 2. Worker に登録する
+
+```
+wrangler secret put SLACK_WEBHOOK_URL
+```
+
+貼り付けて Enter。続けて、溜まった質問を後から読むための合鍵も入れておきます（好きな文字列で構いません）。
+
+```
+wrangler secret put ASK_ADMIN_KEY
+```
+
+```
+wrangler deploy
+```
+
+### 3. 動作を確かめる
+
+```
+curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev/ask -H "Content-Type: application/json" -d '{\"lesson\":\"第1回\",\"slide\":\"3\",\"name\":\"テスト\",\"text\":\"届いていますか\"}'
+```
+
+Slackに出れば成功です。
+
+### Slack が使えないときも、質問は消えません
+
+質問は**Slackに送る前にKVへ保存**しています。Slackが未設定でも、落ちていても、質問そのものは残ります。読むときは合鍵をつけてブラウザで開いてください。
+
+```
+https://todo-demo-tool.〇〇.workers.dev/ask?key=（ASK_ADMIN_KEYに入れた文字列）
+```
+
+直近100件が新しい順に出ます。保存期間は180日です。
+
+### 迷惑投稿への備え
+
+- 人には見えない空欄を1つ置いてあり、そこが埋まっていれば機械とみなして捨てます
+- 同じ回線からは1時間に10件まで
+- 600文字まで
+
+資料ページ自体にパスワードがかかっていますが、**この入り口自体は誰でも叩けます**（静的サイトのため隠せません）。上の3つは、荒らしを減らすためのもので、完全に防ぐものではありません。
+
 ## 未確定のまま残しているもの
 
 仕様書の「今後詰める必要がある項目」です。どちらも**あとから変えられる形**にしてあります。
