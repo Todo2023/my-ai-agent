@@ -15,6 +15,7 @@
 
 import argparse
 import html
+import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,8 +23,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / "docs"
 
+# 各回のスライドが何枚あるか。curriculum/slides.py が書き出す
+SLIDES = json.loads((HERE / "slides.json").read_text(encoding="utf-8")) \
+    if (HERE / "slides.json").exists() else {}
+
 # 冒頭の情報欄で使う項目。ここに無いキーは本文の前の注記として扱う
-META_KEYS = ["回", "種別", "題", "日付", "所要", "ねらい", "スライド"]
+META_KEYS = ["回", "種別", "題", "日付", "所要", "ねらい"]
 
 EMPTY_MARKS = ("未記入", "（未記入）", "TODO", "未定")
 
@@ -237,11 +242,54 @@ HEAD = """<!DOCTYPE html>
 <main class="wrap lesson">
 """
 
+DECK_JS = """
+<script>
+/* スライドを送る。画像を入れ替えるだけで、外には何も送らない。 */
+(function () {
+  var deck = document.querySelector('.deck');
+  if (!deck) return;
+  var total = Number(deck.dataset.total);
+  var slug = deck.dataset.slug;
+  var img = document.getElementById('deck-img');
+  var now = document.getElementById('deck-now');
+  var prev = document.getElementById('deck-prev');
+  var next = document.getElementById('deck-next');
+  var i = 1;
+
+  // 次の1枚を先に読み込んでおく。押した瞬間に白くならないように
+  function preload(n) {
+    if (n < 1 || n > total) return;
+    var im = new Image();
+    im.src = 'slides/' + slug + '/' + String(n).padStart(2, '0') + '.png';
+  }
+
+  function show(n) {
+    i = Math.min(Math.max(n, 1), total);
+    img.src = 'slides/' + slug + '/' + String(i).padStart(2, '0') + '.png';
+    img.alt = img.alt.replace(/スライド \\d+/, 'スライド ' + i);
+    now.textContent = i;
+    prev.disabled = i === 1;
+    next.disabled = i === total;
+    preload(i + 1);
+  }
+
+  prev.addEventListener('click', function () { show(i - 1); });
+  next.addEventListener('click', function () { show(i + 1); });
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft') { show(i - 1); }
+    if (e.key === 'ArrowRight') { show(i + 1); }
+  });
+  preload(2);
+})();
+</script>
+"""
+
 FOOT = """
   <div class="lesson-nav">{nav}</div>
   <footer>合同会社Todo　思考力×AI統合講座　受講者向け資料　<a href="lessons.html">一覧</a></footer>
 </main>
-
+{deck_js}
 </body>
 </html>
 """
@@ -262,9 +310,22 @@ def render_lesson(lesson: Lesson, prev: Lesson | None, nxt: Lesson | None) -> st
         nav.append(f'<a href="{nxt.slug}.html">第{html.escape(str(nxt.number))}回 →</a>')
 
     slide = ""
-    if m.get("スライド"):
-        slide = (f'<a class="slide" href="{html.escape(m["スライド"])}" download>'
-                 "スライドをダウンロード<em>PowerPoint</em></a>")
+    n = SLIDES.get(lesson.slug, 0)
+    if n:
+        first = f"slides/{lesson.slug}/01.png"
+        slide = f'''
+  <figure class="deck" data-slug="{lesson.slug}" data-total="{n}">
+    <div class="deck-stage">
+      <img id="deck-img" src="{first}" alt="第{html.escape(str(lesson.number))}回 スライド 1"
+           draggable="false" decoding="async">
+    </div>
+    <figcaption class="deck-bar">
+      <button type="button" class="deck-btn" id="deck-prev" aria-label="前のスライド" disabled>← 前</button>
+      <span class="deck-count"><b id="deck-now">1</b> / {n}</span>
+      <button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>
+    </figcaption>
+    <p class="deck-note">矢印キーでも進めます。</p>
+  </figure>'''
 
     return (HEAD.format(title=html.escape(lesson.title))
             + f"""  <div class="lesson-head">
@@ -272,14 +333,14 @@ def render_lesson(lesson: Lesson, prev: Lesson | None, nxt: Lesson | None) -> st
     <h1>{inline(lesson.title)}</h1>
     {aim}
     <div class="facts">{factline}</div>
-    {slide}
   </div>
+{slide}
 
   <article class="body">
       {render_blocks(lesson.blocks)}
   </article>
 """
-            + FOOT.format(nav="　".join(nav)))
+            + FOOT.format(nav="　".join(nav), deck_js=DECK_JS if n else ""))
 
 
 def render_index(lessons: list[Lesson]) -> str:
@@ -306,7 +367,7 @@ def render_index(lessons: list[Lesson]) -> str:
     {''.join(rows)}
   </div>
 """
-            + FOOT.format(nav=""))
+            + FOOT.format(nav="", deck_js=""))
 
 
 def load() -> list[Lesson]:
