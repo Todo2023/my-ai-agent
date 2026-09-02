@@ -236,7 +236,12 @@
         send.disabled = false;
         if (!res.ok) { say.textContent = res.d.error || '提出できませんでした'; return; }
         try { localStorage.setItem(KEY, text); } catch (e) {}
-        if (res.d.next && res.d.next.open) {
+        /* 提出を求める回を出し終えた人には、次の回ではなく修了の画面を見せる。
+           判定はサーバー側（提出の記録）で、ここでは受け取るだけ */
+        if (res.d.done) {
+          say.textContent = '提出しました。全回を出し切りました';
+          setTimeout(function () { location.href = 'done.html'; }, 1200);
+        } else if (res.d.next && res.d.next.open) {
           say.textContent = '提出しました。' + res.d.next.label + 'が開きました';
           setTimeout(function () { location.href = 'lesson.html?r=' + encodeURIComponent(res.d.next.slug); }, 1200);
         } else {

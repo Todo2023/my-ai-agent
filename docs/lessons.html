@@ -43,6 +43,12 @@
     + '<rect x="1.6" y="7" width="10.8" height="7.6" rx="1.2" fill="currentColor"></rect>'
     + '</svg><span class="visually-hidden">まだ開いていません</span>';
 
+  /* 提出を求める回を、ぜんぶ出し終えたか */
+  function allDone(data) {
+    var gating = data.lessons.filter(function (x) { return x.gates; });
+    return gating.length > 0 && gating.every(function (x) { return x.done; });
+  }
+
   function render(data) {
     var rows = data.lessons.map(function (x) {
       var state = !x.open ? LOCK : (x.done ? '提出済み' : (x.written ? '読めます' : '準備中'));
@@ -68,6 +74,15 @@
       + (data.name ? '<span><em>ようこそ</em>' + esc(data.name) + 'さん</span>' : '')
       + '</div></div>'
       + '<div class="lessonlist">' + rows + '</div>'
+      + (allDone(data)
+          ? '<p class="lafter"><a class="deck-btn" href="done.html">修了の画面を見る</a></p>'
+          : '')
+      + '<div class="ltopics">'
+      + '<p class="lt-label">受講の有無にかかわらず読めます</p>'
+      + '<p class="lt-body"><a href="topics.html">AI Topics</a>に、'
+      + 'AIと「価値の見つけ方」をめぐるニュースを、そこから立てた問いつきで載せています。'
+      + 'ワークのお題として使うこともあります。</p>'
+      + '</div>'
       + '<p class="signout"><button type="button" class="deck-btn" id="signout">この端末から合言葉を消す</button></p>';
 
     document.getElementById('signout').addEventListener('click', function () {

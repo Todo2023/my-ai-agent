@@ -366,6 +366,41 @@ await t("ワークを出すと、次の回が開く", async () => {
   assert.ok((await after.json()).body.includes("役割分担の本文"));
 });
 
+await t("途中では、まだ修了にしない", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  const sub = await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "x" }), e);
+  assert.strictEqual((await sub.json()).done, false);
+});
+
+await t("提出を求める回を出し切ると、修了として返す", async () => {
+  // 最後の回まで支払いが届いている人
+  const e = envWithLessons({ name: "山田", paidThrough: 4 });
+  stubSlack();
+  let sub;
+  for (const slug of ["lesson-01", "lesson-02", "lesson-03"]) {
+    stubSlack();
+    sub = await worker.fetch(api("/submit", { code: "CODE1", slug, text: "x" }), e);
+  }
+  const body = await sub.json();
+  assert.strictEqual(body.done, true, "最後の1本で修了になる");
+  assert.strictEqual(body.next, null, "次の回はない");
+});
+
+await t("提出を求めない回だけ出しても、修了にはならない", async () => {
+  // 第0回と「はじめに」は gates:false。ここを出しても進度は動かない
+  const e = envWithLessons();
+  stubSlack();
+  const sub = await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-00b", text: "x" }), e);
+  assert.strictEqual((await sub.json()).done, false);
+});
+
+await t("一覧は、提出を求める回かどうかも返す", async () => {
+  const res = await worker.fetch(api("/me", { code: "CODE1" }), envWithLessons());
+  const gating = (await res.json()).lessons.filter((x) => x.gates).map((x) => x.slug);
+  assert.deepStrictEqual(gating, ["lesson-01", "lesson-02", "lesson-03"]);
+});
+
 await t("2つ先までは開かない", async () => {
   const e = envWithLessons();
   stubSlack();

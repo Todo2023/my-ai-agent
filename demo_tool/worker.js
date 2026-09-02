@@ -363,6 +363,14 @@ function isOpen(index, i, progress, paidThrough) {
 }
 
 /** 合言葉を確かめ、一覧と解放状態を返す。入り口はここ1つ */
+/** 提出を求める回を、ぜんぶ出し終えたか。
+   最後の回が番号なしに変わっても効くよう、位置ではなく gates で見る。 */
+function allDone(index, progress) {
+  const gating = index.filter((e) => e.gates);
+  if (!gating.length) return false;
+  return index.every((e, i) => !e.gates || i <= progress);
+}
+
 async function whoAmI(env, code) {
   const who = await member(env, code);
   if (!who) return { error: "合言葉が違います" };
@@ -376,6 +384,8 @@ async function whoAmI(env, code) {
     lessons: index.map((e, i) => ({
       slug: e.slug, label: e.label, title: e.title, date: e.date,
       written: e.written, open: isOpen(index, i, progress, paidThrough),
+      // 提出を求める回かどうか。修了したかの判定に要る
+      gates: e.gates,
       done: e.gates && i <= progress,
     })),
   };
@@ -493,6 +503,9 @@ async function handleSubmit(request, env) {
   return json({
     ok: true,
     delivered: slack.sent,
+    // 提出を求める回を、ぜんぶ出し終えたか。最後の1本を出した人には
+    // 次の回ではなく修了の画面を見せる
+    done: allDone(me.index, progress),
     next: nextEntry ? { slug: nextEntry.slug, label: nextEntry.label, open: nowOpen } : null,
     // 次が開かない理由を、そのまま伝える
     blocked: nextEntry && !nowOpen ? "次の回は、お申し込みの範囲に入ってから開きます" : "",
