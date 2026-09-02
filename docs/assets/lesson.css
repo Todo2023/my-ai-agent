@@ -193,6 +193,18 @@ html{overflow-x:clip;}
     max-height:calc(100vh - 48px);overflow-y:auto;}
 }
 
+/* --- ワークのお題。書く欄のすぐ上に置く --- */
+.task{margin:0 0 14px;padding:15px 18px;background:#fff;
+  border:1px solid var(--hairline);border-left:2px solid var(--red);}
+.task-head{font-size:11px;letter-spacing:.18em;color:var(--red-deep);
+  text-transform:uppercase;margin-bottom:9px;}
+.task-body{font-size:14px;line-height:1.95;}
+.task-body p{margin:0 0 8px;}
+.task-body p:last-child{margin-bottom:0;}
+.task-body ol,.task-body ul{margin:0;padding-left:1.35em;}
+.task-body li{margin-bottom:5px;}
+.task-body li:last-child{margin-bottom:0;}
+
 /* --- 用語。回の情報の下に置く --- */
 .terms{margin-top:22px;padding-top:18px;border-top:1px solid var(--hairline);}
 .terms-head{font-size:11px;letter-spacing:.18em;color:var(--red-deep);
@@ -293,7 +305,8 @@ html{overflow-x:clip;}
 
 /* --- 鍵のかかった回 --- */
 .lrow.is-locked{opacity:.5;cursor:default;}
-.lockmark{width:13px;height:15px;display:inline-block;vertical-align:-2px;
+/* 「読めます」と同じ大きさに見えるよう、文字の大きさに合わせる */
+.lockmark{width:1em;height:1.15em;display:inline-block;vertical-align:-.15em;
   color:var(--text-soft);}
 .lrow.is-locked .ls{color:var(--text-soft);}
 .lrow.is-done .ls{color:var(--red-deep);}
