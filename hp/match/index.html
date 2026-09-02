@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ja">
+<!--
+  ═══════════════════════════════════════════════════════════
+   経営者・研究者マッチング　事前登録フォーム
+
+   会社トップ（../index.html）には手を入れていない。
+   このフォルダだけで完結する新規ページ。
+
+   見た目は ../style.css（全ページ共通）＋ form.css（このページ専用）。
+   動きは ../app.js（メニュー）＋ form.js（入力チェックと送信）。
+
+   入力項目は CLAUDE.md のデータスキーマと 1:1 で対応させてある。
+   name 属性 = Supabase の profiles テーブルのカラム名。
+   項目を足すときは、この3つを必ずそろえる。
+     1. ここに <input name="カラム名"> を足す
+     2. form.js の FIELDS に足す
+     3. profiles テーブルにカラムを足す
+  ═══════════════════════════════════════════════════════════
+-->
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>経営者・研究者マッチング　事前登録｜合同会社To do</title>
+<meta name="description" content="経営者・研究者のプロフィールを事前登録すると、相性の良い相手とその理由、初回メッセージの下書きをAIが用意します。送るかどうかは必ずご本人が決めます。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<!-- 個人情報を入力するページなので、検索避けは公開後も外さない -->
+<meta name="robots" content="noindex, nofollow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="合同会社To do" />
+<meta property="og:title" content="経営者・研究者マッチング　事前登録｜合同会社To do" />
+<meta property="og:description" content="プロフィールを登録すると、相性の良い相手と会う理由をAIが提案します。送信の判断は必ずご本人が行います。" />
+<meta property="og:locale" content="ja_JP" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="stylesheet" href="../style.css" />
+<link rel="stylesheet" href="form.css" />
+</head>
+<body>
+
+<!-- 検証中の告知。本番運用に切り替えるときに、この1行を消す -->
+<div class="demo-bar">
+  <b>テスト運用中</b>：いまは登録の仕組みを検証している段階です。いただいた内容は、この検証の範囲でのみ扱います。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="../">合同会社To do<small>MATCHING</small></a>
+    <nav>
+      <a href="#about">できること</a>
+      <a href="#flow">進め方</a>
+      <a href="#form">登録フォーム</a>
+      <a href="../#company">会社概要</a>
+    </nav>
+    <a class="btn btn-primary head-cta" href="#form">登録する</a>
+    <button class="menu-btn" id="menu-btn" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span></button>
+  </div>
+  <div class="wrap" id="drawer">
+    <a href="#about">できること</a>
+    <a href="#flow">進め方</a>
+    <a href="#form">登録フォーム</a>
+    <a href="#faq">よくあるご質問</a>
+    <a href="../">会社トップへ</a>
+    <a class="btn btn-primary" href="#form">登録する</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="hero">
+    <div class="wrap">
+      <span class="tag">経営者・研究者マッチング</span>
+      <h1>会ったほうがいい人を、<br /><em>会う理由つきで</em>お知らせします。</h1>
+      <p>
+        プロフィールをご登録いただくと、相性の良い相手と「なぜ会うと良さそうか」をAIが整理し、
+        初回メッセージの下書きまで用意します。<br />
+        送るかどうかを決めるのは、いつでもご本人です。AIが勝手に連絡することはありません。
+      </p>
+      <ul class="facts">
+        <li>入力 5〜10分</li>
+        <li>送信は本人の承認制</li>
+        <li>登録は無料</li>
+      </ul>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#form">登録フォームへ</a>
+        <a class="btn btn-line" href="#about">できることを見る</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="wrap">
+      <span class="eyebrow">WHAT WE DO</span>
+      <h2 class="sec-title">名刺交換の前に、会う理由をそろえておく</h2>
+      <p class="sec-lead">
+        経営者・研究者の方から、こういう声をよく聞きます。
+      </p>
+      <ul class="checks">
+        <li>会えば早いのは分かるが、誰に会えばいいかが分からない</li>
+        <li>交流会に行っても、その場かぎりの名刺交換で終わる</li>
+        <li>自分の専門を、畑違いの相手にうまく説明できない</li>
+        <li>紹介したい気持ちはあるが、間に立つ文章を書く時間がない</li>
+      </ul>
+      <p class="after-checks">「誰に、なぜ、何と言って声をかけるか」を、先に用意しておきます。</p>
+    </div>
+  </section>
+
+  <section class="tint" id="flow">
+    <div class="wrap">
+      <span class="eyebrow">FLOW</span>
+      <h2 class="sec-title">登録してからの流れ</h2>
+      <p class="sec-lead">ご登録後、こちらから折り返しご連絡します。</p>
+
+      <ol class="flow">
+        <li>
+          <span class="n">1</span>
+          <span>
+            <span class="when">5〜10分</span>
+            <h3>プロフィールを登録する</h3>
+            <p>下のフォームにご記入ください。自由記述が多いほど、提案の精度が上がります。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <span>
+            <span class="when">こちらの作業</span>
+            <h3>代理プロフィールをつくる</h3>
+            <p>ご記入内容をもとに、相手に伝わる形の紹介文をAIが整えます。公開範囲はご指定に従います。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <span>
+            <span class="when">随時</span>
+            <h3>相性の良い相手をお知らせする</h3>
+            <p>会うと良さそうな理由と、初回メッセージの下書きを添えてご連絡します。</p>
+          </span>
+        </li>
+        <li>
+          <span class="n">4</span>
+          <span>
+            <span class="when">ご本人の判断</span>
+            <h3>確認・修正して、承認する</h3>
+            <p>下書きはそのまま使っても、書き直しても構いません。承認されるまで相手には届きません。</p>
+          </span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 登録フォーム ═══
+       各セクションは CLAUDE.md のデータスキーマの
+       セクション1〜5にそのまま対応している。 -->
+  <section id="form">
+    <div class="wrap">
+      <span class="eyebrow">ENTRY</span>
+      <h2 class="sec-title">事前登録フォーム</h2>
+      <p class="sec-lead">
+        <span class="req">必須</span> の項目だけでも登録できます。<br />
+        <b>セクション4（任意）</b>は、マッチングの精度がいちばん変わるところです。お時間があればぜひ。
+      </p>
+
+      <!-- 下書きを復元したときだけ出る -->
+      <div class="draft-bar" id="draft-bar" hidden>
+        <span>前回の入力内容を復元しました（この端末の中だけに保存しています）。</span>
+        <button type="button" class="draft-clear" id="draft-clear">下書きを消す</button>
+      </div>
+
+      <form id="profile-form" novalidate autocomplete="on">
+
+        <!-- ── セクション1：基本情報 ── -->
+        <fieldset class="fs">
+          <legend><span class="step">SECTION 1</span>基本情報</legend>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-name">お名前<span class="req">必須</span></label>
+              <input type="text" id="f-name" name="name" autocomplete="name" placeholder="例）東 太郎" />
+              <p class="err" id="e-name" hidden></p>
+            </div>
+            <div class="field">
+              <label for="f-organization">所属機関・会社名<span class="req">必須</span></label>
+              <input type="text" id="f-organization" name="organization" autocomplete="organization" placeholder="例）○○大学 工学部／株式会社○○" />
+              <p class="err" id="e-organization" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-title">役職・肩書き<span class="req">必須</span></label>
+              <input type="text" id="f-title" name="title" autocomplete="organization-title" placeholder="例）助教／代表取締役" />
+              <p class="err" id="e-title" hidden></p>
+            </div>
+            <div class="field">
+              <label for="f-industry">業種・専門分野<span class="req">必須</span></label>
+              <input type="text" id="f-industry" name="industry" placeholder="例）材料工学／精密機械の製造" />
+              <p class="hint">研究分野・業種を、ひとことで。</p>
+              <p class="err" id="e-industry" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-org_size">組織の規模<span class="opt">任意</span></label>
+              <select id="f-org_size" name="org_size">
+                <option value="">選択しない</option>
+                <option>個人・研究室（1〜9名）</option>
+                <option>10〜49名</option>
+                <option>50〜299名</option>
+                <option>300名以上</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-region">活動拠点<span class="req">必須</span></label>
+              <input type="text" id="f-region" name="region" placeholder="例）東京都／関西／オンライン中心" />
+              <p class="err" id="e-region" hidden></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-email">連絡先メール<span class="req">必須</span></label>
+            <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" placeholder="例）taro@example.ac.jp" />
+            <p class="hint">ご提案のご連絡に使います。相手方には、ご本人が承認するまで伝えません。</p>
+            <p class="err" id="e-email" hidden></p>
+          </div>
+        </fieldset>
+
+        <!-- ── セクション2：プロフィール ── -->
+        <fieldset class="fs">
+          <legend><span class="step">SECTION 2</span>プロフィール</legend>
+          <p class="fs-lead">ここに書いていただいた文章が、代理プロフィールのもとになります。</p>
+
+          <div class="field">
+            <label for="f-background">経歴・専門分野<span class="req">必須</span></label>
+            <p class="hint">これまで何をしてきた方か。専門用語はそのままで構いません。</p>
+            <textarea id="f-background" name="background" rows="5" placeholder="例）○○大学で結晶成長を専攻。企業の研究所で5年、いまは大学で薄膜材料の研究をしています。"></textarea>
+            <p class="err" id="e-background" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-current_work">現在取り組んでいること<span class="req">必須</span></label>
+            <p class="hint">いま、いちばん時間を使っていることを。</p>
+            <textarea id="f-current_work" name="current_work" rows="5" placeholder="例）低温で成膜できるプロセスの実証。来年度の共同研究の相手を探しています。"></textarea>
+            <p class="err" id="e-current_work" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-strengths">得意なこと・提供価値<span class="req">必須</span></label>
+            <p class="hint">相手にとって、あなたに会う価値になるところ。</p>
+            <textarea id="f-strengths" name="strengths" rows="5" placeholder="例）材料の評価・分析。少量サンプルでも試作から評価まで一貫して見られます。"></textarea>
+            <p class="err" id="e-strengths" hidden></p>
+          </div>
+        </fieldset>
+
+        <!-- ── セクション3：会いたい相手像 ── -->
+        <fieldset class="fs">
+          <legend><span class="step">SECTION 3</span>会いたい相手像</legend>
+
+          <div class="field">
+            <label for="f-target_profile">会いたい業種・職種<span class="req">必須</span></label>
+            <p class="hint">「こういう人」と言葉で書いてください。会社名の指定でも構いません。</p>
+            <textarea id="f-target_profile" name="target_profile" rows="4" placeholder="例）製造業の技術部門の方。試作の相談ができる中小メーカーだとなお良いです。"></textarea>
+            <p class="err" id="e-target_profile" hidden></p>
+          </div>
+
+          <div class="field">
+            <fieldset class="group" id="g-purpose_tags" aria-describedby="e-purpose_tags">
+              <legend class="glabel">会う目的<span class="req">必須</span><span class="multi">あてはまるものすべて</span></legend>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="共同研究・共同開発の相手を探す" /><span>共同研究・共同開発の相手を探す</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="技術・研究シーズの実用化" /><span>技術・研究シーズの実用化</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="販路・顧客の紹介" /><span>販路・顧客の紹介</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="資金調達・出資の相談" /><span>資金調達・出資の相談</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="採用・人材の紹介" /><span>採用・人材の紹介</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="知見の交換・壁打ち" /><span>知見の交換・壁打ち</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="相談相手・アドバイザーを探す" /><span>相談相手・アドバイザーを探す</span></label>
+              <label class="choice"><input type="checkbox" name="purpose_tags" value="その他" /><span>その他</span></label>
+            </fieldset>
+            <p class="err" id="e-purpose_tags" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-purpose_other">目的の補足<span class="opt">任意</span></label>
+            <input type="text" id="f-purpose_other" name="purpose_other" placeholder="上の選択肢にないもの、補足したいことがあれば" />
+          </div>
+        </fieldset>
+
+        <!-- ── セクション4：意味的マッチング（任意） ── -->
+        <fieldset class="fs accent">
+          <legend><span class="step">SECTION 4</span>もう一歩、精度を上げるために<span class="opt">任意</span></legend>
+          <p class="fs-lead">
+            ここが、いちばんマッチングの質が変わるところです。<br />
+            肩書きが違っても、困りごとが噛み合えば良い出会いになります。
+          </p>
+
+          <div class="field">
+            <label for="f-pain_points">経営課題・関心テーマ<span class="opt">任意</span></label>
+            <p class="hint">いま引っかかっていること。うまくいっていないことでも構いません。</p>
+            <textarea id="f-pain_points" name="pain_points" rows="4" placeholder="例）技術は形になったが、どの業界に持っていけば価値が出るのか判断がつかない。"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="f-near_term_goals">直近で解決したいこと<span class="opt">任意</span></label>
+            <p class="hint">3〜6か月のうちに、片をつけたいこと。</p>
+            <textarea id="f-near_term_goals" name="near_term_goals" rows="4" placeholder="例）年度内に、試作を評価してもらえる企業を1社見つけたい。"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="f-offerable_resources">提供できる知見・リソース<span class="opt">任意</span></label>
+            <p class="hint">相手に渡せるもの。設備・データ・人脈・経験など。</p>
+            <textarea id="f-offerable_resources" name="offerable_resources" rows="4" placeholder="例）学内の分析装置が使えます。材料系の学会に知り合いが多いです。"></textarea>
+          </div>
+        </fieldset>
+
+        <!-- ── セクション5：運用同意 ── -->
+        <fieldset class="fs">
+          <legend><span class="step">SECTION 5</span>取り扱いの確認</legend>
+
+          <div class="field">
+            <fieldset class="group" id="g-ai_consent" aria-describedby="e-ai_consent">
+              <legend class="glabel">AIによる代理プロフィールの生成<span class="req">必須</span></legend>
+              <label class="choice"><input type="checkbox" id="f-ai_consent" name="ai_consent" value="同意する" /><span>ご記入内容をもとに、AIが紹介文とメッセージの下書きを作成することに同意します。<b>作成したものは、ご本人が承認するまで相手方には送られません。</b></span></label>
+            </fieldset>
+            <p class="err" id="e-ai_consent" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-ai_consent_note">同意についての補足<span class="opt">任意</span></label>
+            <input type="text" id="f-ai_consent_note" name="ai_consent_note" placeholder="条件や、避けてほしい表現があれば" />
+          </div>
+
+          <div class="field">
+            <fieldset class="group" id="g-visibility" aria-describedby="e-visibility">
+              <legend class="glabel">相手方への公開範囲<span class="req">必須</span></legend>
+              <label class="choice"><input type="radio" name="visibility" value="実名で公開してよい" /><span>実名で公開してよい</span></label>
+              <label class="choice"><input type="radio" name="visibility" value="所属・会社名のみ公開（氏名は伏せる）" /><span>所属・会社名のみ公開（氏名は伏せる）</span></label>
+              <label class="choice"><input type="radio" name="visibility" value="その他（補足に記入）" /><span>その他（下の補足に記入します）</span></label>
+            </fieldset>
+            <p class="err" id="e-visibility" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-visibility_note">公開範囲の補足<span class="opt">任意</span></label>
+            <input type="text" id="f-visibility_note" name="visibility_note" placeholder="例）同業他社には出さないでほしい" />
+          </div>
+        </fieldset>
+
+        <p class="form-note">
+          お預かりした内容は、マッチングのご提案とご連絡のためだけに使用します。<br />
+          ご本人の承認なく第三者へ提供することはありません。削除のご希望はいつでも承ります。
+        </p>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">この内容で登録する</button>
+        <div id="form-result" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="tint" id="faq">
+    <div class="wrap">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="sec-title">よくあるご質問</h2>
+
+      <div class="faq">
+        <details>
+          <summary>AIが、勝手に相手へ連絡することはありませんか。</summary>
+          <div class="a">ありません。AIが作るのは下書きまでです。文面をご確認・修正いただき、承認された分だけをお送りします。</div>
+        </details>
+        <details>
+          <summary>実名を出したくないのですが。</summary>
+          <div class="a">セクション5で「所属・会社名のみ公開」をお選びください。ご紹介の段階では氏名を伏せ、お会いすることが決まってからお伝えします。</div>
+        </details>
+        <details>
+          <summary>登録したら、必ず誰かを紹介してもらえますか。</summary>
+          <div class="a">お約束はできません。相性の良い相手が見つかったときにご連絡します。無理に人数を合わせることはしません。</div>
+        </details>
+        <details>
+          <summary>登録内容を消したい、直したいときは。</summary>
+          <div class="a">ご登録のメールアドレスからご連絡ください。削除・修正いたします。理由をうかがうことはありません。</div>
+        </details>
+        <details>
+          <summary>費用はかかりますか。</summary>
+          <div class="a">ご登録とご提案までは無料です。検証段階のため、いまは費用をいただく仕組みそのものがありません。</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="fname">合同会社To do</p>
+    <p>経営者・研究者マッチング（検証中）</p>
+    <nav class="fnav">
+      <a href="../">会社トップ</a>
+      <a href="#about">できること</a>
+      <a href="#flow">進め方</a>
+      <a href="#form">登録フォーム</a>
+      <a href="#faq">よくあるご質問</a>
+      <a href="../#company">会社概要</a>
+    </nav>
+    <p class="copy">© 合同会社To do　｜　このページは検証中の受付です。</p>
+  </div>
+</footer>
+
+<div class="sticky">
+  <a class="btn btn-primary" href="#form">登録フォームへ</a>
+</div>
+
+<script src="../app.js"></script>
+<script src="config.js"></script>
+<script src="form.js"></script>
+
+</body>
+</html>

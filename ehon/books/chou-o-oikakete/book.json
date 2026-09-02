@@ -1,0 +1,51 @@
+{
+  "slug": "chou-o-oikakete",
+  "title": "ちょうを おいかけて",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ちょうを おいかけて いくと、はなばたけに つきました。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "空をとぶ黄色いちょう",
+      "text": "ちょうちょが とんで います。",
+      "text_en": "A butterfly is flying."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "ちょうを見上げる子ども",
+      "text": "まって。まって。",
+      "text_en": "Wait. Wait for me."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "木のそばまで来たちょう",
+      "text": "きの ところまで きました。",
+      "text_en": "We reached the tree."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "花ばたけにおりるちょう",
+      "text": "はなばたけに つきました。",
+      "text_en": "We reached a field of flowers."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "花ばたけでちょうを見ている子ども",
+      "text": "ちょうちょが、もう いっぴき。",
+      "text_en": "There is another butterfly!"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "花ばたけの上をとぶ3びきのちょう",
+      "text": "みんなで とんで います。",
+      "text_en": "Now they are all flying together."
+    }
+  ],
+  "title_en": "Chasing a Butterfly",
+  "summary_en": "Chasing a butterfly leads to a field of flowers."
+}

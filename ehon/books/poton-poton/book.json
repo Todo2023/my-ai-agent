@@ -1,0 +1,51 @@
+{
+  "slug": "poton-poton",
+  "title": "ぽとん ぽとん",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "あめの しずくが、ひとつ ずつ おちて きます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "灰色の空から雨が落ちてくる",
+      "text": "ぽとん。",
+      "text_en": "Drip."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "地面に小さな水たまりができる",
+      "text": "ぽとん ぽとん。",
+      "text_en": "Drip, drop."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "水たまりが大きくなる",
+      "text": "みずたまりが おおきく なりました。",
+      "text_en": "The puddle grew bigger."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "水たまりにかえるが来る",
+      "text": "かえるさんが きました。",
+      "text_en": "Frog came."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "雨がやんで花が咲いている",
+      "text": "あめが やみました。",
+      "text_en": "The rain stopped."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "水たまりに空がうつる",
+      "text": "みずたまりに、そらが うつって います。",
+      "text_en": "The sky is in the puddle."
+    }
+  ],
+  "title_en": "Drip, Drop",
+  "summary_en": "Raindrops falling one by one."
+}

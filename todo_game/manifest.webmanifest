@@ -1,0 +1,37 @@
+{
+  "name": "トドの晩酌",
+  "short_name": "晩酌",
+  "description": "回転レーンの皿の蓋を開けて、ご注文と同じ品をトドに食べさせるゲーム。",
+  "lang": "ja",
+  "id": "./game.html",
+  "start_url": "./game.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

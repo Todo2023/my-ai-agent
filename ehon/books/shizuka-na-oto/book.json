@@ -1,0 +1,51 @@
+{
+  "slug": "shizuka-na-oto",
+  "title": "しずかな おと",
+  "author": "編集部",
+  "age_min": 6,
+  "age_max": 9,
+  "genre": "さがす",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "しずかに して みると、いろいろ きこえて きます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "森の中で立ち止まる",
+      "text": "もりの まんなかで、うごくのを やめました。",
+      "text_en": "In the middle of the forest, I stopped moving."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "葉のこすれる音",
+      "text": "はっぱが こすれる おと。",
+      "text_en": "The sound of leaves rubbing together."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "遠くの鳥の声",
+      "text": "とおくの とりの こえ。",
+      "text_en": "A bird calling far away."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "水の流れる音",
+      "text": "みずの ながれる おと。",
+      "text_en": "The sound of running water."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "自分の呼吸に気づく",
+      "text": "そして、じぶんの いきの おと。",
+      "text_en": "And the sound of my own breath."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕方、森を出る",
+      "text": "しずかな ばしょは、しずかでは ありませんでした。",
+      "text_en": "The quiet place was not quiet at all."
+    }
+  ],
+  "title_en": "Quiet Sounds",
+  "summary_en": "Be still, and you hear all kinds of things."
+}

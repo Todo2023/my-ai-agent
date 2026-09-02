@@ -1,0 +1,51 @@
+{
+  "slug": "mizuumi-no-koe",
+  "title": "みずうみの こえ",
+  "author": "編集部",
+  "age_min": 5,
+  "age_max": 8,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "よぶと かえって くる こえの はなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "山にかこまれた湖",
+      "text": "やまの あいだに、みずうみが あります。",
+      "text_en": "Between the mountains there is a lake."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "湖に向かって叫ぶ",
+      "text": "「おーい。」",
+      "text_en": "“Hel-lo!”"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "声が返ってくる",
+      "text": "「おーい。」かえって きました。",
+      "text_en": "“Hel-lo!” It came back."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "小さな声で言ってみる",
+      "text": "ちいさな こえで いって みました。「ありがとう。」",
+      "text_en": "I said it softly. “Thank you.”"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "小さな声は返ってこない",
+      "text": "ちいさすぎて、かえって きませんでした。",
+      "text_en": "It was too soft, and it did not come back."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "大きな声で言い直す",
+      "text": "もういちど、おおきな こえで いいました。",
+      "text_en": "So I said it again, loudly."
+    }
+  ],
+  "title_en": "The Voice of the Lake",
+  "summary_en": "A voice that comes back when you call."
+}

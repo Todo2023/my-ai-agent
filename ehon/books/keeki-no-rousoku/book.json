@@ -1,0 +1,51 @@
+{
+  "slug": "keeki-no-rousoku",
+  "title": "ケーキの ろうそく",
+  "author": "編集部",
+  "age_min": 3,
+  "age_max": 5,
+  "genre": "きもち",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ろうそくが、なかなか きえません。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "ろうそくの立ったケーキ",
+      "text": "きょうは たんじょうび。",
+      "text_en": "Today is my birthday."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "息をふきかける子ども",
+      "text": "ふう。きえません。",
+      "text_en": "Whoo. They will not go out."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "もう一度ふく",
+      "text": "ふう ふう。まだ きえません。",
+      "text_en": "Whoo, whoo. Still burning."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "いぬも一緒にふく",
+      "text": "いぬさんも いっしょに ふきました。",
+      "text_en": "Dog blew with me."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "ろうそくが消えて煙が出る",
+      "text": "きえた。",
+      "text_en": "Out!"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夜の家",
+      "text": "けむりの においが、しばらく のこりました。",
+      "text_en": "The smell of smoke stayed for a while."
+    }
+  ],
+  "title_en": "The Birthday Candles",
+  "summary_en": "The candles will not go out."
+}

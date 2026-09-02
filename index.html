@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>アプリ置き場</title>
+<meta name="description" content="このサイトに置いてあるアプリの一覧。どれもインストール無料・アカウント不要。" />
+<meta name="theme-color" content="#0d1020" />
+<meta name="color-scheme" content="dark" />
+<!--
+  ここには manifest も Service Worker も置かない。
+  直下にアプリを置くと担当範囲がサイト全体に広がり、
+  下の階層のアプリのリンクまで横取りしてしまうため。
+  アプリは1つずつフォルダに分けて、それぞれの中で完結させる。
+-->
+<style>
+  :root { --bg: #0d1020; --text: #e8ecf8; --dim: #8d97b8; --line: rgba(232,236,248,0.12); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    padding: max(36px, env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
+    background: radial-gradient(120% 70% at 50% -10%, #1b2240 0%, rgba(27,34,64,0) 60%), var(--bg);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 26px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: 0.14em; }
+  .lead { margin: -16px 0 0; font-size: 12.5px; line-height: 1.9; color: var(--dim); text-align: center; max-width: 24em; }
+  ul { list-style: none; margin: 0; padding: 0; width: min(100%, 460px); display: flex; flex-direction: column; gap: 12px; }
+  a.app {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; border-radius: 16px;
+    background: rgba(232,236,248,0.05); border: 1px solid var(--line);
+    color: inherit; text-decoration: none;
+  }
+  a.app:active { background: rgba(232,236,248,0.09); }
+  a.app img { width: 52px; height: 52px; border-radius: 13px; flex: 0 0 auto; }
+  a.app .t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  a.app .n { font-size: 15px; font-weight: 700; }
+  a.app .d { font-size: 12px; line-height: 1.6; color: var(--dim); }
+  a.app .mark {
+    width: 52px; height: 52px; border-radius: 13px; flex: 0 0 auto;
+    display: grid; place-items: center;
+    background: linear-gradient(160deg, #1d3f6b, #12294a);
+    font-size: 15px; font-weight: 700; letter-spacing: 0.06em; color: #dce6f6;
+  }
+  a.app .n .tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; vertical-align: 1px;
+    margin-left: 7px; padding: 2px 7px; border-radius: 999px;
+    background: rgba(224,96,47,0.18); color: #ffb992;
+  }
+  footer { font-size: 11px; line-height: 1.9; color: rgba(141,151,184,0.7); text-align: center; max-width: 26em; }
+</style>
+</head>
+<body>
+
+<h1>アプリ置き場</h1>
+<p class="lead">スマホのホーム画面に入れて使えます。<br />インストールは無料、アカウントも審査もありません。</p>
+
+<ul>
+  <li>
+    <a class="app" href="meshi/">
+      <img src="meshi/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">スクショ飯</span>
+        <span class="d">行きたい店のスクショを貯めて、行ったらチェック</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="todo_game/">
+      <img src="todo_game/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">トドの晩酌</span>
+        <span class="d">回転レーンの皿を開けて、注文どおりの品を食べさせる</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="kakei/">
+      <img src="kakei/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">家計のみらい</span>
+        <span class="d">毎月の収支から、この先の残高を1本の線にする</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="breakout/">
+      <img src="breakout/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">ブロック崩し</span>
+        <span class="d">指でドラッグして遊ぶ、シンプルなブロック崩し</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <!--
+      ふたりの体重帳。もとは docs/ に置いていたが、講座のページと同じ場所に
+      なってしまったので taiju/ に移した。中身は1文字も変えていない。
+      記録は Apps Script 側にあるので、置き場所が変わっても消えない。
+    -->
+    <a class="app" href="taiju/">
+      <img src="taiju/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">ふたりの体重帳</span>
+        <span class="d">体重計の写真から数字を読み取って、2人分を記録する</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="ehon/">
+      <img src="ehon/icon-192.png" alt="" width="52" height="52" />
+      <span class="t">
+        <span class="n">えほんの棚<span class="tag">試作</span></span>
+        <span class="d">絵本をめくって読む。ふりがな・読み上げつき</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="biz/">
+      <span class="mark" aria-hidden="true">文庫</span>
+      <span class="t">
+        <span class="n">ハタラク文庫<span class="tag">試作</span></span>
+        <span class="d">マーケ・事業づくりの記事置き場。Markdownで書く</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="someday/">
+      <span class="mark" aria-hidden="true">☐</span>
+      <span class="t">
+        <span class="n">Someday<span class="tag">提案</span></span>
+        <span class="d">つくる部門（アプリ・音楽）のサイト案。実績は上のアプリ</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="hp/">
+      <span class="mark" aria-hidden="true">To do</span>
+      <span class="t">
+        <span class="n">合同会社To do<span class="tag">デモ</span></span>
+        <span class="d">会社サイトの試作。事業ごとにページを分けてある</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="office/">
+      <span class="mark" aria-hidden="true">席</span>
+      <span class="t">
+        <span class="n">MTGルーム<span class="tag">デモ</span></span>
+        <span class="d">部屋を歩いてAI担当者に話しかけ、迎えて、仕事を渡す</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="app" href="eigyo/">
+      <span class="mark" aria-hidden="true">営業</span>
+      <span class="t">
+        <span class="n">営業AIの作業台<span class="tag">社内用</span></span>
+        <span class="d">商談準備・リスト作り・メール下書きのプロンプトを作る</span>
+      </span>
+    </a>
+  </li>
+</ul>
+
+<footer>どれも通信なしで動きます（保存も端末の中だけ）。<br />アプリごとにフォルダを分けてあるので、1つ入れても他の邪魔をしません。</footer>
+
+</body>
+</html>

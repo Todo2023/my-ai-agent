@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>えほんの棚（仮）</title>
+<meta name="description" content="よみたい えほんを えらんで、そのまま よめる棚。試作中です。" />
+<meta name="theme-color" content="#c25b3a" />
+<meta name="color-scheme" content="light" />
+<meta name="robots" content="noindex" /><!-- 試作のため検索避け。公開時にこの行を消す -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c25b3a'/%3E%3Cpath d='M6 8h9v17H6zM17 8h9v17h-9z' fill='%23fffaf2'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a class="skip" href="#main">本文へ</a>
+
+<div class="demo-bar">
+  <b>試作中</b>：えほんは しくみを ためすための サンプルです。とうこうは まだ うけつけていません。
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="./">えほんの棚</a>
+    <nav>
+      <a href="en/" lang="en">English</a>
+      <a href="make.html">つくる</a>
+      <a href="../admin/">審査</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="hero">
+      <h1>よみたい えほんを えらんで、そのまま よめる棚</h1>
+      <p>ふりがなは いつでも 消せます。よみあげは 端末の こえを つかうので、通信も 費用も かかりません。</p>
+      <p>どの えほんにも <b>英語の文</b>が ついて います。読む画面の「EN」で 消したり 出したり できます。</p>
+
+      <!--
+        おうちの方むけの応援リンク。**子どもに押させるものではない**ので、
+        大人の言葉のまま棚の上に置く（sekkei/platform-kids.md）。
+        config.js の SUPPORT_URL が本番のものになるまで app.js が隠す。
+      -->
+      <p class="support-foot" id="support-foot" hidden>
+        <a id="support-foot-link" href="#" target="_blank" rel="noopener">
+          おうちの方へ：この棚を応援する（100円から）
+        </a>
+      </p>
+    </div>
+
+    <!-- としで えらぶ / ジャンルで えらぶ の2枚。中身は app.js が入れる -->
+    <div class="tabs" id="tabs" role="tablist" aria-label="えほんの えらびかた"></div>
+    <div class="filters" id="filters" role="tabpanel"></div>
+
+    <ul class="shelf" id="shelf"></ul>
+    <p class="empty" id="empty" hidden>その としの えほんが まだ ありません。</p>
+
+    <div class="note">
+      <b>おうちの方へ。</b>
+      このページは、子どものアカウントを作りません。読んだ記録は端末の中だけに残り、どこにも送られません。
+      投稿は、公開の前に人が全ページを見てから出す仕組みにする予定です（まだ受け付けていません）。
+      設計は <code>sekkei/platform-kids.md</code> にあります。
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>えほんの棚（仮）— 合同会社To do の試作。</p>
+    <p>えほんは ぜんぶ 無料です。<strong>有料の販売は していません。</strong></p>
+
+    <!-- 上と同じ応援リンク。下まで読んだ人にも出す。app.js が両方まとめて出す -->
+    <p class="support-foot" id="support-foot2" hidden>
+      <a id="support-foot-link2" href="#" target="_blank" rel="noopener">
+        おうちの方へ：この棚を応援する（100円から）
+      </a>
+    </p>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

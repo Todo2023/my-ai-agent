@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ブロック崩し</title>
+<meta name="theme-color" content="#0d1020" />
+<meta name="color-scheme" content="dark" />
+<!--
+  引っ越しの受け皿。
+  ブロック崩しは breakout/ に移したが、すでにホーム画面に入っている
+  アイコンはしばらくこのURL（旧 start_url）を開きにくる。
+  そのまま新しい場所へ送る。端末側の設定が更新されれば通らなくなる。
+-->
+<link rel="canonical" href="./breakout/game.html" />
+<script>location.replace("./breakout/game.html" + location.search + location.hash);</script>
+<style>
+  body {
+    margin: 0; min-height: 100dvh; display: grid; place-items: center;
+    background: #0d1020; color: #e8ecf8;
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    font-size: 14px; text-align: center; padding: 24px;
+  }
+  a { color: #9fb2e8; }
+</style>
+</head>
+<body>
+<p>移動しました。<br /><a href="./breakout/game.html">ブロック崩しを開く</a></p>
+</body>
+</html>

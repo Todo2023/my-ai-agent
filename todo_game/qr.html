@@ -1,0 +1,116 @@
+<title>トドの晩酌 QR</title>
+<style>
+  :root {
+    --sea-900: #0b1220;
+    --sea-800: #101b2e;
+    --sea-700: #16273f;
+    --ice: #d8e8f2;
+    --ice-dim: #8ea6bb;
+    --lantern: #f0a63c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 40px 20px 56px;
+    background:
+      radial-gradient(120% 70% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 60%),
+      var(--sea-900);
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: clamp(24px, 6vw, 34px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+    color: #fbe3bd;
+    text-shadow: 0 0 22px rgba(240,166,60,0.4);
+  }
+  .lead {
+    margin: -18px 0 0;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    color: var(--ice-dim);
+  }
+  .cards { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; width: 100%; }
+  .card {
+    flex: 1 1 300px;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 20px 24px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, var(--sea-700), var(--sea-800));
+    box-shadow: 0 0 0 1px rgba(216,232,242,0.10), 0 24px 50px -26px rgba(0,0,0,0.9);
+  }
+  .card.now { box-shadow: 0 0 0 1px rgba(240,166,60,0.45), 0 24px 50px -26px rgba(0,0,0,0.9), 0 0 60px -30px rgba(240,166,60,0.7); }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-indent: 0.24em;
+    color: var(--lantern);
+  }
+  .card h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    letter-spacing: 0.08em;
+  }
+  .qr {
+    width: min(240px, 62vw);
+    aspect-ratio: 1;
+    padding: 12px;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .url {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--ice-dim);
+    word-break: break-all;
+    text-align: center;
+  }
+  .note { font-size: 12px; line-height: 1.8; color: var(--ice-dim); text-align: center; }
+  .note b { color: #fbe3bd; font-weight: 600; }
+  footer { font-size: 11px; line-height: 1.9; color: var(--ice-dim); max-width: 480px; text-align: center; }
+</style>
+
+<h1>トドの晩酌</h1>
+<p class="lead">カメラで読み取ってスマホで開く</p>
+
+<div class="cards">
+  <div class="card now">
+    <span class="tag">インストールできる</span>
+    <h2>アプリ版（PWA）</h2>
+    <div class="qr"><svg viewBox="0 0 41 41" class="segno"><path class="qrline" stroke="#0b1220" d="M2 2.5h7m1 0h1m1 0h1m1 0h4m2 0h2m6 0h1m3 0h7m-37 1h1m5 0h1m2 0h1m1 0h3m3 0h1m3 0h1m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h5m1 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h2m3 0h3m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m6 0h2m4 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m3 0h1m2 0h2m4 0h1m1 0h2m2 0h2m1 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h6m2 0h1m1 0h1m1 0h3m1 0h3m-24 1h2m3 0h2m1 0h1m2 0h2m1 0h1m1 0h1m1 0h2m5 0h1m1 0h1m1 0h1m1 0h1m-36 1h4m3 0h1m3 0h1m1 0h2m2 0h1m5 0h5m2 0h2m1 0h1m-35 1h4m1 0h3m2 0h1m1 0h2m1 0h3m1 0h4m1 0h5m1 0h1m4 0h2m-37 1h1m2 0h2m4 0h5m1 0h1m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m1 0h2m-36 1h1m1 0h2m1 0h3m1 0h1m1 0h1m1 0h2m5 0h3m3 0h2m1 0h2m1 0h1m2 0h1m-32 1h1m1 0h4m1 0h3m1 0h1m1 0h3m1 0h2m1 0h5m1 0h1m2 0h1m-34 1h2m1 0h1m1 0h1m2 0h3m2 0h6m3 0h1m3 0h1m2 0h2m1 0h1m1 0h2m-37 1h2m1 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m2 0h3m8 0h2m1 0h1m-35 1h2m2 0h2m4 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h3m1 0h3m-37 1h1m2 0h3m1 0h1m6 0h1m7 0h3m1 0h4m3 0h2m-34 1h2m3 0h1m1 0h1m1 0h1m1 0h4m1 0h3m2 0h1m1 0h2m1 0h2m2 0h2m3 0h1m-37 1h1m1 0h2m7 0h4m2 0h1m1 0h4m1 0h1m2 0h3m5 0h2m-36 1h1m1 0h4m3 0h1m2 0h2m1 0h2m2 0h1m4 0h2m3 0h3m1 0h1m-33 1h2m5 0h2m1 0h1m5 0h3m1 0h3m1 0h3m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h1m4 0h5m1 0h4m1 0h1m4 0h1m2 0h1m2 0h4m-37 1h2m1 0h2m2 0h2m7 0h2m1 0h5m3 0h1m1 0h3m-31 1h6m1 0h1m1 0h1m1 0h1m8 0h2m2 0h2m3 0h2m1 0h1m1 0h2m-37 1h5m4 0h2m4 0h2m7 0h1m2 0h2m2 0h1m1 0h3m-36 1h1m3 0h1m1 0h1m1 0h1m1 0h3m4 0h1m1 0h2m1 0h1m3 0h3m1 0h7m-37 1h1m2 0h1m4 0h1m4 0h4m2 0h1m1 0h1m2 0h1m1 0h4m2 0h3m1 0h1m-37 1h1m1 0h5m1 0h1m2 0h1m2 0h1m1 0h5m3 0h3m1 0h5m1 0h1m-27 1h1m4 0h2m1 0h2m1 0h2m1 0h2m3 0h2m3 0h2m-34 1h7m3 0h1m1 0h1m1 0h1m3 0h4m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m1 0h2m1 0h3m1 0h3m1 0h1m1 0h2m4 0h2m3 0h2m1 0h1m-36 1h1m1 0h3m1 0h1m3 0h5m1 0h1m1 0h1m1 0h13m1 0h2m-36 1h1m1 0h3m1 0h1m2 0h5m1 0h1m1 0h2m2 0h1m3 0h3m2 0h1m3 0h1m-35 1h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h2m1 0h1m2 0h6m1 0h2m1 0h1m1 0h2m1 0h1m-37 1h1m5 0h1m3 0h1m1 0h6m4 0h2m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-37 1h7m3 0h1m1 0h2m1 0h4m2 0h2m1 0h1m1 0h3m7 0h1"/></svg></div>
+    <p class="note">ログイン不要。<b>ホーム画面に追加すると本物のアプリとして起動</b>し、<br />一度開けばオフラインでも遊べます。</p>
+    <p class="url">todo2023.github.io/todo-banshaku/</p>
+  </div>
+
+  <div class="card">
+    <span class="tag">スマホで開く</span>
+    <h2>Artifact 版</h2>
+    <div class="qr"><svg viewBox="0 0 53 53" class="segno"><path class="qrline" stroke="#0b1220" d="M2 2.5h7m1 0h1m2 0h2m5 0h1m1 0h3m1 0h1m1 0h1m2 0h2m4 0h2m3 0h1m1 0h7m-49 1h1m5 0h1m1 0h4m1 0h1m3 0h3m3 0h1m1 0h1m2 0h1m1 0h2m2 0h1m1 0h5m1 0h1m5 0h1m-49 1h1m1 0h3m1 0h1m1 0h3m1 0h3m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m6 0h2m1 0h1m1 0h3m1 0h1m-49 1h1m1 0h3m1 0h1m2 0h1m2 0h1m3 0h8m3 0h2m1 0h1m1 0h2m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1m-49 1h1m1 0h3m1 0h1m2 0h1m4 0h6m1 0h8m3 0h2m2 0h2m4 0h1m1 0h3m1 0h1m-49 1h1m5 0h1m1 0h1m2 0h1m1 0h1m2 0h2m2 0h3m3 0h1m3 0h1m1 0h1m1 0h2m2 0h1m3 0h1m5 0h1m-49 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-41 1h2m1 0h1m1 0h3m1 0h2m3 0h1m3 0h4m2 0h2m2 0h1m2 0h1m-38 1h3m1 0h1m1 0h2m2 0h3m1 0h3m1 0h1m1 0h7m1 0h2m1 0h3m2 0h6m2 0h3m-46 1h1m1 0h1m4 0h2m1 0h3m1 0h4m1 0h1m2 0h2m2 0h2m2 0h1m3 0h1m4 0h1m1 0h1m1 0h2m-46 1h2m2 0h1m1 0h2m1 0h2m1 0h3m2 0h1m1 0h4m7 0h1m1 0h2m2 0h1m1 0h1m2 0h1m4 0h1m-49 1h2m2 0h1m2 0h2m3 0h4m2 0h2m3 0h2m4 0h1m2 0h2m3 0h1m2 0h1m1 0h1m1 0h1m-45 1h3m1 0h1m1 0h2m1 0h1m2 0h3m3 0h1m1 0h1m2 0h1m1 0h1m4 0h2m3 0h2m2 0h2m4 0h2m1 0h1m-49 1h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m4 0h5m1 0h2m1 0h1m3 0h1m2 0h1m1 0h2m2 0h1m-44 1h1m1 0h6m2 0h1m1 0h1m5 0h2m1 0h3m2 0h1m1 0h5m1 0h5m2 0h1m3 0h2m-47 1h1m1 0h1m4 0h1m3 0h2m3 0h3m2 0h1m1 0h4m1 0h1m1 0h2m5 0h3m2 0h2m-46 1h1m2 0h1m1 0h3m4 0h4m2 0h4m1 0h3m1 0h1m2 0h2m3 0h3m1 0h1m7 0h2m-49 1h1m1 0h2m3 0h1m3 0h1m1 0h1m2 0h2m2 0h2m1 0h1m1 0h2m5 0h2m1 0h2m3 0h2m1 0h1m1 0h2m-44 1h2m1 0h1m3 0h1m3 0h2m1 0h1m4 0h4m1 0h3m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m-49 1h1m1 0h1m4 0h1m1 0h3m2 0h1m3 0h1m1 0h1m2 0h1m3 0h1m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h3m2 0h2m-49 1h2m2 0h1m1 0h1m3 0h1m2 0h1m3 0h1m1 0h1m6 0h1m1 0h1m1 0h2m4 0h5m1 0h2m2 0h3m-49 1h3m1 0h1m2 0h3m1 0h3m1 0h5m5 0h1m1 0h2m2 0h2m2 0h2m4 0h2m3 0h1m-46 1h1m1 0h6m1 0h1m1 0h1m1 0h1m3 0h2m2 0h5m2 0h2m1 0h1m1 0h1m3 0h1m1 0h9m-49 1h2m2 0h1m3 0h2m3 0h2m6 0h2m3 0h1m2 0h1m3 0h1m3 0h1m1 0h2m3 0h1m3 0h1m-45 1h1m1 0h1m1 0h1m2 0h3m1 0h1m4 0h1m1 0h1m1 0h1m1 0h11m2 0h2m1 0h1m1 0h5m-49 1h1m2 0h2m3 0h1m1 0h1m1 0h4m1 0h6m3 0h1m5 0h1m2 0h1m1 0h1m1 0h2m3 0h2m2 0h1m-48 1h8m1 0h1m1 0h1m1 0h2m1 0h2m3 0h5m1 0h1m2 0h2m1 0h2m2 0h1m1 0h5m2 0h1m-48 1h2m1 0h2m6 0h1m2 0h5m1 0h1m2 0h1m2 0h2m9 0h1m3 0h1m1 0h1m-44 1h1m4 0h3m4 0h4m1 0h4m4 0h2m2 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h3m-47 1h1m2 0h1m2 0h1m1 0h3m1 0h1m1 0h3m1 0h4m2 0h1m3 0h2m4 0h1m3 0h3m3 0h2m-47 1h2m3 0h2m1 0h2m2 0h11m1 0h1m1 0h2m1 0h1m3 0h2m1 0h4m1 0h3m4 0h1m-48 1h2m1 0h1m3 0h1m2 0h2m2 0h1m2 0h1m2 0h1m1 0h5m3 0h1m1 0h5m2 0h1m4 0h1m-44 1h2m2 0h1m2 0h3m1 0h2m4 0h2m1 0h2m2 0h3m4 0h1m2 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m-49 1h1m2 0h3m1 0h3m2 0h5m1 0h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m3 0h2m1 0h1m-42 1h6m1 0h2m2 0h2m2 0h1m2 0h3m2 0h3m6 0h1m1 0h4m2 0h1m2 0h1m1 0h2m-49 1h1m1 0h1m4 0h3m1 0h1m1 0h1m2 0h2m4 0h2m3 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h2m3 0h1m1 0h2m-48 1h1m2 0h1m1 0h1m4 0h2m2 0h1m4 0h11m3 0h1m1 0h1m1 0h4m1 0h2m1 0h2m-47 1h3m4 0h8m2 0h1m5 0h1m2 0h2m2 0h1m1 0h1m2 0h2m3 0h2m3 0h1m-46 1h1m3 0h3m1 0h1m2 0h1m2 0h2m3 0h2m2 0h1m3 0h2m2 0h1m1 0h3m1 0h3m1 0h7m-48 1h3m3 0h3m1 0h1m1 0h2m2 0h1m2 0h2m1 0h3m6 0h1m1 0h1m2 0h2m2 0h1m1 0h1m2 0h3m-49 1h3m3 0h1m1 0h1m1 0h1m6 0h2m3 0h5m2 0h1m1 0h1m1 0h2m1 0h1m1 0h8m-38 1h1m1 0h1m2 0h1m1 0h3m1 0h2m1 0h1m3 0h1m1 0h5m1 0h2m1 0h2m1 0h1m3 0h1m-45 1h7m2 0h2m1 0h3m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m2 0h1m1 0h2m3 0h1m1 0h1m1 0h2m1 0h2m-49 1h1m5 0h1m2 0h1m2 0h1m2 0h2m1 0h2m2 0h1m3 0h5m1 0h1m2 0h1m1 0h4m3 0h1m3 0h1m-49 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h10m1 0h1m1 0h1m5 0h9m1 0h3m-49 1h1m1 0h3m1 0h1m1 0h2m1 0h3m2 0h1m5 0h2m3 0h2m3 0h1m3 0h2m3 0h5m2 0h1m-49 1h1m1 0h3m1 0h1m1 0h5m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h1m1 0h3m1 0h2m3 0h2m1 0h3m3 0h2m-49 1h1m5 0h1m4 0h4m1 0h2m1 0h1m3 0h1m2 0h1m5 0h1m4 0h1m3 0h4m3 0h1m-49 1h7m2 0h1m3 0h3m2 0h1m1 0h2m3 0h1m5 0h1m1 0h1m2 0h2m1 0h1m5 0h4"/></svg></div>
+    <p class="note">claude.ai にログインしたスマホで開けます。<br />ホーム画面に追加すると全画面で起動。</p>
+    <p class="url">claude.ai/code/artifact/<br />6af8944f-b976-42e7-b83b-d0bead6d0ac9</p>
+  </div>
+
+</div>
+
+<footer>
+  Android は Chrome のメニューから「アプリをインストール」、iPhone は Safari の共有から「ホーム画面に追加」。<br />
+  どちらも無料で、アカウントも審査も要りません。
+</footer>

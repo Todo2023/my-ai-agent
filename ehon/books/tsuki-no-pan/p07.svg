@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141d3a"/><stop offset="1" stop-color="#2b3a63"/></linearGradient><radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffd98a" stop-opacity=".85"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>
+<rect width="1600" height="1000" fill="#4a3828"/>
+<circle cx="800" cy="420" r="520" fill="url(#glow)"/>
+<rect x="120" y="700" width="1360" height="40" rx="12" fill="#a9784f"/>
+<g fill="#f2c98a"><ellipse cx="330" cy="680" rx="58" ry="36"/><ellipse cx="560" cy="680" rx="58" ry="36"/><ellipse cx="800" cy="680" rx="58" ry="36"/><ellipse cx="1040" cy="680" rx="58" ry="36"/><ellipse cx="1270" cy="680" rx="58" ry="36"/></g>
+<g fill="#6b4a30">
+<circle cx="330" cy="520" r="64"/><circle cx="296" cy="466" r="22"/><circle cx="364" cy="466" r="22"/>
+<circle cx="560" cy="540" r="54"/><circle cx="532" cy="496" r="19"/><circle cx="588" cy="496" r="19"/>
+<circle cx="1040" cy="530" r="58"/><circle cx="1010" cy="484" r="20"/><circle cx="1070" cy="484" r="20"/>
+<circle cx="1270" cy="545" r="50"/><circle cx="1244" cy="504" r="18"/><circle cx="1296" cy="504" r="18"/></g>
+<g fill="#c9cfd9"><circle cx="800" cy="545" r="48"/><circle cx="772" cy="506" r="22"/><circle cx="828" cy="506" r="22"/></g>
+<g fill="#241812"><circle cx="316" cy="516" r="7"/><circle cx="344" cy="516" r="7"/><circle cx="548" cy="536" r="6"/><circle cx="572" cy="536" r="6"/><circle cx="788" cy="542" r="6"/><circle cx="812" cy="542" r="6"/><circle cx="1027" cy="526" r="6"/><circle cx="1053" cy="526" r="6"/><circle cx="1258" cy="542" r="6"/><circle cx="1282" cy="542" r="6"/></g>
+</svg>

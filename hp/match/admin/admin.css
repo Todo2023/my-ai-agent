@@ -1,0 +1,77 @@
+@charset "utf-8";
+
+/*
+  管理画面専用の見た目
+
+  ../../style.css（全ページ共通）と ../form.css（入力欄まわり）を
+  読み込んだあとに重ねる。ここに書くのは管理画面にしかない部品だけ。
+*/
+
+body { padding-bottom: 40px; }
+main { padding: 24px 0 40px; }
+
+.bar .who { margin-left: auto; font-size: 12px; color: var(--dim); }
+.bar .btn.small { width: auto; margin-left: 12px; }
+
+/* ── パネル（画面の大きなまとまり） ── */
+.panel {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 22px 18px; margin-bottom: 18px; background: #fff;
+}
+.panel .sec-title { font-size: 18px; }
+.panel .sec-lead { margin-top: 10px; }
+/* 見出しとボタンを1行に。入りきらないときはボタンが下に回る
+   （見出しのほうが折り返されると読みにくいため nowrap にしてある） */
+.panel-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.panel-head .sec-title { white-space: nowrap; }
+.panel-head .btn { margin-left: auto; }
+
+/* ── 今月の実費 ── */
+.cost { background: var(--tint); border-color: #cfdce9; }
+.big-num {
+  margin-top: 8px; font-size: 34px; font-weight: 700;
+  color: var(--navy); letter-spacing: -.01em;
+}
+
+/* ── カード（マッチ1件 / 人1人） ── */
+.card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 16px; background: #fff; }
+.card + .card { margin-top: 12px; }
+#matches, #profiles { margin-top: 16px; }
+
+.match.approved { border-color: var(--navy); background: #f7fafd; }
+.match-head, .person-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.match-head .pair { font-size: 15px; font-weight: 700; }
+.match-head .score { font-size: 12px; color: var(--dim); }
+.card .org { margin-top: 6px; font-size: 12.5px; color: var(--dim); line-height: 1.8; }
+.card .field { margin-top: 14px; }
+.card textarea { min-height: 0; font-size: 14px; }
+
+/* 状態のしるし */
+.badge {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+  padding: 3px 9px; border-radius: 999px;
+  background: var(--tint); color: var(--dim); border: 1px solid var(--line);
+}
+.badge.pending, .badge.new { background: #fff6ef; color: #8a4a25; border-color: #f3d6c3; }
+.badge.approved, .badge.active { background: #eef8f0; color: #2c6b3a; border-color: #bfe0c6; }
+
+/* ── ボタンの並び ── */
+.row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.row .btn { width: auto; }
+.btn.small { padding: 9px 16px; font-size: 13px; }
+.btn.danger { color: #b3261e; border-color: #e7b4b1; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+/* ── 短い知らせ ── */
+.note { margin-top: 12px; font-size: 12.5px; line-height: 1.85; color: var(--dim); }
+.note.ok { color: #2c6b3a; }
+.note.ng { color: #b3261e; }
+.note[hidden] { display: none; }
+code { font-size: .92em; background: var(--tint); padding: 2px 6px; border-radius: 5px; }
+
+/* ── PC ── */
+@media (min-width: 768px) {
+  .panel { padding: 26px 24px; }
+  #profiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #profiles .card + .card { margin-top: 0; }
+}

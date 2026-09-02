@@ -1,0 +1,51 @@
+{
+  "slug": "densha-no-mado",
+  "title": "でんしゃの まど",
+  "author": "編集部",
+  "age_min": 4,
+  "age_max": 7,
+  "genre": "たび",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "まどの そとを、ずっと みて いた ひの はなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "野原を走る電車",
+      "text": "でんしゃに のりました。",
+      "text_en": "I got on the train."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "山と柵が流れていく",
+      "text": "やまが、ゆっくり うごきます。",
+      "text_en": "The mountains move slowly."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "木が速く過ぎていく",
+      "text": "ちかくの きは、はやい。",
+      "text_en": "The near trees are fast."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "遠くの山はゆっくり",
+      "text": "とおくの やまは、ゆっくり。",
+      "text_en": "The far mountains are slow."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "夕暮れの車窓",
+      "text": "｜同《おな》じ はやさで はしって いるのに、ふしぎです。",
+      "text_en": "We travel at one speed. How strange."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夜、家に着く",
+      "text": "ついた ときには、そとが まっくらでした。",
+      "text_en": "When we arrived, it was dark outside."
+    }
+  ],
+  "title_en": "The Train Window",
+  "summary_en": "A day spent watching out the window."
+}

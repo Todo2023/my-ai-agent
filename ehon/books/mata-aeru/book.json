@@ -1,0 +1,51 @@
+{
+  "slug": "mata-aeru",
+  "title": "また あえる",
+  "author": "編集部",
+  "age_min": 6,
+  "age_max": 9,
+  "genre": "きもち",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "おわかれの ひに、なにを いうか かんがえます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "駅と家",
+      "text": "あした、ひっこして いきます。",
+      "text_en": "Tomorrow I am moving away."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "いつものベンチに2人",
+      "text": "さいごに、いつもの ベンチに すわりました。",
+      "text_en": "We sat on our usual bench one last time."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "何も言えない2人",
+      "text": "なにか いおうと して、いえませんでした。",
+      "text_en": "I tried to say something, but I could not."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "電車が出ていく",
+      "text": "つぎの ひ、でんしゃが でました。",
+      "text_en": "The next day, the train left."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "ひとりでベンチに座る",
+      "text": "ベンチが、ひろく なりました。",
+      "text_en": "The bench felt wide."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夜空を見上げる",
+      "text": "「また あえる。」いえなかった ことばを、いま いいました。",
+      "text_en": "“We will meet again.” I said it now."
+    }
+  ],
+  "title_en": "We Will Meet Again",
+  "summary_en": "Thinking of what to say on the last day."
+}

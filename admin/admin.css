@@ -1,0 +1,142 @@
+@charset "utf-8";
+
+/*
+  審査画面（身内用）
+
+  読み物ではなく道具なので、詰めて出す。
+  記事の本文の見た目は biz/style.css を真似ているが、
+  審査中と公開後で見え方が違うと判断を誤るので、余白だけ詰めて字は同じにしてある。
+*/
+
+:root{
+  --ink:#1b2430;
+  --dim:#657186;
+  --line:#e4e8ee;
+  --bg:#ffffff;
+  --tint:#f6f8fa;
+  --accent:#0f766e;
+  --warn:#a2670a;
+  --danger:#b3402f;
+  --radius:12px;
+  --wrap:1000px;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#e6eaf0; --dim:#98a4b6; --line:#2a3340; --bg:#141a21; --tint:#1b232c;
+    --accent:#4fd1c5; --warn:#e0b062; --danger:#e08472;
+  }
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  font-size:15px; line-height:1.85; letter-spacing:.02em;
+}
+h1,h2{line-height:1.5; margin:0;}
+p{margin:0;}
+ul,ol{margin:0; padding:0; list-style:none;}
+button{font:inherit; color:inherit; cursor:pointer;}
+code{background:var(--tint); border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:.88em;}
+
+.wrap{width:min(100% - 32px, var(--wrap)); margin-inline:auto;}
+.skip{position:absolute; left:-9999px;}
+
+.demo-bar{background:#243040; color:#dbe4f0; font-size:11.5px; line-height:1.7; padding:8px 16px; text-align:center;}
+.demo-bar b{color:#fff;}
+
+header{border-bottom:1px solid var(--line);}
+.bar{display:flex; align-items:center; gap:16px; height:56px;}
+.logo{font-size:15px; font-weight:700; letter-spacing:.06em;}
+.logo small{display:block; font-size:9.5px; letter-spacing:.14em; color:var(--dim);}
+.bar nav{margin-left:auto; display:flex; gap:14px; font-size:13px;}
+.bar nav a{color:var(--dim); text-decoration:none;}
+
+.btn{
+  padding:8px 14px; font-size:13.5px; border-radius:9px;
+  background:var(--tint); border:1px solid var(--line); color:var(--ink);
+}
+.btn:hover{border-color:var(--accent);}
+.btn:disabled{opacity:.4; cursor:default;}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
+.btn.small{padding:5px 10px; font-size:12.5px;}
+
+/* ログイン */
+.login{margin:20px 0; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius); background:var(--tint);}
+.state{font-size:13px; color:var(--dim);}
+.login-row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;}
+.login-row input{
+  flex:1 1 220px; min-width:0; padding:9px 11px; font-size:14px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:9px;
+}
+
+/* タブ */
+.tabs{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 0 16px;}
+.tab{
+  padding:7px 15px; font-size:13.5px; border-radius:999px;
+  background:var(--tint); border:1px solid var(--line); color:var(--dim);
+}
+.tab[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff;}
+.tabs .count{margin-left:auto; font-size:12px; color:var(--dim);}
+
+/* 一覧 */
+.list{display:grid; gap:16px; padding-bottom:56px;}
+.item{border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px 18px; background:var(--bg);}
+.item-head{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.item-head h2{font-size:17px; font-weight:700; flex:1 1 auto; min-width:0;}
+.item-head .when{font-size:11.5px; color:var(--dim); white-space:nowrap;}
+.badge{font-size:11px; border-radius:999px; padding:2px 9px; border:1px solid var(--line); background:var(--tint); color:var(--dim); white-space:nowrap;}
+.badge.site-ehon{color:#c25b3a; border-color:currentColor;}
+.badge.pr{color:var(--warn); border-color:currentColor; font-weight:700;}
+.item-meta{margin-top:8px; font-size:12px; color:var(--dim);}
+
+.item-body{
+  margin-top:14px; padding:14px 16px; max-height:60vh; overflow-y:auto;
+  background:var(--tint); border:1px solid var(--line); border-radius:var(--radius);
+}
+.loading{font-size:13px; color:var(--dim);}
+
+/* 記事の本文 */
+.md h2{margin:20px 0 8px; font-size:17px; padding-bottom:6px; border-bottom:1px solid var(--line);}
+.md h3{margin:16px 0 6px; font-size:15px;}
+.md p{margin:10px 0;}
+.md ul,.md ol{margin:10px 0; padding-left:1.4em;}
+.md ul{list-style:disc;} .md ol{list-style:decimal;}
+.md li{margin:4px 0;}
+.md blockquote{margin:12px 0; padding-left:14px; border-left:3px solid var(--line); color:var(--dim);}
+.md pre{margin:12px 0; padding:12px 14px; overflow-x:auto; background:var(--bg); border:1px solid var(--line); border-radius:9px;}
+.md pre code{background:none; border:0; padding:0; font-size:13px;}
+.md .table-scroll{margin:12px 0; overflow-x:auto; border:1px solid var(--line); border-radius:9px;}
+.md table{border-collapse:collapse; width:100%; font-size:13px;}
+.md th,.md td{padding:8px 11px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top;}
+.md th{background:var(--bg); font-weight:700; white-space:nowrap;}
+.md .msg{margin:12px 0; padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--bg); font-size:14px;}
+.md img{max-width:100%; border-radius:9px;}
+
+/* 絵本のページ */
+.pages{display:grid; gap:10px;}
+.page{display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start;}
+.page-no{
+  min-width:26px; height:26px; display:grid; place-content:center;
+  font-size:12px; font-weight:700; border-radius:50%;
+  background:var(--bg); border:1px solid var(--line); color:var(--dim);
+}
+.page-main{min-width:0;}
+.page-text{font-size:16px; line-height:2.3;}
+.page-text ruby rt{font-size:.5em; color:var(--dim);}
+.page-file{margin-top:2px; font-size:11.5px; color:var(--dim);}
+.page-file .alt{color:var(--dim);}
+.warn{color:var(--warn); font-weight:700;}
+.pages > .warn{margin-top:12px; font-size:12.5px; line-height:1.8; font-weight:400;}
+
+.note{margin-top:10px; font-size:12.5px; color:var(--danger);}
+
+.actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px;}
+
+.empty{padding:36px 0; color:var(--dim); font-size:13.5px;}
+
+footer{border-top:1px solid var(--line); padding:24px 0 40px; font-size:12px; color:var(--dim);}
+footer p{margin:4px 0;}

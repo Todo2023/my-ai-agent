@@ -1,0 +1,51 @@
+{
+  "slug": "ido-no-soko",
+  "title": "いどの そこ",
+  "author": "編集部",
+  "age_min": 5,
+  "age_max": 8,
+  "genre": "さがす",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "いどを のぞいたら、そこに そらが ありました。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "野原にある古い井戸",
+      "text": "むらの はずれに、ふるい いどが あります。",
+      "text_en": "At the edge of the village there is an old well."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "井戸をのぞきこむ子ども",
+      "text": "のぞいて みました。",
+      "text_en": "I looked inside."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "井戸の底に丸い光",
+      "text": "そこに、まるい ひかりが ありました。",
+      "text_en": "Down at the bottom was a round light."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "光の中を何かがよぎる",
+      "text": "なにかが、よこぎりました。",
+      "text_en": "Something crossed it."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "顔を上げると空がある",
+      "text": "かおを あげたら、おなじ かたちの そらが ありました。",
+      "text_en": "I looked up, and the sky had the very same shape."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕暮れの井戸",
+      "text": "いどの そこに あったのは、そらの ほうでした。",
+      "text_en": "What lay at the bottom of the well was the sky."
+    }
+  ],
+  "title_en": "The Bottom of the Well",
+  "summary_en": "Looking into a well and finding the sky."
+}

@@ -1,0 +1,45 @@
+{
+  "slug": "koron-to-tamago",
+  "title": "ころんと たまご",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "genre": "どうぶつ",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ころがって いった たまごの おはなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "草の上のたまご",
+      "text": "たまごが ひとつ。",
+      "text_en": "One egg."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "たまごがころがる",
+      "text": "ころん。",
+      "text_en": "Roll."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "うさぎが追いかける",
+      "text": "ころころ ころん。",
+      "text_en": "Roll, roll, roll."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "たまごが止まる",
+      "text": "とまりました。",
+      "text_en": "It stopped."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "たまごから鳥が出てくる",
+      "text": "ぴい。うまれました。",
+      "text_en": "Peep! It hatched."
+    }
+  ],
+  "title_en": "Roll, Little Egg",
+  "summary_en": "An egg that rolled away."
+}

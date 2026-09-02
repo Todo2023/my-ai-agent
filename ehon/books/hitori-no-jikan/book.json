@@ -1,0 +1,51 @@
+{
+  "slug": "hitori-no-jikan",
+  "title": "ひとりの じかん",
+  "author": "編集部",
+  "age_min": 6,
+  "age_max": 9,
+  "genre": "きもち",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ひとりで いるのが、さびしい ときと そうでない とき。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "みんなで遊んでいる",
+      "text": "みんなで あそぶのは、たのしい。",
+      "text_en": "Playing with everyone is fun."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "みんなが帰ってひとりになる",
+      "text": "みんなが かえると、しずかに なります。",
+      "text_en": "When everyone goes home, it gets quiet."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "ひとりでベンチに座る",
+      "text": "さびしい ときも あります。",
+      "text_en": "Sometimes I feel lonely."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "夜空を見上げる",
+      "text": "でも、きょうは そうでも ありません。",
+      "text_en": "But today I do not."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "流れ星を見る",
+      "text": "ながれぼしを、ひとりで みました。",
+      "text_en": "I watched a shooting star by myself."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "朝、みんなに話す",
+      "text": "あした、みんなに はなそう。",
+      "text_en": "Tomorrow, I will tell everyone."
+    }
+  ],
+  "title_en": "Time Alone",
+  "summary_en": "When being alone is lonely, and when it is not."
+}

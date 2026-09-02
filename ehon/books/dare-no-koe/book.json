@@ -1,0 +1,51 @@
+{
+  "slug": "dare-no-koe",
+  "title": "だれの こえ",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 3,
+  "genre": "どうぶつ",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "きこえて くる こえの ぬしを さがします。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "静かな森",
+      "text": "もりで、こえが しました。",
+      "text_en": "A voice came from the forest."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "木の上の鳥",
+      "text": "「ちいちい。」だれ？",
+      "text_en": "“Chee chee.” Who is that?"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "草の中のねずみ",
+      "text": "「ちゅう。」だれ？",
+      "text_en": "“Squeak.” Who is that?"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "かえる",
+      "text": "「けろ。」だれ？",
+      "text_en": "“Ribbit.” Who is that?"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "みんな集まっている",
+      "text": "みんな いた。",
+      "text_en": "Everyone was here."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕方、手をふる子ども",
+      "text": "「またね。」",
+      "text_en": "“See you again.”"
+    }
+  ],
+  "title_en": "Whose Voice?",
+  "summary_en": "Looking for who is calling."
+}

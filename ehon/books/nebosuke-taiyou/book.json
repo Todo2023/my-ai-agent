@@ -1,0 +1,51 @@
+{
+  "slug": "nebosuke-taiyou",
+  "title": "ねぼすけ たいよう",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "たいようが おきない あさの おはなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "夜の丘に建つ家",
+      "text": "あさに なりました。",
+      "text_en": "Morning came."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "太陽が地平線の下でまだ眠っている",
+      "text": "でも たいようが おきません。",
+      "text_en": "But the sun will not get up."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "鳥が2羽とんでいる",
+      "text": "とりが よびました。「おきて。」",
+      "text_en": "Bird called out. “Wake up.”"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "太陽が少しだけ顔を出す",
+      "text": "たいようが ちょっとだけ おきました。",
+      "text_en": "The sun got up, just a little."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "空高くのぼった太陽と森",
+      "text": "ぱあっ。",
+      "text_en": "Then — whoosh, light everywhere!"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "明るい家の前に立つ子ども",
+      "text": "おはよう。きょうも いい ひ。",
+      "text_en": "Good morning. Another good day."
+    }
+  ],
+  "title_en": "Sleepyhead Sun",
+  "summary_en": "A morning when the sun will not get up."
+}

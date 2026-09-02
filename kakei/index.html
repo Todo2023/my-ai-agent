@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>家計のみらい — アプリとして入れる</title>
+<meta name="description" content="毎月の収支を入れるだけで、この先の残高が1本の線になる。いつまでもつのか、あと月いくら使えるのかが出る。" />
+<meta name="theme-color" content="#0c1416" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="家計のみらい" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta property="og:title" content="家計のみらい" />
+<meta property="og:description" content="いまの暮らしのまま行くと、貯金はいつまでもつのか。" />
+<meta property="og:image" content="./icon-512.png" />
+<script>
+  // ホーム画面のアイコンから開いたときは、案内を挟まずアプリへ
+  if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
+    location.replace("./app.html");
+  }
+</script>
+<style>
+  :root { --bg: #0c1416; --text: #e6f2ee; --dim: #8ba8a2; --mint: #4fd6a9; --mint-soft: #93e8ca; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    padding: max(28px, env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(120% 70% at 50% -10%, #16302b 0%, rgba(22,48,43,0) 62%),
+      radial-gradient(90% 50% at 50% 106%, rgba(79,214,169,0.13) 0%, rgba(79,214,169,0) 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px; text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mark {
+    width: 116px; height: 116px; border-radius: 26px;
+    box-shadow: 0 0 0 1px rgba(230,242,238,0.12), 0 24px 50px -22px rgba(0,0,0,0.9), 0 0 70px -28px rgba(79,214,169,0.7);
+  }
+  h1 {
+    margin: 0; font-size: clamp(26px, 7.5vw, 36px); font-weight: 700;
+    letter-spacing: 0.16em; text-indent: 0.16em; color: #d5f5e7;
+    text-shadow: 0 0 24px rgba(79,214,169,0.35);
+  }
+  .lead { margin: -10px 0 0; font-size: 13.5px; line-height: 2; color: var(--dim); max-width: 21em; }
+  .lead b { color: #d5f5e7; }
+  .how {
+    margin: 0; padding: 16px 20px; max-width: 24em; width: 100%;
+    border-radius: 14px; background: rgba(230,242,238,0.045); border: 1px solid rgba(230,242,238,0.10);
+    font-size: 12.5px; line-height: 2; color: var(--dim); text-align: left;
+  }
+  .how b { color: #d5f5e7; }
+  .how ol { margin: 6px 0 0; padding-left: 1.3em; }
+  .step {
+    margin: 0; font-size: 13px; line-height: 2; color: var(--text); max-width: 24em;
+    padding: 16px 20px; border-radius: 14px;
+    background: rgba(230,242,238,0.05); border: 1px solid rgba(230,242,238,0.12);
+  }
+  .step b { color: #d5f5e7; }
+  button {
+    font: inherit; font-size: 16px; font-weight: 700; color: #06211a;
+    background: linear-gradient(180deg, var(--mint-soft), var(--mint));
+    border: none; border-radius: 999px; padding: 15px 34px; cursor: pointer;
+    box-shadow: 0 14px 30px -14px rgba(79,214,169,0.9);
+  }
+  button:disabled { opacity: 0.55; cursor: default; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+  a.plain {
+    color: var(--dim); font-size: 13px; text-decoration: none;
+    border-bottom: 1px solid rgba(230,242,238,0.25); padding-bottom: 2px;
+  }
+  a.plain:hover { color: #d5f5e7; }
+  .free { font-size: 11px; color: rgba(139,168,162,0.6); letter-spacing: 0.06em; line-height: 1.9; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<img class="mark" src="./icon-192.png" width="116" height="116" alt="" />
+
+<h1>家計のみらい</h1>
+<p class="lead">いまの暮らしのまま行くと、<br />貯金は<b>いつまでもつのか</b>。</p>
+
+<div class="how">
+  <b>はじめかた</b>
+  <ol>
+    <li>ホーム画面に入れる（下のボタン、または共有 →「ホーム画面に追加」）</li>
+    <li>ひらいたら <b>合い言葉</b> を入れる。この端末では最初の1回だけです</li>
+    <li>あとは<b>グラフを眺めるだけ</b>。尽きる年と、あと月いくら使えるかが出ます</li>
+  </ol>
+</div>
+
+<!-- ボタンは「押せば本当に入る」ときだけ出す。出しっぱなしだと、押しても何も
+     起きない端末（iPhone や、すでに入っている場合）で必ず行き止まりになる -->
+<button id="installBtn" type="button" hidden>📲 アプリとして入れる</button>
+<div class="step" id="step" hidden></div>
+
+<a class="plain" href="./app.html">このままブラウザで使う</a>
+<p class="free">無料・広告なし・アカウント不要。<br />入れた金額はこの端末の中だけ。どこにも送りません</p>
+
+<script>
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    // 1つ上の階層の別アプリの Service Worker がここまで面倒を見てしまっている
+    // 端末がある。自前のが主導権を取ったら読み直す
+    const home = new URL("./", location.href).href;
+    const c = navigator.serviceWorker.controller;
+    if (c && !c.scriptURL.startsWith(home)) {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        const now = navigator.serviceWorker.controller;
+        if (now && now.scriptURL.startsWith(home) && !sessionStorage.getItem("kakei-sw-heal")) {
+          sessionStorage.setItem("kakei-sw-heal", "1");
+          location.reload();
+        }
+      });
+    }
+    addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+  }
+
+  (() => {
+    const btn = document.getElementById("installBtn");
+    const step = document.getElementById("step");
+    let deferred = null;
+
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+
+    // Android / デスクトップ Chrome：この合図が来たときだけボタンを出す。
+    // 合図が来ない端末でボタンを押させると、押しても何も起きない
+    addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferred = e;
+      btn.hidden = false;
+      step.hidden = true;
+    });
+
+    btn.addEventListener("click", async () => {
+      if (!deferred) { btn.hidden = true; showSteps(); return; }
+      btn.disabled = true;
+      deferred.prompt();
+      const { outcome } = await deferred.userChoice;
+      deferred = null;
+      btn.disabled = false;
+      if (outcome === "accepted") return;   // 入ったら appinstalled 側で表示を変える
+      btn.hidden = true;
+      showSteps("ダイアログを閉じたようです。あとからでも入れられます。");
+    });
+
+    addEventListener("appinstalled", () => {
+      btn.hidden = true;
+      step.hidden = false;
+      step.innerHTML = "<b>入りました。</b>ホーム画面のアイコンから開けます。";
+    });
+
+    function showSteps(prefix) {
+      // 「ダウンロード」を待ってしまう人が多いので、そこを最初に打ち消す
+      const head = prefix ? `${prefix}<br />` : "";
+      const noDL = "<b>ストアからのダウンロードはありません。</b>数秒でホーム画面にアイコンが並びます。<br /><br />";
+      if (iosSafari) {
+        step.innerHTML = head + noDL +
+          "画面下の<b>共有ボタン</b>（□の中に↑）をタップ<br />" +
+          "→ メニューを下にスクロール<br />" +
+          "→「<b>ホーム画面に追加</b>」をタップ<br />" +
+          "→ 右上の「<b>追加</b>」<br /><br />" +
+          "<span style=\"opacity:.7\">iPhone にはボタン1つで入れる仕組みがないため、この手順が唯一の方法です。</span>";
+      } else if (ios) {
+        step.innerHTML = head +
+          "iPhone でホーム画面に追加できるのは <b>Safari</b> だけです。<br />" +
+          "このページを Safari で開き直してから、共有 →「<b>ホーム画面に追加</b>」。";
+      } else {
+        step.innerHTML = head + noDL +
+          "ブラウザの <b>⋮ メニュー</b> を開いて、<br />「<b>アプリをインストール</b>」または「ホーム画面に追加」を選んでください。<br /><br />" +
+          "<span style=\"opacity:.7\">項目が無いときは、すでに入っているか、ブラウザが対応していません。" +
+          "<a href=\"./check.html\" style=\"color:#93e8ca\">診断ページ</a>で確かめられます。</span>";
+      }
+      step.hidden = false;
+    }
+
+    // iOS はボタンで入れられないので、最初から手順を出す。
+    // それ以外は合図を少し待って、来なければ手順に切り替える
+    if (ios) showSteps();
+    else setTimeout(() => { if (!deferred) showSteps(); }, 2000);
+  })();
+</script>
+</body>
+</html>

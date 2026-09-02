@@ -1,0 +1,17 @@
+{
+  "name": "えほんの棚（仮）",
+  "short_name": "えほんの棚",
+  "description": "よみたい えほんを えらんで、そのまま よめる棚。ふりがなは 消せます。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#fffaf2",
+  "theme_color": "#c25b3a",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
