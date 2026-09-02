@@ -293,6 +293,8 @@ html{overflow-x:clip;}
 
 /* --- 鍵のかかった回 --- */
 .lrow.is-locked{opacity:.5;cursor:default;}
+.lockmark{width:13px;height:15px;display:inline-block;vertical-align:-2px;
+  color:var(--text-soft);}
 .lrow.is-locked .ls{color:var(--text-soft);}
 .lrow.is-done .ls{color:var(--red-deep);}
 .navlocked{color:var(--text-soft);font-size:13px;}
