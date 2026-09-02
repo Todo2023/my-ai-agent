@@ -118,11 +118,19 @@
     var facts = [['日付', d.date], ['所要', d.dur], ['種別', d.kind]]
       .filter(function (p) { return p[1]; })
       .map(function (p) { return '<span><em>' + p[0] + '</em>' + esc(p[1]) + '</span>'; }).join('');
+    // 用語は種別の下。学生に当たり前でない言葉を、本文を読む前に横に置く
+    var terms = (d.terms || []).map(function (t) {
+      return '<div class="term"><b>' + esc(t.word) + '</b><span>' + t.desc + '</span></div>';
+    }).join('');
+    var termBlock = terms
+      ? '<div class="terms"><div class="terms-head">用語</div>' + terms + '</div>' : '';
+
     var info = '<div class="info"><div class="kicker">' + esc(d.label)
       + (d.written ? '' : '<span class="wip">準備中</span>') + '</div>'
       + '<h1>' + esc(d.title) + '</h1>'
       + (d.aim ? '<p class="aim">' + esc(d.aim) + '</p>' : '')
-      + '<div class="facts">' + facts + '</div></div>';
+      + '<div class="facts">' + facts + '</div>'
+      + termBlock + '</div>';
 
     var nav = [];
     if (d.prev) nav.push('<a href="lesson.html?r=' + encodeURIComponent(d.prev.slug) + '">← ' + esc(d.prev.label) + '</a>');
