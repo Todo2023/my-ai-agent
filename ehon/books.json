@@ -395,10 +395,10 @@
       "age_min": 3,
       "age_max": 5,
       "genre": "たび",
-      "reading_minutes": 7,
-      "cover": "p01.svg",
-      "pages": 12,
-      "bytes": 55153
+      "reading_minutes": 8,
+      "cover": "cover.jpg",
+      "pages": 13,
+      "bytes": 430120
     },
     {
       "slug": "tori-no-su",
