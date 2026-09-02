@@ -229,6 +229,27 @@ https://todo-demo-tool.〇〇.workers.dev/ask?key=（ASK_ADMIN_KEYに入れた�
 
 **画像も本文と同じ鍵で守っています。**画像だけ抜かれては意味がないためです。
 
+## 商談用のコードを1つ作っておく
+
+法人の打ち合わせで、その場で体験ツールを触ってもらうためのコードです。
+**受講者ごとのコードとは別に、使い回せるものを1つ用意しておきます。**
+
+```
+Invoke-RestMethod -Uri "https://todo-demo-tool.todo-inc-2023-10-13.workers.dev/member?key=$KEY" -Method Post -ContentType "application/json" -Body '{"code":"TODO-DEMO","name":"shodan","paidThrough":1,"audience":"pro"}'
+```
+
+`$KEY` は `ASK_ADMIN_KEY` に登録した合鍵です。PowerShell を開き直したときは、
+先に `$KEY = "（合鍵）"` を実行してください。
+
+**`paidThrough` を 1 にしているのは意図です。** デモと「はじめに」までしか開かないので、
+商談相手に本編の教材が渡ることはありません。体験ツールは問題なく使えます。
+
+打ち合わせでお渡しするリンク：
+
+```
+https://todo2023.github.io/my-ai-agent/demo.html?audience=pro&code=TODO-DEMO
+```
+
 ## 未確定のまま残しているもの
 
 仕様書の「今後詰める必要がある項目」です。どちらも**あとから変えられる形**にしてあります。
