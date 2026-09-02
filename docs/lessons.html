@@ -33,9 +33,16 @@
   var main = document.getElementById('main');
   var esc = Course.esc;
 
+  /* 鍵は文字より形のほうが早く分かる。読み上げには言葉で伝える */
+  var LOCK = '<svg class="lockmark" viewBox="0 0 14 16" aria-hidden="true" focusable="false">'
+    + '<path d="M3.4 7V4.6a3.6 3.6 0 1 1 7.2 0V7" fill="none" stroke="currentColor" '
+    + 'stroke-width="1.5" stroke-linecap="round"></path>'
+    + '<rect x="1.6" y="7" width="10.8" height="7.6" rx="1.2" fill="currentColor"></rect>'
+    + '</svg><span class="visually-hidden">まだ開いていません</span>';
+
   function render(data) {
     var rows = data.lessons.map(function (x) {
-      var state = !x.open ? '鍵' : (x.done ? '提出済み' : (x.written ? '読めます' : '準備中'));
+      var state = !x.open ? LOCK : (x.done ? '提出済み' : (x.written ? '読めます' : '準備中'));
       var cls = !x.open ? 'is-locked' : (x.done ? 'is-done' : (x.written ? 'is-open' : 'is-wip'));
       var inner =
         '<span class="ln">' + esc(x.label) + '</span>'
