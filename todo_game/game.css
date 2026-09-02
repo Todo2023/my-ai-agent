@@ -1,0 +1,140 @@
+  :root {
+    --sea-900: #0b1220;
+    --sea-800: #101b2e;
+    --sea-700: #16273f;
+    --ice: #d8e8f2;
+    --ice-dim: #8ea6bb;
+    --lantern: #f0a63c;
+    --sumi: #060a12;
+  }
+
+  * { box-sizing: border-box; }
+
+  :root {
+    /* 画面のうち、盤面以外に使う高さ。アプリとして開いたときは詰める */
+    --chrome: 190px;
+  }
+
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    :root { --chrome: 104px; }
+    .sign { display: none; }
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 60%),
+      radial-gradient(90% 60% at 50% 108%, rgba(240,166,60,0.16) 0%, rgba(240,166,60,0) 55%),
+      var(--sea-900);
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  .sign { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  .sign h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: clamp(26px, 7vw, 38px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+    color: #fbe3bd;
+    text-shadow: 0 0 22px rgba(240,166,60,0.45);
+  }
+
+  .sign p {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
+    color: var(--ice-dim);
+  }
+
+  .cabinet {
+    /* 縦にも収まるよう、残り高さ×盤面の比率でも上限をかける */
+    width: min(100%, 470px);
+    width: min(100%, 470px, calc((100dvh - var(--chrome)) * 0.64));
+    border-radius: 20px;
+    padding: 10px;
+    background: linear-gradient(180deg, var(--sea-700), var(--sea-800));
+    box-shadow:
+      0 0 0 1px rgba(216,232,242,0.10),
+      0 26px 60px -24px rgba(0,0,0,0.9),
+      0 0 70px -30px rgba(240,166,60,0.5);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    background: var(--sumi);
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  canvas:focus-visible { outline: 2px solid var(--lantern); outline-offset: 3px; }
+
+  .bar {
+    width: min(100%, 470px);
+    width: min(100%, 470px, calc((100dvh - var(--chrome)) * 0.64));
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background: none;
+    border: 1px solid rgba(216,232,242,0.18);
+    color: var(--ice-dim);
+    font: inherit;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .install {
+    width: min(100%, 470px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .install p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--ice-dim);
+    max-width: 34em;
+  }
+
+  button.primary {
+    border-color: rgba(240,166,60,0.6);
+    background: linear-gradient(180deg, rgba(240,166,60,0.22), rgba(240,166,60,0.08));
+    color: #fbe3bd;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 22px;
+  }
+
+  button.primary:hover { border-color: var(--lantern); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  button:hover { color: #fbe3bd; border-color: rgba(240,166,60,0.5); }
+  button:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }

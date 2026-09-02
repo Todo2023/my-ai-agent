@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#6b4a72"/><stop offset="1" stop-color="#e2915f"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><path d="M-100 920 L340 460 L640 780 L940 520 L1340 840 L1700 660 L1700 1000 L-100 1000 Z" fill="#6b5a6a"/><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#5f7a68"/>
+<g transform="translate(800 850) scale(1.1)">
+  <rect x="-200" y="-120" width="400" height="140" rx="20" fill="#5aa7d6"/>
+  <rect x="-160" y="-96" width="110" height="76" rx="10" fill="#dff0f7"/>
+  <rect x="-20" y="-96" width="110" height="76" rx="10" fill="#dff0f7"/>
+  <rect x="120" y="-96" width="60" height="76" rx="10" fill="#dff0f7"/>
+  <circle cx="-120" cy="34" r="32" fill="#40484f"/><circle cx="120" cy="34" r="32" fill="#40484f"/>
+</g></svg>

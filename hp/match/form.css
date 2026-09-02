@@ -1,0 +1,130 @@
+@charset "utf-8";
+
+/*
+  事前登録フォーム専用の見た目
+
+  ../style.css を読み込んだあとに重ねて読む。
+  ここに書くのは「このページにしか出てこない部品」だけ。
+  色・ボタン・見出しなど、全ページ共通のものは ../style.css 側にある（こちらでは触らない）。
+*/
+
+/* ── セクションのまとまり ──
+   fieldset を枠として使っている。1セクション＝スキーマの1セクション。 */
+.fs{
+  border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px 18px; margin:0 0 18px; background:#fff;
+}
+/* legend は既定だと枠線の上に乗って線を切ってしまう。
+   float させて、枠の中のふつうの見出しとして置く（続く要素は clear で下に落とす）。 */
+.fs > legend{
+  float:left; width:100%; padding:0; margin:0 0 14px;
+  font-size:16.5px; font-weight:700; line-height:1.6;
+}
+.fs > legend .step{
+  display:block; font-size:10.5px; font-weight:700; letter-spacing:.16em;
+  color:var(--accent); margin-bottom:3px;
+}
+.fs-lead{margin:0; font-size:13px; color:var(--dim); line-height:1.9;}
+
+/* セクション4（任意だが、いちばん効く項目）だけ色を変えて目を引かせる */
+.fs.accent{background:var(--tint); border-color:#cfdce9;}
+
+/* fieldset の中の縦の間隔。中身は .field か .form-grid のどちらか */
+/* 見出しの下の余白は legend の margin-bottom で作る。
+   float を clear する側に margin-top を付けても、clearance に吸われて効かない。 */
+.fs > legend + *{clear:both;}
+.fs .field + .field,
+.fs .field + .form-grid,
+.fs .form-grid + .field,
+.fs .form-grid + .form-grid,
+.fs .fs-lead + .field,
+.fs .fs-lead + .form-grid{margin-top:18px;}
+
+/* style.css の form は grid。ここは fieldset を直接並べるので block に戻し、
+   間隔は上の余白で作る */
+#profile-form{display:block; margin-top:26px;}
+#profile-form .form-note{margin-top:6px;}
+#profile-form #submit-btn{margin-top:18px;}
+#profile-form #form-result{margin-top:18px;}
+
+/* ── ラベル脇のしるし ──
+   style.css の .req は「.field label の中」にしか効かないので、
+   legend の中でも同じ見た目になるように、このページでは単独で定義し直す。 */
+.req{color:var(--accent); font-size:11px; font-weight:700; margin-left:6px;}
+.opt{color:var(--dim); font-size:11px; font-weight:700; margin-left:6px;}
+.glabel .multi{
+  display:inline-block; font-size:10.5px; font-weight:600; color:var(--dim);
+  margin-left:8px;
+}
+
+/* 入力欄の下に出す説明。placeholder より確実に読まれる */
+.hint{font-size:12px; color:var(--dim); line-height:1.8; margin:-2px 0 0;}
+
+/* ── 選択肢（チェックボックス・ラジオ）──
+   指で押せるように、ラベル全体を当たり判定にしてある */
+.group{border:0; margin:0; padding:0; display:grid; gap:8px;}
+.glabel{padding:0; font-size:12.5px; font-weight:700; margin-bottom:2px;}
+.choice{
+  display:flex; gap:11px; align-items:flex-start;
+  border:1px solid #cfdae6; border-radius:11px; padding:13px 14px;
+  background:#fff; font-size:13.5px; line-height:1.8; cursor:pointer;
+}
+.choice:active{background:var(--tint);}
+.choice input{
+  flex:0 0 auto; width:19px; height:19px; margin:2px 0 0; accent-color:var(--navy);
+}
+.choice input:focus-visible{outline:2px solid var(--navy); outline-offset:2px;}
+.choice:has(input:checked){border-color:var(--navy); background:#f2f7fd;}
+.choice b{font-weight:700;}
+
+/* ── エラー表示 ── */
+.err{
+  font-size:12.5px; line-height:1.8; color:#b3261e; margin:0;
+  padding-left:18px; position:relative;
+}
+.err::before{content:"！"; position:absolute; left:0; font-weight:700;}
+.field.bad input,
+.field.bad textarea,
+.field.bad select{border-color:#d9534f; background:#fffafa;}
+.field.bad .choice{border-color:#e7b4b1;}
+
+/* ── 下書きの復元 ── */
+.draft-bar{
+  margin-top:22px; padding:12px 14px; border-radius:11px;
+  background:#eef4fb; border:1px solid #c9dbf0;
+  font-size:12.5px; line-height:1.8; color:var(--ink);
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+.draft-bar[hidden]{display:none;} /* .draft-bar が display:flex なので、hidden を効かせ直す */
+.draft-clear{
+  margin-left:auto; font:inherit; font-size:12px; font-weight:700;
+  color:var(--navy); background:#fff; border:1px solid #c9dbf0;
+  border-radius:999px; padding:6px 14px; cursor:pointer;
+}
+
+/* ── 送信結果 ──
+   #form-result の基本形は ../style.css にある。ここでは成功／失敗の色だけ足す */
+#form-result.ok{background:#eef8f0; border-color:#bfe0c6;}
+#form-result.ng{background:#fdf1f0; border-color:#ecc4c1;}
+#form-result .big{
+  display:block; font-size:15px; font-weight:700; margin-bottom:6px; color:var(--ink);
+}
+#form-result pre{
+  margin:12px 0 0; padding:12px; border-radius:8px; background:#fff;
+  border:1px solid var(--line); font-size:11.5px; line-height:1.7;
+  white-space:pre-wrap; word-break:break-all; max-height:280px; overflow:auto;
+}
+
+/* 送信中はボタンを押せなくする */
+#submit-btn[disabled]{opacity:.55; box-shadow:none;}
+
+/* ── PC ── */
+@media (min-width:768px){
+  .fs{padding:28px 26px; margin-bottom:22px;}
+  .fs > legend{font-size:18px;}
+  .choice{font-size:14px;}
+  /* 目的の選択肢は数が多いので2列に */
+  #g-purpose_tags{grid-template-columns:1fr 1fr;}
+  /* .form-grid が2列グリッドになる幅では、モバイル用の縦の余白を消す */
+  .fs .form-grid .field + .field{margin-top:0;}
+}

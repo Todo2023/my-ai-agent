@@ -1,0 +1,51 @@
+{
+  "slug": "takoage",
+  "title": "たこあげ",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "かぜの ひに、たこを あげます。だんだん たかく なります。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "野原に立つ子ども",
+      "text": "きょうは かぜが あります。",
+      "text_en": "There is wind today."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "たこを持って走りだす",
+      "text": "たこを もって、はしります。",
+      "text_en": "I hold the kite and run."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "たこが少し上がった",
+      "text": "すこし あがりました。",
+      "text_en": "It went up a little."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "たこが高く上がる",
+      "text": "もっと たかく。",
+      "text_en": "Higher!"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "雲より高いたこ",
+      "text": "くもより たかく なりました。",
+      "text_en": "Now it is higher than the clouds."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕方、たこをたたんで帰る",
+      "text": "ゆうがた。たこを たたんで かえります。",
+      "text_en": "Evening. I fold the kite and go home."
+    }
+  ],
+  "title_en": "Flying a Kite",
+  "summary_en": "On a windy day, the kite climbs higher and higher."
+}

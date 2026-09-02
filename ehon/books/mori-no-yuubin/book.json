@@ -1,0 +1,63 @@
+{
+  "slug": "mori-no-yuubin",
+  "title": "もりの ゆうびんやさん",
+  "author": "編集部",
+  "age_min": 3,
+  "age_max": 5,
+  "genre": "どうぶつ",
+  "reading_minutes": 5,
+  "cover": "p01.svg",
+  "summary": "もりの ゆうびんやさんが、さいごの てがみを とどけます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "手紙を持つきつねの郵便屋さん",
+      "text": "もりの ゆうびんやさんは きつねさん。",
+      "text_en": "The forest postman is Fox."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "くまに手紙を渡す",
+      "text": "「くまさん、おてがみ です。」",
+      "text_en": "“Bear, a letter for you.”"
+    },
+    {
+      "image": "p03.svg",
+      "alt": "木の上の鳥に手紙を渡す",
+      "text": "「とりさん、おてがみ です。」",
+      "text_en": "“Bird, a letter for you.”"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "夕方、一通だけ残った手紙",
+      "text": "さいごの いちまい。あて名が ありません。",
+      "text_en": "The last one. It has no name on it."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "考え込むきつね",
+      "text": "だれに とどければ いいのかな。",
+      "text_en": "Who should I bring this to?"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夜、明かりのついた自分の家",
+      "text": "うちに かえって、ふうを あけました。",
+      "text_en": "Fox went home and opened it."
+    },
+    {
+      "image": "p07.svg",
+      "alt": "手紙を読むきつね",
+      "text": "「いつも ありがとう。もりの みんなより」",
+      "text_en": "“Thank you, always. From everyone in the forest.”"
+    },
+    {
+      "image": "p08.svg",
+      "alt": "月あかりの家",
+      "text": "きつねさんは、しばらく うごけませんでした。",
+      "text_en": "Fox could not move for a while."
+    }
+  ],
+  "title_en": "The Forest Postman",
+  "summary_en": "The postman delivers the very last letter."
+}

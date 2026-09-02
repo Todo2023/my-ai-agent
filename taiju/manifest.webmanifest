@@ -1,0 +1,17 @@
+{
+  "name": "ふたりの体重帳",
+  "short_name": "体重帳",
+  "description": "体重計の写真から数字を読み取り、夫婦2人分の体重を記録します。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f0",
+  "theme_color": "#38708f",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

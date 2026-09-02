@@ -1,0 +1,45 @@
+{
+  "slug": "ookii-chiisai",
+  "title": "おおきい ちいさい",
+  "author": "編集部",
+  "age_min": 1,
+  "age_max": 3,
+  "genre": "さがす",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "おおきい ものと ちいさい ものを、ならべて みます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "大きなくまと小さなねずみ",
+      "text": "くまさんは おおきい。ねずみさんは ちいさい。",
+      "text_en": "Bear is big. Mouse is small."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "大きな木と小さな花",
+      "text": "きは おおきい。おはなは ちいさい。",
+      "text_en": "The tree is big. The flower is small."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "大きな家と小さな鳥",
+      "text": "おうちは おおきい。とりさんは ちいさい。",
+      "text_en": "The house is big. Bird is small."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "くまと子どもが並ぶ",
+      "text": "わたしは、くまさんより ちいさい。",
+      "text_en": "I am smaller than Bear."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "子どもとねずみが並ぶ",
+      "text": "でも、ねずみさんより おおきい。",
+      "text_en": "But I am bigger than Mouse."
+    }
+  ],
+  "title_en": "Big and Small",
+  "summary_en": "Putting big things and small things side by side."
+}

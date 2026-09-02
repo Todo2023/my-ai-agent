@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>インストール診断 — トドの晩酌</title>
+<meta name="theme-color" content="#0b1220" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<style>
+  :root { --ice: #d8e8f2; --dim: #8ea6bb; --lantern: #f0a63c; --ok: #6ec18a; --ng: #e8687a; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: max(20px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+    background: #0b1220;
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.08em; }
+  p.lead { margin: 0; font-size: 12px; color: var(--dim); text-align: center; line-height: 1.9; }
+  ul { list-style: none; margin: 0; padding: 0; width: min(100%, 460px); display: flex; flex-direction: column; gap: 8px; }
+  li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 11px 13px; border-radius: 10px;
+    background: rgba(216,232,242,0.05); border: 1px solid rgba(216,232,242,0.10);
+    font-size: 12.5px; line-height: 1.7;
+  }
+  li .k { color: var(--dim); flex: 0 0 8.5em; }
+  li .v { flex: 1; word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+  li.ok { border-color: rgba(110,193,138,0.4); }
+  li.ng { border-color: rgba(232,104,122,0.5); }
+  li.ok .v { color: var(--ok); }
+  li.ng .v { color: var(--ng); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  button {
+    font: inherit; font-size: 13px; font-weight: 600;
+    color: #241713; background: linear-gradient(180deg, #f6c377, var(--lantern));
+    border: none; border-radius: 999px; padding: 11px 20px; cursor: pointer;
+  }
+  button.ghost { background: none; color: var(--dim); border: 1px solid rgba(216,232,242,0.2); }
+  a { color: var(--lantern); font-size: 12px; }
+  textarea { width: min(100%, 460px); height: 150px; background: #0e1929; color: var(--ice); border: 1px solid rgba(216,232,242,0.15); border-radius: 10px; font-size: 11px; padding: 10px; font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+
+<h1>インストール診断</h1>
+<p class="lead">この画面の結果を送ってもらえれば、<br />なぜアプリにならないか特定できます。</p>
+
+<ul id="out"></ul>
+
+<div class="row">
+  <button id="install" type="button">📲 インストールを試す</button>
+  <button id="copy" class="ghost" type="button">結果をコピー</button>
+  <button id="reset" class="ghost" type="button">キャッシュを消す</button>
+</div>
+
+<textarea id="text" readonly></textarea>
+<a href="./">← インストール画面へ</a>
+
+<script>
+(async () => {
+  const out = document.getElementById("out");
+  const lines = [];
+
+  function row(k, v, state) {
+    const li = document.createElement("li");
+    if (state) li.className = state;
+    li.innerHTML = `<span class="k"></span><span class="v"></span>`;
+    li.children[0].textContent = k;
+    li.children[1].textContent = v;
+    out.appendChild(li);
+    lines.push(`${k}: ${v}`);
+    document.getElementById("text").value = lines.join("\n");
+  }
+
+  row("URL", location.href);
+  row("HTTPS", location.protocol === "https:" ? "はい" : "いいえ（要HTTPS）", location.protocol === "https:" ? "ok" : "ng");
+  row("表示モード", matchMedia("(display-mode: standalone)").matches ? "standalone（アプリとして起動中）" : "browser");
+  row("ブラウザ", navigator.userAgent);
+
+  // Service Worker
+  if (!("serviceWorker" in navigator)) {
+    row("Service Worker", "非対応", "ng");
+  } else {
+    try { await navigator.serviceWorker.register("./sw.js"); } catch (e) { row("SW登録", "失敗: " + e.message, "ng"); }
+    const regs = await navigator.serviceWorker.getRegistrations();
+    row("SW登録数", String(regs.length), regs.length ? "ok" : "ng");
+    regs.forEach((r, i) => row(`SW${i + 1} scope`, r.scope));
+    const c = navigator.serviceWorker.controller;
+    row("このページのSW", c ? c.scriptURL : "まだ制御していない（再読み込みで付く）", c ? "ok" : null);
+  }
+
+  // manifest
+  try {
+    const res = await fetch("./manifest.webmanifest", { cache: "no-store" });
+    row("manifest", `${res.status} ${res.headers.get("content-type") || "(型なし)"}`, res.ok ? "ok" : "ng");
+    const m = await res.json();
+    row("name", m.name || "(なし)", m.name ? "ok" : "ng");
+    row("start_url", m.start_url || "(なし)", m.start_url ? "ok" : "ng");
+    row("display", m.display || "(なし)", m.display === "standalone" || m.display === "fullscreen" ? "ok" : "ng");
+    row("id", m.id || "(なし)");
+    const sizes = (m.icons || []).map((i) => `${i.sizes}${i.purpose && i.purpose !== "any" ? "/" + i.purpose : ""}`).join(" ");
+    const has192 = (m.icons || []).some((i) => String(i.sizes).includes("192"));
+    const has512 = (m.icons || []).some((i) => String(i.sizes).includes("512"));
+    row("icons", sizes || "(なし)", has192 && has512 ? "ok" : "ng");
+    for (const ic of m.icons || []) {
+      const u = new URL(ic.src, location.href).href;
+      const r = await fetch(u, { method: "GET", cache: "no-store" }).catch(() => null);
+      row("icon " + ic.sizes, r ? `${r.status} ${r.headers.get("content-type")}` : "取得できず", r && r.ok ? "ok" : "ng");
+    }
+    const s = await fetch(new URL(m.start_url || "./", location.href).href, { cache: "no-store" }).catch(() => null);
+    row("start_url 応答", s ? String(s.status) : "取得できず", s && s.ok ? "ok" : "ng");
+  } catch (e) {
+    row("manifest", "読めない: " + e.message, "ng");
+  }
+
+  if (navigator.getInstalledRelatedApps) {
+    try {
+      const apps = await navigator.getInstalledRelatedApps();
+      row("インストール済み判定", apps.length ? JSON.stringify(apps) : "なし");
+    } catch (e) { row("インストール済み判定", "取得できず"); }
+  }
+
+  // インストールの合図
+  let deferred = null;
+  const promptRow = document.createElement("li");
+  promptRow.innerHTML = '<span class="k">インストール可否</span><span class="v">待機中…（最大10秒）</span>';
+  out.appendChild(promptRow);
+
+  addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferred = e;
+    promptRow.className = "ok";
+    promptRow.children[1].textContent = "Chromeがインストール可能と判定（ボタンで入ります）";
+    lines.push("インストール可否: 可能");
+    document.getElementById("text").value = lines.join("\n");
+  });
+
+  addEventListener("appinstalled", () => {
+    promptRow.className = "ok";
+    promptRow.children[1].textContent = "インストール完了";
+  });
+
+  setTimeout(() => {
+    if (!deferred && !promptRow.className) {
+      promptRow.className = "ng";
+      promptRow.children[1].textContent = "合図が来ない（条件未達／すでに導入済み／非対応ブラウザのいずれか）";
+      lines.push("インストール可否: 合図なし");
+      document.getElementById("text").value = lines.join("\n");
+    }
+  }, 10000);
+
+  document.getElementById("install").addEventListener("click", async () => {
+    if (!deferred) {
+      alert("Chromeからの合図が来ていません。⋮メニューに「アプリをインストール」があるか見てください。");
+      return;
+    }
+    deferred.prompt();
+    const { outcome } = await deferred.userChoice;
+    promptRow.children[1].textContent = "選択: " + outcome;
+    deferred = null;
+  });
+
+  document.getElementById("copy").addEventListener("click", async () => {
+    const t = document.getElementById("text");
+    try { await navigator.clipboard.writeText(t.value); alert("コピーしました"); }
+    catch (e) { t.select(); alert("選択しました。長押しでコピーしてください"); }
+  });
+
+  document.getElementById("reset").addEventListener("click", async () => {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.unregister()));
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+    alert("消しました。読み込み直します。");
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#cfe6f2"/><stop offset="1" stop-color="#f7e4ea"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#ffe9b0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></radialGradient>
+</defs><rect width="1600" height="1000" fill="url(#sky)"/><path d="M0 900 Q400 840 800 890 T1600 860 L1600 1000 L0 1000 Z" fill="#8fae74"/><g transform="translate(900 620) scale(1.6)">
+    <ellipse cx="0" cy="46" rx="66" ry="56" fill="#e8a33c"/>
+       <path d="M-66 40 q-60 6 -86 42 q56 12 90 -14 Z" fill="#e8a33c"/>
+       <path d="M0 -6 l34 22 l-34 16 Z" fill="#e8a33c"/><circle cx="0" cy="0" r="46" fill="#e8a33c"/><circle cx="-18" cy="-8" r="8" fill="#241812"/><circle cx="18" cy="-8" r="8" fill="#241812"/>
+  </g>
+<g transform="translate(48.930884981527925 888.3722080755979) scale(1.221424476103857)">
+  <rect x="-5" y="0" width="10" height="90" rx="5" fill="#5f8f57"/>
+  <path d="M-34 6 q22 22 34 0" stroke="#5f8f57" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#fffaf2"><circle cx="0" cy="-30" r="22"/><circle cx="-28" cy="-8" r="22"/><circle cx="28" cy="-8" r="22"/>
+  <circle cx="-17" cy="24" r="22"/><circle cx="17" cy="24" r="22"/></g>
+  <circle cx="0" cy="0" r="16" fill="#f2d06b"/>
+</g>
+<g transform="translate(541.3889352356393 860.1250319276005) scale(0.7117850195150822)">
+  <rect x="-5" y="0" width="10" height="90" rx="5" fill="#5f8f57"/>
+  <path d="M-34 6 q22 22 34 0" stroke="#5f8f57" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#e08fb0"><circle cx="0" cy="-30" r="22"/><circle cx="-28" cy="-8" r="22"/><circle cx="28" cy="-8" r="22"/>
+  <circle cx="-17" cy="24" r="22"/><circle cx="17" cy="24" r="22"/></g>
+  <circle cx="0" cy="0" r="16" fill="#f2d06b"/>
+</g>
+<g transform="translate(1038.757333398486 879.390548588708) scale(1.1646792440209537)">
+  <rect x="-5" y="0" width="10" height="90" rx="5" fill="#5f8f57"/>
+  <path d="M-34 6 q22 22 34 0" stroke="#5f8f57" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#e08fb0"><circle cx="0" cy="-30" r="22"/><circle cx="-28" cy="-8" r="22"/><circle cx="28" cy="-8" r="22"/>
+  <circle cx="-17" cy="24" r="22"/><circle cx="17" cy="24" r="22"/></g>
+  <circle cx="0" cy="0" r="16" fill="#f2d06b"/>
+</g>
+<g transform="translate(1525.7862811721861 860.7469192985445) scale(0.9379529090132563)">
+  <rect x="-5" y="0" width="10" height="90" rx="5" fill="#5f8f57"/>
+  <path d="M-34 6 q22 22 34 0" stroke="#5f8f57" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#fffaf2"><circle cx="0" cy="-30" r="22"/><circle cx="-28" cy="-8" r="22"/><circle cx="28" cy="-8" r="22"/>
+  <circle cx="-17" cy="24" r="22"/><circle cx="17" cy="24" r="22"/></g>
+  <circle cx="0" cy="0" r="16" fill="#f2d06b"/>
+</g></svg>

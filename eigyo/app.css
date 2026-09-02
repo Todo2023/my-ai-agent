@@ -1,0 +1,154 @@
+/*
+  営業AIの作業台 ── 見た目
+
+  色は会社サイト（hp/style.css）と同じものを使っている。
+  スマホで長い文章を打つ前提なので、入力欄は大きめ。
+*/
+
+:root{
+  --navy:#123055;
+  --ink:#17212e;
+  --dim:#5b6b7f;
+  --line:#e2e8f0;
+  --bg:#ffffff;
+  --tint:#f5f8fc;
+  --accent:#e0602f;
+  --accent-d:#c44f22;
+  --radius:14px;
+}
+
+*{box-sizing:border-box;}
+
+html{-webkit-text-size-adjust:100%;}
+
+body{
+  margin:0;
+  background:var(--tint);
+  color:var(--ink);
+  font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.9;
+  -webkit-tap-highlight-color:transparent;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+}
+
+.wrap{width:min(100% - 32px, 720px); margin-inline:auto;}
+
+/* ── 見出し ── */
+header{
+  background:linear-gradient(168deg,#123055 0%,#0b2340 100%);
+  color:#fff;
+  padding:calc(22px + env(safe-area-inset-top)) 0 22px;
+}
+header h1{margin:0; font-size:17px; font-weight:700; letter-spacing:.06em;}
+header p{margin:8px 0 0; font-size:12.5px; line-height:1.85; color:#b9c8dc;}
+header a{color:#b9c8dc;}
+
+/* ── 工程のタブ ── */
+.tabs{
+  display:flex; gap:8px; margin-top:18px;
+  overflow-x:auto; scrollbar-width:none; padding-bottom:2px;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tabs button{
+  flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.22); border-radius:999px;
+  background:rgba(255,255,255,.06); color:#dbe5f2;
+  font:inherit; font-size:13px; font-weight:600;
+  padding:8px 16px; cursor:pointer;
+}
+.tabs button[aria-selected="true"]{
+  background:var(--accent); border-color:var(--accent); color:#fff;
+}
+
+/* ── 本体 ── */
+main{padding:22px 0 32px;}
+
+.lead{
+  margin:0 0 20px; padding:13px 15px;
+  background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;
+  font-size:13px; line-height:1.9; color:var(--dim);
+}
+
+.field{margin-bottom:16px;}
+.field label{
+  display:block; font-size:13px; font-weight:700; margin-bottom:6px;
+}
+.field .req{
+  margin-left:7px; padding:1px 7px; border-radius:999px;
+  background:rgba(224,96,47,.12); color:var(--accent);
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; vertical-align:1.5px;
+}
+.field input,.field textarea,.field select{
+  width:100%; font:inherit; font-size:15px; color:var(--ink);
+  padding:11px 13px; background:#fff;
+  border:1px solid #c9d6e5; border-radius:11px;
+  -webkit-appearance:none; appearance:none;
+}
+.field select{
+  background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
+  padding-right:38px;
+}
+.field textarea{min-height:88px; line-height:1.85; resize:vertical;}
+.field input:focus,.field textarea:focus,.field select:focus{
+  outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(18,48,85,.1);
+}
+.field.miss input,.field.miss textarea{border-color:var(--accent); background:#fff8f5;}
+
+/* ── ボタン ── */
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;}
+.btn{
+  font:inherit; font-size:14px; font-weight:700;
+  padding:13px 22px; border-radius:999px; border:1px solid transparent;
+  cursor:pointer;
+}
+.btn-primary{background:var(--accent); color:#fff; box-shadow:0 6px 18px rgba(224,96,47,.24);}
+.btn-primary:active{background:var(--accent-d);}
+.btn-ghost{background:#fff; color:var(--navy); border-color:#c9d6e5;}
+.btn-ghost:active{background:var(--tint);}
+
+/* ── 出来上がったプロンプト ── */
+.out{margin-top:26px; display:none;}
+.out.show{display:block;}
+.out h2{
+  margin:0 0 10px; font-size:13px; font-weight:700; letter-spacing:.04em;
+  display:flex; align-items:center; gap:10px;
+}
+.out h2 .n{
+  font-size:11px; font-weight:600; color:var(--dim); letter-spacing:0;
+}
+.out textarea{
+  width:100%; height:44vh; min-height:280px;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:12.5px; line-height:1.8; color:var(--ink);
+  padding:14px; background:#fff;
+  border:1px solid var(--line); border-radius:var(--radius);
+  resize:vertical;
+}
+.copied{
+  margin:12px 0 0; font-size:13px; font-weight:700; color:var(--accent);
+  min-height:1.9em;
+}
+
+/* ── 注意書き ── */
+.warn{
+  margin-top:26px; padding:14px 16px;
+  background:#fff8f5; border:1px solid #f2d3c4; border-radius:var(--radius);
+  font-size:12.5px; line-height:1.9; color:#8a4a2a;
+}
+.warn b{color:#7a3d20;}
+.warn ul{margin:8px 0 0; padding-left:1.2em;}
+
+footer{
+  padding:0 0 8px; font-size:11.5px; line-height:1.9; color:var(--dim); text-align:center;
+}
+footer a{color:var(--dim);}
+
+@media (min-width:768px){
+  body{font-size:15.5px;}
+  .out textarea{height:50vh;}
+}

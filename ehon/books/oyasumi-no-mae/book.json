@@ -1,0 +1,45 @@
+{
+  "slug": "oyasumi-no-mae",
+  "title": "おやすみの まえに",
+  "author": "編集部",
+  "age_min": 0,
+  "age_max": 2,
+  "genre": "おやすみ",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ねる まえに することを、ひとつ ずつ。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "夕暮れの家",
+      "text": "そらが くらく なりました。",
+      "text_en": "The sky has gone dark."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "部屋のあかりと夜の窓",
+      "text": "あかりを つけます。",
+      "text_en": "I turn on the light."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "本を開く",
+      "text": "えほんを ひとつ。",
+      "text_en": "One picture book."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "あかりを小さくする",
+      "text": "あかりを ちいさく します。",
+      "text_en": "I make the light small."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "あかりの消えた家と月",
+      "text": "おやすみなさい。",
+      "text_en": "Good night."
+    }
+  ],
+  "title_en": "Before Good Night",
+  "summary_en": "The things we do before sleeping, one by one."
+}

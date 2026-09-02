@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Instagram の下書き | えほんの棚</title>
+<meta name="color-scheme" content="light dark" />
+<!-- 中の作業画面。**公開後もこの行は外さない** -->
+<meta name="robots" content="noindex" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+  <h1>Instagram の下書き <span id="count"></span></h1>
+
+  <p class="note">
+    <b>まだどこにも送っていません。</b>
+    この画面は下書きを見るだけのものです。出すかどうかは人が決めます。
+    いまは「キャプションをコピー」で手で投稿できます。
+  </p>
+
+  <!-- 運用の状態。posted.json から出す（手で書く記録） -->
+  <p class="unei" id="unei" hidden></p>
+
+  <!-- きょう出す1件。どれを出すかは posted.json の "today" で決める（手で書く） -->
+  <section class="today" id="today" hidden>
+    <h2>きょう出す1件</h2>
+    <div class="today-body">
+      <img id="today-img" alt="" />
+      <div>
+        <p class="today-title" id="today-title"></p>
+        <ol class="steps">
+          <li>下の「画像を保存」を押す（スマホなら長押しで保存）</li>
+          <li>「キャプションをコピー」を押す</li>
+          <li>Instagram アプリで新規投稿 → 保存した画像を選ぶ → キャプションを貼る</li>
+          <li>出したら <code>node insta/tools/unei.mjs done</code> で記録する</li>
+        </ol>
+        <div class="row" id="today-row"></div>
+        <pre class="cap" id="today-cap"></pre>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="all-head" id="all-head" hidden>ほかの下書き</h2>
+  <ul class="posts" id="posts"></ul>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

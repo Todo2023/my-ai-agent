@@ -1,0 +1,51 @@
+{
+  "slug": "neko-to-tsukimi",
+  "title": "ねこと つきみ",
+  "author": "編集部",
+  "age_min": 3,
+  "age_max": 5,
+  "genre": "おやすみ",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ねこと ならんで、つきを みた よるの はなし。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "夕暮れのベンチ",
+      "text": "ゆうがた、ベンチに すわりました。",
+      "text_en": "In the evening I sat on the bench."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "ねこがやって来る",
+      "text": "ねこが きました。なにも いいません。",
+      "text_en": "A cat came. It said nothing."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "月がのぼる",
+      "text": "つきが のぼって きました。",
+      "text_en": "The moon rose."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "大きな月",
+      "text": "まるくて、しずかな つき。",
+      "text_en": "A round, quiet moon."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "ねこが歩いていく",
+      "text": "ねこは、さきに かえりました。",
+      "text_en": "The cat went home first."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "あかりのついた家",
+      "text": "また あした、ここで あえるかな。",
+      "text_en": "Will we meet here again tomorrow?"
+    }
+  ],
+  "title_en": "Moon Watching With a Cat",
+  "summary_en": "A night spent beside a cat, watching the moon."
+}

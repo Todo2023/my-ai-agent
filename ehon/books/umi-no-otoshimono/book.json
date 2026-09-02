@@ -1,0 +1,63 @@
+{
+  "slug": "umi-no-otoshimono",
+  "title": "うみの おとしもの",
+  "author": "編集部",
+  "age_min": 4,
+  "age_max": 7,
+  "genre": "たび",
+  "reading_minutes": 5,
+  "cover": "p01.svg",
+  "summary": "なみうちぎわで ひろった ものを、もちぬしに かえしに いきます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "晴れた海と砂浜",
+      "text": "うみに いきました。",
+      "text_en": "I went to the sea."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "砂浜で何かを拾う子ども",
+      "text": "なみうちぎわに、なにか おちて いました。",
+      "text_en": "Something was lying at the water's edge."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "海の中を泳ぐ魚たち",
+      "text": "「これ、だれの ものですか。」",
+      "text_en": "“Whose is this?”"
+    },
+    {
+      "image": "p04.svg",
+      "alt": "魚たちが集まってくる",
+      "text": "さかなたちが あつまって きました。",
+      "text_en": "The fish gathered around."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "大きな魚が近づく",
+      "text": "「それは、とおくの しまの たねだよ。」",
+      "text_en": "“That is a seed from a faraway island.”"
+    },
+    {
+      "image": "p06.svg",
+      "alt": "砂浜に立つ子どもと、風に舞う種",
+      "text": "｜遠《とお》くから、うみを わたって きたのです。",
+      "text_en": "It had crossed the sea from far away."
+    },
+    {
+      "image": "p07.svg",
+      "alt": "土に置かれた種",
+      "text": "うちの にわに うめました。",
+      "text_en": "I planted it in our garden."
+    },
+    {
+      "image": "p08.svg",
+      "alt": "育った木のそばに立つ子ども",
+      "text": "いまは、みたことの ない はっぱが ゆれて います。",
+      "text_en": "Now leaves I have never seen are swaying there."
+    }
+  ],
+  "title_en": "Lost and Found by the Sea",
+  "summary_en": "Returning something found at the water's edge."
+}

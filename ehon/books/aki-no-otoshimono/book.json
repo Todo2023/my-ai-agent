@@ -1,0 +1,51 @@
+{
+  "slug": "aki-no-otoshimono",
+  "title": "あきの おとしもの",
+  "author": "編集部",
+  "age_min": 4,
+  "age_max": 7,
+  "genre": "しぜん",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "おちて いた はっぱを、もとに もどしに いきます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "葉の落ちる木",
+      "text": "きの したに、はっぱが おちて いました。",
+      "text_en": "A leaf had fallen under the tree."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "葉を拾う子ども",
+      "text": "きれいだったので、ひろいました。",
+      "text_en": "It was pretty, so I picked it up."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "木を見上げる",
+      "text": "もとの えだに、もどして あげたく なりました。",
+      "text_en": "I wanted to put it back on its branch."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "ねずみが見ている",
+      "text": "「もどらないよ。」ねずみさんが いいました。",
+      "text_en": "“It won't go back,” said Mouse."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "葉をそっと地面に置く",
+      "text": "だから、きの ねもとに おきました。",
+      "text_en": "So I laid it at the foot of the tree."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "春、木に新しい葉が出る",
+      "text": "はるに なったら、あたらしい はが でて いました。",
+      "text_en": "When spring came, new leaves had opened."
+    }
+  ],
+  "title_en": "Something Autumn Dropped",
+  "summary_en": "Trying to put a fallen leaf back."
+}

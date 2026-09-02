@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>カンファレンスルーム｜合同会社To do</title>
+<meta name="description" content="在籍しているAI担当者が集まる部屋。話しかけて、MTGルームに迎える担当を選べます。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- デモ版のため検索避け。公開時にこの行を消す -->
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>デモ版</b>：見せ方を確かめるための試作です。いまお受けできるのは「提供中」の担当だけです。
+</div>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">CONFERENCE ROOM</span>
+    <h1>カンファレンスルーム</h1>
+    <p>
+      在籍しているAI担当者が集まっています。<br />
+      話しかけて、MTGルームに迎える担当を選んでください。
+    </p>
+    <div class="seat-count">MTGルームの席　<b id="filled">0</b> / <span id="total">3</span></div>
+    <nav class="rooms">
+      <a href="index.html">← MTGルーム</a>
+      <span class="here">カンファレンスルーム</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section class="room-wrap" id="room-view">
+      <div class="stage">
+       <div class="board"><!-- キャンバスと同じ大きさ。名札はこの中に置く -->
+        <canvas id="room" aria-label="カンファレンスルームの見取り図。十字キーで歩き、はなすで話しかけます。"></canvas>
+        <div class="labels" id="labels"></div>
+        <div class="msgbox" id="msgbox">
+          <p class="msgtext" id="msgtext" role="status" aria-live="polite"></p>
+          <div class="msgbtns" id="msgbtns"></div>
+        </div>
+       </div>
+      </div>
+
+      <div class="pad">
+        <div class="dpad">
+          <button class="key up" data-dir="up" aria-label="上へ"></button>
+          <button class="key left" data-dir="left" aria-label="左へ"></button>
+          <button class="key right" data-dir="right" aria-label="右へ"></button>
+          <button class="key down" data-dir="down" aria-label="下へ"></button>
+          <span class="hub"></span>
+        </div>
+        <button class="btn btn-primary talk" id="talk">はなす</button>
+      </div>
+      <p class="hint">
+        <b>うすく見える担当は準備中です。</b>まだお迎えできません。<br />
+        頭に印が付いている担当は、すでにMTGルームにいます。<br />
+        下の扉に話しかけると、MTGルームへ戻れます。
+      </p>
+
+      <button class="btn btn-quiet toggle" data-view="list">一覧で見る</button>
+    </section>
+
+    <!-- 一覧（歩くのが難しいとき用） -->
+    <section class="list-wrap" id="list-view" hidden>
+      <h2 class="sec-title">在籍している担当</h2>
+      <p class="sec-lead">タップすると、できること・できないことが見られます。</p>
+      <div class="roster" id="roster"></div>
+      <button class="btn btn-quiet toggle" data-view="room">部屋に戻る</button>
+    </section>
+
+    <footer>
+      これはデモ版です。「準備中」の担当は、まだ中身が決まっていません。<br />
+      <a href="../hp/sales-ai/">サービスの説明を見る</a>
+    </footer>
+
+  </div>
+</main>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+  /* この部屋の形。担当は2列に並ぶ（10人ぶん） */
+  var ROOM = {
+    map: [
+      "############",
+      "#..........#",
+      "#.O.O.O.O.O#",
+      "#..........#",
+      "#..........#",
+      "#.O.O.O.O.O#",
+      "#..........#",
+      "#..........#",
+      "#P........P#",
+      "#..........#",
+      "#####==#####"
+    ],
+    spots: [
+      [2, 2], [4, 2], [6, 2], [8, 2], [10, 2],
+      [2, 5], [4, 5], [6, 5], [8, 5], [10, 5]
+    ],
+    start: [5, 8],
+    mode: "conference",
+    door: { url: "index.html", label: "MTGルーム" }
+  };
+</script>
+<script src="staff.js"></script>
+<script src="app.js"></script>
+<script src="room.js"></script>
+<script>
+  // 一覧（この部屋では、在籍者ぜんぶを並べる）
+  var roster = document.getElementById("roster");
+  function drawRoster() {
+    roster.innerHTML = "";
+    STAFF.forEach(function (s) {
+      var mine = OFFICE.seats().indexOf(s.id) >= 0;
+      var b = document.createElement("button");
+      b.className = "pick" + (s.state === "準備中" ? " soon" : "");
+      b.dataset.who = s.id;
+      b.innerHTML =
+        '<span class="chip" style="background:' + s.color + '"></span>' +
+        '<span class="t"><span class="nm">' + s.mark + " " + s.name +
+          (mine ? '<span class="tag">MTGルームにいます</span>'
+                : s.state === "準備中" ? '<span class="tag soon">準備中</span>' : '') +
+        '</span><span class="fld">' + s.field + '</span></span>';
+      roster.appendChild(b);
+    });
+  }
+  OFFICE.onChange(drawRoster);
+  drawRoster();
+
+  document.querySelectorAll("[data-view]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var toList = b.dataset.view === "list";
+      document.getElementById("room-view").hidden = toList;
+      document.getElementById("list-view").hidden = !toList;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+</script>
+
+</body>
+</html>

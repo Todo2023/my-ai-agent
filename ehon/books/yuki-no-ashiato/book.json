@@ -1,0 +1,51 @@
+{
+  "slug": "yuki-no-ashiato",
+  "title": "ゆきの あしあと",
+  "author": "編集部",
+  "age_min": 2,
+  "age_max": 4,
+  "genre": "さがす",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "ゆきの うえの あしあとを たどって いきます。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "雪をかぶった森と、一面の雪原",
+      "text": "ゆきが つもりました。",
+      "text_en": "The snow piled up."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "雪の上に続く小さな足あと",
+      "text": "あしあとが つづいて います。",
+      "text_en": "Footprints go on and on."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "ねずみがいた",
+      "text": "だれの あしあと？　ねずみさん でした。",
+      "text_en": "Whose footprints? They were Mouse's."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "うさぎとねずみ",
+      "text": "うさぎさんの あしあとも ありました。",
+      "text_en": "There were Rabbit's footprints too."
+    },
+    {
+      "image": "p05.svg",
+      "alt": "大きなくま",
+      "text": "おおきい あしあとは、くまさん。",
+      "text_en": "The big footprints are Bear's."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夕暮れ、家に帰るみんな",
+      "text": "みんな、おうちに かえります。",
+      "text_en": "Everyone is going home."
+    }
+  ],
+  "title_en": "Footprints in the Snow",
+  "summary_en": "Following the tracks across the snow."
+}

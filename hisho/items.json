@@ -1,0 +1,334 @@
+{
+  "updated": "2026-08-28",
+  "note": "秘書担当の日次サマリーの元データ。手で書き換える。APIは使わない。",
+  "businesses": [
+    {
+      "key": "zensha",
+      "priority": 0,
+      "label": "全社（会社サイト・教材）",
+      "where": "hp/ README-agents.md"
+    },
+    {
+      "key": "match",
+      "priority": 1,
+      "label": "AIエージェント・ネットワーキングPF",
+      "where": "hp/match/ supabase/"
+    },
+    {
+      "key": "sales",
+      "priority": 2,
+      "label": "B2B営業支援AI",
+      "where": "hp/sales-ai/ eigyo/"
+    },
+    {
+      "key": "career",
+      "priority": 3,
+      "label": "AIキャリアPF",
+      "where": "（リポジトリ内に成果物なし）"
+    },
+    {
+      "key": "kouza",
+      "priority": 4,
+      "label": "AI・論理的思考力講座",
+      "where": "（LPはリポジトリ外）"
+    },
+    {
+      "key": "dogtown",
+      "priority": 5,
+      "label": "ペットコミュニティ Dogtown",
+      "where": "（リポジトリ内に成果物なし）"
+    },
+    {
+      "key": "ehon",
+      "priority": 6,
+      "label": "絵本×Claude Code講座",
+      "where": "ehon/ biz/ insta/ sekkei/"
+    }
+  ],
+  "states": [
+    "判断待ち",
+    "止まっている",
+    "手つかず",
+    "進行中",
+    "順調",
+    "完了",
+    "対象外"
+  ],
+  "items": [
+    {
+      "id": "zensha-01",
+      "business": "zensha",
+      "title": "会社概要の「（要記入）」4項目が空のまま",
+      "state": "対象外",
+      "background": "会社サイト hp/index.html の会社概要に、設立・所在地・代表社員・連絡先の4つがオレンジ文字の「（要記入）」で残っている。hp/README.md は「公開の前提」と位置づけている。",
+      "evidence": "2026-08-28に前提が変わった。会社サイトを一般向けに公開しない方針になったため、公開の前提だったこの4項目を埋める必要がなくなった。実データ（登記情報・住所・氏名）は支援チーム側では確認できず、代表しか埋められない状態のままだった。",
+      "next_action": "なし。公開する方針に戻したときだけ、代表が4項目を確定する。",
+      "owner": "代表",
+      "source": "hp/index.html:187-190 / hp/README.md"
+    },
+    {
+      "id": "zensha-02",
+      "business": "zensha",
+      "title": "問い合わせ先メールアドレスが未設定。問い合わせを取りこぼしている",
+      "state": "対象外",
+      "background": "hp/app.js の CONTACT_EMAIL が空文字のまま。会社サイトの問い合わせボタンを押しても「デモ版のため送信しません」と出るだけで、送信先がない。",
+      "evidence": "2026-08-28に前提が変わった。会社サイトを一般向けに公開しない方針になったため、公開用の問い合わせ先を決める必要がなくなった。どのアドレスを公開するかは実名非公開の方針と直結するため、支援チームでは決められない状態のままだった。",
+      "next_action": "なし。公開する方針に戻したときだけ、代表がアドレスを1つ決める。",
+      "owner": "代表",
+      "source": "hp/app.js:23 / hp/README.md"
+    },
+    {
+      "id": "zensha-03",
+      "business": "zensha",
+      "title": "AIエージェント教材 invoice_agent の README が空（0バイト）",
+      "state": "完了",
+      "background": "CLAUDE.md は「各エージェントの現在地はそれぞれの README に書く」と決めているが、invoice_agent/README.md は0バイトだった。ゲート2〜5の成果物（gate2_findings.md, gate3_notes.md, gate4_findings.md, gate5_blog_draft.md, 評価データ）が揃っている一番進んだ題材で、記録だけが無い状態。",
+      "evidence": "既存の成果物から書き起こせるため、代表の判断を待たずに進められる。",
+      "next_action": "なし。README を起こし、あわせて欠けていた demo.py（APIキー無しで動く確認手段）も用意した。",
+      "owner": "支援チーム",
+      "source": "invoice_agent/ / CLAUDE.md / README-agents.md"
+    },
+    {
+      "id": "match-01",
+      "business": "match",
+      "title": "登録フォームと管理画面がどこにもつながっていない",
+      "state": "対象外",
+      "background": "hp/match/ の登録フォーム・管理画面・DB定義・生成処理まで書けているが、config.js が空なので Supabase につながっていない。TODO.md では「いますぐ（15分・費用ゼロ・カード登録なし）」に置かれている。",
+      "evidence": "2026-08-28に前提が変わった。hp/match/ は外部の経営者・研究者に登録してもらうサービスで、「一般向けに公開しない・自分用の道具だけ作る」という新しい前提と正面から衝突するため、進めない。コード・DB定義・自己点検SQLは書けた状態のまま残してある。Supabase につないでいないので費用はゼロのまま。",
+      "next_action": "なし。公開する方針に戻したときだけ再開する。",
+      "owner": "代表",
+      "source": "TODO.md / hp/match/README.md / hp/match/config.js"
+    },
+    {
+      "id": "match-02",
+      "business": "match",
+      "title": "Claude API 接続。ここから初めて費用が発生する",
+      "state": "対象外",
+      "background": "マッチ生成は Supabase Edge Function から Claude API を呼ぶ設計。ここが、このリポジトリで最初に有料になる地点。",
+      "evidence": "2026-08-28に前提が変わった。hp/match/ は外部の経営者・研究者に登録してもらうサービスで、「一般向けに公開しない・自分用の道具だけ作る」という新しい前提と正面から衝突するため、進めない。つないでいないので、このリポジトリで有料になる地点は今のところ存在しない。費用はゼロのまま。",
+      "next_action": "なし。公開する方針に戻したときだけ再開する。",
+      "owner": "代表",
+      "source": "TODO.md / supabase/functions/generate-matches/index.ts"
+    },
+    {
+      "id": "match-03",
+      "business": "match",
+      "title": "大学助教への登録依頼文が未作成",
+      "state": "対象外",
+      "background": "登録者はフォームURLを個別に送って集める方針（noindex なので検索からは来ない）。最初は数人で十分としている。",
+      "evidence": "2026-08-28に前提が変わった。hp/match/ は外部の経営者・研究者に登録してもらうサービスで、「一般向けに公開しない・自分用の道具だけ作る」という新しい前提と正面から衝突するため、進めない。依頼文を書いても送る先の仕組みを動かさないため、いま作る意味がない。",
+      "next_action": "なし。公開する方針に戻したときだけ再開する。",
+      "owner": "支援チーム",
+      "source": "TODO.md"
+    },
+    {
+      "id": "match-04",
+      "business": "match",
+      "title": "登録内容の削除依頼への対応手順",
+      "state": "完了",
+      "background": "登録フォームに「削除のご希望はいつでも承ります」と書いてあるのに、誰がどう受けるかが決まっていなかった。",
+      "evidence": "スキーマを確認したところ matches は on delete cascade、generation_logs.from_profile は on delete set null（本文を持たずトークン数のみ）。profiles の1行を消せば個人情報は残らないことが確認できた。",
+      "next_action": "なし。hp/match/README.md の「削除・修正の依頼が来たときの手順」に記載済み。",
+      "owner": "支援チーム",
+      "source": "hp/match/README.md / supabase/schema.sql"
+    },
+    {
+      "id": "match-05",
+      "business": "match",
+      "title": "管理画面のログインがタブを閉じると切れる",
+      "state": "対象外",
+      "background": "管理画面はメールのリンク方式でログインする。タブを閉じるたびに入り直しになる。",
+      "evidence": "2026-08-28に前提が変わった。hp/match/ は外部の経営者・研究者に登録してもらうサービスで、「一般向けに公開しない・自分用の道具だけ作る」という新しい前提と正面から衝突するため、進めない。運用そのものを始めないため、不便かどうかを確かめる場面が来ない。",
+      "next_action": "なし。公開する方針に戻したときだけ再開する。",
+      "owner": "代表",
+      "source": "TODO.md"
+    },
+    {
+      "id": "sales-01",
+      "business": "sales",
+      "title": "アウトバウンドが「閲覧されるが返信が来ない」原因が未診断",
+      "state": "手つかず",
+      "background": "役割定義書で、マーケティング担当の担当領域として明記されている。CLAUDE_team.md の未決事項にも「未着手」と書かれている。",
+      "evidence": "診断の材料（送信した文面、送信数、開封率、返信率）がリポジトリに無い。数字が無いままでは、CTAの問題か、オファーの問題か、リストの問題かを切り分けられない。",
+      "next_action": "代表から実際の送信文面と件数・反応を出してもらう。そこからCTA設計・オファー具体化・信頼シグナル追加の改善案を出す。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md"
+    },
+    {
+      "id": "sales-02",
+      "business": "sales",
+      "title": "料金とモニター条件が根拠のない仮の数字のまま",
+      "state": "判断待ち",
+      "background": "hp/sales-ai/ に月4件4万円／月8件8万円／超過1件1万円〜、モニター「先着3社・6ヶ月半額」と載せている。",
+      "evidence": "以前は「CLAUDE.md の想定レンジの真ん中」と書かれていたが、CLAUDE.md にそんなレンジは無い。出どころの無い数字だったので、hp/README.md を実態どおり「根拠のない仮の数字」に直した。商談準備1件あたりの時間とAPI費用を実測すれば根拠になる。",
+      "next_action": "1件を実際に流して原価を測る（測り方は eigyo/README.md）。1社目を受ける前に決め直す。",
+      "owner": "代表",
+      "source": "hp/README.md / hp/sales-ai/ / eigyo/README.md"
+    },
+    {
+      "id": "sales-03",
+      "business": "sales",
+      "title": "seo/ の導入事例がダミーのまま。この状態では公開できない",
+      "state": "対象外",
+      "background": "hp/seo/index.html の「導入事例」の中身がダミー。hp/README.md が「オレンジの注意書きごと、実績と入れ替えるか削除する」としている。",
+      "evidence": "2026-08-28に前提が変わった。会社サイトを一般向けに公開しない方針になったため、ダミーの導入事例が人目に触れる心配がなくなった。実績が無く入れ替えられない状態は変わっていない。",
+      "next_action": "なし。公開する方針に戻すときは、1社目が決まるまでセクションごと削除する。",
+      "owner": "代表",
+      "source": "hp/README.md / hp/seo/index.html"
+    },
+    {
+      "id": "career-01",
+      "business": "career",
+      "title": "リポジトリ内に成果物がまだ何も無い",
+      "state": "手つかず",
+      "background": "役割定義書で優先度③、学生向け・知人をAIペルソナ化する構想として挙がっている。",
+      "evidence": "この一覧を作る時点で、リポジトリ内に対応するディレクトリ・文書が見つからなかった。構想が役割定義書の1行しかないため、次に何をすれば動くかを支援チーム側で決められない。",
+      "next_action": "代表から、まず何を作るか（LPか、ペルソナ1体の試作か）を1つ指定してもらう。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md"
+    },
+    {
+      "id": "kouza-01",
+      "business": "kouza",
+      "title": "支払い方法と解約期限が未確定",
+      "state": "判断待ち",
+      "background": "教育サブスクの未決事項として、役割定義書に明記されている。2LP運用中、10月本格開始目標。",
+      "evidence": "決済手段を決めると特商法の表記（返金・解約条件）が連動する。sekkei/README.md も「販売に進むと特商法・インボイス・返金/キャンセル規約が乗る。機能より事務が重い」と指摘している。",
+      "next_action": "支払い方法を1つ決める。決まれば特商法ページの下書きは支援チームで作れる。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md / sekkei/README.md"
+    },
+    {
+      "id": "kouza-02",
+      "business": "kouza",
+      "title": "10月本格開始に対して、LPのトーンが2本で揃っていない",
+      "state": "進行中",
+      "background": "学生向け・社会人向けの2本のLPを運用中。役割定義書でコンテンツ・編集担当の担当領域として「既存の複数LPのトーン統一」が挙がっている。",
+      "evidence": "LPはリポジトリ外にあるため、支援チームからは現物を確認できていない。",
+      "next_action": "LPのURLか本文を渡してもらえれば、トーン統一の添削に入れる。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md"
+    },
+    {
+      "id": "dogtown-01",
+      "business": "dogtown",
+      "title": "フリーミアム層のしきい値が未決定",
+      "state": "判断待ち",
+      "background": "役割定義書の未決事項。ペット視点ストーリー生成が事業の核。",
+      "evidence": "ストーリー生成は生成AIの実行回数に直結するため、しきい値の決め方が費用に直結する。CLAUDE.md の第一ルールにより、無料枠を超える設計は事前相談が要る。",
+      "next_action": "無料で何回まで生成できるようにするかを決める。その前に、1回の生成にいくらかかるかを見積もる（支援チームで出せる）。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md / CLAUDE.md"
+    },
+    {
+      "id": "ehon-01",
+      "business": "ehon",
+      "title": "正式ブランド名が未決定（仮称「えほんとコード」）",
+      "state": "判断待ち",
+      "background": "役割定義書の未決事項。絵本×Claude Code講座、500円均一、母親向け。",
+      "evidence": "リポジトリ側も ehon/ が「えほんの棚（仮）」のまま。名前が決まらないと、LP・アイコン・配布物の文言が全部仮のまま動かせない。",
+      "next_action": "候補を数案出して代表が選ぶ。候補出しは支援チームで着手できる。",
+      "owner": "代表",
+      "source": "CLAUDE_team.md / ehon/README.md"
+    },
+    {
+      "id": "ehon-02",
+      "business": "ehon",
+      "title": "投稿の受け付けは未開始。費用はゼロを維持できている",
+      "state": "順調",
+      "background": "biz/（ハタラク文庫）と ehon/（えほんの棚）はコミュニティ作りの最初の形。いまは投稿を受け付けていない。",
+      "evidence": "GitHub Pages のみ、外部の読み込みなし、Claude API 未接続。現時点の費用はゼロ。",
+      "next_action": "なし。この状態を維持する。",
+      "owner": "支援チーム",
+      "source": "CLAUDE.md / ehon/README.md / sekkei/README.md"
+    },
+    {
+      "id": "ehon-03",
+      "business": "ehon",
+      "title": "有料販売に進むなら、置き場所を GitHub Pages から移す必要がある",
+      "state": "判断待ち",
+      "background": "GitHub Pages は規約でECに使えない。500円均一で売る形にすると、いまの置き場所では続けられない。",
+      "evidence": "sekkei/README.md が移転先として Cloudflare Pages を検討済み。独自ドメインは「作らない」と2026-08-16に決着済み。決済は Stripe Connect の Standard を想定。",
+      "next_action": "販売に進む時期を決める。進むなら、移転と決済の2つがセットで動く。どちらも着手前に3回確認が要る。",
+      "owner": "代表",
+      "source": "sekkei/README.md / CLAUDE.md"
+    },
+    {
+      "id": "ehon-04",
+      "business": "ehon",
+      "title": "Cloudflare R2 は無料枠でもカード登録が要る可能性がある",
+      "state": "判断待ち",
+      "background": "絵本が1,000冊を超えたら R2 が要る、という見立て。無料枠の範囲には収まる。",
+      "evidence": "sekkei/README.md 自身が「有効化に支払い方法の登録が要る可能性がある。カード登録は相談事項」と書いている。CLAUDE.md はカード登録が必要なサービスの利用開始を相談事項に挙げている。",
+      "next_action": "いまは不要（1,000冊にはるかに届いていない）。必要になったら3回確認。",
+      "owner": "代表",
+      "source": "sekkei/README.md / CLAUDE.md"
+    },
+    {
+      "id": "ehon-05",
+      "business": "ehon",
+      "title": "Instagram の毎日1件が自動で決まる状態になった。あとは出すだけ",
+      "state": "進行中",
+      "background": "2026-08-28に前提が変わり、絵本ビジネスのSNS運用が主目的になった。insta/ に画像53枚とキャプションの下書きが揃っていて、手で投稿できる状態だった。足りなかったのは「毎日どれを出すか回す仕組み」のほう。",
+      "evidence": "insta/tools/unei.mjs に plan を追加し、53冊ぶんの順番（2026-08-29〜2026-10-20）を決めた。きょうの1件は「queue のうちまだ出していない先頭」で決まるので、毎日えらぶ手間は無い。日付では選ばないため、1日飛ばしても絵本は飛ばされず予定が後ろにずれるだけ。2026-08-28に代表が「送信は人が押すまま」で確定。CLAUDE.md の「取り消せない操作の前に人の確認を挟む」を変えずに済んでいる。トークン不要・費用ゼロ。",
+      "next_action": "代表が毎朝 node insta/tools/unei.mjs できょうの1件を見て、画面で確かめ、Instagram アプリから出す。出したら done で記録する。1件目を出したところで、道具が実際の運用に合っているかを見直す。",
+      "owner": "代表",
+      "source": "insta/README.md / insta/tools/unei.mjs"
+    },
+    {
+      "id": "ehon-06",
+      "business": "ehon",
+      "title": "絵本59冊の在庫。1日1件なら2026-10-26で尽きる",
+      "state": "順調",
+      "background": "1日1件で出すと、絵本は日数ぶんだけ減る。2026-08-28に6冊書き足して53冊→59冊にした。",
+      "evidence": "書き足したのは ちょうを おいかけて(0〜2) / たこあげ(1〜3) / きのこが はえた(0〜3) / うえきばちの め(2〜4) / くじらの せ(3〜5) / ベンチの となり(5〜8)。手薄だった低年齢を厚くした。絵は _draw.mjs の部品を組み合わせただけで、生成AIも画像APIも使っていない。既存53冊の絵と投稿画像は1バイトも変わっていない（確認済み）。",
+      "next_action": "残りが1ヶ月を切ったら、クリエイティブ担当が書き足す。10月に入ったら判断する。",
+      "owner": "支援チーム",
+      "source": "insta/README.md / ehon/books.json"
+    },
+    {
+      "id": "ehon-07",
+      "business": "ehon",
+      "title": "X（旧Twitter）への展開は、Instagram がまわり出してから",
+      "state": "手つかず",
+      "background": "2026-08-28、代表から「Instagram がうまく動き出したらXもやりたい」との方針。",
+      "evidence": "先に両方作らない方針にした。画像の比率が違う（Instagram 4:5 / X 16:9）ので、どのみち画像は作り直しになる。いま先回りして用意しておくことは何もない。",
+      "next_action": "なし。Instagram の運用が続くようになってから、insta/ と同じ形を x/ に作る。",
+      "owner": "代表",
+      "source": "insta/README.md"
+    },
+    {
+      "id": "zensha-04",
+      "business": "zensha",
+      "title": "前提変更：作るのは自分用の道具だけ。一般向けの公開はしない",
+      "state": "完了",
+      "background": "2026-08-28、代表から前提の変更。自分用に作りたいだけで一般向けに公開はしない、用途はSNS運用、対象は絵本ビジネス。",
+      "evidence": "これにより、会社サイト（hp/）の公開準備と、他人に使わせるサービス化が対象外になった。ただし絵本（ehon/）と投稿画像（insta/images/）は公開のまま維持する。非公開にすると GitHub Pages の配信が有料プラン限定になり、Actions の無料枠にも上限がつくため。費用はゼロのまま。",
+      "next_action": "なし。記録済み（CLAUDE.md / insta/README.md）。",
+      "owner": "支援チーム",
+      "source": "CLAUDE.md / insta/README.md"
+    },
+    {
+      "id": "ehon-08",
+      "business": "ehon",
+      "title": "絵本の話は、クリエイティブ担当（Claude Code）が書く",
+      "state": "完了",
+      "background": "2026-08-28、代表から「本を自動で作成しておくこともお願いしたい。クリエイティブ担当を設けて」との依頼。役割と作り方の手順は用意し、実際に6冊書き足した。",
+      "evidence": "2026-08-29に代表が決定。モデルに書かせる案（Gemini無料枠 / Claude API有料）は採らず、クリエイティブ担当が書き足す形にした。**追加の費用ゼロ。APIキーもカード登録も要らない。**絵はもともとプログラムで描いているので、これで絵本づくり全体が費用ゼロで完結する。見積もりは出してある（Claude API なら1冊あたり Opus 5 で約6円・Haiku 4.5 で約1円）ので、気が変わったときはそこから再開できる。",
+      "next_action": "なし。在庫が減ったら「何冊書いて」と言うだけ。手順は CLAUDE_team.md のクリエイティブ担当の節。",
+      "owner": "支援チーム",
+      "source": "CLAUDE_team.md / CLAUDE.md"
+    },
+    {
+      "id": "ehon-09",
+      "business": "ehon",
+      "title": "Instagram に実際につなぐ。Meta 側の用意だけが残っている",
+      "state": "判断待ち",
+      "background": "2026-08-29、代表から「チェックしてOKしたものだけ自動で反映したい」との依頼。unei.mjs に ok / unok / post を実装し、OKが付いているものだけを1件ずつ出す形にした。CLAUDE.md の「取り消せない操作の前に人の確認を挟む」は満たしている。",
+      "evidence": "コード側は動作確認済み（OKが無ければ何もしない・二重投稿を止める・文字数とタグ数の上限・画像が公開URLから取れるかの確認・--dry-run）。残るのは Meta 側の用意で、Instagram プロアカウント化／Facebookページ連携／開発者アプリ／長期トークンが要る。**いずれも無料でカード登録も不要**、自分のアカウントだけなら App Review も不要（2026-08-29 に確認）。支援チームでは取得できないため止まっている。",
+      "next_action": "代表が Meta 側を用意してトークンとユーザーIDを取る。手順と費用は insta/README.md の「Instagram につなぐ」。取れたら post --dry-run で一緒に確かめてから1件目を出す。手続き中に支払い方法の登録を求められたら、そこで止めて相談する。",
+      "owner": "代表",
+      "source": "insta/README.md / insta/tools/unei.mjs"
+    }
+  ]
+}

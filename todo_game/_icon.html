@@ -1,0 +1,72 @@
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+window.render = (maskable) => {
+  const S = 512;
+  ctx.clearRect(0,0,S,S);
+  const g = ctx.createLinearGradient(0,0,0,S);
+  g.addColorStop(0,'#16273f'); g.addColorStop(1,'#0b1220');
+  ctx.fillStyle = g; ctx.fillRect(0,0,S,S);
+  const lamp = ctx.createRadialGradient(S/2,S*0.62,20,S/2,S*0.62,S*0.6);
+  lamp.addColorStop(0,'rgba(240,166,60,0.35)'); lamp.addColorStop(1,'rgba(240,166,60,0)');
+  ctx.fillStyle = lamp; ctx.fillRect(0,0,S,S);
+
+  ctx.save();
+  // マスカブルは内側 80% に収める
+  const k = maskable ? 0.72 : 0.95;
+  ctx.translate(S/2, S/2 + (maskable ? 10 : 16));
+  ctx.scale(k * (maskable ? 2.5 : 3.0), k * (maskable ? 2.5 : 3.0));
+
+  // からだ
+  const body = ctx.createLinearGradient(0,-50,0,62);
+  body.addColorStop(0,'#9c8577'); body.addColorStop(1,'#6a564c');
+  ctx.fillStyle = body;
+  ctx.beginPath(); ctx.ellipse(0,26,58,42,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#5d4a41';
+  ctx.beginPath(); ctx.ellipse(-52,46,20,10,-0.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(52,46,20,10,0.5,0,Math.PI*2); ctx.fill();
+  // あたま
+  ctx.fillStyle = '#a68e7e';
+  ctx.beginPath(); ctx.ellipse(0,-18,44,38,0,0,Math.PI*2); ctx.fill();
+  // 口＋ビール
+  ctx.fillStyle = '#2a1a18';
+  ctx.beginPath(); ctx.ellipse(0,-2,27,30,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#e9a13b';
+  ctx.shadowColor = '#e9a13b'; ctx.shadowBlur = 22;
+  ctx.beginPath(); ctx.ellipse(0,2,20,23,0,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+  // ジョッキ
+  ctx.save(); ctx.translate(0,2); ctx.scale(26,26);
+  ctx.fillStyle = '#241713';
+  ctx.beginPath();
+  ctx.moveTo(-0.3,-0.16); ctx.lineTo(0.22,-0.16); ctx.lineTo(0.16,0.42); ctx.lineTo(-0.24,0.42);
+  ctx.closePath(); ctx.fill();
+  ctx.lineWidth = 0.09; ctx.strokeStyle = '#241713';
+  ctx.beginPath(); ctx.arc(0.32,0.04,0.16,-Math.PI*0.5,Math.PI*0.5); ctx.stroke();
+  ctx.fillStyle = '#f6efe2';
+  ctx.beginPath();
+  ctx.arc(-0.22,-0.26,0.13,0,Math.PI*2); ctx.arc(-0.02,-0.33,0.16,0,Math.PI*2); ctx.arc(0.18,-0.25,0.12,0,Math.PI*2);
+  ctx.fill(); ctx.fillRect(-0.32,-0.26,0.56,0.14);
+  ctx.restore();
+  // きば
+  ctx.fillStyle = '#f2ead9';
+  ctx.beginPath(); ctx.moveTo(-16,10); ctx.lineTo(-9,10); ctx.lineTo(-12,34); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(9,10); ctx.lineTo(16,10); ctx.lineTo(12,34); ctx.closePath(); ctx.fill();
+  // ひげ
+  ctx.strokeStyle = 'rgba(242,234,217,0.5)'; ctx.lineWidth = 1.6;
+  for (let i=0;i<3;i++){ const yy=-6+i*7;
+    ctx.beginPath(); ctx.moveTo(-26,yy); ctx.lineTo(-42,yy-4+i*3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(26,yy); ctx.lineTo(42,yy-4+i*3); ctx.stroke(); }
+  // 目
+  for (const ex of [-27,27]) {
+    ctx.fillStyle = '#f2ead9';
+    ctx.beginPath(); ctx.ellipse(ex,-32,7,8,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#2a1a18';
+    ctx.beginPath(); ctx.arc(ex,-31,3.6,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.arc(ex-1.6,-34,1.4,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+};
+render(false);
+</script>

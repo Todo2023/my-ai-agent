@@ -1,0 +1,289 @@
+@charset "utf-8";
+
+/*
+  えほんの棚（仮）
+
+  棚（index.html）・ビューア（read.html）・つくる画面（make.html）が共有している。
+  設計の意図は docs/platform-kids.md にある。
+
+  読むのは子どもなので、押すところは大きく、字は大きく、色は暗すぎないようにしてある。
+  端末を寝かせて読むことが多いので、暗い配色は使わない（夜の絵は絵のほうで出す）。
+*/
+
+:root{
+  --ink:#33302b;
+  --dim:#7b736a;
+  --line:#e8e0d4;
+  --bg:#fffaf2;
+  --tint:#f6eee1;
+  --accent:#c25b3a;
+  --accent-d:#a44827;
+  --radius:16px;
+  --wrap:1000px;
+}
+
+*{box-sizing:border-box;}
+/* hidden 属性は常に効かせる。display を指定したクラスに hidden を付けても
+   消えない（クラスのほうが強い）という取りこぼしを防ぐ */
+[hidden]{display:none !important;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN","Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  font-size:16px; line-height:1.9; letter-spacing:.03em;
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+}
+img,svg{max-width:100%;}
+a{color:var(--accent-d);}
+h1,h2,h3{line-height:1.5; margin:0;}
+p{margin:0;}
+ul{margin:0; padding:0; list-style:none;}
+button{font:inherit; color:inherit; cursor:pointer;}
+
+.wrap{width:min(100% - 28px, var(--wrap)); margin-inline:auto;}
+.skip{position:absolute; left:-9999px;}
+.skip:focus{left:8px; top:8px; background:var(--bg); padding:8px 12px; z-index:99;}
+
+.demo-bar{background:#5b4636; color:#f6eee1; font-size:11.5px; line-height:1.7; padding:8px 16px; text-align:center;}
+.demo-bar b{color:#fff;}
+
+header{background:var(--bg); border-bottom:1px solid var(--line);}
+.bar{display:flex; align-items:center; gap:14px; height:60px;}
+.logo{font-size:17px; font-weight:700; color:var(--ink); text-decoration:none; white-space:nowrap;}
+.bar nav{margin-left:auto; display:flex; gap:14px; font-size:13px;}
+.bar nav a{color:var(--dim); text-decoration:none;}
+
+/* ── 棚 ── */
+.hero{padding:32px 0 18px;}
+.hero h1{font-size:22px; font-weight:700;}
+.hero p{margin-top:10px; color:var(--dim); font-size:13.5px;}
+
+/* としで えらぶ / ジャンルで えらぶ。押せる的を大きくとる（子どもも触るため） */
+.tabs{display:flex; gap:4px; margin-top:18px; border-bottom:2px solid var(--line);}
+.tabs .tab{
+  flex:1; max-width:220px; padding:12px 8px;
+  font-size:15px; font-weight:700; color:var(--dim);
+  background:none; border:0; border-bottom:3px solid transparent; margin-bottom:-2px;
+  border-radius:8px 8px 0 0;
+}
+.tabs .tab[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent);}
+
+.filters{display:flex; flex-wrap:wrap; gap:8px; padding:16px 0 22px;}
+.filters button{
+  padding:8px 16px; font-size:14px; border-radius:999px;
+  background:var(--tint); border:1px solid var(--line); color:var(--dim);
+}
+.filters button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+.shelf{display:grid; gap:16px; padding-bottom:56px;}
+@media (min-width:620px){ .shelf{grid-template-columns:1fr 1fr;} }
+
+.book a{
+  display:block; text-decoration:none; color:inherit;
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:#fff;
+}
+.book a:hover{border-color:var(--accent);}
+.book .cover{display:block; width:100%; aspect-ratio:16/10; object-fit:cover; background:var(--tint);}
+.book .info{padding:14px 16px 16px;}
+.book h2{font-size:17px; font-weight:700;}
+.book .sum{margin-top:6px; font-size:13px; color:var(--dim); line-height:1.7;}
+.book .meta{margin-top:10px; display:flex; flex-wrap:wrap; gap:6px 8px; font-size:12px; color:var(--dim);}
+.chip{background:var(--tint); border:1px solid var(--line); border-radius:999px; padding:2px 10px;}
+.chip.genre{background:#fff; border-color:var(--accent); color:var(--accent);}
+.empty{padding:36px 0; color:var(--dim);}
+
+.note{margin:8px 0 48px; padding:16px 18px; background:var(--tint); border-radius:var(--radius); font-size:13px; color:var(--dim); line-height:1.85;}
+.note b{color:var(--ink);}
+
+/* ── ビューア ── */
+body.reading{background:#2a241d; color:#f6eee1; overflow:hidden;}
+.reader{position:fixed; inset:0; display:flex; flex-direction:column;}
+
+.reader-bar{display:flex; align-items:center; gap:10px; padding:8px 12px; background:#221d17;}
+.reader-bar .title{font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.reader-bar .spacer{margin-left:auto;}
+.icon-btn{
+  min-width:44px; height:38px; padding:0 12px; font-size:13px;
+  background:#3a322a; border:1px solid #4d4238; border-radius:10px; color:#f6eee1;
+}
+.icon-btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff;}
+.icon-btn:disabled{opacity:.35; cursor:default;}
+
+.stage{flex:1; display:flex; flex-direction:column; justify-content:center; gap:0; min-height:0; padding:10px 12px;}
+/*
+  絵は縦横の比を保ったまま、入るだけ大きく。
+  flex:1 にすると枠だけが伸びて、絵の上下に黒い帯が出る
+*/
+.page-img{
+  flex:0 1 auto; min-height:0; max-height:100%; width:100%;
+  object-fit:contain; border-radius:var(--radius);
+}
+.page-text{
+  flex:0 0 auto; margin-top:12px; padding:14px 16px; max-height:34vh; overflow-y:auto;
+  background:#f6eee1; color:#33302b; border-radius:var(--radius);
+  font-size:19px; line-height:2.5; letter-spacing:.04em;
+}
+.page-text ruby rt{font-size:.5em; color:#7b736a; letter-spacing:0;}
+
+/* 英語。日本語の すぐ下に、すこし 小さく ならべる。
+   同じ大きさで 2行 出すと、どちらを 読めば よいか 分からなくなる */
+.page-text.en{
+  margin-top:6px; padding-top:12px; padding-bottom:12px;
+  font-size:16px; line-height:1.9; letter-spacing:0;
+  color:#5c554c; background:#efe6d6;
+}
+/* 英語だけの画面（?lang=en）では、英語が 主役になる */
+:lang(en) .page-text.en{font-size:19px; color:#33302b; background:#f6eee1; margin-top:12px;}
+
+.reader-foot{display:flex; align-items:center; gap:10px; padding:8px 12px 14px; background:#221d17;}
+.nav-btn{
+  flex:1; height:52px; font-size:16px; font-weight:700;
+  background:#3a322a; border:1px solid #4d4238; border-radius:12px; color:#f6eee1;
+}
+.nav-btn:disabled{opacity:.3; cursor:default;}
+.pageno{min-width:74px; text-align:center; font-size:13px; color:#c6b9a8;}
+
+/* えほんが見つからないときの、棚へ戻るボタン */
+/* 棚のいちばん下の 応援リンク。おうちの方むけ */
+.support-foot{margin-top:14px;}
+.support-foot a{
+  display:inline-block; padding:10px 18px; border-radius:11px;
+  background:#efe2cc; border:1px solid #d9c7a8; color:#5b4636;
+  text-decoration:none; font-size:13.5px;
+}
+.support-foot a:hover{border-color:#a8763f;}
+
+.to-shelf{
+  display:inline-block; margin:18px auto 0; padding:12px 22px; border-radius:12px;
+  background:#3a322a; border:1px solid #4d4238; color:#f6eee1;
+  text-decoration:none; font-size:15px;
+}
+.to-shelf:hover{border-color:#8a7a68;}
+
+.end{
+  position:absolute; inset:0; display:none; place-content:center; text-align:center;
+  background:rgba(34,29,23,.96); padding:24px;
+}
+.end.show{display:grid;}
+.end h2{font-size:22px;}
+.end p{margin-top:10px; color:#c6b9a8; font-size:14px;}
+/* 保護者向けの応援リンク。子どもの目を引かないよう、小さく暗く置く */
+.end .support{margin-top:26px; font-size:12px;}
+.end .support a{
+  padding:0; background:none; border:none; color:#8d8073;
+  text-decoration:underline; font-size:12px;
+}
+.end .support a:hover{color:#c6b9a8;}
+
+.end .row{margin-top:22px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+.end a,.end button{
+  padding:12px 20px; border-radius:12px; text-decoration:none; font-size:15px;
+  background:#3a322a; border:1px solid #4d4238; color:#f6eee1;
+}
+
+footer{border-top:1px solid var(--line); padding:24px 0 40px; font-size:12px; color:var(--dim);}
+footer p{margin:4px 0;}
+
+/* ── つくる画面（make.html） ────────────────────────── */
+
+.maker{padding:20px 0 64px;}
+
+.drafts{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding-bottom:14px;}
+.drafts label{font-size:13px; color:var(--dim);}
+.drafts select{
+  flex:1 1 180px; min-width:0; max-width:320px; padding:8px 10px; font-size:14px;
+  color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:10px;
+}
+.saved{font-size:12px; color:var(--dim); margin-left:auto;}
+.saved.warn{color:var(--accent-d); font-weight:700;}
+
+.btn{
+  padding:8px 14px; font-size:14px; border-radius:10px;
+  background:var(--tint); border:1px solid var(--line); color:var(--ink);
+}
+.btn:hover{border-color:var(--accent);}
+.btn:disabled{opacity:.4; cursor:default; border-color:var(--line);}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
+.btn.primary:disabled{background:var(--tint); color:var(--dim);}
+.btn.danger:hover{border-color:var(--accent-d); color:var(--accent-d);}
+.btn.small{padding:5px 10px; font-size:12.5px;}
+
+.meta-box{border:1px solid var(--line); border-radius:var(--radius); background:#fff;}
+.meta-box summary{padding:12px 16px; font-size:15px; font-weight:700; cursor:pointer;}
+.fields{display:grid; gap:12px; padding:4px 16px 18px;}
+@media (min-width:720px){ .fields{grid-template-columns:1fr 1fr;} .f.wide{grid-column:1 / -1;} }
+
+.f{display:flex; flex-direction:column; gap:4px;}
+.f label{font-size:13px; color:var(--dim); display:flex; align-items:center; gap:6px;}
+.f label b{
+  font-size:10px; letter-spacing:.08em; color:#fff; background:var(--accent);
+  border-radius:4px; padding:1px 6px; font-weight:700;
+}
+.f input{
+  padding:10px 12px; font-size:15px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px;
+}
+.f input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.f .hint{font-size:12px; color:var(--dim); line-height:1.75;}
+
+.problems{
+  margin:14px 0 0; padding:11px 14px; font-size:13.5px; font-weight:700;
+  color:var(--accent-d); border:1px solid currentColor; border-radius:12px;
+  background:#fff;
+}
+.problems.soft{font-weight:400; color:var(--dim); border-color:var(--line);}
+
+.sec{margin:28px 0 12px; font-size:17px;}
+
+.pages{display:grid; gap:14px; margin-bottom:14px;}
+.page-row{border:1px solid var(--line); border-radius:var(--radius); background:#fff; padding:12px 14px 16px;}
+.page-head{display:flex; align-items:center; gap:8px; padding-bottom:10px;}
+.page-head .no{font-size:14px; font-weight:700; margin-right:auto;}
+
+.page-grid{display:grid; gap:14px;}
+@media (min-width:720px){ .page-grid{grid-template-columns:minmax(0,260px) 1fr;} }
+
+.page-art{display:flex; flex-direction:column; gap:8px;}
+.page-thumb{width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:10px; background:var(--tint);}
+.no-art{
+  display:grid; place-content:center; text-align:center; padding:10px;
+  aspect-ratio:16/10; border:1px dashed var(--line); border-radius:10px;
+  font-size:12px; color:var(--dim); line-height:1.7;
+}
+.pick{font-size:12.5px;}
+.file-name{
+  padding:8px 10px; font-size:13px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:9px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+}
+
+.page-text-fields{display:flex; flex-direction:column; gap:8px; min-width:0;}
+.page-text-fields label{display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--dim);}
+.page-text-fields textarea,.page-text-fields input{
+  width:100%; padding:10px 12px; font-size:15px; line-height:1.9; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px; resize:vertical;
+  font-family:inherit;
+}
+.page-text-fields textarea:focus,.page-text-fields input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.page-text-fields .hint{font-size:12px; color:var(--dim); line-height:1.75;}
+.page-text-fields code{background:var(--tint); border-radius:5px; padding:1px 5px; font-size:.9em;}
+.page-text-fields .btn{align-self:flex-start;}
+
+.page-preview{
+  padding:12px 14px; background:var(--tint); border-radius:10px;
+  font-size:17px; line-height:2.6; min-height:3em;
+}
+.page-preview ruby rt{font-size:.5em; color:var(--dim);}
+
+.maker .actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:22px 0 8px;}
+.maker .actions .hint{font-size:12px; color:var(--dim); line-height:1.85; flex:1 1 260px;}
+.maker .actions code,.maker .note code{background:var(--tint); border-radius:5px; padding:1px 5px; font-size:.92em;}
+
+/* 送る（config.js が空のあいだは説明だけ出る） */
+.send{margin-top:20px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius); background:#fff;}
+.send-state{font-size:13px; color:var(--dim); line-height:1.85;}
+.send-row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;}
+.send-row input{
+  flex:1 1 200px; min-width:0; padding:10px 12px; font-size:15px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px;
+}

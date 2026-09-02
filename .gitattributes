@@ -1,0 +1,2 @@
+# 読み取り機の部品は生成物。差分表示や言語統計から外す
+meshi/ocr/** binary linguist-vendored

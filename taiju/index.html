@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ふたりの体重帳</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#38708f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="体重帳">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<style>
+  :root {
+    --ground: #eef1f0; --surface: #fff; --ink: #16201d; --ink-soft: #5d6b67;
+    --ink-faint: #8b9793; --rule: #dde3e1; --a: #38708f; --up: #b0483f; --field: #f7f9f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #121618; --surface: #1b2123; --ink: #e6ebe9; --ink-soft: #a3aeaa;
+      --ink-faint: #78837f; --rule: #2b3336; --a: #6fa8c4; --up: #e0786d; --field: #232a2c;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.65; -webkit-text-size-adjust: 100%;
+  }
+  .mincho { font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif; }
+
+  /* アプリ本体（Apps Script のウェブアプリ）を全画面で表示する */
+  #frame { display: none; border: 0; width: 100%; height: 100dvh; background: var(--ground); }
+  body.ready #frame { display: block; }
+  body.ready #setup { display: none; }
+
+  #setup { max-width: 460px; margin: 0 auto; padding: 32px 18px calc(32px + env(safe-area-inset-bottom)); }
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: .14em; margin: 0 0 4px; }
+  .sub { color: var(--ink-faint); font-size: 12px; letter-spacing: .1em; margin: 0 0 28px; }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 16px; margin-bottom: 14px; }
+  .eyebrow { margin: 0 0 12px; font-size: 10.5px; font-weight: 700; letter-spacing: .22em; color: var(--ink-faint); }
+  p { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-soft); }
+  ol { margin: 0 0 12px; padding-left: 20px; font-size: 13.5px; color: var(--ink-soft); }
+  li { margin-bottom: 6px; }
+  input[type="url"] {
+    width: 100%; padding: 12px 10px; font: inherit; font-size: 16px; border: 1px solid var(--rule);
+    border-radius: 3px; background: var(--field); color: var(--ink);
+  }
+  button {
+    font: inherit; cursor: pointer; border-radius: 3px;
+  }
+  .primary {
+    width: 100%; margin-top: 12px; padding: 14px; border: 0; background: var(--ink);
+    color: var(--ground); font-size: 15px; font-weight: 700; letter-spacing: .12em;
+  }
+  .err { color: var(--up); font-size: 12.5px; margin-top: 10px; min-height: 1.2em; }
+  .install { width: 100%; padding: 13px; border: 1px solid var(--a); background: transparent; color: var(--a); font-weight: 700; }
+  code { background: var(--field); padding: 1px 5px; border-radius: 3px; font-size: 12px; word-break: break-all; }
+  a { color: var(--a); }
+
+  /* 全画面表示中に設定へ戻るための小さなつまみ */
+  #gear {
+    display: none; position: fixed; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--ink-faint); font-size: 15px; opacity: .55;
+  }
+  body.ready #gear { display: block; }
+  #gear:hover, #gear:focus { opacity: 1; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--a); outline-offset: 1px; }
+</style>
+</head>
+<body>
+
+<iframe id="frame" title="ふたりの体重帳" allow="camera"></iframe>
+<button id="gear" aria-label="設定">⚙</button>
+
+<div id="setup">
+  <h1 class="mincho">ふたりの体重帳</h1>
+  <p class="sub">MORNING SCALE LOG</p>
+
+  <div class="card">
+    <p class="eyebrow">はじめの設定（1回だけ）</p>
+    <p>ご自身の Apps Script で公開したアプリのURLを貼り付けてください。この端末に記憶され、次からは直接開きます。</p>
+    <input type="url" id="url" inputmode="url" autocomplete="off"
+           placeholder="https://script.google.com/macros/s/……/exec">
+    <button class="primary" id="go">このURLで開く</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card" id="installCard" style="display:none">
+    <p class="eyebrow">アプリとして入れる</p>
+    <p>ホーム画面にアイコンが追加され、ブラウザの枠なしで開けます。</p>
+    <button class="install" id="install">インストール</button>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">URLの見つけ方</p>
+    <ol>
+      <li>Apps Script のエディタを開く</li>
+      <li>右上の「デプロイ」→「デプロイを管理」</li>
+      <li>「ウェブアプリ」の下のURL（<code>/exec</code> で終わるもの）をコピー</li>
+    </ol>
+    <p>iPhone の場合は、Safari の共有ボタン →「ホーム画面に追加」でアプリになります。</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+var KEY = "taijuu:appUrl";
+var $ = function (id) { return document.getElementById(id); };
+
+/** 埋め込みを許すのは自分の Apps Script のウェブアプリだけ。 */
+function normalize(raw) {
+  var value = String(raw || "").trim();
+  if (!value) return null;
+  var url;
+  try {
+    url = new URL(value);
+  } catch (e) {
+    return null;
+  }
+  if (url.protocol !== "https:") return null;
+  if (url.hostname !== "script.google.com") return null;
+  if (!/^\/macros\/s\/[^/]+\/exec$/.test(url.pathname)) return null;
+  return url.origin + url.pathname;
+}
+
+function open_(url) {
+  $("frame").src = url;
+  document.body.classList.add("ready");
+}
+
+function save(url) {
+  try { localStorage.setItem(KEY, url); } catch (e) { /* プライベートモードでは記憶しないだけ */ }
+}
+
+$("go").onclick = function () {
+  var url = normalize($("url").value);
+  if (!url) {
+    $("err").textContent = "URLの形が違います。script.google.com の /exec で終わるURLを貼り付けてください。";
+    return;
+  }
+  $("err").textContent = "";
+  save(url);
+  open_(url);
+};
+
+$("gear").onclick = function () {
+  document.body.classList.remove("ready");
+  $("frame").removeAttribute("src");
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) { /* 無ければ空のまま */ }
+  $("url").value = saved || "";
+};
+
+// インストールの案内（Android / PC の Chrome 系）
+var deferred = null;
+window.addEventListener("beforeinstallprompt", function (event) {
+  event.preventDefault();
+  deferred = event;
+  $("installCard").style.display = "block";
+});
+$("install").onclick = function () {
+  if (!deferred) return;
+  deferred.prompt();
+  deferred = null;
+  $("installCard").style.display = "none";
+};
+
+// ?api=… で渡されたURLは、記憶してからアドレスバーから消す（他人に見えないように）
+var fromQuery = normalize(new URLSearchParams(location.search).get("api"));
+if (fromQuery) {
+  save(fromQuery);
+  history.replaceState(null, "", location.pathname);
+}
+
+var stored = fromQuery;
+if (!stored) {
+  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+}
+if (normalize(stored)) open_(normalize(stored));
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function () { /* 失敗してもアプリは動く */ });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "slug": "mori-no-ongakukai",
+  "title": "もりの おんがくかい",
+  "author": "編集部",
+  "age_min": 3,
+  "age_max": 5,
+  "genre": "きもち",
+  "reading_minutes": 4,
+  "cover": "p01.svg",
+  "summary": "うまく できない こが、ひとり いました。",
+  "pages": [
+    {
+      "image": "p01.svg",
+      "alt": "森で鳥が歌っている",
+      "text": "きょうは もりの おんがくかい。",
+      "text_en": "Today is the forest concert."
+    },
+    {
+      "image": "p02.svg",
+      "alt": "みんなが集まる",
+      "text": "みんなが あつまりました。",
+      "text_en": "Everyone gathered."
+    },
+    {
+      "image": "p03.svg",
+      "alt": "うつむくくま",
+      "text": "くまさんだけ、こえが でません。",
+      "text_en": "Only Bear could not get a voice out."
+    },
+    {
+      "image": "p04.svg",
+      "alt": "ねずみが話しかける",
+      "text": "「うたわなくても いいよ。」",
+      "text_en": "“You don't have to sing.”"
+    },
+    {
+      "image": "p05.svg",
+      "alt": "くまが手をたたく",
+      "text": "くまさんは、てを たたきました。",
+      "text_en": "So Bear clapped instead."
+    },
+    {
+      "image": "p06.svg",
+      "alt": "夜、拍手の音が続く",
+      "text": "その おとが、いちばん よく きこえました。",
+      "text_en": "That sound carried the best of all."
+    }
+  ],
+  "title_en": "The Forest Concert",
+  "summary_en": "One friend could not do it well."
+}

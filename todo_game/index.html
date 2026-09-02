@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>トドの晩酌 — アプリとして入れる</title>
+<meta name="description" content="回転レーンの皿の蓋を開けて、ご注文と同じ品をトドに食べさせるゲーム。ホーム画面に入れて遊べます。" />
+<meta name="theme-color" content="#0b1220" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="晩酌" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta property="og:title" content="トドの晩酌" />
+<meta property="og:description" content="回転レーンの皿の蓋を開けて、ご注文どおりの品をトドに食べさせる。" />
+<meta property="og:image" content="./icon-512.png" />
+<script>
+  // ホーム画面のアイコンから開いたときは、案内を挟まずゲームへ
+  if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) {
+    location.replace("./game.html");
+  }
+</script>
+<style>
+  :root {
+    --sea-900: #0b1220;
+    --sea-800: #101b2e;
+    --sea-700: #16273f;
+    --ice: #d8e8f2;
+    --ice-dim: #8ea6bb;
+    --lantern: #f0a63c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(28px, env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(120% 70% at 50% -10%, #1d3350 0%, rgba(29,51,80,0) 62%),
+      radial-gradient(90% 50% at 50% 106%, rgba(240,166,60,0.16) 0%, rgba(240,166,60,0) 55%),
+      var(--sea-900);
+    color: var(--ice);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mark {
+    width: 128px;
+    height: 128px;
+    border-radius: 28px;
+    box-shadow: 0 0 0 1px rgba(216,232,242,0.12), 0 24px 50px -22px rgba(0,0,0,0.9), 0 0 70px -28px rgba(240,166,60,0.7);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: clamp(28px, 8vw, 40px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+    color: #fbe3bd;
+    text-shadow: 0 0 24px rgba(240,166,60,0.45);
+  }
+
+  .lead {
+    margin: -14px 0 0;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ice-dim);
+    max-width: 22em;
+  }
+
+  .step {
+    margin: 0;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ice);
+    max-width: 24em;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: rgba(216,232,242,0.05);
+    border: 1px solid rgba(216,232,242,0.12);
+  }
+
+  .step b { color: #fbe3bd; }
+
+  button {
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: #241713;
+    background: linear-gradient(180deg, #f6c377, var(--lantern));
+    border: none;
+    border-radius: 999px;
+    padding: 15px 34px;
+    cursor: pointer;
+    box-shadow: 0 14px 30px -14px rgba(240,166,60,0.9);
+  }
+
+  button:disabled { opacity: 0.55; cursor: default; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--lantern); outline-offset: 3px; }
+
+  a.play {
+    color: var(--ice-dim);
+    font-size: 13px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(216,232,242,0.25);
+    padding-bottom: 2px;
+  }
+
+  a.play:hover { color: #fbe3bd; }
+
+  .free { font-size: 11px; color: rgba(216,232,242,0.45); letter-spacing: 0.06em; }
+
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<img class="mark" src="./icon-192.png" width="128" height="128" alt="" />
+
+<h1>トドの晩酌</h1>
+<p class="lead">回転レーンの皿の蓋を開けて、<br />ご注文どおりの品をトドに食べさせる。</p>
+
+<button id="installBtn" type="button">📲 アプリとして入れる</button>
+<p class="step" id="step" hidden></p>
+
+<a class="play" href="./game.html">このままブラウザで遊ぶ</a>
+<a class="play" href="./check.html" style="font-size:11px">うまく入らないときの診断</a>
+<p class="free">無料・広告なし・アカウント不要</p>
+
+<script>
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+  }
+
+  (() => {
+    const btn = document.getElementById("installBtn");
+    const step = document.getElementById("step");
+    let deferred = null, ready = false;
+
+    // Android / デスクトップ Chrome：この合図が来たらワンタップで入る
+    addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferred = e;
+      btn.hidden = false;
+      step.hidden = true;
+      ready = true;
+    });
+
+    btn.addEventListener("click", async () => {
+      if (!deferred) { showSteps(); return; }   // 合図が来ていなければ手順を出す
+      btn.disabled = true;
+      deferred.prompt();
+      const { outcome } = await deferred.userChoice;
+      deferred = null;
+      btn.disabled = false;
+      if (outcome === "accepted") return;         // appinstalled 側で表示を変える
+      btn.hidden = true;
+      showSteps();
+    });
+
+    addEventListener("appinstalled", () => {
+      btn.hidden = true;
+      step.hidden = false;
+      step.innerHTML = "入りました。<b>ホーム画面のアイコン</b>から開けます。";
+    });
+
+    function showSteps() {
+      const ua = navigator.userAgent;
+      const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome/.test(ua);
+      if (iosSafari) {
+        step.innerHTML = "下の<b>共有ボタン</b>（□に↑）を押して、<br />「<b>ホーム画面に追加</b>」を選んでください。";
+      } else if (ios) {
+        step.innerHTML = "このページを <b>Safari</b> で開き直してから、<br />共有 →「<b>ホーム画面に追加</b>」。";
+      } else {
+        step.innerHTML = "ブラウザの <b>⋮ メニュー</b> を開いて、<br />「<b>アプリをインストール</b>」または「ホーム画面に追加」。";
+      }
+      step.hidden = false;
+    }
+
+    // 合図が来ない環境（iOS、すでに入っている、条件未達）には手順を出す
+    setTimeout(() => { if (!ready && step.hidden) showSteps(); }, 2500);
+  })();
+</script>
+</body>
+</html>
