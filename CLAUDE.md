@@ -64,8 +64,14 @@ Claude APIを使う実装では、次を必ず入れる。
 | ① 配信するもの | アプリ置き場・会社サイト・コミュニティ（`biz/` `ehon/` `admin/` ほか） | HTML / CSS / JS。ビルドなし |
 | ② AIエージェント教材 | `diet_agent` `invoice_agent` `meeting_agent` `travel_agent` `diet_gas` `diet_worker` | **Python** |
 
-`main` ひとつで配信している（GitHub Pages は1ブランチしか配信できないため）。
-**②を更新したときも `main` にマージしないと反映されない。**
+**GitHub Pages は1ブランチしか配信できない。**
+そして **いまの配信元は `main` ではない**（2026-09-01〜 `claude/hp-implementation-xubnv6`）。
+
+> ⚠ **`main` にマージしただけでは、サイトには出ない。**
+> 配信元ブランチにも入れること。「直したのに変わらない」の原因は、たいていこれ。
+
+配信元の確かめかたと、404 になったときの直しかたは
+[`sekkei/haishin.md`](sekkei/haishin.md) に書いてある。**推測で触らないこと。**
 
 ### ② AIエージェント教材のほうの決まり
 
