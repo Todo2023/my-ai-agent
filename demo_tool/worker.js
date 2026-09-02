@@ -415,9 +415,10 @@ async function handleSlide(url, env) {
     return new Response("forbidden", { status: 403 });
   }
 
-  const b64 = await env.DEMO_KV.get(`slide:${slug}:${page}`);
-  if (!b64) return new Response("not found", { status: 404 });
-  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  // 画像はそのままの姿で入っている（upload.py が base64 で渡し、
+  // wrangler が戻して保存する）。文字として読むと壊れるので、バイトで受け取る
+  const bytes = await env.DEMO_KV.get(`slide:${slug}:${page}`, "arrayBuffer");
+  if (!bytes) return new Response("not found", { status: 404 });
   return new Response(bytes, {
     headers: {
       "Content-Type": "image/png",

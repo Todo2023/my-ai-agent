@@ -47,6 +47,12 @@
 
 /* 表 */
 .tablewrap{overflow-x:auto;margin:0 0 22px;}
+
+/* 画面いっぱいに広げる帯（.studio）は 100vw を使う。100vw には
+   縦スクロールバーの幅が含まれるため、そのままだと数px はみ出して
+   横スクロールバーが出る。はみ出しだけを切る。 */
+body{overflow-x:clip;}
+@supports not (overflow-x:clip){ body{overflow-x:hidden;} }
 .body table{border-collapse:collapse;width:100%;font-size:13.6px;}
 .body th,.body td{text-align:left;padding:10px 14px 10px 0;border-bottom:1px solid var(--hairline);
   vertical-align:top;}
