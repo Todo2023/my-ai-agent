@@ -23,6 +23,7 @@ function fakeKV() {
       return v;
     },
     async put(k, v) { store.set(k, v); },
+    async delete(k) { store.delete(k); },
     async list({ prefix = "" } = {}) {
       return { keys: [...store.keys()].filter((k) => k.startsWith(prefix)).sort().map((name) => ({ name })) };
     },
@@ -440,6 +441,86 @@ await t("支払い範囲だけを更新しても、名前は消えない", async
   const rec = JSON.parse(e.DEMO_KV.store.get("member:CODE1"));
   assert.strictEqual(rec.name, "山田");
   assert.strictEqual(rec.paidThrough, 4);
+});
+
+/* ---- みんなの質問と、Slackの届け分け ---- */
+
+await t("質問はワークと違うチャンネルに流れる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 3 }, {
+    SLACK_WEBHOOK_URL: "https://hooks.slack.test/ask",
+    SLACK_WORK_WEBHOOK_URL: "https://hooks.slack.test/work",
+  });
+  const seen = stubSlack();
+  await worker.fetch(ask({ slug: "lesson-01", lesson: "第1回", text: "質問です" }), e);
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "ワークです" }), e);
+  assert.strictEqual(seen[0].url, "https://hooks.slack.test/ask", "質問は質問側へ");
+  assert.strictEqual(seen[1].url, "https://hooks.slack.test/work", "ワークはワーク側へ");
+});
+
+await t("ワーク側が未設定なら、質問側に落として届ける", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 3 },
+    { SLACK_WEBHOOK_URL: "https://hooks.slack.test/ask" });
+  const seen = stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "ワーク" }), e);
+  assert.strictEqual(seen[0].url, "https://hooks.slack.test/ask", "黙って消さない");
+});
+
+await t("同じ回の質問が、名前を伏せて返る", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  await worker.fetch(ask({ slug: "lesson-01", lesson: "第1回", slide: "3", name: "山田", text: "ここが分かりません" }), e);
+  const res = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  const qs = (await res.json()).questions;
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(qs.length, 1);
+  assert.strictEqual(qs[0].text, "ここが分かりません");
+  assert.strictEqual(qs[0].slide, "3");
+  assert.ok(!("name" in qs[0]), "名前は入れない");
+  assert.ok(!JSON.stringify(qs).includes("山田"), "名前がどこにも漏れない");
+});
+
+await t("別の回の質問は混ざらない", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  await worker.fetch(ask({ slug: "lesson-01", text: "第1回の質問" }), e);
+  await worker.fetch(ask({ slug: "lesson-02", text: "第2回の質問" }), e);
+  const res = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  const qs = (await res.json()).questions;
+  assert.deepStrictEqual(qs.map((q) => q.text), ["第1回の質問"]);
+});
+
+await t("開いていない回の質問は読めない", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 2 });
+  stubSlack();
+  await worker.fetch(ask({ slug: "lesson-03", text: "先の回の質問" }), e);
+  const res = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-03" }), e);
+  assert.strictEqual(res.status, 403, "本文と同じ扱いにする");
+});
+
+await t("新しい質問が先に来る", async () => {
+  const e = envWithLessons();
+  stubSlack();
+  await worker.fetch(ask({ slug: "lesson-01", text: "ひとつめ" }), e);
+  await new Promise((r) => setTimeout(r, 3));
+  await worker.fetch(ask({ slug: "lesson-01", text: "ふたつめ" }), e);
+  const res = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  assert.deepStrictEqual((await res.json()).questions.map((q) => q.text), ["ふたつめ", "ひとつめ"]);
+});
+
+await t("見せたくない質問は、合鍵がある人だけが取り下げられる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 3 }, { ASK_ADMIN_KEY: "himitsu" });
+  stubSlack();
+  await worker.fetch(ask({ slug: "lesson-01", text: "消したい質問" }), e);
+  const before = await (await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e)).json();
+  const id = before.questions[0].id;
+
+  const ng = await worker.fetch(api("/question/hide?key=chigau", { id }), e);
+  assert.strictEqual(ng.status, 403);
+
+  const ok = await worker.fetch(api("/question/hide?key=himitsu", { id }), e);
+  assert.strictEqual(ok.status, 200);
+  const after = await (await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e)).json();
+  assert.strictEqual(after.questions.length, 0);
 });
 
 console.log(`\n${passed}件すべて通りました\n`);
