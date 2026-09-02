@@ -41,6 +41,33 @@
   var main = document.getElementById('main');
   var esc = Course.esc;
 
+
+  /* 場面 → 戻る回。修了した人しか開けない画面なので、鍵は掛かったまま使えます */
+  var SITUATIONS = [
+    ['何を調べればいいか分からない', 'lesson-01', '問いを立てる'],
+    ['AIの答えをそのまま使ってよいか迷う', 'lesson-02', 'AIとの役割分担'],
+    ['調べ物が終わらない', 'lesson-03', '構造化・仮説構築'],
+    ['要約を読んでも何も残らない', 'lesson-04', '情報収集・要約のAI活用'],
+    ['どこまで調べるべきか分からない', 'lesson-05', 'リサーチ設計'],
+    ['数字から何が言えるか分からない', 'lesson-06', 'データ整理・分析のAI活用'],
+    ['書いても伝わらない', 'lesson-07', '結論から書く・話す'],
+    ['文章が自分のものに思えない', 'lesson-08', '文章生成・提案書支援のAI活用'],
+    ['発表がまとまらない', 'lesson-09', '発表・アウトプット'],
+    ['同じ作業をくり返している', 'lesson-10', '自動化・ミニ制作'],
+    ['指摘がこたえる', 'lesson-11', 'フィードバックを力に変える'],
+    ['型を忘れてきた', 'lesson-12', 'AIとの付き合い方をアップデートし続ける']
+  ];
+
+  function backTo(d) {
+    var open = {};
+    d.lessons.forEach(function (x) { if (x.open) open[x.slug] = x.label; });
+    return SITUATIONS.filter(function (r) { return open[r[1]]; }).map(function (r) {
+      return '<a class="dn-bt" href="lesson.html?r=' + encodeURIComponent(r[1]) + '">'
+        + '<span class="bt-when">' + esc(r[0]) + '</span>'
+        + '<span class="bt-go">' + esc(open[r[1]]) + '　' + esc(r[2]) + ' →</span></a>';
+    }).join('');
+  }
+
   function render(d) {
     var gating = d.lessons.filter(function (x) { return x.gates; });
     var done = gating.filter(function (x) { return x.done; });
@@ -88,8 +115,18 @@
       + '<a href="topics.html">AI Topics</a>に、当社が選んだニュースと、そこから立てた問いを載せています。'
       + '同じことを自分でやるのが、いちばん軽い練習です。</li>'
       + '<li><b>詰まったら、また聞いてください。</b>'
-      + '資料と質問欄は、修了後もそのまま開いたままにしてあります。</li>'
+      + '資料と質問欄は、修了後もそのまま開いたままにしてあります。'
+      + 'オフィスアワーも、枠が空いていれば予約できます。</li>'
       + '</ol>'
+      + '<p class="dn-hint">「月に一度」は、決めておかないと来ません。'
+      + '<b>いま、来月の同じ日にカレンダーへ入れてください。</b>5分で終わります。</p>'
+      + '</section>'
+
+      /* 修了後にいちばん要るのは、励ましではなく索引。
+         困った場面から、戻る回へ引けるようにする */
+      + '<section class="dn-sec">'
+      + '<h2>こういうときは、この回に戻る</h2>'
+      + '<div class="dn-back-to">' + backTo(d) + '</div>'
       + '</section>'
 
       + '<section class="dn-sec">'
