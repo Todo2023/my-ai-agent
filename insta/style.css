@@ -70,3 +70,17 @@ button:hover{border-color:var(--accent); color:var(--accent);}
   color:var(--bg); background:var(--accent); border:1px solid var(--accent);
 }
 .btn-like:hover{opacity:.85;}
+
+/* 運用の状態（残り何冊か） */
+.unei{
+  margin:0 0 20px; font-size:13px; color:var(--dim);
+  display:flex; flex-wrap:wrap; gap:6px 16px;
+}
+.unei b{color:var(--ink);}
+
+/* 出し終えたものの印 */
+.post.done img{opacity:.45;}
+.done-tag{
+  font-size:11.5px; color:var(--accent);
+  border:1px solid currentColor; border-radius:999px; padding:1px 8px;
+}

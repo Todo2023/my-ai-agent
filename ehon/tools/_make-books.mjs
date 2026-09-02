@@ -34,6 +34,7 @@ const BOOKS = [
     slug: "nebosuke-taiyou",
     title: "ねぼすけ たいよう",
     age: [0, 2],
+    genre: "しぜん",
     summary: "たいようが おきない あさの おはなし。",
     pages: [
       { art: [d.bg("night"), d.stars(11), d.hills("#3b4a63"), d.house(820, 800, 1.2, "#e6d6bd", "#8f5b4a", false)],
@@ -54,6 +55,7 @@ const BOOKS = [
     slug: "akai-kasa",
     title: "あかい かさ",
     age: [3, 5],
+    genre: "きもち",
     summary: "あめの ひに、かさを ひとつ わけあう おはなし。",
     pages: [
       { art: [d.bg("snow"), d.rainfall(31, 60), d.ground(860, "#7f9a86"), d.umbrella(800, 480, 1.7, "#d9524a")],
@@ -76,6 +78,7 @@ const BOOKS = [
     slug: "mori-no-yuubin",
     title: "もりの ゆうびんやさん",
     age: [3, 5],
+    genre: "どうぶつ",
     summary: "もりの ゆうびんやさんが、さいごの てがみを とどけます。",
     pages: [
       { art: [d.bg("forest"), d.forest(41, 760, 7), d.ground(880, "#7fae86"), A("fox", 700, 1.9, "#d98a4a"), d.envelope(1180, 560, 1.6)],
@@ -100,6 +103,7 @@ const BOOKS = [
     slug: "umi-no-otoshimono",
     title: "うみの おとしもの",
     age: [4, 7],
+    genre: "たび",
     summary: "なみうちぎわで ひろった ものを、もちぬしに かえしに いきます。",
     pages: [
       { art: [d.bg("sea"), d.sun(1300, 220, 120), d.waves(660), d.ground(920, "#e8d8b0")],
@@ -124,6 +128,7 @@ const BOOKS = [
     slug: "yuki-no-ashiato",
     title: "ゆきの あしあと",
     age: [2, 4],
+    genre: "さがす",
     summary: "ゆきの うえの あしあとを たどって いきます。",
     pages: [
       { art: [d.bg("snow"), d.hills("#a9c0d4", 660), d.forest(56, 780, 5), d.hills("#dfe9f2", 780),
@@ -145,6 +150,7 @@ const BOOKS = [
     slug: "tane-no-tabi",
     title: "かぜと たねの たび",
     age: [5, 8],
+    genre: "しぜん",
     summary: "かぜに のった たねが、おちる ばしょを さがします。",
     pages: [
       { art: [d.bg("day"), d.sun(1300, 240, 110), d.ground(900, "#8fae74"), d.tree(360, 920, 2.4, "#4f8b5a"), d.seed(880, 480, 3.2, 15)],
@@ -170,6 +176,7 @@ const BOOKS = [
     slug: "yoru-no-toshokan",
     title: "よるの としょかん",
     age: [6, 9],
+    genre: "おやすみ",
     summary: "よるの としょかんで、本たちが ひらく じかんの おはなし。",
     pages: [
       { art: [d.bg("night"), d.stars(61), d.moon(1320, 200, 90), d.hills("#2a3550"), d.house(800, 830, 1.25, "#e6d6bd", "#7d5a3c", false)],
@@ -198,6 +205,7 @@ const BOOKS = [
     slug: "chiisana-niji",
     title: "ちいさな にじ",
     age: [0, 3],
+    genre: "しぜん",
     summary: "みずたまりに うつった、ちいさな にじの おはなし。",
     pages: [
       { art: [d.bg("snow"), d.rainfall(71, 70), d.ground(880, "#8fae74")],
@@ -218,6 +226,7 @@ const BOOKS = [
     slug: "ojiichan-no-radio",
     title: "おじいちゃんの ラジオ",
     age: [6, 9],
+    genre: "きもち",
     summary: "こわれた ラジオから、ある よる おとが きこえました。",
     pages: [
       { art: [d.bg("room"), d.lamp(1300, 260, 1.2), d.radio(720, 540, 2)],
@@ -244,6 +253,7 @@ const BOOKS = [
     slug: "poton-poton",
     title: "ぽとん ぽとん",
     age: [0, 2],
+    genre: "しぜん",
     summary: "あめの しずくが、ひとつ ずつ おちて きます。",
     pages: [
       { art: [d.bg("rain"), d.rainfall(101, 20), d.ground(900, "#8fae74")],
@@ -264,6 +274,7 @@ const BOOKS = [
     slug: "maru-sagashi",
     title: "まるを さがして",
     age: [0, 2],
+    genre: "さがす",
     summary: "まるい ものを、ひとつ ずつ みつけて いきます。",
     pages: [
       { art: [d.bg("day"), d.sun(800, 300, 150), d.ground(900, "#8fae74")],
@@ -282,6 +293,7 @@ const BOOKS = [
     slug: "dare-no-koe",
     title: "だれの こえ",
     age: [0, 3],
+    genre: "どうぶつ",
     summary: "きこえて くる こえの ぬしを さがします。",
     pages: [
       { art: [d.bg("forest"), d.forest(121, 780, 6), d.ground(900, "#7fae86")],
@@ -302,6 +314,7 @@ const BOOKS = [
     slug: "ohayou-no-jun",
     title: "おはようの じゅんばん",
     age: [0, 2],
+    genre: "さがす",
     summary: "あさ、ひとつ ずつ めを さまします。",
     pages: [
       { art: [d.bg("dawn"), d.stars(130, 7), d.moon(300, 300, 70), d.hills("#5f6a56"), d.forest(133, 820, 4),
@@ -321,6 +334,7 @@ const BOOKS = [
     slug: "kaze-ga-fuita",
     title: "かぜが ふいた",
     age: [1, 3],
+    genre: "しぜん",
     summary: "かぜが ふくと、いろいろな ものが うごきます。",
     pages: [
       { art: [d.bg("day"), d.clouds(141, 3, 200), d.ground(900, "#8fae74"), d.tree(800, 900, 2)],
@@ -339,6 +353,7 @@ const BOOKS = [
     slug: "akai-mi",
     title: "あかい み",
     age: [1, 3],
+    genre: "どうぶつ",
     summary: "きの みを、みんなで わけます。",
     pages: [
       { art: [d.bg("autumn"), d.ground(900, "#a8935f"), d.tree(800, 900, 2.2, "#c25b3a")],
@@ -357,6 +372,7 @@ const BOOKS = [
     slug: "moko-no-donguri",
     title: "もこの どんぐり",
     age: [3, 5],
+    genre: "きもち",
     summary: "ひとつ しか ない どんぐりを、もこは どう しましたか。",
     pages: [
       { art: [d.bg("forest"), d.fireflies(601, 10), d.forest(602, 790, 5), d.treehouse(1230, 620, 0.85),
@@ -394,6 +410,7 @@ const BOOKS = [
     slug: "oyasumi-no-mae",
     title: "おやすみの まえに",
     age: [0, 2],
+    genre: "おやすみ",
     summary: "ねる まえに することを、ひとつ ずつ。",
     pages: [
       { art: [d.bg("dusk"), d.hills("#6b5a6a"), d.house(800, 840, 1.2)],
@@ -412,6 +429,7 @@ const BOOKS = [
     slug: "ookii-chiisai",
     title: "おおきい ちいさい",
     age: [1, 3],
+    genre: "さがす",
     summary: "おおきい ものと ちいさい ものを、ならべて みます。",
     pages: [
       { art: [d.bg("day"), d.ground(900, "#8fae74"), A("bear", 560, 2.4, "#8a5a3b"), A("mouse", 1120, 0.9, "#b9bfcb")],
@@ -430,6 +448,7 @@ const BOOKS = [
     slug: "koron-to-tamago",
     title: "ころんと たまご",
     age: [1, 3],
+    genre: "どうぶつ",
     summary: "ころがって いった たまごの おはなし。",
     pages: [
       { art: [d.bg("forest"), d.forest(181, 780, 5), d.ground(900, "#7fae86"), d.seed(800, 860, 3.6, 0)],
@@ -448,6 +467,7 @@ const BOOKS = [
     slug: "pyon-pyon",
     title: "ぴょん ぴょん",
     age: [0, 2],
+    genre: "どうぶつ",
     summary: "ぴょんと とぶ いきものが、つぎつぎ でて きます。",
     pages: [
       { art: [d.bg("spring"), d.clouds(191, 2, 190), d.ground(900, "#8fae74"), A("rabbit", 800, 1.9, "#d8d3cc")],
@@ -468,6 +488,7 @@ const BOOKS = [
     slug: "kasa-no-ongaku",
     title: "かさの おんがく",
     age: [3, 5],
+    genre: "しぜん",
     summary: "かさに あたる あめの おとを、きいて みます。",
     pages: [
       { art: [d.bg("rain"), d.rainfall(201, 50), d.ground(900, "#7f9a86"), C(800, 1.5), d.umbrella(800, 320, 1.6, "#5aa7d6")],
@@ -488,6 +509,7 @@ const BOOKS = [
     slug: "neko-to-tsukimi",
     title: "ねこと つきみ",
     age: [3, 5],
+    genre: "おやすみ",
     summary: "ねこと ならんで、つきを みた よるの はなし。",
     pages: [
       { art: [d.bg("dusk"), d.hills("#6b5a6a"), d.ground(900, "#5f7a68"), d.bench(800, 860, 1.2)],
@@ -508,6 +530,7 @@ const BOOKS = [
     slug: "tanpopo-no-boushi",
     title: "たんぽぽの ぼうし",
     age: [3, 5],
+    genre: "しぜん",
     summary: "わた毛が とんで いく さきを、おいかけます。",
     pages: [
       { art: [d.bg("spring"), d.clouds(221, 2, 190), d.ground(900, "#8fae74"), d.flowers(222, 890, 5)],
@@ -528,6 +551,7 @@ const BOOKS = [
     slug: "hashi-o-watatte",
     title: "はしを わたって",
     age: [3, 5],
+    genre: "きもち",
     summary: "こわかった はしを、わたって みる はなし。",
     pages: [
       { art: [d.bg("forest"), d.forest(231, 780, 6), d.ground(900, "#7fae86"), d.path(900)],
@@ -548,6 +572,7 @@ const BOOKS = [
     slug: "mori-no-ongakukai",
     title: "もりの おんがくかい",
     age: [3, 5],
+    genre: "きもち",
     summary: "うまく できない こが、ひとり いました。",
     pages: [
       { art: [d.bg("forest"), d.forest(241, 780, 7), d.ground(900, "#7fae86"), d.animal("bird", 700, 420, 1.6, "#e8a33c"), d.animal("bird", 1000, 380, 1.4, "#5aa7d6")],
@@ -568,6 +593,7 @@ const BOOKS = [
     slug: "keeki-no-rousoku",
     title: "ケーキの ろうそく",
     age: [3, 5],
+    genre: "きもち",
     summary: "ろうそくが、なかなか きえません。",
     pages: [
       { art: [d.bg("room"), d.lamp(1200, 340, 1.3), d.cake(760, 620, 1.8)],
@@ -588,6 +614,7 @@ const BOOKS = [
     slug: "hitotsu-no-isu",
     title: "ひとつの いす",
     age: [3, 5],
+    genre: "きもち",
     summary: "ベンチが ひとつ しか ありません。",
     pages: [
       { art: [d.bg("day"), d.clouds(261, 2, 200), d.ground(900, "#8fae74"), d.bench(800, 860, 1.3), d.tree(400, 900, 1.8)],
@@ -608,6 +635,7 @@ const BOOKS = [
     slug: "tori-no-su",
     title: "とりの す",
     age: [3, 5],
+    genre: "どうぶつ",
     summary: "すを つくる ために、なにが いるのかを さがします。",
     pages: [
       { art: [d.bg("spring"), d.clouds(271, 2, 190), d.ground(900, "#8fae74"), d.tree(800, 900, 2.2)],
@@ -628,6 +656,7 @@ const BOOKS = [
     slug: "kumo-no-katachi",
     title: "くもの かたち",
     age: [3, 6],
+    genre: "しぜん",
     summary: "くもが なにに みえるか、ふたりで いいあいます。",
     pages: [
       { art: [d.bg("day"), d.clouds(281, 3, 220), d.ground(900, "#8fae74"), C(700, 1.5), A("dog", 1120, 1.4, "#c9964a")],
@@ -646,6 +675,7 @@ const BOOKS = [
     slug: "yuki-no-hi-no-koe",
     title: "ゆきの ひの こえ",
     age: [3, 5],
+    genre: "しぜん",
     summary: "ゆきの ひは、おとが なくなります。",
     pages: [
       { art: [d.bg("snow"), d.snowfall(291, 50), d.hills("#dfe9f2", 720), d.ground(900, "#f4f8fb")],
@@ -668,6 +698,7 @@ const BOOKS = [
     slug: "densha-no-mado",
     title: "でんしゃの まど",
     age: [4, 7],
+    genre: "たび",
     summary: "まどの そとを、ずっと みて いた ひの はなし。",
     pages: [
       { art: [d.bg("day"), d.clouds(301, 2, 200), d.ground(900, "#8fae74"), d.train(800, 850, 1.2)],
@@ -688,6 +719,7 @@ const BOOKS = [
     slug: "ido-no-soko",
     title: "いどの そこ",
     age: [5, 8],
+    genre: "さがす",
     summary: "いどを のぞいたら、そこに そらが ありました。",
     pages: [
       { art: [d.bg("day"), d.sun(1280, 240, 110), d.ground(900, "#8fae74"), d.well(800, 880, 1.1)],
@@ -708,6 +740,7 @@ const BOOKS = [
     slug: "aki-no-otoshimono",
     title: "あきの おとしもの",
     age: [4, 7],
+    genre: "しぜん",
     summary: "おちて いた はっぱを、もとに もどしに いきます。",
     pages: [
       { art: [d.bg("autumn"), d.leaves(321, 24), d.ground(900, "#a8935f"), d.tree(800, 900, 2.2, "#c25b3a")],
@@ -728,6 +761,7 @@ const BOOKS = [
     slug: "fune-to-hoshi",
     title: "ふねと ほし",
     age: [5, 8],
+    genre: "たび",
     summary: "くらい うみで、かえりみちを さがします。",
     pages: [
       { art: [d.bg("dusk"), d.waves(720, "#4a6a80"), d.boat(800, 700, 1.3)],
@@ -748,6 +782,7 @@ const BOOKS = [
     slug: "hana-no-namae",
     title: "はなの なまえ",
     age: [4, 7],
+    genre: "しぜん",
     summary: "なまえの わからない はなを、どう よぶか きめます。",
     pages: [
       { art: [d.bg("spring"), d.clouds(341, 2, 200), d.ground(900, "#8fae74"), d.flower(800, 880, 1.8, "#e08fb0")],
@@ -768,6 +803,7 @@ const BOOKS = [
     slug: "yama-no-mukou",
     title: "やまの むこう",
     age: [5, 8],
+    genre: "たび",
     summary: "やまの むこうに なにが あるのか、みに いきます。",
     pages: [
       { art: [d.bg("day"), d.clouds(351, 2, 190), d.mountain("#9fb0c4", 700), d.ground(900, "#8fae74"), d.house(400, 870, 1)],
@@ -788,6 +824,7 @@ const BOOKS = [
     slug: "michi-no-wakaeme",
     title: "みちの わかれめ",
     age: [5, 8],
+    genre: "たび",
     summary: "ふたつの みちの、どちらかを えらびます。",
     pages: [
       { art: [d.bg("forest"), d.forest(361, 780, 6), d.ground(900, "#7fae86"), d.path(900)],
@@ -808,6 +845,7 @@ const BOOKS = [
     slug: "tegami-no-henji",
     title: "てがみの へんじ",
     age: [4, 7],
+    genre: "きもち",
     summary: "だした てがみの へんじを、まちつづけます。",
     pages: [
       { art: [d.bg("day"), d.clouds(371, 2, 200), d.ground(900, "#8fae74"), d.house(800, 860, 1.1), C(1200, 1.3), d.envelope(1200, 620, 1.2)],
@@ -828,6 +866,7 @@ const BOOKS = [
     slug: "taiyou-to-kage",
     title: "たいようと かげ",
     age: [4, 7],
+    genre: "しぜん",
     summary: "かげの ながさが、いちにちで かわります。",
     pages: [
       { art: [d.bg("dawn"), d.sun(300, 700, 110), d.ground(900, "#8fae74"), C(800, 1.5)],
@@ -848,6 +887,7 @@ const BOOKS = [
     slug: "mizuumi-no-koe",
     title: "みずうみの こえ",
     age: [5, 8],
+    genre: "しぜん",
     summary: "よぶと かえって くる こえの はなし。",
     pages: [
       { art: [d.bg("sea"), d.mountain("#8f9bb0", 660), d.waves(780, "#4a8fa8"), d.ground(920, "#c9b79a")],
@@ -870,6 +910,7 @@ const BOOKS = [
     slug: "kotae-no-nai-shitsumon",
     title: "こたえの ない しつもん",
     age: [6, 9],
+    genre: "きもち",
     summary: "だれに きいても、こたえが ちがいました。",
     pages: [
       { art: [d.bg("day"), d.clouds(401, 2, 200), d.ground(900, "#8fae74"), C(800, 1.5, "#5aa7d6")],
@@ -890,6 +931,7 @@ const BOOKS = [
     slug: "akari-o-kesu-mae",
     title: "あかりを けす まえに",
     age: [6, 9],
+    genre: "おやすみ",
     summary: "ねる まえの、みじかい じかんの はなし。",
     pages: [
       { art: [d.bg("room"), d.lamp(1180, 380, 1.6), d.window(420, 420, 1.1, true), d.book(760, 640, 1.4)],
@@ -910,6 +952,7 @@ const BOOKS = [
     slug: "tooku-no-tomodachi",
     title: "とおくの ともだち",
     age: [6, 9],
+    genre: "きもち",
     summary: "あえなく なった ともだちの ことを かんがえます。",
     pages: [
       { art: [d.bg("day"), d.clouds(421, 2, 200), d.ground(900, "#8fae74"), d.bench(800, 860, 1.2), C(700, 1.3, "#5aa7d6"), C(950, 1.3, "#d9524a")],
@@ -930,6 +973,7 @@ const BOOKS = [
     slug: "wasuremono",
     title: "わすれもの",
     age: [6, 9],
+    genre: "さがす",
     summary: "なにを わすれたのか、おもいだせません。",
     pages: [
       { art: [d.bg("day"), d.clouds(431, 2, 200), d.ground(900, "#8fae74"), d.path(900), C(800, 1.4, "#d98a4a")],
@@ -950,6 +994,7 @@ const BOOKS = [
     slug: "hitori-no-jikan",
     title: "ひとりの じかん",
     age: [6, 9],
+    genre: "きもち",
     summary: "ひとりで いるのが、さびしい ときと そうでない とき。",
     pages: [
       { art: [d.bg("day"), d.clouds(441, 3, 200), d.ground(900, "#8fae74"), C(600, 1.4, "#79b96a"), A("dog", 900, 1.3, "#c9964a"), A("rabbit", 1150, 1.3, "#d8d3cc")],
@@ -970,6 +1015,7 @@ const BOOKS = [
     slug: "natsu-no-owari",
     title: "なつの おわり",
     age: [6, 9],
+    genre: "しぜん",
     summary: "おわって いく きせつに、きづく はなし。",
     pages: [
       { art: [d.bg("day"), d.sun(1250, 240, 130), d.waves(760, "#2f7f95"), d.ground(920, "#e8d8b0"), C(700, 1.4, "#5aa7d6", 930)],
@@ -990,6 +1036,7 @@ const BOOKS = [
     slug: "kawa-no-ishi",
     title: "かわの いし",
     age: [6, 9],
+    genre: "しぜん",
     summary: "まるい いしが、どうして まるいのかを かんがえます。",
     pages: [
       { art: [d.bg("day"), d.forest(461, 780, 5), d.waves(820, "#5aa7d6"), d.ground(920, "#c9b79a")],
@@ -1010,6 +1057,7 @@ const BOOKS = [
     slug: "yakusoku-no-basho",
     title: "やくそくの ばしょ",
     age: [6, 9],
+    genre: "きもち",
     summary: "あいてが こない とき、どのくらい まつか。",
     pages: [
       { art: [d.bg("day"), d.clouds(471, 2, 200), d.mountain("#a9b6c6", 740), d.ground(900, "#8fae74"),
@@ -1031,6 +1079,7 @@ const BOOKS = [
     slug: "shizuka-na-oto",
     title: "しずかな おと",
     age: [6, 9],
+    genre: "さがす",
     summary: "しずかに して みると、いろいろ きこえて きます。",
     pages: [
       { art: [d.bg("forest"), d.forest(481, 780, 7), d.ground(900, "#7fae86"), C(800, 1.4, "#79b96a")],
@@ -1051,6 +1100,7 @@ const BOOKS = [
     slug: "mata-aeru",
     title: "また あえる",
     age: [6, 9],
+    genre: "きもち",
     summary: "おわかれの ひに、なにを いうか かんがえます。",
     pages: [
       { art: [d.bg("day"), d.clouds(491, 2, 200), d.ground(900, "#8fae74"), d.house(800, 860, 1.1), d.train(1300, 850, 0.8)],
@@ -1073,6 +1123,7 @@ const BOOKS = [
     slug: "todo-kun-no-umi",
     title: "トドくんの うみの だいぼうけん",
     age: [3, 5],
+    genre: "たび",
     summary: "トドくんが、うみと そらと うちゅうを たびする おはなし。",
     pages: [
       { art: [d.bg("dusk"), d.sun(300, 700, 150), d.waves(760, "#c9764a"), d.sand(910),
@@ -1129,6 +1180,132 @@ const BOOKS = [
         text: "はなの かんむりを のせて もらいました。「みんな、ありがとう。」" },
     ],
   },
+  {
+    slug: "chou-o-oikakete",
+    title: "ちょうを おいかけて",
+    age: [0, 2],
+    genre: "しぜん",
+    summary: "ちょうを おいかけて いくと、はなばたけに つきました。",
+    pages: [
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.butterfly(800, 420, 2.4)],
+        alt: "空をとぶ黄色いちょう", text: "ちょうちょが とんで います。" },
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.butterfly(1000, 460, 2.2), C(560, 1.5, "#e2645a")],
+        alt: "ちょうを見上げる子ども", text: "まって。まって。" },
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.tree(1240, 900, 1.2), d.butterfly(1180, 520, 2.0), C(620, 1.5, "#e2645a")],
+        alt: "木のそばまで来たちょう", text: "きの ところまで きました。" },
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.flowers(601, 890, 7), d.butterfly(860, 620, 2.2)],
+        alt: "花ばたけにおりるちょう", text: "はなばたけに つきました。" },
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.flowers(602, 890, 7), d.butterfly(760, 640, 1.9), d.butterfly(980, 560, 1.7, "#e8a33c"), C(520, 1.5, "#e2645a")],
+        alt: "花ばたけでちょうを見ている子ども", text: "ちょうちょが、もう いっぴき。" },
+      { art: [d.bg("spring"), d.ground(900, "#8fae74"), d.flowers(603, 890, 8), d.butterfly(700, 500, 1.7), d.butterfly(940, 440, 1.6, "#e8a33c"), d.butterfly(1180, 560, 1.5, "#c47ab0")],
+        alt: "花ばたけの上をとぶ3びきのちょう", text: "みんなで とんで います。" },
+    ],
+  },
+  {
+    slug: "takoage",
+    title: "たこあげ",
+    age: [1, 3],
+    genre: "しぜん",
+    summary: "かぜの ひに、たこを あげます。だんだん たかく なります。",
+    pages: [
+      { art: [d.bg("day"), d.clouds(611, 3, 200), d.hills("#7fae86"), d.ground(900, "#8fae74"), C(800, 1.6, "#5aa7d6")],
+        alt: "野原に立つ子ども", text: "きょうは かぜが あります。" },
+      { art: [d.bg("day"), d.clouds(612, 3, 200), d.ground(900, "#8fae74"), C(700, 1.6, "#5aa7d6"), d.kite(1060, 720, 1.1)],
+        alt: "たこを持って走りだす", text: "たこを もって、はしります。" },
+      { art: [d.bg("day"), d.clouds(613, 3, 190), d.ground(900, "#8fae74"), C(660, 1.6, "#5aa7d6"), d.kite(1060, 520, 1.2)],
+        alt: "たこが少し上がった", text: "すこし あがりました。" },
+      { art: [d.bg("day"), d.clouds(614, 2, 170), d.hills("#7fae86"), d.ground(900, "#8fae74"), C(620, 1.5, "#5aa7d6"), d.kite(1120, 300, 1.3)],
+        alt: "たこが高く上がる", text: "もっと たかく。" },
+      { art: [d.bg("day"), d.sun(320, 240, 120), d.clouds(615, 2, 260), d.hills("#7fae86"), d.ground(900, "#8fae74"), d.kite(1000, 180, 1.4)],
+        alt: "雲より高いたこ", text: "くもより たかく なりました。" },
+      { art: [d.bg("dusk"), d.hills("#6a7f6e"), d.ground(900, "#5f7a5c"), C(760, 1.55, "#5aa7d6"), d.kite(760, 640, 1.0)],
+        alt: "夕方、たこをたたんで帰る", text: "ゆうがた。たこを たたんで かえります。" },
+    ],
+  },
+  {
+    slug: "kinoko-ga-haeta",
+    title: "きのこが はえた",
+    age: [0, 3],
+    genre: "しぜん",
+    summary: "あめの つぎの あさ、もりに きのこが はえて いました。",
+    pages: [
+      { art: [d.bg("rain"), d.rainfall(621, 60), d.forest(622, 800, 6), d.ground(900, "#6f8f6a")],
+        alt: "雨のふる森", text: "よるじゅう、あめが ふりました。" },
+      { art: [d.bg("forest"), d.forest(623, 800, 6), d.ground(900, "#6f8f6a"), d.mushroom(820, 880, 1.8)],
+        alt: "朝、きのこが1本はえている", text: "あさ。きのこが ひとつ。" },
+      { art: [d.bg("forest"), d.forest(624, 800, 6), d.ground(900, "#6f8f6a"), d.mushrooms(625, 890, 4)],
+        alt: "きのこが増えている", text: "あれ。ふえて います。" },
+      { art: [d.bg("forest"), d.forest(626, 800, 5), d.ground(900, "#6f8f6a"), d.mushrooms(627, 890, 5), A("mouse", 1140, 1.5, "#b9bfcb")],
+        alt: "ねずみがきのこの下にいる", text: "ねずみさんが、したに はいりました。" },
+      { art: [d.bg("forest"), d.forest(628, 800, 5), d.ground(900, "#6f8f6a"), d.mushrooms(629, 890, 6), A("rabbit", 560, 1.6, "#d8d3cc"), A("mouse", 1140, 1.4, "#b9bfcb")],
+        alt: "うさぎもやってきた", text: "うさぎさんも きました。" },
+      { art: [d.bg("dusk"), d.forest(630, 800, 5), d.ground(900, "#5a7358"), d.mushrooms(631, 890, 6)],
+        alt: "夕方の森ときのこ", text: "きのこは、ずっと そこに います。" },
+    ],
+  },
+  {
+    slug: "ueki-bachi-no-me",
+    title: "うえきばちの め",
+    age: [2, 4],
+    genre: "しぜん",
+    summary: "まどべの うえきばちから、ちいさな めが でました。",
+    pages: [
+      { art: [d.bg("room"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4)],
+        alt: "窓辺の棚に置かれた植木ばち", text: "まどべに、うえきばちが あります。" },
+      { art: [d.bg("room"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4), C(420, 1.4, "#79b96a", 950)],
+        alt: "植木ばちをのぞきこむ子ども", text: "まいあさ、みに いきます。" },
+      { art: [d.bg("room"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4)],
+        alt: "まだ何も出ていない土", text: "きょうも、まだ。" },
+      { art: [d.bg("room"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4), d.sprout(800, 660, 0.7)],
+        alt: "土から小さな芽が出た", text: "あ。でて いました。" },
+      { art: [d.bg("room"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4), d.sprout(800, 640, 1.1), C(420, 1.4, "#79b96a", 950)],
+        alt: "芽が伸びたのを見ている子ども", text: "きのうより、すこし おおきい。" },
+      { art: [d.bg("day"), d.window(1120, 380, 1.3, false), d.shelf(720, 300, 1300), d.pot(800, 700, 1.4), d.sprout(800, 620, 1.5)],
+        alt: "日のあたる窓辺で伸びた芽", text: "まいにち、すこし ずつ。" },
+    ],
+  },
+  {
+    slug: "kujira-no-se",
+    title: "くじらの せ",
+    age: [3, 5],
+    genre: "どうぶつ",
+    summary: "とおくの うみに、しまが ひとつ ふえました。",
+    pages: [
+      { art: [d.bg("sea"), d.clouds(641, 3, 200), d.waves(800, "#2f7f95"), d.whale(1150, 790, 0.55), d.sand(920)],
+        alt: "しずかな海。とおくに しまのような ものが ひとつ", text: "うみが しずかな あさでした。" },
+      { art: [d.bg("sea"), d.clouds(642, 3, 200), d.waves(800, "#2f7f95"), d.sand(920), C(700, 1.45, "#e8a33c", 930)],
+        alt: "浜辺に立って海を見る子ども", text: "むこうに、しまが みえます。" },
+      { art: [d.bg("sea"), d.clouds(643, 2, 190), d.waves(800, "#2f7f95"), d.sand(920), C(620, 1.45, "#e8a33c", 930)],
+        alt: "きのうはなかった場所", text: "きのうは、なかった しまです。" },
+      { art: [d.bg("sea"), d.clouds(644, 2, 190), d.waves(800, "#2f7f95"), d.whale(1020, 720, 1.3), d.sand(920), C(520, 1.4, "#e8a33c", 930)],
+        alt: "しまだと思ったものはくじらの背中だった", text: "しまが、うごきました。" },
+      { art: [d.bg("sea"), d.clouds(645, 2, 200), d.waves(800, "#2f7f95"), d.whale(1080, 700, 1.3), d.sand(920), C(360, 1.4, "#e8a33c", 930)],
+        alt: "くじらが潮をふく", text: "くじらの せなかでした。" },
+      { art: [d.bg("dusk"), d.waves(800, "#3f6a80"), d.whale(1240, 720, 0.9), d.sand(920), C(560, 1.4, "#e8a33c", 930)],
+        alt: "遠ざかるくじらを見送る", text: "しまは、とおくへ いきました。" },
+    ],
+  },
+  {
+    slug: "benchi-no-tonari",
+    title: "ベンチの となり",
+    age: [5, 8],
+    genre: "きもち",
+    summary: "こうえんの ベンチで、となりに だれかが すわりました。",
+    pages: [
+      { art: [d.bg("autumn"), d.leaves(651, 18), d.tree(1260, 900, 1.3, "#c98a3c"), d.ground(900, "#a8a06a"), d.bench(700, 820, 1.3)],
+        alt: "秋の公園のベンチ", text: "こうえんの ベンチは、いつも あいて います。" },
+      { art: [d.bg("autumn"), d.leaves(652, 18), d.ground(900, "#a8a06a"), d.bench(700, 820, 1.3), C(660, 1.35, "#5aa7d6", 830)],
+        alt: "ベンチのはしに座る子ども", text: "はしに すわって、ほんを よみます。" },
+      { art: [d.bg("autumn"), d.leaves(653, 20), d.ground(900, "#a8a06a"), d.bench(700, 820, 1.3), C(660, 1.35, "#5aa7d6", 830), A("cat", 1180, 1.3, "#e8a33c", 900)],
+        alt: "ねこが近づいてくる", text: "ねこが きました。" },
+      { art: [d.bg("autumn"), d.leaves(654, 20), d.ground(900, "#a8a06a"), d.bench(700, 820, 1.3), C(620, 1.35, "#5aa7d6", 830), A("cat", 900, 1.2, "#e8a33c", 830)],
+        alt: "ねこがベンチのとなりに座る", text: "となりに すわりました。なにも いいません。" },
+      { art: [d.bg("dusk"), d.leaves(655, 16), d.ground(900, "#8a8258"), d.bench(700, 820, 1.3), C(620, 1.35, "#5aa7d6", 830), A("cat", 900, 1.2, "#e8a33c", 830)],
+        alt: "夕方まで2人でベンチにいる", text: "ゆうがたまで、そのままでした。" },
+      { art: [d.bg("dusk"), d.leaves(656, 14), d.ground(900, "#8a8258"), d.bench(700, 820, 1.3)],
+        alt: "誰もいなくなったベンチ", text: "あしたも、ここに いるでしょうか。" },
+    ],
+  },
 ];
 
 /* ── 書き出す ─────────────────────────────────── */
@@ -1166,6 +1343,7 @@ for (const b of BOOKS) {
     author: "編集部",
     age_min: b.age[0],
     age_max: b.age[1],
+    genre: b.genre,
     // 声に出して読む速さで見積もる。ページをめくる間も含める
     reading_minutes: Math.max(2, Math.round(b.pages.length / 2) + 1),
     cover: b.cover || pages[0].image,

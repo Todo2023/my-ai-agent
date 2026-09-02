@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<!--
+  ═══════════════════════════════════════════════════════════
+   ビジネスタウン ── 街を歩いて人を探す画面
+
+   マッチングの「一覧から選ぶ」を、「街で出会う」に置き換えた試作。
+   ドット絵の街を歩き、建物の前にいる人に話しかけると、
+   その人のプロフィールが昔のRPGのような枠で出る。
+
+   ・ビルド不要・サーバーなし・外部の読み込みなし
+   ・画像ファイルも使わない（絵はすべてコードで描いている）
+   ・いまのデータは data.js のダミー。実在の人物ではない
+
+   既存のページ（../ の登録フォーム、../admin/ の管理画面）とは
+   完全に独立している。CSSもJSも共有していない。
+  ═══════════════════════════════════════════════════════════
+-->
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>ビジネスタウン｜合同会社To do</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0b1020" />
+<meta name="color-scheme" content="dark" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="stylesheet" href="town.css" />
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- 上のおび：いまいる場所 -->
+  <div id="hud">
+    <span id="area">まちの ひろば</span>
+    <button type="button" id="list-btn" class="hud-btn">一覧</button>
+  </div>
+
+  <!-- 街 -->
+  <div id="screen">
+    <canvas id="canvas" width="240" height="176" aria-label="街の地図"></canvas>
+
+    <!-- 話しかけられるものが目の前にあるとき出る -->
+    <div id="hint" hidden>▼ <span id="hint-text"></span></div>
+
+    <!-- メッセージ枠（RPGの黒い枠）。地図の上に重ねる -->
+    <div id="window" hidden>
+      <p id="msg"></p>
+      <div id="choices" hidden></div>
+      <span id="next" hidden>▼</span>
+    </div>
+  </div>
+
+  <!-- 操作 -->
+  <div id="pad">
+    <div class="dpad">
+      <button type="button" data-dir="up"    aria-label="上へ">▲</button>
+      <button type="button" data-dir="left"  aria-label="左へ">◀</button>
+      <button type="button" data-dir="down"  aria-label="下へ">▼</button>
+      <button type="button" data-dir="right" aria-label="右へ">▶</button>
+    </div>
+    <div class="acts">
+      <button type="button" id="a-btn" aria-label="調べる・話す">はなす</button>
+      <p class="keys">矢印キー：移動／Enter：はなす</p>
+    </div>
+  </div>
+
+  <!-- 一覧（歩かずに全員見る用） -->
+  <div id="list-panel" hidden>
+    <div class="list-head">
+      <h2>まちの人</h2>
+      <button type="button" id="list-close" class="hud-btn">とじる</button>
+    </div>
+    <p class="list-note">
+      歩かずに探したいときはこちら。名前を選ぶと、その人の前まで移動します。
+    </p>
+    <div id="list-body"></div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="town.js"></script>
+
+</body>
+</html>

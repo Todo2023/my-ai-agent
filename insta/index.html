@@ -19,6 +19,9 @@
     いまは「キャプションをコピー」で手で投稿できます。
   </p>
 
+  <!-- 運用の状態。posted.json から出す（手で書く記録） -->
+  <p class="unei" id="unei" hidden></p>
+
   <!-- きょう出す1件。どれを出すかは posted.json の "today" で決める（手で書く） -->
   <section class="today" id="today" hidden>
     <h2>きょう出す1件</h2>
@@ -30,7 +33,7 @@
           <li>下の「画像を保存」を押す（スマホなら長押しで保存）</li>
           <li>「キャプションをコピー」を押す</li>
           <li>Instagram アプリで新規投稿 → 保存した画像を選ぶ → キャプションを貼る</li>
-          <li>出したら <code>insta/posted.json</code> の <code>today</code> を次の絵本に書き換える</li>
+          <li>出したら <code>node insta/tools/unei.mjs done</code> で記録する</li>
         </ol>
         <div class="row" id="today-row"></div>
         <pre class="cap" id="today-cap"></pre>

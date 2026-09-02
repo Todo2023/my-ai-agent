@@ -23,6 +23,17 @@
       "bytes": 50581
     },
     {
+      "slug": "kinoko-ga-haeta",
+      "title": "きのこが はえた",
+      "image": "images/kinoko-ga-haeta.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/kinoko-ga-haeta.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=kinoko-ga-haeta",
+      "caption": "きのこが はえた\n\nあめの つぎの あさ、もりに きのこが はえて いました。\n\n0〜3さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #0歳 #1歳 #2歳 #3歳",
+      "caption_length": 169,
+      "hashtag_count": 13,
+      "bytes": 55376
+    },
+    {
       "slug": "dare-no-koe",
       "title": "だれの こえ",
       "image": "images/dare-no-koe.jpg",
@@ -43,6 +54,17 @@
       "caption_length": 165,
       "hashtag_count": 13,
       "bytes": 52204
+    },
+    {
+      "slug": "chou-o-oikakete",
+      "title": "ちょうを おいかけて",
+      "image": "images/chou-o-oikakete.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/chou-o-oikakete.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=chou-o-oikakete",
+      "caption": "ちょうを おいかけて\n\nちょうを おいかけて いくと、はなばたけに つきました。\n\n0〜2さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #0歳 #1歳 #2歳",
+      "caption_length": 166,
+      "hashtag_count": 12,
+      "bytes": 39704
     },
     {
       "slug": "nebosuke-taiyou",
@@ -133,6 +155,28 @@
       "bytes": 51275
     },
     {
+      "slug": "takoage",
+      "title": "たこあげ",
+      "image": "images/takoage.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/takoage.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=takoage",
+      "caption": "たこあげ\n\nかぜの ひに、たこを あげます。だんだん たかく なります。\n\n1〜3さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #1歳 #2歳 #3歳",
+      "caption_length": 162,
+      "hashtag_count": 12,
+      "bytes": 45766
+    },
+    {
+      "slug": "ueki-bachi-no-me",
+      "title": "うえきばちの め",
+      "image": "images/ueki-bachi-no-me.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/ueki-bachi-no-me.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=ueki-bachi-no-me",
+      "caption": "うえきばちの め\n\nまどべの うえきばちから、ちいさな めが でました。\n\n2〜4さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #2歳 #3歳 #4歳",
+      "caption_length": 162,
+      "hashtag_count": 12,
+      "bytes": 43690
+    },
+    {
       "slug": "yuki-no-ashiato",
       "title": "ゆきの あしあと",
       "image": "images/yuki-no-ashiato.jpg",
@@ -164,6 +208,17 @@
       "caption_length": 160,
       "hashtag_count": 12,
       "bytes": 54341
+    },
+    {
+      "slug": "kujira-no-se",
+      "title": "くじらの せ",
+      "image": "images/kujira-no-se.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/kujira-no-se.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=kujira-no-se",
+      "caption": "くじらの せ\n\nとおくの うみに、しまが ひとつ ふえました。\n\n3〜5さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #3歳 #4歳 #5歳",
+      "caption_length": 157,
+      "hashtag_count": 12,
+      "bytes": 49492
     },
     {
       "slug": "kumo-no-katachi",
@@ -417,6 +472,17 @@
       "caption_length": 159,
       "hashtag_count": 13,
       "bytes": 41561
+    },
+    {
+      "slug": "benchi-no-tonari",
+      "title": "ベンチの となり",
+      "image": "images/benchi-no-tonari.jpg",
+      "image_url": "https://todo2023.github.io/my-ai-agent/insta/images/benchi-no-tonari.jpg",
+      "link": "https://todo2023.github.io/my-ai-agent/ehon/read.html?book=benchi-no-tonari",
+      "caption": "ベンチの となり\n\nこうえんの ベンチで、となりに だれかが すわりました。\n\n5〜8さい ／ 4分で読めます ／ 6ページ\nスマホでそのまま読めます。プロフィールのリンクからどうぞ。\n\n#絵本 #えほん #読み聞かせ #よみきかせ #寝かしつけ #子育て #育児 #絵本のある暮らし #無料で読める絵本 #5歳 #6歳 #7歳 #8歳",
+      "caption_length": 168,
+      "hashtag_count": 13,
+      "bytes": 44516
     },
     {
       "slug": "mizuumi-no-koe",

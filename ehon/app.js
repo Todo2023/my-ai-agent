@@ -2,7 +2,13 @@
  * えほんの棚（一覧）
  *
  * books.json（tools/build-index.mjs が作る）だけを読む。
- * 対象年齢でしぼれるようにしてある。親が選ぶときに最初に見るのがそこだから。
+ *
+ * えらびかたは2とおり。**タブで分けてある。**
+ *   ・としで えらぶ    … 親が最初に見るのがここ
+ *   ・ジャンルで えらぶ … 「ねる前に読むもの」のような探し方をするとき
+ *
+ * 2つを掛け合わせない。掛けると「0〜2さい × たび」のような空の組み合わせが
+ * できて、棚が空になった理由が分からなくなる。タブを変えると前のしぼり込みは消える。
  */
 
 const $ = (id) => document.getElementById(id);
@@ -15,7 +21,22 @@ const BANDS = [
   { label: "9さい〜", min: 9, max: 99 },
 ];
 
-const state = { all: [], band: null };
+// ジャンルの並び。books.json の genre と字面を合わせる
+const GENRES = ["しぜん", "どうぶつ", "おやすみ", "さがす", "たび", "きもち"];
+
+const TABS = [
+  { key: "age", label: "としで えらぶ" },
+  { key: "genre", label: "ジャンルで えらぶ" },
+];
+
+// ?tab=genre で開くと、ジャンルのタブから始まる。リンクで直接渡せるようにするため
+const wantedTab = new URLSearchParams(location.search).get("tab");
+const state = {
+  all: [],
+  tab: wantedTab === "genre" ? "genre" : "age",
+  band: null,
+  genre: null,
+};
 
 function el(tag, cls, text) {
   const node = document.createElement(tag);
@@ -41,6 +62,7 @@ function bookCard(b) {
 
   const meta = el("div", "meta");
   meta.append(el("span", "chip", `${b.age_min}〜${b.age_max}さい`));
+  if (b.genre) meta.append(el("span", "chip genre", b.genre));
   meta.append(el("span", "chip", `よみきかせ ${b.reading_minutes}ふん`));
   meta.append(el("span", null, `${b.pages}ページ・${b.author}`));
   info.append(meta);
@@ -50,29 +72,86 @@ function bookCard(b) {
   return li;
 }
 
-function draw() {
-  const list = state.band
-    ? state.all.filter((b) => b.age_max >= state.band.min && b.age_min <= state.band.max)
-    : state.all;
-
-  $("shelf").replaceChildren(...list.map(bookCard));
-  $("empty").hidden = list.length > 0;
+/** いま選ばれているしぼり込みに合う本 */
+function visible() {
+  if (state.tab === "age" && state.band) {
+    return state.all.filter((b) => b.age_max >= state.band.min && b.age_min <= state.band.max);
+  }
+  if (state.tab === "genre" && state.genre) {
+    return state.all.filter((b) => b.genre === state.genre);
+  }
+  return state.all;
 }
 
+function draw() {
+  const list = visible();
+  $("shelf").replaceChildren(...list.map(bookCard));
+
+  const empty = $("empty");
+  empty.textContent =
+    state.tab === "genre"
+      ? "その ジャンルの えほんが まだ ありません。"
+      : "その としの えほんが まだ ありません。";
+  empty.hidden = list.length > 0;
+}
+
+/** としで えらぶ / ジャンルで えらぶ */
+function drawTabs() {
+  const box = $("tabs");
+  box.replaceChildren(
+    ...TABS.map((t) => {
+      const btn = el("button", "tab", t.label);
+      btn.type = "button";
+      btn.role = "tab";
+      btn.setAttribute("aria-selected", String(state.tab === t.key));
+      btn.addEventListener("click", () => {
+        if (state.tab === t.key) return;
+        state.tab = t.key;
+        // タブを変えたら、前のタブのしぼり込みは消す（掛け合わせない）
+        state.band = null;
+        state.genre = null;
+        drawTabs();
+        drawFilters();
+        draw();
+      });
+      return btn;
+    })
+  );
+}
+
+/** 選ばれているタブの中身。押すと しぼる、もう一度押すと ぜんぶに戻る */
 function drawFilters() {
   const box = $("filters");
-  const make = (label, band) => {
+  const byAge = state.tab === "age";
+
+  const make = (label, value) => {
     const btn = el("button", null, label);
     btn.type = "button";
-    btn.setAttribute("aria-pressed", String(state.band === band));
+    const now = byAge ? state.band : state.genre;
+    btn.setAttribute("aria-pressed", String(now === value));
     btn.addEventListener("click", () => {
-      state.band = state.band === band ? null : band;
+      const next = now === value ? null : value;
+      if (byAge) state.band = next;
+      else state.genre = next;
       drawFilters();
       draw();
     });
     return btn;
   };
-  box.replaceChildren(make("ぜんぶ", null), ...BANDS.map((b) => make(b.label, b)));
+
+  // その中身の本が何冊あるかを添える。0冊のタブを押させないため
+  const count = byAge
+    ? (v) => state.all.filter((b) => b.age_max >= v.min && b.age_min <= v.max).length
+    : (v) => state.all.filter((b) => b.genre === v).length;
+
+  const items = byAge
+    ? BANDS.map((v) => [`${v.label}（${count(v)}）`, v])
+    : GENRES.map((v) => [`${v}（${count(v)}）`, v]);
+
+  box.replaceChildren(
+    make(`ぜんぶ（${state.all.length}）`, null),
+    ...items.map(([label, value]) => make(label, value))
+  );
 }
 
 async function main() {
@@ -87,6 +166,7 @@ async function main() {
       "えほんの一覧を読み込めませんでした。ローカルで見るときは python3 -m http.server で開いてください。";
     return;
   }
+  drawTabs();
   drawFilters();
   draw();
 }
