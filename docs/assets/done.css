@@ -1,0 +1,30 @@
+/* 修了の画面。最後の1本を出した直後に開く。
+   祝うだけで終わらせず、**次に何をするか**を必ず1画面に入れる。 */
+
+.dn-head{padding:72px 0 40px;border-bottom:1px solid var(--hairline);}
+.dn-head h1{font-size:clamp(25px,4vw,36px);margin:0 0 20px;line-height:1.55;}
+.dn-lead{margin:0;font-size:15px;max-width:52ch;line-height:1.95;}
+
+.dn-sec{padding:40px 0 8px;}
+.dn-sec h2{font-size:17px;margin:0 0 18px;}
+
+.dn-next{margin:0;padding-left:1.3em;max-width:52ch;}
+.dn-next li{font-size:14.5px;margin-bottom:16px;line-height:1.9;}
+.dn-next li::marker{color:var(--red);}
+.dn-next a{color:var(--red-deep);}
+
+.dn-list{border-top:1px solid var(--hairline);}
+.dn-row{
+  display:grid;grid-template-columns:82px 1fr;gap:18px;align-items:baseline;
+  padding:13px 4px;border-bottom:1px solid var(--hairline);text-decoration:none;transition:background .15s;
+}
+.dn-row:hover{background:var(--bg-soft);}
+.dn-row .ln{font-family:'Shippori Mincho',serif;font-size:13.5px;color:var(--red);}
+.dn-row .lt{font-size:14.5px;}
+
+.dn-back{margin:36px 0 64px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;}
+
+@media (max-width:640px){
+  .dn-head{padding:48px 0 30px;}
+  .dn-row{grid-template-columns:70px 1fr;gap:12px;}
+}
