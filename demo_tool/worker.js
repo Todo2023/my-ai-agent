@@ -441,8 +441,11 @@ async function handleSlide(url, env) {
     headers: {
       "Content-Type": "image/png",
       "Access-Control-Allow-Origin": "*",
-      // 受講者のブラウザにだけ短く置く。共有キャッシュには載せない
-      "Cache-Control": "private, max-age=3600",
+      // 版（v）が付いていれば、差し替えたときにURLが変わるので長く持たせてよい。
+      // 付いていないときは短くする。古い画像が1時間残るのを避けるため
+      "Cache-Control": url.searchParams.get("v")
+        ? "private, max-age=604800, immutable"
+        : "private, max-age=60",
     },
   });
 }
