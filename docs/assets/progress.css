@@ -1,0 +1,39 @@
+/* ===== トップの「順番に開く」帯 専用 ===== */
+/* 「試してみる」帯の直後に置く。仕組みは文章より、画面そのものを見せたほうが早い。
+   スクリーンショットではなく組み立てているので、拡大しても粗くならず、
+   資料ページの見た目を直したときに、ここも自動でついてくる。 */
+
+.prog{padding:76px 0 82px;}
+.prog-head{max-width:600px;margin:0 0 40px;}
+.prog-head h2{font-family:'Shippori Mincho',serif;font-weight:600;
+  font-size:clamp(21px,2.8vw,28px);margin:0 0 16px;color:var(--ink);}
+.prog-head p{margin:0;font-size:14.2px;color:var(--text-soft);}
+.prog-head b{color:var(--ink);font-weight:500;}
+
+.prog-frame{
+  background:#fff;border:1px solid var(--hairline-strong);
+  padding:26px 30px 22px;max-width:640px;
+}
+.prog-cap{margin:0 0 18px;font-size:11px;letter-spacing:.16em;
+  color:var(--text-soft);text-transform:uppercase;}
+
+.prow{display:grid;grid-template-columns:66px 1fr 76px;gap:16px;align-items:baseline;
+  padding:14px 0;border-bottom:1px solid var(--hairline);}
+.prow:last-of-type{border-bottom:none;}
+.prow .pn{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--red);}
+.prow .pt{font-size:14.4px;}
+.prow .ps{font-size:11px;letter-spacing:.06em;text-align:right;color:var(--text-soft);}
+.prow.is-done .ps{color:var(--red-deep);}
+.prow.is-locked{opacity:.5;}
+.prow.is-locked .pt{color:var(--text-soft);}
+.plock{width:1em;height:1.15em;display:inline-block;vertical-align:-.15em;
+  color:var(--text-soft);}
+
+.prog-note{margin:18px 0 0;font-size:12.4px;color:var(--text-soft);line-height:1.85;}
+.prog-note b{color:var(--ink);font-weight:500;}
+
+@media (max-width:640px){
+  .prog-frame{padding:22px 20px 18px;}
+  .prow{grid-template-columns:58px 1fr 64px;gap:10px;}
+  .prow .pt{font-size:13.6px;}
+}
