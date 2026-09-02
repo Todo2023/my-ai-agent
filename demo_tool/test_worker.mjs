@@ -523,4 +523,16 @@ await t("見せたくない質問は、合鍵がある人だけが取り下げ�
   assert.strictEqual(after.questions.length, 0);
 });
 
+await t("版が付いた画像だけ、ブラウザに長く持たせる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 2 });
+  const withV = await worker.fetch(
+    new Request("https://example.workers.dev/slide?code=CODE1&slug=lesson-01&p=01&v=abc123"), e);
+  assert.match(withV.headers.get("Cache-Control"), /max-age=604800/);
+
+  // 版が無いときに長く持たせると、差し替えても古い画像が残り続ける
+  const noV = await worker.fetch(
+    new Request("https://example.workers.dev/slide?code=CODE1&slug=lesson-01&p=01"), e);
+  assert.match(noV.headers.get("Cache-Control"), /max-age=60$/);
+});
+
 console.log(`\n${passed}件すべて通りました\n`);

@@ -43,7 +43,7 @@
   function deckHtml(d) {
     if (!d.slides) return '';
     return '<div class="deck">'
-      + '<div class="deck-stage"><img id="deck-img" src="' + Course.slideUrl(d.slug, '01')
+      + '<div class="deck-stage"><img id="deck-img" src="' + Course.slideUrl(d.slug, '01', d.rev)
       + '" alt="' + esc(d.label) + ' スライド 1" draggable="false" decoding="async"></div>'
       + '<div class="deck-bar">'
       + '<button type="button" class="deck-btn" id="deck-prev" aria-label="前のスライド" disabled>← 前</button>'
@@ -178,12 +178,12 @@
 
     function show(n) {
       state.i = Math.min(Math.max(n, 1), state.total);
-      img.src = Course.slideUrl(d.slug, pad(state.i));
+      img.src = Course.slideUrl(d.slug, pad(state.i), d.rev);
       img.alt = esc(d.label) + ' スライド ' + state.i;
       now.textContent = state.i;
       prev.disabled = state.i === 1;
       next.disabled = state.i === state.total;
-      if (state.i < state.total) new Image().src = Course.slideUrl(d.slug, pad(state.i + 1));
+      if (state.i < state.total) new Image().src = Course.slideUrl(d.slug, pad(state.i + 1), d.rev);
       var where = document.getElementById('ask-where');
       if (where) where.textContent = 'スライド ' + state.i;
     }
@@ -194,7 +194,7 @@
       if (e.key === 'ArrowLeft') show(state.i - 1);
       if (e.key === 'ArrowRight') show(state.i + 1);
     });
-    if (state.total > 1) new Image().src = Course.slideUrl(d.slug, '02');
+    if (state.total > 1) new Image().src = Course.slideUrl(d.slug, '02', d.rev);
   }
 
   function wireWriter(d) {

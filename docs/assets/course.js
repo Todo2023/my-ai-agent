@@ -23,9 +23,12 @@
     });
   }
 
-  function slideUrl(slug, page) {
+  /* rev はスライドの版。差し替えると変わるので、受講者のブラウザが
+     古い画像を持ち続けることがなくなる */
+  function slideUrl(slug, page, rev) {
     return API + "/slide?code=" + encodeURIComponent(code())
-      + "&slug=" + encodeURIComponent(slug) + "&p=" + page;
+      + "&slug=" + encodeURIComponent(slug) + "&p=" + page
+      + (rev ? "&v=" + encodeURIComponent(rev) : "");
   }
 
   /* 合言葉を聞く画面。パスワードのゲートと違い、
