@@ -193,6 +193,18 @@ html{overflow-x:clip;}
     max-height:calc(100vh - 48px);overflow-y:auto;}
 }
 
+/* --- 用語。回の情報の下に置く --- */
+.terms{margin-top:22px;padding-top:18px;border-top:1px solid var(--hairline);}
+.terms-head{font-size:11px;letter-spacing:.18em;color:var(--red-deep);
+  text-transform:uppercase;margin-bottom:12px;}
+.term{margin-bottom:14px;}
+.term b{display:block;font-weight:600;font-size:13px;color:var(--ink);
+  margin-bottom:3px;}
+.term span{display:block;font-size:12.3px;line-height:1.85;color:var(--text-soft);
+  overflow-wrap:anywhere;}
+.term span b{display:inline;font-size:inherit;color:var(--ink);font-weight:500;
+  margin:0;}
+
 /* --- みんなの質問 --- */
 .peers{display:flex;flex-direction:column;}
 .peers-head{font-family:'Shippori Mincho',serif;font-weight:600;font-size:15px;
