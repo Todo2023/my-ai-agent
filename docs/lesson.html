@@ -133,14 +133,21 @@
         : '<span class="navlocked">' + esc(d.next.label) + '（ワークを提出すると開きます）</span>');
     }
 
+    var foot = '<footer>合同会社Todo　思考力×AI統合講座　受講者向け資料　'
+      + '<a href="lessons.html">一覧</a></footer>';
+    var middle = '<div class="mid">'
+      + '<article class="body">' + d.body + '</article>'
+      + '<div class="lesson-nav">' + nav.join('　') + '</div></div>';
+
+    // 本文も真ん中の列に入れる。枠の外に出すと、本文まで来たときに
+    // 左右の柱が流れてしまう（動くのは真ん中だけにしたい）
     var top = d.slides
       ? '<section class="studio"><div class="studio-inner">'
-        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + peersHtml() + '</div></section>'
-      : '<div class="lesson-head">' + info + '</div>' + writerHtml(d);
+        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + middle + peersHtml()
+        + '</div></section>' + foot
+      : '<div class="lesson-head">' + info + '</div>' + writerHtml(d) + middle + foot;
 
-    shell(top + '<article class="body">' + d.body + '</article>'
-      + '<div class="lesson-nav">' + nav.join('　') + '</div>'
-      + '<footer>合同会社Todo　思考力×AI統合講座　受講者向け資料　<a href="lessons.html">一覧</a></footer>');
+    shell(top);
 
     if (d.slides) wireDeck(d);
     if (d.gates) wireWriter(d);

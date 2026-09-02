@@ -51,8 +51,10 @@
 /* 画面いっぱいに広げる帯（.studio）は 100vw を使う。100vw には
    縦スクロールバーの幅が含まれるため、そのままだと数px はみ出して
    横スクロールバーが出る。はみ出しだけを切る。 */
-body{overflow-x:clip;}
-@supports not (overflow-x:clip){ body{overflow-x:hidden;} }
+/* body に付けると body 自体がスクロール枠になり、スクロールが入れ子になる。
+   html に付けると、はみ出しだけが切られて、ページのスクロールはそのまま。 */
+html{overflow-x:clip;}
+@supports not (overflow-x:clip){ html{overflow-x:hidden;} }
 .body table{border-collapse:collapse;width:100%;font-size:13.6px;}
 .body th,.body td{text-align:left;padding:10px 14px 10px 0;border-bottom:1px solid var(--hairline);
   vertical-align:top;}
@@ -164,11 +166,14 @@ body{overflow-x:clip;}
 @media (min-width:1080px){
   .studio-inner{
     grid-template-columns:238px minmax(0,1fr);
-    grid-template-areas:"info deck" "info writer" "info asker" "info peers";
+    grid-template-areas:"info deck" "info writer" "info asker" "info body" "info peers";
     column-gap:34px;row-gap:24px;
   }
-  .studio .info{grid-area:info;position:sticky;top:24px;
+  /* 動くのは真ん中だけ。両端は貼りついたまま残す */
+  .studio .info{grid-area:info;position:sticky;top:24px;align-self:start;
+    max-height:calc(100vh - 48px);overflow-y:auto;
     padding-right:26px;border-right:1px solid var(--hairline);}
+  .studio .mid{grid-area:body;min-width:0;}
   .studio .deck{grid-area:deck;}
   .studio .writer{grid-area:writer;}
   .studio .asker{grid-area:asker;}
@@ -181,7 +186,7 @@ body{overflow-x:clip;}
     /* 柱が1本増えた分だけ全体を広げる。広げないとスライドがその分だけ縮む */
     max-width:1680px;
     grid-template-columns:238px minmax(0,1fr) 238px;
-    grid-template-areas:"info deck peers" "info writer peers" "info asker peers";
+    grid-template-areas:"info deck peers" "info writer peers" "info asker peers" "info body peers";
   }
   .studio .peers{position:sticky;top:24px;align-self:start;
     padding-left:26px;border-left:1px solid var(--hairline);
