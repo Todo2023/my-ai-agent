@@ -97,7 +97,7 @@
   function peersHtml() {
     return '<aside class="peers"><div class="peers-head">みんなの質問</div>'
       + '<div class="peers-body" id="peers"><p class="peers-empty">読み込んでいます…</p></div>'
-      + '<p class="peers-note">この回に寄せられた質問です。<b>お名前は出ません。</b></p></aside>';
+      + '<p class="peers-note">この回に寄せられた質問と、その回答です。<b>お名前は出ません。</b></p></aside>';
   }
 
   function loadPeers(d) {
@@ -110,10 +110,17 @@
         box.innerHTML = '<p class="peers-empty">まだ質問はありません。<br>最初の1件になってみてください。</p>';
         return;
       }
+      /* 答えの付いた質問を先に出す。読む人にとっては、答えがあるほうが役に立つ */
+      qs.sort(function (a, b) { return (b.answer ? 1 : 0) - (a.answer ? 1 : 0); });
       box.innerHTML = qs.map(function (q) {
-        return '<div class="peer">'
+        return '<div class="peer' + (q.answer ? ' has-answer' : '') + '">'
           + (q.slide ? '<span class="peer-where">スライド ' + esc(q.slide) + '</span>' : '')
-          + '<p>' + esc(q.text) + '</p></div>';
+          + '<p>' + esc(q.text) + '</p>'
+          + (q.answer
+              ? '<div class="peer-a"><span class="peer-a-tag">回答</span><p>'
+                + esc(q.answer) + '</p></div>'
+              : '<p class="peer-yet">回答をお待ちください</p>')
+          + '</div>';
       }).join('');
     }).catch(function () {
       box.innerHTML = '<p class="peers-empty">読み込めませんでした</p>';

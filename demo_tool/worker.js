@@ -71,6 +71,9 @@ const PEER_QUESTIONS = 30;
 /* 同じ人からの連投を止める。1時間に何件まで受けるか */
 const ASK_PER_HOUR = 10;
 const MAX_QUESTION = 90;
+
+/* 教材に戻す答えの長さ。長い説明はオフィスアワーで話すほうが早い */
+const MAX_ANSWER = 1200;
 const MAX_EXPLANATION = 220;
 
 export function buildPrompt(audience, text) {
@@ -228,7 +231,9 @@ async function toSlack(env, q, kind = "ask") {
     : env.SLACK_WEBHOOK_URL;
   if (!hook) return { sent: false, reason: "webhook未設定" };
   const where = q.slide ? `${q.lesson}／スライド ${q.slide}` : q.lesson;
-  const text = `:raising_hand: *${where}* ／ ${q.name}\n>>> ${q.text}`;
+  // 返信を教材に戻すとき、どの質問かを指す番号。Slackの本文にも出しておく
+  const tag = q.id ? `\n\n\`${q.id}\`  ← 回答するときはこの番号` : "";
+  const text = `:raising_hand: *${where}* ／ ${q.name}\n>>> ${q.text}${tag}`;
   try {
     const res = await fetch(hook, {
       method: "POST",
@@ -274,9 +279,10 @@ async function handleAsk(request, env) {
 
   // 先に残す。Slackが落ちていても質問そのものは失わない
   const slug = String(body.slug || "").slice(0, 40);
+  const at = Date.now();
+  q.id = `ask:${at}`;
   if (env.DEMO_KV) {
-    const at = Date.now();
-    await env.DEMO_KV.put(`ask:${at}`, JSON.stringify({ ...q, slug }), {
+    await env.DEMO_KV.put(q.id, JSON.stringify({ ...q, slug }), {
       expirationTtl: 60 * 60 * 24 * 180,
     });
     // 同じ回の受講者に見せる分。**名前は入れない**
@@ -304,9 +310,14 @@ async function listAsks(url, env) {
   const questions = [];
   for (const k of list.keys.slice(-100)) {
     const v = await env.DEMO_KV.get(k.name);
-    if (v) questions.push(JSON.parse(v));
+    // 番号を必ず添える。古い質問には入っていないので、鍵の名前から補う
+    if (v) questions.push({ ...JSON.parse(v), id: k.name });
   }
-  return json({ questions: questions.reverse() });
+  // まだ返していないものを先に出す。溜まると、どれが未回答か分からなくなる
+  questions.reverse();
+  const yet = questions.filter((q) => !q.answer);
+  const done = questions.filter((q) => q.answer);
+  return json({ questions: [...yet, ...done], waiting: yet.length });
 }
 
 /* ------------------------------------------------------------------
@@ -557,6 +568,54 @@ async function handleQuestions(request, env) {
   return json({ questions });
 }
 
+
+/** 質問に返した答えを、教材の側に戻す。合鍵が要る。
+
+   Slackに流れた質問には番号（ask:...）が添えてある。
+   その番号と答えをここに送ると、同じ回を開いている人の
+   「みんなの質問」に、答えが並んで出る。
+   **名前は戻さない。**誰が聞いたかは、答えの側にも出さない。 */
+async function handleAnswer(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const id = String(body.id || "").trim();
+  const text = String(body.text || "").trim();
+
+  if (!id.startsWith("ask:")) return json({ error: "番号が違います（ask: で始まります）" }, 400);
+  if (!text) return json({ error: "答えが空です" }, 400);
+  if (text.length > MAX_ANSWER) {
+    return json({ error: `長すぎます。${MAX_ANSWER}文字以内で入れてください` }, 400);
+  }
+
+  const raw = await env.DEMO_KV.get(id);
+  if (!raw) return json({ error: "その質問はありません" }, 404);
+  const q = JSON.parse(raw);
+
+  q.answer = text;
+  q.answeredAt = new Date().toISOString();
+  await env.DEMO_KV.put(id, JSON.stringify(q), { expirationTtl: 60 * 60 * 24 * 180 });
+
+  // 受講者に見える側にも同じ答えを置く。回が分からない質問は、
+  // 置き場所が無いので運営の控えだけに残る
+  let shown = false;
+  if (q.slug) {
+    const at = id.slice("ask:".length);
+    const peer = `q:${q.slug}:${at}`;
+    const praw = await env.DEMO_KV.get(peer);
+    if (praw) {
+      const p = JSON.parse(praw);
+      p.answer = text;
+      p.answeredAt = q.answeredAt;
+      await env.DEMO_KV.put(peer, JSON.stringify(p), { expirationTtl: 60 * 60 * 24 * 180 });
+      shown = true;
+    }
+  }
+  return json({ ok: true, id, shown });
+}
+
 /** 見せたくない質問を取り下げる。合鍵が要る */
 async function handleHide(request, url, env) {
   const key = url.searchParams.get("key") || "";
@@ -591,6 +650,8 @@ export default {
     if (url.pathname === "/member" && request.method === "POST") return handleMember(request, url, env);
     if (url.pathname === "/questions" && request.method === "POST") return handleQuestions(request, env);
     if (url.pathname === "/question/hide" && request.method === "POST") return handleHide(request, url, env);
+    // 質問への答えを、教材の側に戻す
+    if (url.pathname === "/answer" && request.method === "POST") return handleAnswer(request, url, env);
 
     // 資料ページからの質問。デモの書き換えとは別の入り口にする
     if (url.pathname === "/ask") {

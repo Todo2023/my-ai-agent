@@ -320,3 +320,10 @@ html{overflow-x:clip;}
 .ltopics .lt-label{margin:0 0 8px;font-size:11px;letter-spacing:.14em;color:var(--text-soft);}
 .ltopics .lt-body{margin:0;font-size:14px;max-width:52ch;}
 .ltopics a{color:var(--red-deep);}
+
+/* 質問への回答。答えが付いたものは、線で分かるようにする */
+.peer.has-answer{border-left:2px solid var(--red);}
+.peer-a{margin-top:10px;padding-top:10px;border-top:1px dashed var(--hairline-strong);}
+.peer-a-tag{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--red-deep);margin-bottom:5px;}
+.peer-a p{color:var(--ink);}
+.peer-yet{margin:8px 0 0;font-size:11px;color:var(--text-soft);}
