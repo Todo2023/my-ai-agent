@@ -55,10 +55,17 @@
 
   function writerHtml(d) {
     if (!d.gates) return '';
+    // お題を書く欄のすぐ上に置く。本文の上のほうにしか無いと、
+    // 書いている最中に見返せない
+    var task = d.work
+      ? '<div class="task"><div class="task-head">この回のお題</div>'
+        + '<div class="task-body">' + d.work + '</div></div>'
+      : '';
     return '<div class="writer">'
       + '<div class="writer-head"><label for="work">ワークを書いて提出する</label>'
       + '<span class="writer-state" id="work-state" role="status">'
       + (d.submitted ? '提出済みです。書き直して出し直せます' : '') + '</span></div>'
+      + task
       + '<textarea id="work" spellcheck="false" placeholder="スライドを見ながら、ここに書いてください。&#10;'
       + '提出すると、次の回が開きます。"></textarea>'
       + '<div class="writer-bar">'
