@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "公園のベンチ",
-      "text": "こうえんに、ベンチが ひとつ。"
+      "text": "こうえんに、ベンチが ひとつ。",
+      "text_en": "In the park there is one bench."
     },
     {
       "image": "p02.svg",
       "alt": "くまが座っている",
-      "text": "くまさんが すわって いました。"
+      "text": "くまさんが すわって いました。",
+      "text_en": "Bear was sitting on it."
     },
     {
       "image": "p03.svg",
       "alt": "うさぎが来る",
-      "text": "うさぎさんが きました。すわれません。"
+      "text": "うさぎさんが きました。すわれません。",
+      "text_en": "Rabbit came. There is no room."
     },
     {
       "image": "p04.svg",
       "alt": "くまがつめて座る",
-      "text": "くまさんが、すこし よこに ずれました。"
+      "text": "くまさんが、すこし よこに ずれました。",
+      "text_en": "Bear slid over a little."
     },
     {
       "image": "p05.svg",
       "alt": "3人で座る",
-      "text": "ねずみさんも きました。まだ すわれます。"
+      "text": "ねずみさんも きました。まだ すわれます。",
+      "text_en": "Mouse came too. There is still room."
     },
     {
       "image": "p06.svg",
       "alt": "夜のからっぽのベンチ",
-      "text": "いすは ひとつ でしたが、たりました。"
+      "text": "いすは ひとつ でしたが、たりました。",
+      "text_en": "There was only one bench, but it was enough."
     }
-  ]
+  ],
+  "title_en": "One Bench",
+  "summary_en": "There is only one bench."
 }

@@ -12,62 +12,76 @@
     {
       "image": "p01.svg",
       "alt": "夕やけの海べで、トドくんがお母さんとならんで座っている",
-      "text": "ゆうがた。うみが オレンジいろに なりました。"
+      "text": "ゆうがた。うみが オレンジいろに なりました。",
+      "text_en": "Evening. The sea turned orange."
     },
     {
       "image": "p02.svg",
       "alt": "並んで座る親子のトド",
-      "text": "「きょうも たのしい いちにち だったね。」"
+      "text": "「きょうも たのしい いちにち だったね。」",
+      "text_en": "“Today was a good day too, wasn't it.”"
     },
     {
       "image": "p03.svg",
       "alt": "氷のすべりだいをすべるトドくんと、下で待つ友だち",
-      "text": "こおりの すべりだい。「それーっ！」おなかで すーい。"
+      "text": "こおりの すべりだい。「それーっ！」おなかで すーい。",
+      "text_en": "An ice slide! “Here I go!” Whoosh, on his tummy."
     },
     {
       "image": "p04.svg",
       "alt": "海の中で出会った、とても大きなクジラ",
-      "text": "うみの なかで、おおきな クジラさんに あいました。"
+      "text": "うみの なかで、おおきな クジラさんに あいました。",
+      "text_en": "In the sea, he met a very big whale."
     },
     {
       "image": "p05.svg",
       "alt": "クジラの背中のよこをならんで泳ぐトドくん",
-      "text": "「いっしょに およごう。」せなかの よこを ならんで およぎます。"
+      "text": "「いっしょに およごう。」せなかの よこを ならんで およぎます。",
+      "text_en": "“Let's swim together.” They swam side by side."
     },
     {
       "image": "p06.svg",
       "alt": "砂浜で男の子と出会うトドくん",
-      "text": "すなはまで、おとこのこに あいました。「こんにちは。」"
+      "text": "すなはまで、おとこのこに あいました。「こんにちは。」",
+      "text_en": "On the beach, he met a boy. “Hello!”"
     },
     {
       "image": "p07.svg",
       "alt": "ふたりで大きな絵本をひろげている",
-      "text": "ふたりで おおきな えほんを ひろげます。「わくわく するね。」"
+      "text": "ふたりで おおきな えほんを ひろげます。「わくわく するね。」",
+      "text_en": "They opened a big picture book. “This is exciting!”"
     },
     {
       "image": "p08.svg",
       "alt": "夢の中で、魔法のじゅうたんに乗って夜空をとぶトドくん",
-      "text": "ゆめの なかで、まほうの じゅうたんに のりました。"
+      "text": "ゆめの なかで、まほうの じゅうたんに のりました。",
+      "text_en": "In a dream, he rode a magic carpet."
     },
     {
       "image": "p09.svg",
       "alt": "サンゴの森で、にんぎょひめと歌うトドくん",
-      "text": "サンゴの もりで、にんぎょひめと うたいました。「ららら〜♪」"
+      "text": "サンゴの もりで、にんぎょひめと うたいました。「ららら〜♪」",
+      "text_en": "In the coral forest, he sang with a mermaid. “La la la!”"
     },
     {
       "image": "p10.svg",
       "alt": "宇宙服のヘルメットをかぶって、星のあいだをとぶトドくん",
-      "text": "こんどは うちゅうへ。「ここにも おともだちが いるかな。」"
+      "text": "こんどは うちゅうへ。「ここにも おともだちが いるかな。」",
+      "text_en": "Now to space! “Are there friends out here too?”"
     },
     {
       "image": "p11.svg",
       "alt": "大きな波の上をサーフボードで走るトドくん",
-      "text": "おおきな なみが きました。「シュバーッ！」"
+      "text": "おおきな なみが きました。「シュバーッ！」",
+      "text_en": "A big wave came. “Whoosh!”"
     },
     {
       "image": "p12.svg",
       "alt": "花のかんむりをのせてもらって、にっこり笑うトドくん",
-      "text": "はなの かんむりを のせて もらいました。「みんな、ありがとう。」"
+      "text": "はなの かんむりを のせて もらいました。「みんな、ありがとう。」",
+      "text_en": "They put a flower crown on him. “Thank you, everyone.”"
     }
-  ]
+  ],
+  "title_en": "Todo's Big Sea Adventure",
+  "summary_en": "Todo travels the sea, the sky, and outer space."
 }

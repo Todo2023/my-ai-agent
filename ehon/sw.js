@@ -12,7 +12,7 @@
  * ファイルを更新したら CACHE の版数を上げること。
  */
 
-const CACHE = "ehon-v17";
+const CACHE = "ehon-v19";
 
 // 画面のもと。これだけは先に入れておく
 const SHELL = [
@@ -23,6 +23,9 @@ const SHELL = [
   "./app.js",
   "./reader.js",
   "./ruby.js",
+  "./en/",
+  "./en/index.html",
+  "./en/app.js",
   "./make.html",
   "./make.js",
   "./config.js",

@@ -12,47 +12,58 @@
     {
       "image": "p01.jpg",
       "alt": "森の道に立つもこ。手に どんぐりを ひとつ持っている",
-      "text": "もりの あさ。もこは、どんぐりを ひとつ ひろいました。"
+      "text": "もりの あさ。もこは、どんぐりを ひとつ ひろいました。",
+      "text_en": "Morning in the forest. Moko picked up one acorn."
     },
     {
       "image": "p02.jpg",
       "alt": "はちや てんとうむしと 向かいあうもこ",
-      "text": "「おはよう。」はちさんにも、てんとうむしにも あいさつ。"
+      "text": "「おはよう。」はちさんにも、てんとうむしにも あいさつ。",
+      "text_en": "“Good morning,” to Bee, and to Ladybug too."
     },
     {
       "image": "p03.jpg",
       "alt": "イーゼルに向かって りすの絵を かくもこ",
-      "text": "きょうは、えを かく ひ。りすさんの かおを かきました。"
+      "text": "きょうは、えを かく ひ。りすさんの かおを かきました。",
+      "text_en": "Today is a drawing day. Moko drew Squirrel's face."
     },
     {
       "image": "p04.jpg",
       "alt": "りすと 白い花の かざりを 持ちあうもこ",
-      "text": "りすさんが きて、はなの かざりを くれました。"
+      "text": "りすさんが きて、はなの かざりを くれました。",
+      "text_en": "Squirrel came and gave Moko a flower."
     },
     {
       "image": "p05.jpg",
       "alt": "りすに どんぐりを わたすもこ",
-      "text": "おれいに、どんぐりを わけました。ひとつ しか なかったけれど。"
+      "text": "おれいに、どんぐりを わけました。ひとつ しか なかったけれど。",
+      "text_en": "Moko shared the acorn to say thank you — the only one."
     },
     {
       "image": "p06.jpg",
       "alt": "あなぐまと 木の実の かごを 見るもこ",
-      "text": "あなぐまさんと、木の みを あつめに いきました。"
+      "text": "あなぐまさんと、木の みを あつめに いきました。",
+      "text_en": "Moko and Badger went to gather nuts."
     },
     {
       "image": "p07.jpg",
       "alt": "はっぱの下で みんなが ならんで 食べている",
-      "text": "あつまった みんなで、はっぱの したで たべました。"
+      "text": "あつまった みんなで、はっぱの したで たべました。",
+      "text_en": "Everyone ate together under the leaves."
     },
     {
       "image": "p08.jpg",
       "alt": "だれも いない 夜の森。きのこと ほたるが 光っている",
-      "text": "みんなが かえると、もりは しずかに なりました。ひかりだけが のこります。"
+      "text": "みんなが かえると、もりは しずかに なりました。ひかりだけが のこります。",
+      "text_en": "When they went home, the forest grew quiet. Only the light stayed."
     },
     {
       "image": "p09.jpg",
       "alt": "つぎの朝、また森の道に立つもこ",
-      "text": "つぎの あさ。もこは また、どんぐりを ひとつ ひろいました。"
+      "text": "つぎの あさ。もこは また、どんぐりを ひとつ ひろいました。",
+      "text_en": "The next morning, Moko picked up one acorn again."
     }
-  ]
+  ],
+  "title_en": "Moko's Day in the Forest",
+  "summary_en": "One day that Moko spent in the forest."
 }

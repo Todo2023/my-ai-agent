@@ -12,42 +12,52 @@
     {
       "image": "p01.svg",
       "alt": "木から離れる種",
-      "text": "たねは、｜親《おや》の 木から はなれました。"
+      "text": "たねは、｜親《おや》の 木から はなれました。",
+      "text_en": "The seed left its parent tree."
     },
     {
       "image": "p02.svg",
       "alt": "風に舞う種たち",
-      "text": "かぜが つよく ふいて います。"
+      "text": "かぜが つよく ふいて います。",
+      "text_en": "The wind is blowing hard."
     },
     {
       "image": "p03.svg",
       "alt": "乾いた土地に落ちそうな種",
-      "text": "ここは かわいて いる。まだ おりない。"
+      "text": "ここは かわいて いる。まだ おりない。",
+      "text_en": "This place is dry. Not yet."
     },
     {
       "image": "p04.svg",
       "alt": "海の上を飛ぶ種",
-      "text": "うみの うえ。ここでは そだてない。"
+      "text": "うみの うえ。ここでは そだてない。",
+      "text_en": "Above the sea. Nothing grows here."
     },
     {
       "image": "p05.svg",
       "alt": "夕暮れの空を飛ぶ種",
-      "text": "ひが くれて きました。まだ きまりません。"
+      "text": "ひが くれて きました。まだ きまりません。",
+      "text_en": "The sun is setting. Still not decided."
     },
     {
       "image": "p06.svg",
       "alt": "朝、やわらかい土に落ちた種",
-      "text": "あさ。やわらかい つちの うえに おちました。"
+      "text": "あさ。やわらかい つちの うえに おちました。",
+      "text_en": "Morning. It landed on soft earth."
     },
     {
       "image": "p07.svg",
       "alt": "芽が出た",
-      "text": "め が でました。"
+      "text": "め が でました。",
+      "text_en": "A shoot came up."
     },
     {
       "image": "p08.svg",
       "alt": "大きく育った木から、また種が飛ぶ",
-      "text": "そして いつか、また たねが とびます。"
+      "text": "そして いつか、また たねが とびます。",
+      "text_en": "And one day, seeds will fly again."
     }
-  ]
+  ],
+  "title_en": "The Wind and the Seed",
+  "summary_en": "A seed on the wind looks for a place to land."
 }

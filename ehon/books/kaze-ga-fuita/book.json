@@ -12,27 +12,34 @@
     {
       "image": "p01.svg",
       "alt": "晴れた日の木",
-      "text": "かぜが ふきました。"
+      "text": "かぜが ふきました。",
+      "text_en": "The wind blew."
     },
     {
       "image": "p02.svg",
       "alt": "木の葉が舞う",
-      "text": "はっぱが ゆれました。"
+      "text": "はっぱが ゆれました。",
+      "text_en": "The leaves swayed."
     },
     {
       "image": "p03.svg",
       "alt": "花がゆれる",
-      "text": "おはなも ゆれました。"
+      "text": "おはなも ゆれました。",
+      "text_en": "The flowers swayed too."
     },
     {
       "image": "p04.svg",
       "alt": "たこがあがる",
-      "text": "たこが たかく あがりました。"
+      "text": "たこが たかく あがりました。",
+      "text_en": "The kite went up high."
     },
     {
       "image": "p05.svg",
       "alt": "夕方、たこを持って帰る",
-      "text": "かぜが やみました。かえりましょう。"
+      "text": "かぜが やみました。かえりましょう。",
+      "text_en": "The wind stopped. Time to go home."
     }
-  ]
+  ],
+  "title_en": "The Wind Blew",
+  "summary_en": "When the wind blows, many things move."
 }

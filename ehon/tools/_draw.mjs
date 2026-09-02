@@ -546,7 +546,7 @@ const SEAL_C = "#f2ddbe";      // おなかと 口もと
  *   swim … よこむきに およぐ（海の中の絵）
  */
 export function todo(x, y, s = 1, opts = {}) {
-  const { pose = "sit", fur = SEAL, flip = false } = opts;
+  const { pose = "sit", fur = SEAL, flip = false, scarf = true } = opts;
   const dark = pose === "sit" ? SEAL_D : SEAL_D;
 
   const face = `
@@ -564,13 +564,28 @@ export function todo(x, y, s = 1, opts = {}) {
     <circle cx="-47" cy="16" r="12" fill="#e79a9a" opacity=".45"/>
     <circle cx="47" cy="16" r="12" fill="#e79a9a" opacity=".45"/>`;
 
+  // 首の あかい スカーフ。もらった水彩の絵と 同じ しるし。
+  // かおの まえに 描くと あごが かくれるので、かおの まえ（うしろ側）に 置く
+  const SC = "#c25b4a", SC_D = "#a8412f";
+  const scarfSit = !scarf ? "" : `
+    <path d="M-56 34 C-32 76, 32 76, 56 34 C56 82, 30 104, 0 104 C-30 104, -56 82, -56 34 Z" fill="${SC}"/>
+    <g fill="#f0b8a4"><circle cx="-28" cy="68" r="5"/><circle cx="6" cy="82" r="5"/><circle cx="34" cy="62" r="5"/></g>
+    <path d="M-10 92 L-40 128 L-18 136 L4 104 Z" fill="${SC}"/>
+    <circle cx="-2" cy="92" r="14" fill="${SC_D}"/>`;
+  const scarfSwim = !scarf ? "" : `
+    <g transform="rotate(-14 -46 4)">
+      <path d="M-30 -44 C-58 -34, -60 44, -34 56 C-8 46, -8 -32, -30 -44 Z" fill="${SC}"/>
+      <path d="M-56 30 L-92 46 L-84 66 L-48 52 Z" fill="${SC}"/>
+      <circle cx="-46" cy="34" r="13" fill="${SC_D}"/>
+    </g>`;
+
   const sit = `
     <path d="M46 214 q92 6 132 -34 q-8 56 -58 72 q-44 12 -78 -8 Z" fill="${dark}"/>
     <path d="M-52 22 C-98 92, -104 190, -76 232 C-42 278, 58 278, 90 232 C116 188, 92 88, 52 22 Z" fill="${fur}"/>
     <ellipse cx="6" cy="168" rx="52" ry="76" fill="${SEAL_C}" opacity=".5"/>
     <path d="M-56 118 C-112 154, -128 216, -104 244 C-78 254, -50 218, -40 176 Z" fill="${dark}"/>
     <path d="M60 128 C112 162, 126 220, 102 246 C76 256, 50 222, 44 182 Z" fill="${dark}"/>
-    ${face}`;
+    ${scarfSit}${face}`;
 
   // およぐ かたち。頭は右、からだは 左へ のびる
   const swim = `
@@ -580,7 +595,7 @@ export function todo(x, y, s = 1, opts = {}) {
     <path d="M-40 34 C-140 50, -230 38, -270 8 C-210 40, -130 54, -40 46 Z" fill="${SEAL_C}" opacity=".55"/>
     <path d="M-96 26 C-128 92, -92 136, -40 126 C-70 96, -74 60, -80 34 Z" fill="${dark}"/>
     <path d="M-120 -34 C-166 -92, -134 -140, -82 -136 C-108 -108, -108 -70, -104 -44 Z" fill="${dark}"/>
-    ${face}`;
+    ${scarfSwim}${face}`;
 
   return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">${
     pose === "swim" ? swim : sit}</g>`;

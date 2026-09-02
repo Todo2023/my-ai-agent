@@ -13,7 +13,7 @@
  *   すでにあるフォルダは上書きするので、手で直した絵があるときは注意する
  *   （tsuki-no-pan は手描きなので、ここには入れていない）
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as d from "./_draw.mjs";
@@ -1317,10 +1317,24 @@ for (const b of BOOKS) {
 
   const pages = [];
   for (const [i, p] of b.pages.entries()) {
-    const name = `p${String(i + 1).padStart(2, "0")}.svg`;
-    await writeFile(join(dir, name), d.page(p.art), "utf8");
-    files++;
+    // file を書いたページは、手で置いた絵をそのまま使う（描き出さない）。
+    // もらった水彩など、部品では描けない絵を混ぜるための逃げ道
+    const name = p.file || `p${String(i + 1).padStart(2, "0")}.svg`;
+    if (!p.file) {
+      await writeFile(join(dir, name), d.page(p.art), "utf8");
+      files++;
+    }
     pages.push({ image: name, alt: p.alt, text: p.text });
+  }
+
+  // 使わなくなった描き出しぶんを片づける。**消すのは .svg だけ。**
+  // 手で置いた絵（.jpg / .png）は、この道具では絶対に消さない
+  const keep = new Set(pages.map((p) => p.image));
+  for (const name of await readdir(dir)) {
+    if (name.endsWith(".svg") && !keep.has(name)) {
+      await rm(join(dir, name));
+      console.log(`  消した絵: ${b.slug}/${name}`);
+    }
   }
 
   await writeFile(join(dir, "book.json"), `${JSON.stringify({
@@ -1332,7 +1346,7 @@ for (const b of BOOKS) {
     genre: b.genre,
     // 声に出して読む速さで見積もる。ページをめくる間も含める
     reading_minutes: Math.max(2, Math.round(b.pages.length / 2) + 1),
-    cover: "p01.svg",
+    cover: b.cover || pages[0].image,
     summary: b.summary,
     pages,
   }, null, 2)}\n`, "utf8");
@@ -1341,4 +1355,4 @@ for (const b of BOOKS) {
 }
 
 console.log(`\n${BOOKS.length}冊 / 絵 ${files}枚 を書き出した。`);
-console.log("つづけて node ehon/tools/build-index.mjs を走らせること。");
+console.log("つづけて node ehon/tools/apply-en.mjs → build-index.mjs の順に走らせること。");

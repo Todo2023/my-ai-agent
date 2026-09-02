@@ -12,42 +12,52 @@
     {
       "image": "p01.svg",
       "alt": "まるい月の下に、あかりのついた小さなパン屋さんが立っている",
-      "text": "よるに なると あかりが つく、｜小《ちい》さな パンやさんが あります。"
+      "text": "よるに なると あかりが つく、｜小《ちい》さな パンやさんが あります。",
+      "text_en": "There is a small bakery that lights up at night."
     },
     {
       "image": "p02.svg",
       "alt": "パン屋さんの窓ぎわで、くまのパン職人が生地をこねている",
-      "text": "パンを やくのは、くまの ポポさん。｜毎晩《まいばん》 ひとりで こねています。"
+      "text": "パンを やくのは、くまの ポポさん。｜毎晩《まいばん》 ひとりで こねています。",
+      "text_en": "The baker is Popo the bear. Every night he kneads alone."
     },
     {
       "image": "p03.svg",
       "alt": "からっぽの棚と、外の暗い道",
-      "text": "でも、よるの おみせに くる おきゃくさんは、なかなか いません。"
+      "text": "でも、よるの おみせに くる おきゃくさんは、なかなか いません。",
+      "text_en": "But hardly anyone comes to a shop at night."
     },
     {
       "image": "p04.svg",
       "alt": "窓の外から小さなねずみがのぞいている",
-      "text": "ある よる、｜窓《まど》の そとから、ちいさな こえが しました。「まだ、あいてますか。」"
+      "text": "ある よる、｜窓《まど》の そとから、ちいさな こえが しました。「まだ、あいてますか。」",
+      "text_en": "One night, a small voice came from the window. “Are you still open?”"
     },
     {
       "image": "p05.svg",
       "alt": "ねずみにあたたかいパンをわたすくま",
-      "text": "ねずみの チッチでした。ポポさんは、やきたてを ひとつ わたしました。"
+      "text": "ねずみの チッチでした。ポポさんは、やきたてを ひとつ わたしました。",
+      "text_en": "It was Chichi the mouse. Popo handed over a fresh warm loaf."
     },
     {
       "image": "p06.svg",
       "alt": "月あかりの道を、たくさんの動物が列になってやってくる",
-      "text": "つぎの よる。｜月《つき》あかりの みちを、ながい ぎょうれつが やってきました。"
+      "text": "つぎの よる。｜月《つき》あかりの みちを、ながい ぎょうれつが やってきました。",
+      "text_en": "The next night, a long line came up the moonlit road."
     },
     {
       "image": "p07.svg",
       "alt": "みんなでパンを食べているにぎやかな店内",
-      "text": "チッチが、みんなに はなして くれたのです。「あそこの パン、あったかいよ。」"
+      "text": "チッチが、みんなに はなして くれたのです。「あそこの パン、あったかいよ。」",
+      "text_en": "Chichi had told everyone. “The bread there is warm.”"
     },
     {
       "image": "p08.svg",
       "alt": "空が白みはじめ、店のあかりが消える",
-      "text": "そらが しらんで きたら、おしまい。また あしたの よるに あいましょう。"
+      "text": "そらが しらんで きたら、おしまい。また あしたの よるに あいましょう。",
+      "text_en": "When the sky grows pale, the shop closes. See you tomorrow night."
     }
-  ]
+  ],
+  "title_en": "The Moonlight Bakery",
+  "summary_en": "A little bakery that opens only at night."
 }

@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "しずかな海。とおくに しまのような ものが ひとつ",
-      "text": "うみが しずかな あさでした。"
+      "text": "うみが しずかな あさでした。",
+      "text_en": "It was a quiet morning at sea."
     },
     {
       "image": "p02.svg",
       "alt": "浜辺に立って海を見る子ども",
-      "text": "むこうに、しまが みえます。"
+      "text": "むこうに、しまが みえます。",
+      "text_en": "Over there, I can see an island."
     },
     {
       "image": "p03.svg",
       "alt": "きのうはなかった場所",
-      "text": "きのうは、なかった しまです。"
+      "text": "きのうは、なかった しまです。",
+      "text_en": "That island was not there yesterday."
     },
     {
       "image": "p04.svg",
       "alt": "しまだと思ったものはくじらの背中だった",
-      "text": "しまが、うごきました。"
+      "text": "しまが、うごきました。",
+      "text_en": "The island moved."
     },
     {
       "image": "p05.svg",
       "alt": "くじらが潮をふく",
-      "text": "くじらの せなかでした。"
+      "text": "くじらの せなかでした。",
+      "text_en": "It was a whale's back."
     },
     {
       "image": "p06.svg",
       "alt": "遠ざかるくじらを見送る",
-      "text": "しまは、とおくへ いきました。"
+      "text": "しまは、とおくへ いきました。",
+      "text_en": "The island went far away."
     }
-  ]
+  ],
+  "title_en": "The Whale's Back",
+  "summary_en": "Far out at sea, there is one more island."
 }

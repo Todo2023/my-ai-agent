@@ -20,12 +20,36 @@ const state = {
   page: 0,
   ruby: true,
   speaking: false,
+  // 英語を ならべて 出すか。日本語と いっしょに 読めるようにする（既定は 出す）
+  showEn: true,
+  // ?lang=en で来たとき（英語の棚から）は、英語だけにする
+  enOnly: false,
+};
+
+/** 英語だけのときに 出す文。日本語の画面は これまでどおり 日本語のまま */
+const EN_UI = {
+  ruby: "Kana",
+  speak: "🔊 Read",
+  stop: "■ Stop",
+  prev: "◀ Back",
+  next: "Next ▶",
+  last: "The End",
+  endTitle: "The End",
+  endNote: "Thank you for reading.",
+  again: "Read again",
+  other: "Other books",
+  notFound: "This book was not found.",
+  notFoundNote: "It may have been renamed, or it is not here right now.",
+  toShelf: "Choose another book",
+  support: "For grown-ups: support this shelf",
 };
 
 /** 設定は端末に残す。次に開いたときも同じ見た目にする */
 const store = {
   get ruby() { try { return localStorage.getItem("ehon:ruby") !== "0"; } catch { return true; } },
   set ruby(v) { try { localStorage.setItem("ehon:ruby", v ? "1" : "0"); } catch { /* 使えなくても読める */ } },
+  get showEn() { try { return localStorage.getItem("ehon:en") !== "0"; } catch { return true; } },
+  set showEn(v) { try { localStorage.setItem("ehon:en", v ? "1" : "0"); } catch { /* 同上 */ } },
   lastPage(slug) { try { return Number(localStorage.getItem(`ehon:page:${slug}`)) || 0; } catch { return 0; } },
   setLastPage(slug, n) { try { localStorage.setItem(`ehon:page:${slug}`, String(n)); } catch { /* 同上 */ } },
 };
@@ -38,7 +62,7 @@ function cleanSlug(raw) {
 function stopSpeech() {
   state.speaking = false;
   $("speak").setAttribute("aria-pressed", "false");
-  $("speak").textContent = "🔊 よむ";
+  $("speak").textContent = state.enOnly ? EN_UI.speak : "🔊 よむ";
   try { speechSynthesis.cancel(); } catch { /* 対応していない端末 */ }
 }
 
@@ -46,16 +70,20 @@ function speakCurrent() {
   const page = state.book.pages[state.page];
   if (!page || !("speechSynthesis" in window)) return;
 
+  // 英語だけの画面なら 英語で 読む。ならべて 出しているときは 日本語のまま
+  // （2つ つづけて 読むと、めくる まえに 長く 待たせる）
+  const en = state.enOnly && page.text_en;
+
   try {
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(toSpeech(page.text));
-    u.lang = "ja-JP";
+    const u = new SpeechSynthesisUtterance(en ? page.text_en : toSpeech(page.text));
+    u.lang = en ? "en-US" : "ja-JP";
     u.rate = 0.9;
     u.onend = () => { if (state.speaking) stopSpeech(); };
     speechSynthesis.speak(u);
     state.speaking = true;
     $("speak").setAttribute("aria-pressed", "true");
-    $("speak").textContent = "■ とめる";
+    $("speak").textContent = state.enOnly ? EN_UI.stop : "■ とめる";
   } catch (err) {
     console.warn("読み上げに対応していません", err);
   }
@@ -70,13 +98,22 @@ function draw() {
   img.alt = p.alt || "";
 
   $("text").replaceChildren(rubyToDom(p.text, state.ruby));
+  $("text").hidden = state.enOnly;
+
+  // 英語。無い絵本もあるので、あるときだけ 出す
+  const en = $("text-en");
+  en.textContent = p.text_en || "";
+  en.hidden = !p.text_en || (!state.showEn && !state.enOnly);
+
   $("pageno").textContent = `${page + 1} / ${book.pages.length}`;
   $("prev").disabled = page === 0;
 
   // 最後のページで「つぎ」を押せなくすると、おしまいの画面に行けなくなる。
   // 押せるままにして、名前だけ変える
   const isLast = page === book.pages.length - 1;
-  $("next").textContent = isLast ? "おしまい" : "つぎ ▶";
+  $("next").textContent = state.enOnly
+    ? (isLast ? EN_UI.last : EN_UI.next)
+    : (isLast ? "おしまい" : "つぎ ▶");
 
   $("end").classList.remove("show");
 
@@ -126,12 +163,31 @@ function bindGestures() {
 }
 
 async function main() {
-  state.slug = cleanSlug(new URLSearchParams(location.search).get("book"));
+  const q = new URLSearchParams(location.search);
+  state.slug = cleanSlug(q.get("book"));
   state.ruby = store.ruby;
+  state.enOnly = q.get("lang") === "en";
+  state.showEn = state.enOnly || store.showEn;
   $("ruby").setAttribute("aria-pressed", String(state.ruby));
+  $("lang").setAttribute("aria-pressed", String(state.showEn));
+
+  if (state.enOnly) {
+    // 英語だけの画面。ふりがなは 日本語のためのものなので しまう
+    document.documentElement.lang = "en";
+    $("ruby").hidden = true;
+    $("lang").hidden = true;
+    $("prev").textContent = EN_UI.prev;
+    $("speak").textContent = EN_UI.speak;
+    $("end-title").textContent = EN_UI.endTitle;
+    $("end-note").textContent = EN_UI.endNote;
+    $("restart").textContent = EN_UI.again;
+    $("end-back").textContent = EN_UI.other;
+    $("end-back").href = "en/";
+    document.querySelector('.reader-bar a[aria-label]')?.setAttribute("href", "en/");
+  }
 
   if (!state.slug) {
-    $("title").textContent = "えほんが えらばれていません";
+    $("title").textContent = state.enOnly ? "No book was chosen." : "えほんが えらばれていません";
     return;
   }
 
@@ -143,13 +199,16 @@ async function main() {
     console.error(err);
     // 読む人に出す文。**開発の事情は書かない。**
     // 消した えほんの URL を、あとから開く人がいる（前に配ったリンクや ブックマーク）
-    $("title").textContent = "この えほんは みつかりません";
-    $("text").textContent = "なまえが かわったか、いまは おいて いないようです。";
+    $("title").textContent = state.enOnly ? EN_UI.notFound : "この えほんは みつかりません";
+    $("text").textContent = state.enOnly
+      ? EN_UI.notFoundNote
+      : "なまえが かわったか、いまは おいて いないようです。";
+    $("text").hidden = false;
 
     const back = document.createElement("a");
-    back.href = "./";
+    back.href = state.enOnly ? "en/" : "./";
     back.className = "to-shelf";
-    back.textContent = "ほかの えほんを えらぶ";
+    back.textContent = state.enOnly ? EN_UI.toShelf : "ほかの えほんを えらぶ";
     $("text").after(back);
 
     // めくるところは意味がないので消す
@@ -157,8 +216,9 @@ async function main() {
     return;
   }
 
-  document.title = `${state.book.title} | えほんの棚（仮）`;
-  $("title").textContent = state.book.title;
+  const shown = state.enOnly && state.book.title_en ? state.book.title_en : state.book.title;
+  document.title = state.enOnly ? `${shown} | Ehon Shelf` : `${shown} | えほんの棚（仮）`;
+  $("title").textContent = shown;
 
   // 途中まで読んでいたら、そこから開く
   const last = store.lastPage(state.slug);
@@ -175,6 +235,13 @@ async function main() {
     state.ruby = !state.ruby;
     store.ruby = state.ruby;
     $("ruby").setAttribute("aria-pressed", String(state.ruby));
+    draw();
+  });
+
+  $("lang").addEventListener("click", () => {
+    state.showEn = !state.showEn;
+    store.showEn = state.showEn;
+    $("lang").setAttribute("aria-pressed", String(state.showEn));
     draw();
   });
 
@@ -211,6 +278,7 @@ function setupSupport() {
   if (!/^https:\/\/buy\.stripe\.com\/(?!test_)[\w-]+$/.test(url)) return;
 
   $("support-link").href = url;
+  if (state.enOnly) $("support-link").textContent = EN_UI.support;
   $("support").hidden = false;
 }
 

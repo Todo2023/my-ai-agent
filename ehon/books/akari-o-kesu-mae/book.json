@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "夜の部屋と開いた本",
-      "text": "あかりを けす まえの じかんが、すきです。"
+      "text": "あかりを けす まえの じかんが、すきです。",
+      "text_en": "I love the time before I turn off the light."
     },
     {
       "image": "p02.svg",
       "alt": "窓の外を見る",
-      "text": "まどの そとは、もう まっくら。"
+      "text": "まどの そとは、もう まっくら。",
+      "text_en": "Outside the window it is already dark."
     },
     {
       "image": "p03.svg",
       "alt": "本の続きを読む",
-      "text": "きのうの つづきを、すこしだけ よみます。"
+      "text": "きのうの つづきを、すこしだけ よみます。",
+      "text_en": "I read a little more of yesterday's story."
     },
     {
       "image": "p04.svg",
       "alt": "あかりを弱める",
-      "text": "あかりを よわく しました。"
+      "text": "あかりを よわく しました。",
+      "text_en": "I made the light dimmer."
     },
     {
       "image": "p05.svg",
       "alt": "あかりの消えた家",
-      "text": "この じかんは、いつも みじかい。"
+      "text": "この じかんは、いつも みじかい。",
+      "text_en": "This time is always short."
     },
     {
       "image": "p06.svg",
       "alt": "朝が来る",
-      "text": "だから、あしたも たのしみに なります。"
+      "text": "だから、あしたも たのしみに なります。",
+      "text_en": "That is why tomorrow feels good to wait for."
     }
-  ]
+  ],
+  "title_en": "Before I Turn Off the Light",
+  "summary_en": "The short time before falling asleep."
 }

@@ -12,42 +12,52 @@
     {
       "image": "p01.svg",
       "alt": "夜の図書館の建物",
-      "text": "としょかんが しまりました。"
+      "text": "としょかんが しまりました。",
+      "text_en": "The library closed."
     },
     {
       "image": "p02.svg",
       "alt": "本棚に並ぶ本",
-      "text": "だれも いなく なると、本が うごきます。"
+      "text": "だれも いなく なると、本が うごきます。",
+      "text_en": "When everyone is gone, the books begin to move."
     },
     {
       "image": "p03.svg",
       "alt": "大きく開いた本",
-      "text": "ぱらり。｜表紙《ひょうし》が ひらきました。"
+      "text": "ぱらり。｜表紙《ひょうし》が ひらきました。",
+      "text_en": "Rustle. A cover opened."
     },
     {
       "image": "p04.svg",
       "alt": "本を読むねずみ",
-      "text": "よむのは、ここに すんで いる ねずみです。"
+      "text": "よむのは、ここに すんで いる ねずみです。",
+      "text_en": "The reader is a mouse who lives here."
     },
     {
       "image": "p05.svg",
       "alt": "何冊も並べて読んでいる",
-      "text": "きょうは、うみの 本を えらびました。"
+      "text": "きょうは、うみの 本を えらびました。",
+      "text_en": "Tonight she chose a book about the sea."
     },
     {
       "image": "p06.svg",
       "alt": "本の中の海の世界",
-      "text": "ページの なかは、いつも どこかへ つながって います。"
+      "text": "ページの なかは、いつも どこかへ つながって います。",
+      "text_en": "Inside the pages, it always leads somewhere."
     },
     {
       "image": "p07.svg",
       "alt": "朝の図書館",
-      "text": "そらが しらんで きました。"
+      "text": "そらが しらんで きました。",
+      "text_en": "The sky grew pale."
     },
     {
       "image": "p08.svg",
       "alt": "本が棚に戻っている",
-      "text": "本は しらんぷりして、たなに もどりました。"
+      "text": "本は しらんぷりして、たなに もどりました。",
+      "text_en": "The books played innocent and went back on the shelf."
     }
-  ]
+  ],
+  "title_en": "The Library at Night",
+  "summary_en": "At night, the books open by themselves."
 }

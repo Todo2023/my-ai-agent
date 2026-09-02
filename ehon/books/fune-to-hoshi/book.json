@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "夕暮れの海に浮かぶ舟",
-      "text": "ひが しずみました。"
+      "text": "ひが しずみました。",
+      "text_en": "The sun went down."
     },
     {
       "image": "p02.svg",
       "alt": "暗い海の舟",
-      "text": "どっちが きしか、わからなく なりました。"
+      "text": "どっちが きしか、わからなく なりました。",
+      "text_en": "I could not tell which way the shore was."
     },
     {
       "image": "p03.svg",
       "alt": "星がたくさん出る",
-      "text": "そらを みたら、ほしが ありました。"
+      "text": "そらを みたら、ほしが ありました。",
+      "text_en": "I looked up, and there were stars."
     },
     {
       "image": "p04.svg",
       "alt": "月と星をたよりに進む",
-      "text": "うごかない ほしを、ひとつ えらびました。"
+      "text": "うごかない ほしを、ひとつ えらびました。",
+      "text_en": "I chose one star that did not move."
     },
     {
       "image": "p05.svg",
       "alt": "遠くに灯りが見える",
-      "text": "しばらく すると、あかりが みえました。"
+      "text": "しばらく すると、あかりが みえました。",
+      "text_en": "After a while, I saw a light."
     },
     {
       "image": "p06.svg",
       "alt": "朝、岸に着いた舟",
-      "text": "あさに なって、ふねは きしに つきました。"
+      "text": "あさに なって、ふねは きしに つきました。",
+      "text_en": "In the morning, the boat reached the shore."
     }
-  ]
+  ],
+  "title_en": "The Boat and the Star",
+  "summary_en": "Finding the way home on a dark sea."
 }

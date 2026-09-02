@@ -25,6 +25,11 @@
     <path d="M-96 26 C-128 92, -92 136, -40 126 C-70 96, -74 60, -80 34 Z" fill="#b0763f"/>
     <path d="M-120 -34 C-166 -92, -134 -140, -82 -136 C-108 -108, -108 -70, -104 -44 Z" fill="#b0763f"/>
     
+    <g transform="rotate(-14 -46 4)">
+      <path d="M-30 -44 C-58 -34, -60 44, -34 56 C-8 46, -8 -32, -30 -44 Z" fill="#c25b4a"/>
+      <path d="M-56 30 L-92 46 L-84 66 L-48 52 Z" fill="#c25b4a"/>
+      <circle cx="-46" cy="34" r="13" fill="#a8412f"/>
+    </g>
     <ellipse cx="-58" cy="-32" rx="9" ry="19" transform="rotate(-22 -58 -32)" fill="#b0763f"/>
     <ellipse cx="58" cy="-32" rx="9" ry="19" transform="rotate(22 58 -32)" fill="#b0763f"/>
     <circle cx="0" cy="0" r="66" fill="#d09257"/>

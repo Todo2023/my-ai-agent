@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "手紙を持つ子ども",
-      "text": "てがみを だしました。"
+      "text": "てがみを だしました。",
+      "text_en": "I sent a letter."
     },
     {
       "image": "p02.svg",
       "alt": "門のところで待つ",
-      "text": "つぎの ひ、まちました。"
+      "text": "つぎの ひ、まちました。",
+      "text_en": "The next day, I waited."
     },
     {
       "image": "p03.svg",
       "alt": "雨の日も待つ",
-      "text": "あめの ひも、まちました。"
+      "text": "あめの ひも、まちました。",
+      "text_en": "On rainy days, I waited."
     },
     {
       "image": "p04.svg",
       "alt": "季節が変わる",
-      "text": "はっぱの いろが かわりました。"
+      "text": "はっぱの いろが かわりました。",
+      "text_en": "The leaves changed color."
     },
     {
       "image": "p05.svg",
       "alt": "冬、きつねが手紙を届けに来る",
-      "text": "ゆきの ひに、きつねさんが きました。"
+      "text": "ゆきの ひに、きつねさんが きました。",
+      "text_en": "On a snowy day, Fox came."
     },
     {
       "image": "p06.svg",
       "alt": "手紙を読む",
-      "text": "「へんじが おそく なって ごめんね。」"
+      "text": "「へんじが おそく なって ごめんね。」",
+      "text_en": "“Sorry my reply took so long.”"
     }
-  ]
+  ],
+  "title_en": "Waiting for a Reply",
+  "summary_en": "Waiting, and waiting, for an answer."
 }

@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "大きな木とベンチのある待ち合わせ場所",
-      "text": "おおきな きの したで、あう やくそくを しました。"
+      "text": "おおきな きの したで、あう やくそくを しました。",
+      "text_en": "We promised to meet under the big tree."
     },
     {
       "image": "p02.svg",
       "alt": "先に着いて待つ",
-      "text": "さきに つきました。"
+      "text": "さきに つきました。",
+      "text_en": "I arrived first."
     },
     {
       "image": "p03.svg",
       "alt": "雲が動いていく",
-      "text": "くもが、みっつ とおりすぎました。"
+      "text": "くもが、みっつ とおりすぎました。",
+      "text_en": "Three clouds went by."
     },
     {
       "image": "p04.svg",
       "alt": "夕方になっても来ない",
-      "text": "まだ きません。かえろうか、と おもいました。"
+      "text": "まだ きません。かえろうか、と おもいました。",
+      "text_en": "Still no one. Maybe I should go home."
     },
     {
       "image": "p05.svg",
       "alt": "走ってくる友だち",
-      "text": "はしって くる おとが しました。"
+      "text": "はしって くる おとが しました。",
+      "text_en": "Then I heard running feet."
     },
     {
       "image": "p06.svg",
       "alt": "夜、並んで帰る",
-      "text": "「まってて くれて ありがとう。」それだけで、じゅうぶん でした。"
+      "text": "「まってて くれて ありがとう。」それだけで、じゅうぶん でした。",
+      "text_en": "“Thank you for waiting.” That was enough."
     }
-  ]
+  ],
+  "title_en": "The Meeting Place",
+  "summary_en": "How long do you wait when someone is late?"
 }

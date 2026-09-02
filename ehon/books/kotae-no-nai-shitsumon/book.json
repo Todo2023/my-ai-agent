@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "空を見上げて考える子ども",
-      "text": "「そらは、どこから はじまるの。」"
+      "text": "「そらは、どこから はじまるの。」",
+      "text_en": "“Where does the sky begin?”"
     },
     {
       "image": "p02.svg",
       "alt": "くまに聞く",
-      "text": "くまさんは「あたまの すぐ うえ。」と いいました。"
+      "text": "くまさんは「あたまの すぐ うえ。」と いいました。",
+      "text_en": "Bear said, “Just above your head.”"
     },
     {
       "image": "p03.svg",
       "alt": "鳥に聞く",
-      "text": "とりさんは「くもの ある ところ。」と いいました。"
+      "text": "とりさんは「くもの ある ところ。」と いいました。",
+      "text_en": "Bird said, “Where the clouds are.”"
     },
     {
       "image": "p04.svg",
       "alt": "魚に聞く",
-      "text": "さかなさんは「みずの おわる ところ。」と いいました。"
+      "text": "さかなさんは「みずの おわる ところ。」と いいました。",
+      "text_en": "Fish said, “Where the water ends.”"
     },
     {
       "image": "p05.svg",
       "alt": "夕方、ひとりで考える",
-      "text": "ぜんぶ ちがう こたえ でした。"
+      "text": "ぜんぶ ちがう こたえ でした。",
+      "text_en": "Every answer was different."
     },
     {
       "image": "p06.svg",
       "alt": "夜、星空の下",
-      "text": "そして、ぜんぶ ほんとう でした。"
+      "text": "そして、ぜんぶ ほんとう でした。",
+      "text_en": "And every answer was true."
     }
-  ]
+  ],
+  "title_en": "A Question With No Answer",
+  "summary_en": "Everyone gave a different answer."
 }

@@ -12,27 +12,34 @@
     {
       "image": "p01.svg",
       "alt": "夕暮れの家",
-      "text": "そらが くらく なりました。"
+      "text": "そらが くらく なりました。",
+      "text_en": "The sky has gone dark."
     },
     {
       "image": "p02.svg",
       "alt": "部屋のあかりと夜の窓",
-      "text": "あかりを つけます。"
+      "text": "あかりを つけます。",
+      "text_en": "I turn on the light."
     },
     {
       "image": "p03.svg",
       "alt": "本を開く",
-      "text": "えほんを ひとつ。"
+      "text": "えほんを ひとつ。",
+      "text_en": "One picture book."
     },
     {
       "image": "p04.svg",
       "alt": "あかりを小さくする",
-      "text": "あかりを ちいさく します。"
+      "text": "あかりを ちいさく します。",
+      "text_en": "I make the light small."
     },
     {
       "image": "p05.svg",
       "alt": "あかりの消えた家と月",
-      "text": "おやすみなさい。"
+      "text": "おやすみなさい。",
+      "text_en": "Good night."
     }
-  ]
+  ],
+  "title_en": "Before Good Night",
+  "summary_en": "The things we do before sleeping, one by one."
 }

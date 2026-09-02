@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "窓辺の棚に置かれた植木ばち",
-      "text": "まどべに、うえきばちが あります。"
+      "text": "まどべに、うえきばちが あります。",
+      "text_en": "There is a flowerpot by the window."
     },
     {
       "image": "p02.svg",
       "alt": "植木ばちをのぞきこむ子ども",
-      "text": "まいあさ、みに いきます。"
+      "text": "まいあさ、みに いきます。",
+      "text_en": "Every morning I go to look."
     },
     {
       "image": "p03.svg",
       "alt": "まだ何も出ていない土",
-      "text": "きょうも、まだ。"
+      "text": "きょうも、まだ。",
+      "text_en": "Today, still nothing."
     },
     {
       "image": "p04.svg",
       "alt": "土から小さな芽が出た",
-      "text": "あ。でて いました。"
+      "text": "あ。でて いました。",
+      "text_en": "Oh! It has come up."
     },
     {
       "image": "p05.svg",
       "alt": "芽が伸びたのを見ている子ども",
-      "text": "きのうより、すこし おおきい。"
+      "text": "きのうより、すこし おおきい。",
+      "text_en": "A little bigger than yesterday."
     },
     {
       "image": "p06.svg",
       "alt": "日のあたる窓辺で伸びた芽",
-      "text": "まいにち、すこし ずつ。"
+      "text": "まいにち、すこし ずつ。",
+      "text_en": "Every day, a little at a time."
     }
-  ]
+  ],
+  "title_en": "The Shoot in the Flowerpot",
+  "summary_en": "A small shoot came up in the pot by the window."
 }

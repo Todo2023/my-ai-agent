@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "夏の海",
-      "text": "なつの あいだ、まいにち うみに いきました。"
+      "text": "なつの あいだ、まいにち うみに いきました。",
+      "text_en": "All summer, I went to the sea every day."
     },
     {
       "image": "p02.svg",
       "alt": "いぬと走る",
-      "text": "すなが あつくて、はしりました。"
+      "text": "すなが あつくて、はしりました。",
+      "text_en": "The sand was hot, so I ran."
     },
     {
       "image": "p03.svg",
       "alt": "夕方の海",
-      "text": "ある ひ、かぜが つめたく なりました。"
+      "text": "ある ひ、かぜが つめたく なりました。",
+      "text_en": "One day, the wind turned cold."
     },
     {
       "image": "p04.svg",
       "alt": "誰もいない砂浜",
-      "text": "ひとが、いなく なりました。"
+      "text": "ひとが、いなく なりました。",
+      "text_en": "The people were gone."
     },
     {
       "image": "p05.svg",
       "alt": "秋の野原",
-      "text": "きが つくと、はっぱの いろが かわって いました。"
+      "text": "きが つくと、はっぱの いろが かわって いました。",
+      "text_en": "Before I knew it, the leaves had changed color."
     },
     {
       "image": "p06.svg",
       "alt": "ベンチに座って思い出す",
-      "text": "おわった ことに、おわってから きづきました。"
+      "text": "おわった ことに、おわってから きづきました。",
+      "text_en": "I noticed it was over only after it was over."
     }
-  ]
+  ],
+  "title_en": "The End of Summer",
+  "summary_en": "Noticing a season as it ends."
 }

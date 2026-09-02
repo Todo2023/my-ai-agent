@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "朝、長い影",
-      "text": "あさ、かげが ながく のびて いました。"
+      "text": "あさ、かげが ながく のびて いました。",
+      "text_en": "In the morning, my shadow stretched long."
     },
     {
       "image": "p02.svg",
       "alt": "昼、影が短い",
-      "text": "ひるに なったら、みじかく なりました。"
+      "text": "ひるに なったら、みじかく なりました。",
+      "text_en": "By noon it had grown short."
     },
     {
       "image": "p03.svg",
       "alt": "いぬの影も短い",
-      "text": "いぬさんの かげも、みじかい。"
+      "text": "いぬさんの かげも、みじかい。",
+      "text_en": "Dog's shadow is short too."
     },
     {
       "image": "p04.svg",
       "alt": "夕方、また影が長い",
-      "text": "ゆうがた、また ながく なりました。"
+      "text": "ゆうがた、また ながく なりました。",
+      "text_en": "In the evening it grew long again."
     },
     {
       "image": "p05.svg",
       "alt": "夜、影がなくなる",
-      "text": "よるは、どこにも ありません。"
+      "text": "よるは、どこにも ありません。",
+      "text_en": "At night it is nowhere at all."
     },
     {
       "image": "p06.svg",
       "alt": "次の朝、また影がのびる",
-      "text": "つぎの あさ、また ながい かげが もどって きました。"
+      "text": "つぎの あさ、また ながい かげが もどって きました。",
+      "text_en": "Next morning, the long shadow came back."
     }
-  ]
+  ],
+  "title_en": "The Sun and the Shadow",
+  "summary_en": "A shadow changes length through the day."
 }

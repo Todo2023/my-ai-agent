@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "道の途中で立ち止まる",
-      "text": "あるいて いる とちゅうで、たちどまりました。"
+      "text": "あるいて いる とちゅうで、たちどまりました。",
+      "text_en": "I stopped in the middle of my walk."
     },
     {
       "image": "p02.svg",
       "alt": "考えこむ",
-      "text": "なにか、わすれて いる きが します。"
+      "text": "なにか、わすれて いる きが します。",
+      "text_en": "I feel like I forgot something."
     },
     {
       "image": "p03.svg",
       "alt": "家に戻る",
-      "text": "うちに もどって、みまわしました。"
+      "text": "うちに もどって、みまわしました。",
+      "text_en": "I went home and looked around."
     },
     {
       "image": "p04.svg",
       "alt": "部屋の中を探す",
-      "text": "つくえの うえ。かばんの なか。ありません。"
+      "text": "つくえの うえ。かばんの なか。ありません。",
+      "text_en": "On the desk. In the bag. Not there."
     },
     {
       "image": "p05.svg",
       "alt": "もう一度出かける",
-      "text": "けっきょく、おもいだせないまま でかけました。"
+      "text": "けっきょく、おもいだせないまま でかけました。",
+      "text_en": "In the end I went out still not remembering."
     },
     {
       "image": "p06.svg",
       "alt": "夜、ふとんの中で",
-      "text": "ねる まえに おもいだしました。「かさ。」あめは、ふりませんでした。"
+      "text": "ねる まえに おもいだしました。「かさ。」あめは、ふりませんでした。",
+      "text_en": "Before bed I remembered. “My umbrella.” It never rained."
     }
-  ]
+  ],
+  "title_en": "Something Forgotten",
+  "summary_en": "I cannot remember what I forgot."
 }

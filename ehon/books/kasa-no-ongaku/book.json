@@ -12,32 +12,40 @@
     {
       "image": "p01.svg",
       "alt": "青いかさをさす子ども",
-      "text": "かさを ひらくと、おとが かわりました。"
+      "text": "かさを ひらくと、おとが かわりました。",
+      "text_en": "When I opened my umbrella, the sound changed."
     },
     {
       "image": "p02.svg",
       "alt": "かさの上で雨がはねる",
-      "text": "ぱらぱら ぱらぱら。"
+      "text": "ぱらぱら ぱらぱら。",
+      "text_en": "Pitter patter, pitter patter."
     },
     {
       "image": "p03.svg",
       "alt": "木の下に入る",
-      "text": "きの したでは、ぽつ、ぽつ。"
+      "text": "きの したでは、ぽつ、ぽつ。",
+      "text_en": "Under the tree: plop, plop."
     },
     {
       "image": "p04.svg",
       "alt": "水たまりに落ちる雨",
-      "text": "みずたまりでは、ぴちゃん。"
+      "text": "みずたまりでは、ぴちゃん。",
+      "text_en": "In the puddle: plink!"
     },
     {
       "image": "p05.svg",
       "alt": "かえるが聞いている",
-      "text": "かえるさんも きいて いました。"
+      "text": "かえるさんも きいて いました。",
+      "text_en": "Frog was listening too."
     },
     {
       "image": "p06.svg",
       "alt": "雨がやんでかさをたたむ",
-      "text": "あめが やんだら、おんがくも おわりました。"
+      "text": "あめが やんだら、おんがくも おわりました。",
+      "text_en": "When the rain stopped, the music ended."
     }
-  ]
+  ],
+  "title_en": "Umbrella Music",
+  "summary_en": "Listening to rain on an umbrella."
 }
