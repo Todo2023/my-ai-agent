@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 受講者限定。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>オフィスアワー｜思考力×AI統合講座</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+<link rel="stylesheet" href="assets/office.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 講座資料</a>
+    <span class="navlinks">
+      <a class="navlink" href="topics.html">AI Topics →</a>
+      <a class="navlink" href="lessons.html">資料の一覧 →</a>
+    </span>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+  <div class="lesson-head"><p class="aim">読み込んでいます…</p></div>
+</main>
+
+<footer>合同会社Todo　思考力×AI統合講座　受講者向け資料</footer>
+
+<script src="assets/course.js"></script>
+<script>
+/* オフィスアワー。基本は予約制で、席にいるときだけ「いま話せます」が出る。
+   誰がどの枠を取ったかは返ってこない（埋まっているかどうかだけ）。 */
+(function () {
+  var main = document.getElementById('main');
+  var esc = Course.esc;
+
+  var WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+
+  function when(iso, dur) {
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso);
+    var end = new Date(d.getTime() + (dur || 30) * 60000);
+    var p = function (n) { return ('0' + n).slice(-2); };
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WEEK[d.getDay()] + '）　'
+      + p(d.getHours()) + ':' + p(d.getMinutes()) + '–' + p(end.getHours()) + ':' + p(end.getMinutes());
+  }
+
+  function render(d) {
+    var mine = d.mine || [];
+    var free = (d.slots || []).filter(function (s) { return !s.taken; });
+
+    var nowBox = d.open
+      ? '<div class="oh-now is-open">'
+        + '<p class="oh-label">いま席にいます</p>'
+        + '<p>予約がなくても、そのまま入ってきてください。</p>'
+        + (d.nowUrl ? '<p><a class="deck-btn" href="' + esc(d.nowUrl) + '" target="_blank" rel="noopener">いま話す</a></p>' : '')
+        + '</div>'
+      : '<div class="oh-now">'
+        + '<p class="oh-label">いまは席にいません</p>'
+        + '<p>下から枠を選んで予約してください。'
+        + '席にいるときだけ、ここに「いま話す」が出ます。<b>出ていないときは予約でお願いします。</b></p>'
+        + '</div>';
+
+    var mineBox = mine.length
+      ? '<section class="oh-sec"><h2>あなたの予約</h2>'
+        + mine.map(function (s) {
+            return '<div class="oh-row is-mine">'
+              + '<span class="oh-when">' + when(s.at, s.dur) + '</span>'
+              + '<span class="oh-state">予約済み</span>'
+              + (s.url ? '<a class="oh-go" href="' + esc(s.url) + '" target="_blank" rel="noopener">入る</a>' : '<span></span>')
+              + '<button type="button" class="oh-cancel" data-id="' + esc(s.id) + '">取り消す</button>'
+              + '</div>';
+          }).join('')
+        + '</section>'
+      : '';
+
+    var listBox = '<section class="oh-sec"><h2>空いている枠</h2>'
+      + (free.length
+          ? '<div class="oh-list">' + free.map(function (s) {
+              return '<div class="oh-row">'
+                + '<span class="oh-when">' + when(s.at, s.dur) + '</span>'
+                + '<span class="oh-state">空き</span><span></span>'
+                + '<button type="button" class="oh-book" data-id="' + esc(s.id) + '"'
+                + (mine.length ? ' disabled title="先に今の予約を取り消してください"' : '')
+                + '>予約する</button>'
+                + '</div>';
+            }).join('') + '</div>'
+          : '<p class="oh-empty">いまは枠が出ていません。'
+            + '質問は資料ページの質問欄から送ってください。24時間以内に回答します。</p>')
+      + '</section>';
+
+    main.innerHTML =
+      '<div class="lesson-head">'
+      + '<div class="kicker">Office hours</div>'
+      + '<h1>オフィスアワー</h1>'
+      + '<p class="aim">直接話す時間です。<b>予約制です。</b>'
+      + '1人ずつ、30分。相談したいことを書いておくと、こちらで準備してから臨めます。</p>'
+      + '</div>'
+      + nowBox + mineBox + listBox
+      + '<div class="oh-note">'
+      + '<p class="oh-label">先に読んでください</p>'
+      + '<p>同時に持てる予約は1つです。取り直すときは、先に取り消してください。'
+      + '来られなくなったときも、取り消していただけると次の人が入れます。</p>'
+      + '</div>'
+      + '<p class="oh-say" role="status"></p>';
+
+    var say = main.querySelector('.oh-say');
+
+    main.querySelectorAll('.oh-book').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var note = prompt('相談したいことを、ひとことで書いてください（あとで変えられます）', '');
+        if (note === null) return;
+        b.disabled = true;
+        say.textContent = '予約しています…';
+        Course.api('/oh/book', { id: b.dataset.id, note: note }).then(function (res) {
+          if (!res.ok) { say.textContent = res.d.error || '予約できませんでした'; b.disabled = false; return; }
+          start();
+        }).catch(function () { say.textContent = '通信できませんでした'; b.disabled = false; });
+      });
+    });
+
+    main.querySelectorAll('.oh-cancel').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('この予約を取り消します。よろしいですか。')) return;
+        b.disabled = true;
+        say.textContent = '取り消しています…';
+        Course.api('/oh/cancel', { id: b.dataset.id }).then(function (res) {
+          if (!res.ok) { say.textContent = res.d.error || '取り消せませんでした'; b.disabled = false; return; }
+          start();
+        }).catch(function () { say.textContent = '通信できませんでした'; b.disabled = false; });
+      });
+    });
+  }
+
+  function start() {
+    Course.api('/oh').then(function (res) {
+      if (!res.ok) { Course.setCode(''); Course.askCode(main, render); return; }
+      render(res.d);
+    }).catch(function () {
+      main.innerHTML = '<div class="lesson-head"><p class="aim">'
+        + '読み込めませんでした。通信を確かめて、ページを再読み込みしてください。</p></div>';
+    });
+  }
+
+  if (!Course.code()) Course.askCode(main, render);
+  else start();
+})();
+</script>
+
+</body>
+</html>
