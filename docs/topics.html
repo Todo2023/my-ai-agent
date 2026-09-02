@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- サイト公開前のため noindex。公開時にこの行を消す。
+     このページ自体には鍵をかけない（受講の有無にかかわらず読めるようにするため）。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>AI Topics｜合同会社Todo</title>
+<meta name="description" content="AIと「価値の見つけ方」をめぐるニュースを、講座の視点で読み解いて掲載しています。どなたでも無料でご覧いただけます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/page.css">
+<link rel="stylesheet" href="assets/topics.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">合同会社To<em>do</em> — 思考力×AI講座</a>
+    <a class="navlink" href="lessons.html">受講中の方の資料 →</a>
+  </div>
+  <div class="tabbar">
+    <div class="tabbar-inner">
+      <div class="tabs">
+        <a class="tab" href="index.html">トップ</a>
+        <a class="tab" href="about.html">講座について</a>
+        <a class="tab is-current" href="topics.html" aria-current="page">AI Topics</a>
+        <a class="tab" href="pricing.html">料金プラン</a>
+        <a class="tab" href="faq.html">よくある質問</a>
+        <a class="tab tab-cta" href="apply.html">お申し込み</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <div class="tp-header">
+    <div class="kicker">AI TOPICS</div>
+    <h1>AIと「価値の見つけ方」をめぐるニュース</h1>
+    <p>AIそのものの新機能より、<b>AIが当たり前になった先で、何に価値が置かれるようになるのか</b>が見えるニュースを選んで載せています。それぞれに、講座としてなぜ取り上げたのかと、そこから立てられる問いを添えました。ここに載せた問いは、のちの回のワークのお題として使うことがあります。</p>
+    <span class="tp-free">受講の有無にかかわらず、無料でご覧いただけます</span>
+  </div>
+
+  <div class="tp-list" id="tp-list">
+    <p class="tp-empty">読み込んでいます…</p>
+  </div>
+
+  <p class="tp-note">掲載しているのは公開情報の要約と、それに対する当社の見方です。事実関係は各出典をご確認ください。取り上げてほしいニュースがあれば<a href="contact.html">お問い合わせ</a>からお知らせください。</p>
+
+  <footer>合同会社Todo　思考力×AI統合講座　<a href="about.html">講座について</a>　<a href="topics.html">AI Topics</a>　<a href="pricing.html">料金プラン</a>　<a href="faq.html">よくある質問</a>　<a href="contact.html">お問い合わせ</a>　<a href="tokushoho.html">特定商取引法に基づく表記</a></footer>
+</main>
+
+<script>
+/* 記事は topics.json に置いてある。HTMLを触らずに1件追記すれば増えるようにするため。
+   のちにワークのお題として引くときも、同じファイルを読めばよい。 */
+(function () {
+  var list = document.getElementById('tp-list');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  /* **強調** だけ効かせる。HTMLは書かせない（崩れる元になる） */
+  function rich(s) {
+    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  }
+  function ymd(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    return m ? m[1] + '.' + m[2] + '.' + m[3] : esc(s);
+  }
+  /* 外部へ飛ばすリンクだけを通す。json に妙なものが入っても飛ばさないため */
+  function safeUrl(u) {
+    return /^https?:\/\//i.test(String(u || '')) ? esc(u) : '';
+  }
+
+  function render(items) {
+    if (!items.length) {
+      list.innerHTML = '<p class="tp-empty">まだ記事がありません。</p>';
+      return;
+    }
+    list.innerHTML = items.map(function (t) {
+      var qs = (t.questions || []).map(function (q) {
+        return '<li>' + rich(q) + '</li>';
+      }).join('');
+      var ls = (t.links || []).map(function (l) {
+        var u = safeUrl(l.url);
+        return u ? '<a href="' + u + '" target="_blank" rel="noopener noreferrer">'
+                 + esc(l.label || u) + ' ↗</a>' : '';
+      }).join('');
+      return '<article class="tp-item" id="' + esc(t.id || '') + '">'
+        + '<div class="tp-meta"><span class="tp-date">' + ymd(t.date) + '</span>'
+        + (t.tag ? '<span class="tp-tag">' + esc(t.tag) + '</span>' : '') + '</div>'
+        + '<h2>' + rich(t.title) + '</h2>'
+        + (t.lead ? '<p class="tp-lead">' + rich(t.lead) + '</p>' : '')
+        + (t.why ? '<div class="tp-why"><p class="tp-label">なぜ取り上げたか</p><p>'
+                 + rich(t.why) + '</p></div>' : '')
+        + (qs ? '<div class="tp-q"><p class="tp-label">この話から立てられる問い</p><ul>'
+              + qs + '</ul></div>' : '')
+        + (ls ? '<div class="tp-links">' + ls + '</div>' : '')
+        + '</article>';
+    }).join('');
+  }
+
+  fetch('topics.json', { cache: 'no-cache' })
+    .then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(function (d) {
+      var items = (d && d.topics ? d.topics : []).slice();
+      /* 新しいものが上。json に書く順番を気にしなくて済むようにしておく */
+      items.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+      render(items);
+    })
+    .catch(function () {
+      list.innerHTML = '<p class="tp-error">記事を読み込めませんでした。'
+        + '時間をおいて、ページを再読み込みしてください。</p>';
+    });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+/* AI Topics（ニュース）。受講の有無にかかわらず、誰でも常時読めるページ。
+   資料ページと違って鍵をかけないので、ここに教材の中身は置かない。 */
+
+.tp-header{padding:64px 0 34px;border-bottom:1px solid var(--hairline);}
+.tp-header .kicker{font-size:12px;letter-spacing:.18em;color:var(--red);margin-bottom:14px;}
+.tp-header h1{font-size:34px;margin:0 0 16px;line-height:1.5;}
+.tp-header p{margin:0;color:var(--text-soft);font-size:15px;max-width:46em;}
+.tp-free{
+  display:inline-block;margin-top:20px;padding:5px 12px;border:1px solid var(--hairline-strong);
+  border-radius:2px;font-size:12px;letter-spacing:.06em;color:var(--text-soft);
+}
+
+.tp-list{padding:8px 0 20px;}
+
+/* 1件。左に日付、右に中身。読み物なので横幅は伸ばしすぎない */
+.tp-item{padding:38px 0;border-bottom:1px solid var(--hairline);}
+/* 最後の1件は、下の注記の罫線と二重にならないように */
+.tp-item:last-child{border-bottom:none;}
+.tp-meta{display:flex;align-items:baseline;gap:14px;margin-bottom:12px;}
+.tp-date{font-size:12px;letter-spacing:.08em;color:var(--text-soft);font-variant-numeric:tabular-nums;}
+.tp-tag{font-size:11px;letter-spacing:.1em;color:var(--red);border:1px solid var(--red);border-radius:2px;padding:2px 8px;}
+.tp-item h2{font-size:23px;margin:0 0 14px;line-height:1.6;}
+.tp-lead{margin:0 0 22px;font-size:15px;max-width:44em;}
+
+/* なぜ取り上げたか。ここが講座としての立場なので、地の文と分ける */
+.tp-why{
+  background:var(--bg-soft);border-left:2px solid var(--hairline-strong);
+  padding:18px 22px;margin:0 0 22px;max-width:44em;
+}
+.tp-why .tp-label{font-size:11px;letter-spacing:.14em;color:var(--text-soft);margin:0 0 8px;}
+.tp-why p{margin:0;font-size:14.5px;}
+
+/* この話から立てられる問い。将来ワークの種にする */
+.tp-q{margin:0 0 20px;max-width:44em;}
+.tp-q .tp-label{font-size:11px;letter-spacing:.14em;color:var(--text-soft);margin:0 0 10px;}
+.tp-q ul{margin:0;padding-left:1.1em;}
+.tp-q li{font-size:14.5px;margin-bottom:8px;}
+.tp-q li::marker{color:var(--red);}
+
+.tp-links{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;}
+.tp-links a{color:var(--text-soft);text-decoration:none;border-bottom:1px solid var(--hairline-strong);padding-bottom:1px;}
+.tp-links a:hover{color:var(--red);border-bottom-color:var(--red);}
+
+.tp-empty,.tp-error{padding:48px 0;color:var(--text-soft);font-size:14px;}
+
+.tp-note{margin:36px 0 60px;padding-top:24px;border-top:1px solid var(--hairline);color:var(--text-soft);font-size:13px;}
+
+@media (max-width:640px){
+  .tp-header{padding:44px 0 28px;}
+  .tp-header h1{font-size:26px;}
+  .tp-item h2{font-size:20px;}
+}
