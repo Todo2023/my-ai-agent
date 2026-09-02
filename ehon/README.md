@@ -80,12 +80,33 @@
 
 ```bash
 node ehon/tools/_make-books.mjs   # 話 → 絵と book.json
+node ehon/tools/apply-en.mjs      # 英語を book.json に書き込む
 node ehon/tools/build-index.mjs   # → books.json
 ```
+
+**この順番で走らせること。** `_make-books.mjs` は `book.json` を作り直すので、
+`apply-en.mjs` を飛ばすと英語が消える。
 
 話を足すときは `tools/_make-books.mjs` の `BOOKS` に1つ足す。
 **すでにあるフォルダは上書きされる。** 手で描いた `tsuki-no-pan` は
 この道具の対象に入れていないので、消える心配はない。
+
+### 英語について
+
+**どの絵本にも英語の文が付いている。** 日本語の下に並べて出し、
+読む画面の「EN」で消したり出したりできる（日本語と英語を いっしょに 読むため）。
+
+英語だけで読みたい人のために、**英語の棚 `en/`** を別に置いてある。
+そこから開くと `read.html?...&lang=en` になり、画面ぜんぶが英語になる。
+
+| | |
+| --- | --- |
+| `tools/_en.mjs` | 英語の文。**直すのはここだけ。** slug ごとに題・あらすじ・各ページ |
+| `tools/apply-en.mjs` | `_en.mjs` を `books/*/book.json` に書き込む |
+| `en/index.html` / `en/app.js` | 英語の棚。`has_en` が true の本だけ並べる |
+
+ページ数が日本語と合わないと `apply-en.mjs` は止まる。
+**1ページずれた本を出すより、止めるほうがよい。**
 
 ### 絵について
 
@@ -108,7 +129,10 @@ node ehon/tools/build-index.mjs   # → books.json
 | `style.css` | 3つの画面で共通 |
 | `books/*/` | 絵本1冊ぶん（`book.json` と絵） |
 | `books.json` | 棚用のまとめ。**手で書かない。生成物** |
+| `en/index.html` / `en/app.js` | 英語の棚。読む画面は `?lang=en` で英語だけになる |
 | `tools/build-index.mjs` | `books.json` を作る。絵の重さも出す |
+| `tools/_en.mjs` | 英語の文。**英語を直すのはここだけ** |
+| `tools/apply-en.mjs` | 英語を `book.json` に書き込む。`_make-books.mjs` の**あと**に走らせる |
 | `tools/_draw.mjs` | 絵の部品（空・いきもの・もの）。10冊ぶんの絵柄をそろえるため |
 | `tools/_make-books.mjs` | 話から絵と `book.json` を書き出す。**話を足すのはここ** |
 | `sw.js` / `manifest.webmanifest` | PWA。読んだ絵本を端末に残す |

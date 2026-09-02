@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "森の中の川",
-      "text": "かわの いしは、みんな まるい。"
+      "text": "かわの いしは、みんな まるい。",
+      "text_en": "The stones in the river are all round."
     },
     {
       "image": "p02.svg",
       "alt": "石を拾う",
-      "text": "ひとつ ひろって みました。つるつるです。"
+      "text": "ひとつ ひろって みました。つるつるです。",
+      "text_en": "I picked one up. It is smooth."
     },
     {
       "image": "p03.svg",
       "alt": "山を見上げる",
-      "text": "やまの うえの いしは、とがって いました。"
+      "text": "やまの うえの いしは、とがって いました。",
+      "text_en": "The stones up the mountain were sharp."
     },
     {
       "image": "p04.svg",
       "alt": "川の流れ",
-      "text": "ながされる あいだに、かどが とれるのだ そうです。"
+      "text": "ながされる あいだに、かどが とれるのだ そうです。",
+      "text_en": "While they roll downstream, the corners wear away."
     },
     {
       "image": "p05.svg",
       "alt": "石を握って考える",
-      "text": "どのくらい かかったのか、いしは いいません。"
+      "text": "どのくらい かかったのか、いしは いいません。",
+      "text_en": "How long did it take? The stone does not say."
     },
     {
       "image": "p06.svg",
       "alt": "夜、石を持ち帰る",
-      "text": "もって かえって、つくえに おきました。"
+      "text": "もって かえって、つくえに おきました。",
+      "text_en": "I took it home and put it on my desk."
     }
-  ]
+  ],
+  "title_en": "River Stones",
+  "summary_en": "Wondering why river stones are round."
 }

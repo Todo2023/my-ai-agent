@@ -114,6 +114,16 @@ body.reading{background:#2a241d; color:#f6eee1; overflow:hidden;}
 }
 .page-text ruby rt{font-size:.5em; color:#7b736a; letter-spacing:0;}
 
+/* 英語。日本語の すぐ下に、すこし 小さく ならべる。
+   同じ大きさで 2行 出すと、どちらを 読めば よいか 分からなくなる */
+.page-text.en{
+  margin-top:6px; padding-top:12px; padding-bottom:12px;
+  font-size:16px; line-height:1.9; letter-spacing:0;
+  color:#5c554c; background:#efe6d6;
+}
+/* 英語だけの画面（?lang=en）では、英語が 主役になる */
+:lang(en) .page-text.en{font-size:19px; color:#33302b; background:#f6eee1; margin-top:12px;}
+
 .reader-foot{display:flex; align-items:center; gap:10px; padding:8px 12px 14px; background:#221d17;}
 .nav-btn{
   flex:1; height:52px; font-size:16px; font-weight:700;

@@ -1177,4 +1177,4 @@ for (const b of BOOKS) {
 }
 
 console.log(`\n${BOOKS.length}冊 / 絵 ${files}枚 を書き出した。`);
-console.log("つづけて node ehon/tools/build-index.mjs を走らせること。");
+console.log("つづけて node ehon/tools/apply-en.mjs → build-index.mjs の順に走らせること。");

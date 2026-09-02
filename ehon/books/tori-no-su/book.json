@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "春の木",
-      "text": "とりさんが、すを つくります。"
+      "text": "とりさんが、すを つくります。",
+      "text_en": "Bird is building a nest."
     },
     {
       "image": "p02.svg",
       "alt": "枯れ葉を集める",
-      "text": "はっぱを あつめました。"
+      "text": "はっぱを あつめました。",
+      "text_en": "She gathered leaves."
     },
     {
       "image": "p03.svg",
       "alt": "花びらを見つける",
-      "text": "はなびらも、いれて みました。"
+      "text": "はなびらも、いれて みました。",
+      "text_en": "She tried putting petals in too."
     },
     {
       "image": "p04.svg",
       "alt": "雨が降る",
-      "text": "あめの ひは、じっと まちます。"
+      "text": "あめの ひは、じっと まちます。",
+      "text_en": "On rainy days, she waits and waits."
     },
     {
       "image": "p05.svg",
       "alt": "できあがった巣",
-      "text": "できました。"
+      "text": "できました。",
+      "text_en": "It is finished."
     },
     {
       "image": "p06.svg",
       "alt": "巣に2羽いる",
-      "text": "ひとりの ための すでは、ありませんでした。"
+      "text": "ひとりの ための すでは、ありませんでした。",
+      "text_en": "It was not a nest for one."
     }
-  ]
+  ],
+  "title_en": "The Bird's Nest",
+  "summary_en": "Looking for everything a nest needs."
 }

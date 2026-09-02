@@ -11,42 +11,52 @@
     {
       "image": "p01.svg",
       "alt": "森の中に立つ もこ と、うしろの木の上の家",
-      "text": "もりの おくに、もこの おうちが あります。"
+      "text": "もりの おくに、もこの おうちが あります。",
+      "text_en": "Deep in the forest is Moko's house."
     },
     {
       "image": "p02.svg",
       "alt": "地面に落ちている どんぐりを見つけたもこ",
-      "text": "きょう、どんぐりを ひとつ みつけました。"
+      "text": "きょう、どんぐりを ひとつ みつけました。",
+      "text_en": "Today Moko found one acorn."
     },
     {
       "image": "p03.svg",
       "alt": "どんぐりを高くかかげるもこ",
-      "text": "うれしくて、たかく あげました。"
+      "text": "うれしくて、たかく あげました。",
+      "text_en": "So happy — Moko held it up high."
     },
     {
       "image": "p04.svg",
       "alt": "とりと ねずみが 見ている",
-      "text": "とりさんと ねずみさんが、じっと みて いました。"
+      "text": "とりさんと ねずみさんが、じっと みて いました。",
+      "text_en": "Bird and Mouse watched without a word."
     },
     {
       "image": "p05.svg",
       "alt": "どんぐりを土に置くもこ",
-      "text": "ひとつ しか ありません。もこは、つちに うめました。"
+      "text": "ひとつ しか ありません。もこは、つちに うめました。",
+      "text_en": "There was only one. Moko buried it in the earth."
     },
     {
       "image": "p06.svg",
       "alt": "夕方、3人で土を見ている",
-      "text": "「たべないの？」「うん。いまは、たべない。」"
+      "text": "「たべないの？」「うん。いまは、たべない。」",
+      "text_en": "“You won't eat it?” “No. Not now.”"
     },
     {
       "image": "p07.svg",
       "alt": "春、芽が出ている",
-      "text": "はるに なりました。ちいさな めが でて います。"
+      "text": "はるに なりました。ちいさな めが でて います。",
+      "text_en": "Spring came. A small shoot is growing."
     },
     {
       "image": "p08.svg",
       "alt": "大きく育った木と、みんな",
-      "text": "いつか、みんなの ぶんの どんぐりが なります。"
+      "text": "いつか、みんなの ぶんの どんぐりが なります。",
+      "text_en": "One day there will be acorns for everyone."
     }
-  ]
+  ],
+  "title_en": "Moko's Acorn",
+  "summary_en": "What Moko did with the only acorn."
 }

@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "春の野原に咲く花",
-      "text": "はるの のはらに、きいろい はなが さきました。"
+      "text": "はるの のはらに、きいろい はなが さきました。",
+      "text_en": "In the spring field, a yellow flower bloomed."
     },
     {
       "image": "p02.svg",
       "alt": "花を見つめる子ども",
-      "text": "しばらく すると、しろく なりました。"
+      "text": "しばらく すると、しろく なりました。",
+      "text_en": "After a while, it turned white."
     },
     {
       "image": "p03.svg",
       "alt": "わた毛が飛んでいく",
-      "text": "ふう。わた毛が とんで いきました。"
+      "text": "ふう。わた毛が とんで いきました。",
+      "text_en": "Whoo. The fluff flew away."
     },
     {
       "image": "p04.svg",
       "alt": "山の方へ飛んでいく",
-      "text": "やまの ほうへ。"
+      "text": "やまの ほうへ。",
+      "text_en": "Off toward the mountains."
     },
     {
       "image": "p05.svg",
       "alt": "地面に落ちて芽が出る",
-      "text": "おちた ところで、めが でました。"
+      "text": "おちた ところで、めが でました。",
+      "text_en": "Where it landed, a shoot came up."
     },
     {
       "image": "p06.svg",
       "alt": "翌年、たくさんの花",
-      "text": "つぎの はるは、もっと たくさん さきました。"
+      "text": "つぎの はるは、もっと たくさん さきました。",
+      "text_en": "The next spring, many more bloomed."
     }
-  ]
+  ],
+  "title_en": "The Dandelion's Hat",
+  "summary_en": "Following the fluff wherever it goes."
 }

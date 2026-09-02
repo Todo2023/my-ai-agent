@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "雪をかぶった森と、一面の雪原",
-      "text": "ゆきが つもりました。"
+      "text": "ゆきが つもりました。",
+      "text_en": "The snow piled up."
     },
     {
       "image": "p02.svg",
       "alt": "雪の上に続く小さな足あと",
-      "text": "あしあとが つづいて います。"
+      "text": "あしあとが つづいて います。",
+      "text_en": "Footprints go on and on."
     },
     {
       "image": "p03.svg",
       "alt": "ねずみがいた",
-      "text": "だれの あしあと？　ねずみさん でした。"
+      "text": "だれの あしあと？　ねずみさん でした。",
+      "text_en": "Whose footprints? They were Mouse's."
     },
     {
       "image": "p04.svg",
       "alt": "うさぎとねずみ",
-      "text": "うさぎさんの あしあとも ありました。"
+      "text": "うさぎさんの あしあとも ありました。",
+      "text_en": "There were Rabbit's footprints too."
     },
     {
       "image": "p05.svg",
       "alt": "大きなくま",
-      "text": "おおきい あしあとは、くまさん。"
+      "text": "おおきい あしあとは、くまさん。",
+      "text_en": "The big footprints are Bear's."
     },
     {
       "image": "p06.svg",
       "alt": "夕暮れ、家に帰るみんな",
-      "text": "みんな、おうちに かえります。"
+      "text": "みんな、おうちに かえります。",
+      "text_en": "Everyone is going home."
     }
-  ]
+  ],
+  "title_en": "Footprints in the Snow",
+  "summary_en": "Following the tracks across the snow."
 }

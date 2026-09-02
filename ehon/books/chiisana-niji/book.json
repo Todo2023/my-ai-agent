@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "雨がふっている",
-      "text": "あめ。"
+      "text": "あめ。",
+      "text_en": "Rain."
     },
     {
       "image": "p02.svg",
       "alt": "地面にできた水たまり",
-      "text": "みずたまりが できました。"
+      "text": "みずたまりが できました。",
+      "text_en": "A puddle appeared."
     },
     {
       "image": "p03.svg",
       "alt": "日がさしてきた水たまり",
-      "text": "ひが さして きました。"
+      "text": "ひが さして きました。",
+      "text_en": "The sun came out."
     },
     {
       "image": "p04.svg",
       "alt": "水たまりの中に小さな虹",
-      "text": "あっ。ちいさな にじ。"
+      "text": "あっ。ちいさな にじ。",
+      "text_en": "Oh! A little rainbow."
     },
     {
       "image": "p05.svg",
       "alt": "のぞきこむ子ども",
-      "text": "そうっと のぞきます。"
+      "text": "そうっと のぞきます。",
+      "text_en": "I peek in very quietly."
     },
     {
       "image": "p06.svg",
       "alt": "空に大きな虹",
-      "text": "そらにも、おおきいのが ありました。"
+      "text": "そらにも、おおきいのが ありました。",
+      "text_en": "There was a big one in the sky too."
     }
-  ]
+  ],
+  "title_en": "A Little Rainbow",
+  "summary_en": "A small rainbow inside a puddle."
 }

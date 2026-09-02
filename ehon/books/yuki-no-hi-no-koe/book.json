@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "雪が降る野原",
-      "text": "ゆきの ひは、しずかです。"
+      "text": "ゆきの ひは、しずかです。",
+      "text_en": "Snowy days are quiet."
     },
     {
       "image": "p02.svg",
       "alt": "雪の中に立つ子ども",
-      "text": "「おーい。」よんで みました。"
+      "text": "「おーい。」よんで みました。",
+      "text_en": "“Hel-lo!” I tried calling."
     },
     {
       "image": "p03.svg",
       "alt": "返事がない",
-      "text": "へんじが ありません。"
+      "text": "へんじが ありません。",
+      "text_en": "No answer came."
     },
     {
       "image": "p04.svg",
       "alt": "足あとがついている",
-      "text": "でも、あしあとが ありました。"
+      "text": "でも、あしあとが ありました。",
+      "text_en": "But there were footprints."
     },
     {
       "image": "p05.svg",
       "alt": "うさぎがいた",
-      "text": "うさぎさんも、こえを だしませんでした。"
+      "text": "うさぎさんも、こえを だしませんでした。",
+      "text_en": "Rabbit did not call out either."
     },
     {
       "image": "p06.svg",
       "alt": "夕方、家に帰る",
-      "text": "しずかな まま、うちに かえりました。"
+      "text": "しずかな まま、うちに かえりました。",
+      "text_en": "Still quiet, I went home."
     }
-  ]
+  ],
+  "title_en": "Voices on a Snowy Day",
+  "summary_en": "On snowy days, the sounds go away."
 }

@@ -60,8 +60,13 @@ for (const slug of dirs) {
   books.push({
     slug,
     title: book.title,
+    // 英語の棚（en/）が使う。apply-en.mjs が book.json に書き込む
+    title_en: book.title_en || "",
     author: book.author || "",
     summary: book.summary || "",
+    summary_en: book.summary_en || "",
+    // 1ページでも英語が抜けていたら、英語の棚には出さない（途中で切れるより出さない）
+    has_en: Boolean(book.title_en) && book.pages.every((p) => p.text_en),
     age_min: Number(book.age_min ?? 0),
     age_max: Number(book.age_max ?? 99),
     reading_minutes: Number(book.reading_minutes ?? Math.max(1, Math.round(book.pages.length / 2))),

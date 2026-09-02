@@ -20,12 +20,15 @@
     <span class="title" id="title">よみこんでいます…</span>
     <span class="spacer"></span>
     <button class="icon-btn" id="ruby" type="button" aria-pressed="true">ふりがな</button>
+    <!-- 日本語と英語を ならべて 読むための 切りかえ（?lang=en のときは 英語だけ） -->
+    <button class="icon-btn" id="lang" type="button" aria-pressed="true">EN</button>
     <button class="icon-btn" id="speak" type="button" aria-pressed="false">🔊 よむ</button>
   </div>
 
   <div class="stage" id="stage">
     <img class="page-img" id="img" alt="" />
     <p class="page-text" id="text"></p>
+    <p class="page-text en" id="text-en" lang="en"></p>
   </div>
 
   <div class="reader-foot">
@@ -36,11 +39,11 @@
 
   <div class="end" id="end">
     <div>
-      <h2>おしまい</h2>
-      <p>よんでくれて ありがとう。</p>
+      <h2 id="end-title">おしまい</h2>
+      <p id="end-note">よんでくれて ありがとう。</p>
       <div class="row">
         <button id="restart" type="button">もういちど よむ</button>
-        <a href="./">ほかの えほん</a>
+        <a id="end-back" href="./">ほかの えほん</a>
       </div>
       <!--
         保護者向けの応援リンク（sekkei/platform-kids.md）。

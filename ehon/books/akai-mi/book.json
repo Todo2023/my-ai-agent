@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "赤い実のなる木",
-      "text": "あかい みが なりました。"
+      "text": "あかい みが なりました。",
+      "text_en": "A red berry grew on the tree."
     },
     {
       "image": "p02.svg",
       "alt": "くまが実をみつける",
-      "text": "くまさんが みつけました。"
+      "text": "くまさんが みつけました。",
+      "text_en": "Bear found it."
     },
     {
       "image": "p03.svg",
       "alt": "ねずみも来る",
-      "text": "ねずみさんも きました。"
+      "text": "ねずみさんも きました。",
+      "text_en": "Mouse came too."
     },
     {
       "image": "p04.svg",
       "alt": "3人で分ける",
-      "text": "みっつに わけました。"
+      "text": "みっつに わけました。",
+      "text_en": "They split it into three."
     },
     {
       "image": "p05.svg",
       "alt": "並んで食べる",
-      "text": "おなじ あじが しました。"
+      "text": "おなじ あじが しました。",
+      "text_en": "Every piece tasted the same."
     }
-  ]
+  ],
+  "title_en": "The Red Berry",
+  "summary_en": "One berry, shared by everyone."
 }

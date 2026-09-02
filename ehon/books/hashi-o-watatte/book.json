@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "森の中の道",
-      "text": "みちの さきに、はしが ありました。"
+      "text": "みちの さきに、はしが ありました。",
+      "text_en": "There was a bridge ahead on the path."
     },
     {
       "image": "p02.svg",
       "alt": "川のそばで立ち止まる子ども",
-      "text": "したを みたら、かわが ありました。"
+      "text": "したを みたら、かわが ありました。",
+      "text_en": "I looked down and saw the river."
     },
     {
       "image": "p03.svg",
       "alt": "動けなくなる",
-      "text": "あしが とまりました。"
+      "text": "あしが とまりました。",
+      "text_en": "My feet stopped."
     },
     {
       "image": "p04.svg",
       "alt": "むこう岸のねこ",
-      "text": "むこうがわで、ねこが まって います。"
+      "text": "むこうがわで、ねこが まって います。",
+      "text_en": "On the other side, Cat is waiting."
     },
     {
       "image": "p05.svg",
       "alt": "一歩ふみ出す",
-      "text": "いっぽ だけ、だして みました。"
+      "text": "いっぽ だけ、だして みました。",
+      "text_en": "I tried just one step."
     },
     {
       "image": "p06.svg",
       "alt": "渡りきってねこと並ぶ",
-      "text": "わたれました。おもって いたより、みじかい はし でした。"
+      "text": "わたれました。おもって いたより、みじかい はし でした。",
+      "text_en": "I crossed. The bridge was shorter than I thought."
     }
-  ]
+  ],
+  "title_en": "Across the Bridge",
+  "summary_en": "Crossing a bridge that looked scary."
 }

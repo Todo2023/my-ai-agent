@@ -11,42 +11,52 @@
     {
       "image": "p01.svg",
       "alt": "机の上の古いラジオ",
-      "text": "おじいちゃんの ラジオが、｜押入《おしい》れから でて きました。"
+      "text": "おじいちゃんの ラジオが、｜押入《おしい》れから でて きました。",
+      "text_en": "Grandpa's radio came out of the closet."
     },
     {
       "image": "p02.svg",
       "alt": "ラジオをのぞきこむ子ども",
-      "text": "スイッチを ひねっても、なにも きこえません。"
+      "text": "スイッチを ひねっても、なにも きこえません。",
+      "text_en": "I turned the switch, but nothing came out."
     },
     {
       "image": "p03.svg",
       "alt": "動かないラジオ",
-      "text": "こわれて いるのだと おもいました。"
+      "text": "こわれて いるのだと おもいました。",
+      "text_en": "I thought it was broken."
     },
     {
       "image": "p04.svg",
       "alt": "夜の家",
-      "text": "その ばん。"
+      "text": "その ばん。",
+      "text_en": "That night."
     },
     {
       "image": "p05.svg",
       "alt": "夜、光るラジオ",
-      "text": "ざあ…… という おとで、目が さめました。"
+      "text": "ざあ…… という おとで、目が さめました。",
+      "text_en": "A sound like rushing air woke me up."
     },
     {
       "image": "p06.svg",
       "alt": "ラジオに耳を近づける",
-      "text": "みみを ちかづけると、｜歌《うた》が ながれて いました。"
+      "text": "みみを ちかづけると、｜歌《うた》が ながれて いました。",
+      "text_en": "I put my ear close, and a song was playing."
     },
     {
       "image": "p07.svg",
       "alt": "夕暮れの家とラジオ",
-      "text": "しらない 歌 なのに、なつかしい 歌 でした。"
+      "text": "しらない 歌 なのに、なつかしい 歌 でした。",
+      "text_en": "A song I did not know, and yet I missed it."
     },
     {
       "image": "p08.svg",
       "alt": "昼、ラジオを抱えた子ども",
-      "text": "あさに なったら、また しずかに なりました。それでも、すてません。"
+      "text": "あさに なったら、また しずかに なりました。それでも、すてません。",
+      "text_en": "By morning it was quiet again. Still, I keep it."
     }
-  ]
+  ],
+  "title_en": "Grandpa's Radio",
+  "summary_en": "One night, a sound came from a broken radio."
 }

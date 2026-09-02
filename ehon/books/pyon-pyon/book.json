@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "うさぎ",
-      "text": "うさぎさんが ぴょん。"
+      "text": "うさぎさんが ぴょん。",
+      "text_en": "Rabbit goes hop."
     },
     {
       "image": "p02.svg",
       "alt": "かえる",
-      "text": "かえるさんが ぴょん。"
+      "text": "かえるさんが ぴょん。",
+      "text_en": "Frog goes hop."
     },
     {
       "image": "p03.svg",
       "alt": "魚がはねる",
-      "text": "さかなさんも ぴょん。"
+      "text": "さかなさんも ぴょん。",
+      "text_en": "Fish goes hop too."
     },
     {
       "image": "p04.svg",
       "alt": "子どもがジャンプする",
-      "text": "わたしも ぴょん。"
+      "text": "わたしも ぴょん。",
+      "text_en": "I go hop."
     },
     {
       "image": "p05.svg",
       "alt": "みんなで跳ねる",
-      "text": "みんなで ぴょん ぴょん。"
+      "text": "みんなで ぴょん ぴょん。",
+      "text_en": "Everybody, hop, hop!"
     }
-  ]
+  ],
+  "title_en": "Hop, Hop",
+  "summary_en": "One hopping animal after another."
 }

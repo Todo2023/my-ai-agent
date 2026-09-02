@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "草の上のたまご",
-      "text": "たまごが ひとつ。"
+      "text": "たまごが ひとつ。",
+      "text_en": "One egg."
     },
     {
       "image": "p02.svg",
       "alt": "たまごがころがる",
-      "text": "ころん。"
+      "text": "ころん。",
+      "text_en": "Roll."
     },
     {
       "image": "p03.svg",
       "alt": "うさぎが追いかける",
-      "text": "ころころ ころん。"
+      "text": "ころころ ころん。",
+      "text_en": "Roll, roll, roll."
     },
     {
       "image": "p04.svg",
       "alt": "たまごが止まる",
-      "text": "とまりました。"
+      "text": "とまりました。",
+      "text_en": "It stopped."
     },
     {
       "image": "p05.svg",
       "alt": "たまごから鳥が出てくる",
-      "text": "ぴい。うまれました。"
+      "text": "ぴい。うまれました。",
+      "text_en": "Peep! It hatched."
     }
-  ]
+  ],
+  "title_en": "Roll, Little Egg",
+  "summary_en": "An egg that rolled away."
 }

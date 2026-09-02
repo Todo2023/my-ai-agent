@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "空にまるい太陽",
-      "text": "まるい もの、みーつけた。"
+      "text": "まるい もの、みーつけた。",
+      "text_en": "A round thing — found it!"
     },
     {
       "image": "p02.svg",
       "alt": "地面にころがる赤いボール",
-      "text": "これも まる。"
+      "text": "これも まる。",
+      "text_en": "This one is round too."
     },
     {
       "image": "p03.svg",
       "alt": "花のまんなかの黄色いまる",
-      "text": "おはなの まんなかも まる。"
+      "text": "おはなの まんなかも まる。",
+      "text_en": "The middle of the flower is round."
     },
     {
       "image": "p04.svg",
       "alt": "ねこの目もまるい",
-      "text": "ねこさんの おめめも まる。"
+      "text": "ねこさんの おめめも まる。",
+      "text_en": "Cat's eyes are round."
     },
     {
       "image": "p05.svg",
       "alt": "夜のまるい月",
-      "text": "よるにも、まるが ありました。"
+      "text": "よるにも、まるが ありました。",
+      "text_en": "At night, there was a circle too."
     }
-  ]
+  ],
+  "title_en": "Looking for Circles",
+  "summary_en": "Finding round things, one by one."
 }

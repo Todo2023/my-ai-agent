@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "夜明け前。沈みかけの月と、まだ暗い家",
-      "text": "まだ くらい あさ。"
+      "text": "まだ くらい あさ。",
+      "text_en": "Morning, still dark."
     },
     {
       "image": "p02.svg",
       "alt": "鳥が最初に目を覚ます",
-      "text": "はじめに、とりさんが おきました。"
+      "text": "はじめに、とりさんが おきました。",
+      "text_en": "First, Bird woke up."
     },
     {
       "image": "p03.svg",
       "alt": "いぬが起きる",
-      "text": "つぎに、いぬさんが おきました。"
+      "text": "つぎに、いぬさんが おきました。",
+      "text_en": "Next, Dog woke up."
     },
     {
       "image": "p04.svg",
       "alt": "子どもが起きて外に出る",
-      "text": "さいごに、わたしが おきました。"
+      "text": "さいごに、わたしが おきました。",
+      "text_en": "Last of all, I woke up."
     },
     {
       "image": "p05.svg",
       "alt": "みんなそろった朝",
-      "text": "おはよう。"
+      "text": "おはよう。",
+      "text_en": "Good morning."
     }
-  ]
+  ],
+  "title_en": "The Order of Good Morning",
+  "summary_en": "In the morning, we wake up one by one."
 }

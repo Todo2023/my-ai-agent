@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "山のふもとの家",
-      "text": "やまの むこうを、みた ことが ありません。"
+      "text": "やまの むこうを、みた ことが ありません。",
+      "text_en": "I have never seen the other side of the mountain."
     },
     {
       "image": "p02.svg",
       "alt": "山へ向かう道を歩く",
-      "text": "あるいて みる ことに しました。"
+      "text": "あるいて みる ことに しました。",
+      "text_en": "I decided to walk there."
     },
     {
       "image": "p03.svg",
       "alt": "森の中を登る",
-      "text": "もりを ぬけます。"
+      "text": "もりを ぬけます。",
+      "text_en": "Through the forest."
     },
     {
       "image": "p04.svg",
       "alt": "夕方、頂上に着く",
-      "text": "てっぺんに つきました。"
+      "text": "てっぺんに つきました。",
+      "text_en": "I reached the top."
     },
     {
       "image": "p05.svg",
       "alt": "向こうにも山が続いている",
-      "text": "むこうにも、やまが ありました。"
+      "text": "むこうにも、やまが ありました。",
+      "text_en": "On the other side, there was another mountain."
     },
     {
       "image": "p06.svg",
       "alt": "夜、家に帰り着く",
-      "text": "がっかりは しませんでした。まだ さきが ある、と おもいました。"
+      "text": "がっかりは しませんでした。まだ さきが ある、と おもいました。",
+      "text_en": "I was not disappointed. There is still more ahead."
     }
-  ]
+  ],
+  "title_en": "Beyond the Mountain",
+  "summary_en": "Going to see what is on the other side."
 }

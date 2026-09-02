@@ -11,37 +11,46 @@
     {
       "image": "p01.svg",
       "alt": "雨の中に立つ赤いかさ",
-      "text": "あめが ふって きました。"
+      "text": "あめが ふって きました。",
+      "text_en": "It began to rain."
     },
     {
       "image": "p02.svg",
       "alt": "赤いかさをさす子ども",
-      "text": "わたしは あかい かさを もって います。"
+      "text": "わたしは あかい かさを もって います。",
+      "text_en": "I have a red umbrella."
     },
     {
       "image": "p03.svg",
       "alt": "雨に濡れているうさぎ",
-      "text": "あれ。うさぎさんが ぬれて います。"
+      "text": "あれ。うさぎさんが ぬれて います。",
+      "text_en": "Oh! Rabbit is getting wet."
     },
     {
       "image": "p04.svg",
       "alt": "ひとつのかさに2人が入る",
-      "text": "「いっしょに はいる？」"
+      "text": "「いっしょに はいる？」",
+      "text_en": "“Want to come under with me?”"
     },
     {
       "image": "p05.svg",
       "alt": "3人でひとつのかさに入る",
-      "text": "ねずみさんも きました。だんだん せまい。"
+      "text": "ねずみさんも きました。だんだん せまい。",
+      "text_en": "Mouse came too. It is getting tight."
     },
     {
       "image": "p06.svg",
       "alt": "雨がやんで虹が出る",
-      "text": "あめが やみました。かさを たたみます。"
+      "text": "あめが やみました。かさを たたみます。",
+      "text_en": "The rain stopped. I close the umbrella."
     },
     {
       "image": "p07.svg",
       "alt": "3人が並んで歩いている",
-      "text": "せまかったけど、あたたかかった。"
+      "text": "せまかったけど、あたたかかった。",
+      "text_en": "It was tight, but it was warm."
     }
-  ]
+  ],
+  "title_en": "The Red Umbrella",
+  "summary_en": "Sharing one umbrella on a rainy day."
 }

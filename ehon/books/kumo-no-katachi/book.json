@@ -11,27 +11,34 @@
     {
       "image": "p01.svg",
       "alt": "空を見上げる子どもといぬ",
-      "text": "そらを みて いました。"
+      "text": "そらを みて いました。",
+      "text_en": "We were looking at the sky."
     },
     {
       "image": "p02.svg",
       "alt": "大きな雲がひとつ",
-      "text": "「あれ、ふねに みえる。」"
+      "text": "「あれ、ふねに みえる。」",
+      "text_en": "“That one looks like a boat.”"
     },
     {
       "image": "p03.svg",
       "alt": "雲と、地上の舟",
-      "text": "「わたしは、さかなに みえる。」"
+      "text": "「わたしは、さかなに みえる。」",
+      "text_en": "“I think it looks like a fish.”"
     },
     {
       "image": "p04.svg",
       "alt": "雲の形が変わっていく",
-      "text": "みて いる あいだに、かたちが かわりました。"
+      "text": "みて いる あいだに、かたちが かわりました。",
+      "text_en": "While we watched, the shapes changed."
     },
     {
       "image": "p05.svg",
       "alt": "夕焼けの雲",
-      "text": "ゆうがたには、ぜんぶ ちがう かたちに なって いました。"
+      "text": "ゆうがたには、ぜんぶ ちがう かたちに なって いました。",
+      "text_en": "By evening, they were all different shapes."
     }
-  ]
+  ],
+  "title_en": "Cloud Shapes",
+  "summary_en": "Two friends say what the clouds look like."
 }

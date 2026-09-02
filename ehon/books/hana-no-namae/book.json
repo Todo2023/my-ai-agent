@@ -11,32 +11,40 @@
     {
       "image": "p01.svg",
       "alt": "一輪だけ咲いている花",
-      "text": "みたことの ない はなが さいて いました。"
+      "text": "みたことの ない はなが さいて いました。",
+      "text_en": "A flower I had never seen was blooming."
     },
     {
       "image": "p02.svg",
       "alt": "花を見つめる子ども",
-      "text": "なまえを しりません。"
+      "text": "なまえを しりません。",
+      "text_en": "I do not know its name."
     },
     {
       "image": "p03.svg",
       "alt": "くまに聞く",
-      "text": "くまさんに ききました。「しらない。」"
+      "text": "くまさんに ききました。「しらない。」",
+      "text_en": "I asked Bear. “I don't know.”"
     },
     {
       "image": "p04.svg",
       "alt": "鳥に聞く",
-      "text": "とりさんに ききました。「しらない。」"
+      "text": "とりさんに ききました。「しらない。」",
+      "text_en": "I asked Bird. “I don't know.”"
     },
     {
       "image": "p05.svg",
       "alt": "自分で名前をつける",
-      "text": "だから、じぶんで つけました。"
+      "text": "だから、じぶんで つけました。",
+      "text_en": "So I gave it a name myself."
     },
     {
       "image": "p06.svg",
       "alt": "夕方、花のそばを通る",
-      "text": "なまえが あると、とおる たびに めが いきます。"
+      "text": "なまえが あると、とおる たびに めが いきます。",
+      "text_en": "Now that it has a name, I look every time I pass."
     }
-  ]
+  ],
+  "title_en": "The Flower's Name",
+  "summary_en": "Deciding what to call a flower nobody knows."
 }
