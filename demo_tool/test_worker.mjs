@@ -13,7 +13,15 @@ function fakeKV() {
   const store = new Map();
   return {
     store,
-    async get(k) { return store.has(k) ? store.get(k) : null; },
+    async get(k, type) {
+      if (!store.has(k)) return null;
+      const v = store.get(k);
+      // 本物の KV と同じく、頼まれた形で返す（画像はバイトで取り出す）
+      if (type === "arrayBuffer") {
+        return typeof v === "string" ? new TextEncoder().encode(v).buffer : v;
+      }
+      return v;
+    },
     async put(k, v) { store.set(k, v); },
     async list({ prefix = "" } = {}) {
       return { keys: [...store.keys()].filter((k) => k.startsWith(prefix)).sort().map((name) => ({ name })) };
@@ -304,8 +312,10 @@ function envWithLessons(memberRec = { name: "山田", paidThrough: 3 }, extra = 
     e.DEMO_KV.store.set(`lesson:${x.slug}`, JSON.stringify({ ...x, body: `<p>${x.title}の本文</p>` }));
   }
   // 1x1 の透明PNG
-  e.DEMO_KV.store.set("slide:lesson-01:01",
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
+  // 1x1 の透明PNG。**そのままの姿**で入れる（配信元と同じ形）
+  e.DEMO_KV.store.set("slide:lesson-01:01", Uint8Array.from(
+    atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="),
+    (c) => c.charCodeAt(0)).buffer);
   if (memberRec) e.DEMO_KV.store.set("member:CODE1", JSON.stringify(memberRec));
   return e;
 }
@@ -409,6 +419,9 @@ await t("スライド画像も同じ鍵で守る", async () => {
   const ok = await worker.fetch(new Request("https://example.workers.dev/slide?code=CODE1&slug=lesson-01&p=01"), e);
   assert.strictEqual(ok.status, 200);
   assert.strictEqual(ok.headers.get("Content-Type"), "image/png");
+  // 画像として壊れていないこと。PNGの先頭8バイトを確かめる
+  const head = new Uint8Array(await ok.arrayBuffer()).slice(0, 8);
+  assert.deepStrictEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], "PNGの先頭が残っている");
 });
 
 await t("受講者の登録は、合鍵がある人だけができる", async () => {
