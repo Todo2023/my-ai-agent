@@ -603,6 +603,7 @@ export const EN = {
     title: "Todo's Big Sea Adventure",
     summary: "Todo travels the sea, the sky, and outer space.",
     pages: [
+      "On a rock by the sea. This is Todo's place.",
       "Evening. The sea turned orange.",
       "“Today was a good day too, wasn't it.”",
       "An ice slide! “Here I go!” Whoosh, on his tummy.",
