@@ -66,6 +66,8 @@ const MAX_INPUT = 400;
 const MAX_ASK = 600;
 /* 提出するワーク。質問より長くなる */
 const MAX_WORK = 4000;
+/* 同じ回の受講者に見せる質問の数。多すぎると読まれない */
+const PEER_QUESTIONS = 30;
 /* 同じ人からの連投を止める。1時間に何件まで受けるか */
 const ASK_PER_HOUR = 10;
 const MAX_QUESTION = 90;
@@ -216,13 +218,19 @@ async function askRateOk(env, ip) {
   return true;
 }
 
-/** Slackへ流す。webhookが無ければ何もしない（呼び出し側はKVに残す） */
-async function toSlack(env, q) {
-  if (!env.SLACK_WEBHOOK_URL) return { sent: false, reason: "webhook未設定" };
+/** Slackへ流す。webhookが無ければ何もしない（呼び出し側はKVに残す）
+
+   kind で届け先を変える。ワークの提出と質問が同じ場所に混ざると、
+   どちらも読み飛ばされる。work 用が未設定なら質問側に落とす（黙って消さない）。 */
+async function toSlack(env, q, kind = "ask") {
+  const hook = kind === "work"
+    ? (env.SLACK_WORK_WEBHOOK_URL || env.SLACK_WEBHOOK_URL)
+    : env.SLACK_WEBHOOK_URL;
+  if (!hook) return { sent: false, reason: "webhook未設定" };
   const where = q.slide ? `${q.lesson}／スライド ${q.slide}` : q.lesson;
   const text = `:raising_hand: *${where}* ／ ${q.name}\n>>> ${q.text}`;
   try {
-    const res = await fetch(env.SLACK_WEBHOOK_URL, {
+    const res = await fetch(hook, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -265,10 +273,20 @@ async function handleAsk(request, env) {
   };
 
   // 先に残す。Slackが落ちていても質問そのものは失わない
+  const slug = String(body.slug || "").slice(0, 40);
   if (env.DEMO_KV) {
-    await env.DEMO_KV.put(`ask:${Date.now()}`, JSON.stringify(q), {
+    const at = Date.now();
+    await env.DEMO_KV.put(`ask:${at}`, JSON.stringify({ ...q, slug }), {
       expirationTtl: 60 * 60 * 24 * 180,
     });
+    // 同じ回の受講者に見せる分。**名前は入れない**
+    if (slug) {
+      await env.DEMO_KV.put(
+        `q:${slug}:${at}`,
+        JSON.stringify({ slide: q.slide, text: q.text, at: q.at }),
+        { expirationTtl: 60 * 60 * 24 * 180 }
+      );
+    }
   }
 
   const slack = await toSlack(env, q);
@@ -465,7 +483,7 @@ async function handleSubmit(request, env) {
     slide: "",
     name: `${me.who.name || code}（ワーク提出）`,
     text,
-  });
+  }, "work");
 
   const nextEntry = me.index[i + 1];
   const nowOpen = nextEntry ? isOpen(me.index, i + 1, progress, me.paidThrough) : false;
@@ -498,6 +516,44 @@ async function handleMember(request, url, env) {
   return json({ ok: true, code, ...rec });
 }
 
+/** 同じ回に寄せられた質問を、名前を伏せて返す。
+   自分に開いていない回の質問は返さない（本文と同じ扱いにする） */
+async function handleQuestions(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const slug = String(body.slug || "").trim();
+
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+  const i = me.index.findIndex((e) => e.slug === slug);
+  if (i === -1 || !isOpen(me.index, i, me.progress, me.paidThrough)) {
+    return json({ error: "この回はまだ開いていません" }, 403);
+  }
+  if (!env.DEMO_KV) return json({ questions: [] });
+
+  const list = await env.DEMO_KV.list({ prefix: `q:${slug}:` });
+  const keys = list.keys.slice(-PEER_QUESTIONS).reverse();
+  const questions = [];
+  for (const k of keys) {
+    const v = await env.DEMO_KV.get(k.name);
+    if (v) questions.push({ id: k.name, ...JSON.parse(v) });
+  }
+  return json({ questions });
+}
+
+/** 見せたくない質問を取り下げる。合鍵が要る */
+async function handleHide(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const id = String(body.id || "");
+  if (!id.startsWith("q:")) return json({ error: "その質問はありません" }, 400);
+  await env.DEMO_KV.delete(id);
+  return json({ ok: true, id });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -517,6 +573,8 @@ export default {
     if (url.pathname === "/slide" && request.method === "GET") return handleSlide(url, env);
     if (url.pathname === "/submit" && request.method === "POST") return handleSubmit(request, env);
     if (url.pathname === "/member" && request.method === "POST") return handleMember(request, url, env);
+    if (url.pathname === "/questions" && request.method === "POST") return handleQuestions(request, env);
+    if (url.pathname === "/question/hide" && request.method === "POST") return handleHide(request, url, env);
 
     // 資料ページからの質問。デモの書き換えとは別の入り口にする
     if (url.pathname === "/ask") {

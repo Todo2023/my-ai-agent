@@ -145,6 +145,42 @@ curl.exe -X POST https://todo-demo-tool.〇〇.workers.dev/ask -H "Content-Type:
 
 Slackに出れば成功です。
 
+### ワークと質問で、届け先を分ける
+
+ワークの提出と質問が同じチャンネルに混ざると、どちらも読み飛ばされます。
+**ワーク用のチャンネルをもう1つ作って**、そのWebhookを登録してください。
+
+1. Slackで、ワーク提出用のチャンネル（例：`#work`）を作る
+2. さきほどのアプリの **Incoming Webhooks** → **Add New Webhook to Workspace** → そのチャンネルを選ぶ
+3. 出てきたURLを登録する
+
+```
+wrangler secret put SLACK_WORK_WEBHOOK_URL --name todo-demo-tool
+```
+
+| 何が | どこに届くか |
+| --- | --- |
+| スライドからの質問 | `SLACK_WEBHOOK_URL` のチャンネル |
+| ワークの提出 | `SLACK_WORK_WEBHOOK_URL` のチャンネル |
+
+**`SLACK_WORK_WEBHOOK_URL` を登録しなければ、ワークも質問側に届きます。**
+分けるまでの間も、黙って消えることはありません。
+
+### みんなの質問
+
+資料ページの右側に、**同じ回に寄せられた質問**が出ます。**名前は出しません。**
+自分に開いていない回の質問は返しません（本文と同じ扱いです）。
+
+見せたくない質問が出たときは、取り下げられます。`id` は資料ページの
+右側に出ている質問のもので、`GET /ask?key=…` でも確認できます。
+
+```
+Invoke-RestMethod -Uri "https://todo-demo-tool.〇〇.workers.dev/question/hide?key=（合鍵）" -Method Post -ContentType "application/json" -Body '{\"id\":\"q:lesson-01:1234567890\"}'
+```
+
+**受講者どうしに見えるものなので、投稿された質問はそのまま出ます。**
+不適切なものが出たときに気づけるよう、質問はSlackにも同時に届きます。
+
 ### Slack が使えないときも、質問は消えません
 
 質問は**Slackに送る前にKVへ保存**しています。Slackが未設定でも、落ちていても、質問そのものは残ります。読むときは合鍵をつけてブラウザで開いてください。

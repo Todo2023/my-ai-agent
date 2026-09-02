@@ -164,7 +164,7 @@ body{overflow-x:clip;}
 @media (min-width:1080px){
   .studio-inner{
     grid-template-columns:238px minmax(0,1fr);
-    grid-template-areas:"info deck" "info writer" "info asker";
+    grid-template-areas:"info deck" "info writer" "info asker" "info peers";
     column-gap:34px;row-gap:24px;
   }
   .studio .info{grid-area:info;position:sticky;top:24px;
@@ -172,7 +172,35 @@ body{overflow-x:clip;}
   .studio .deck{grid-area:deck;}
   .studio .writer{grid-area:writer;}
   .studio .asker{grid-area:asker;}
+  .studio .peers{grid-area:peers;}
 }
+
+/* さらに広い画面では、右にもう1本。左が回の情報、右がみんなの質問 */
+@media (min-width:1320px){
+  .studio-inner{
+    /* 柱が1本増えた分だけ全体を広げる。広げないとスライドがその分だけ縮む */
+    max-width:1680px;
+    grid-template-columns:238px minmax(0,1fr) 238px;
+    grid-template-areas:"info deck peers" "info writer peers" "info asker peers";
+  }
+  .studio .peers{position:sticky;top:24px;align-self:start;
+    padding-left:26px;border-left:1px solid var(--hairline);
+    max-height:calc(100vh - 48px);overflow-y:auto;}
+}
+
+/* --- みんなの質問 --- */
+.peers{display:flex;flex-direction:column;}
+.peers-head{font-family:'Shippori Mincho',serif;font-weight:600;font-size:15px;
+  margin-bottom:12px;}
+.peers-body{display:flex;flex-direction:column;gap:14px;}
+.peer{padding:11px 13px;background:#fff;border:1px solid var(--hairline);}
+.peer p{margin:0;font-size:13px;line-height:1.85;color:var(--ink);
+  overflow-wrap:anywhere;}
+.peer-where{display:block;font-size:11px;letter-spacing:.06em;
+  color:var(--text-soft);margin-bottom:5px;font-variant-numeric:tabular-nums;}
+.peers-empty{margin:0;font-size:12.5px;color:var(--text-soft);line-height:1.9;}
+.peers-note{margin:14px 0 0;font-size:11.5px;color:var(--text-soft);line-height:1.8;}
+.peers-note b{color:var(--ink);font-weight:500;}
 
 /* 画面が低いときは、スライドを詰めてワーク欄が視界に入るようにする */
 @media (min-width:900px) and (max-height:820px){

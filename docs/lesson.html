@@ -84,6 +84,32 @@
       + '答えはSlackでお返しします。</p></div>';
   }
 
+  function peersHtml() {
+    return '<aside class="peers"><div class="peers-head">みんなの質問</div>'
+      + '<div class="peers-body" id="peers"><p class="peers-empty">読み込んでいます…</p></div>'
+      + '<p class="peers-note">この回に寄せられた質問です。<b>お名前は出ません。</b></p></aside>';
+  }
+
+  function loadPeers(d) {
+    var box = document.getElementById('peers');
+    if (!box) return;
+    Course.api('/questions', { slug: d.slug }).then(function (res) {
+      if (!res.ok) { box.innerHTML = '<p class="peers-empty">読み込めませんでした</p>'; return; }
+      var qs = res.d.questions || [];
+      if (!qs.length) {
+        box.innerHTML = '<p class="peers-empty">まだ質問はありません。<br>最初の1件になってみてください。</p>';
+        return;
+      }
+      box.innerHTML = qs.map(function (q) {
+        return '<div class="peer">'
+          + (q.slide ? '<span class="peer-where">スライド ' + esc(q.slide) + '</span>' : '')
+          + '<p>' + esc(q.text) + '</p></div>';
+      }).join('');
+    }).catch(function () {
+      box.innerHTML = '<p class="peers-empty">読み込めませんでした</p>';
+    });
+  }
+
   function render(d) {
     document.title = d.title + '｜思考力×AI統合講座';
     state.total = d.slides;
@@ -109,7 +135,7 @@
 
     var top = d.slides
       ? '<section class="studio"><div class="studio-inner">'
-        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + '</div></section>'
+        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + peersHtml() + '</div></section>'
       : '<div class="lesson-head">' + info + '</div>' + writerHtml(d);
 
     shell(top + '<article class="body">' + d.body + '</article>'
@@ -118,7 +144,7 @@
 
     if (d.slides) wireDeck(d);
     if (d.gates) wireWriter(d);
-    if (d.slides) wireAsker(d);
+    if (d.slides) { wireAsker(d); loadPeers(d); }
   }
 
   function wireDeck(d) {
@@ -209,6 +235,7 @@
       send.disabled = true;
       say.textContent = '送っています…';
       Course.api('/ask', {
+        slug: d.slug,
         lesson: d.label + ' ' + d.title,
         slide: String(state.i),
         text: text,
@@ -217,6 +244,7 @@
         send.disabled = false;
         if (!res.ok) { say.textContent = res.d.error || '送れませんでした'; return; }
         ask.value = '';
+        loadPeers(d);
         say.textContent = res.d.delivered
           ? '送りました。24時間以内にお返事します'
           : '受け付けました。ただ運営への通知が届いていない可能性があります。Slackでも一声かけてください';
