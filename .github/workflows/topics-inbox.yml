@@ -1,0 +1,50 @@
+# AI Topics の候補を、毎日1回集める。
+#
+# お金について：**公開リポジトリの Actions は無料で、時間の上限もない。**
+# 使うのは Google ニュースの RSS だけで、鍵も契約も要らない。**費用はゼロ。**
+#
+# ここがやるのは「探す」ところだけ。**選ぶのと書くのは人がやる。**
+# 出来上がるのは topics-inbox.json で、配信はしない（docs/ の外に置いてある）。
+name: Topics の候補を集める
+
+on:
+  schedule:
+    # 毎日 06:10 JST（UTC 21:10）。朝、目を通せる時間に用意しておく
+    - cron: "10 21 * * *"
+  # 手で走らせたいときもあるので、ボタンも出す
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: topics-inbox
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 配信元のブランチで動かす。main には入っていない
+          ref: claude/hp-implementation-xubnv6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 候補を集める
+        run: python tools/topics_inbox.py
+
+      - name: 変わっていたら入れる
+        run: |
+          if git diff --quiet -- topics-inbox.json; then
+            echo "新しい候補はありませんでした。何もしません。"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add topics-inbox.json
+          git commit -m "Topics の候補を更新（自動）"
+          git push

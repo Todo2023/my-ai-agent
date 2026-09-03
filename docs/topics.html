@@ -163,7 +163,9 @@
       return r.json();
     })
     .then(function (d) {
-      var items = (d && d.topics ? d.topics : []).slice();
+      /* "hidden": true を1行足すと、その記事は画面から消える。
+         消すのではなく隠す形にしてあるのは、あとで戻せるようにするため */
+      var items = (d && d.topics ? d.topics : []).filter(function (x) { return !x.hidden; });
       /* 新しいものが上。json に書く順番を気にしなくて済むようにしておく */
       items.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
       all = items;
