@@ -72,6 +72,9 @@ const PEER_QUESTIONS = 30;
 const ASK_PER_HOUR = 10;
 const MAX_QUESTION = 90;
 
+/* Slackに出すリンクの行き先。運営用の画面はここに置いてある */
+const SITE = "https://todo2023.github.io/my-ai-agent";
+
 /* 教材に戻す答えの長さ。長い説明はオフィスアワーで話すほうが早い */
 const MAX_ANSWER = 1200;
 
@@ -236,8 +239,12 @@ async function toSlack(env, q, kind = "ask") {
     : env.SLACK_WEBHOOK_URL;
   if (!hook) return { sent: false, reason: "webhook未設定" };
   const where = q.slide ? `${q.lesson}／スライド ${q.slide}` : q.lesson;
-  // 返信を教材に戻すとき、どの質問かを指す番号。Slackの本文にも出しておく
-  const tag = q.id ? `\n\n\`${q.id}\`  ← 回答するときはこの番号` : "";
+  // 番号を控えて貼り直すのは面倒なので、**押せばその質問が開くリンク**を出す。
+  // 番号そのものも残しておく（リンクが使えないときの手がかりになる）
+  const tag = q.id
+    ? `\n\n<${SITE}/answer.html?id=${encodeURIComponent(q.id)}|▶ この質問に答える>`
+      + `\n（番号 \`${q.id}\`）`
+    : "";
   const text = `:raising_hand: *${where}* ／ ${q.name}\n>>> ${q.text}${tag}`;
   try {
     const res = await fetch(hook, {
@@ -689,6 +696,64 @@ async function handleHide(request, url, env) {
 }
 
 
+
+/* ============ 予約を、Googleカレンダーに入れる ============
+
+   2段構えにしてある。
+
+   1. Slackの通知に「カレンダーに追加」リンクを付ける。
+      押すとGoogleカレンダーの登録画面が開く。**設定は要らない。**
+   2. CALENDAR_HOOK_URL を設定してあれば、そこへ送って**自動で**入れる。
+      受け口は Google Apps Script で作る（無料・手順は README）。
+
+   どちらも無料。2が未設定でも1は動くので、止まることはない。 */
+
+/** カレンダーが読む形の日時（20260910T110000Z） */
+function calStamp(iso) {
+  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+/** 押すとGoogleカレンダーの登録画面が開くリンク */
+function calendarLink(ev) {
+  const end = new Date(new Date(ev.at).getTime() + (ev.dur || 30) * 60000).toISOString();
+  const q = new URLSearchParams({
+    action: "TEMPLATE",
+    text: ev.title,
+    dates: `${calStamp(ev.at)}/${calStamp(end)}`,
+    details: ev.details || "",
+    location: ev.url || "",
+  });
+  return `https://calendar.google.com/calendar/render?${q}`;
+}
+
+/** 受け口が設定してあれば、そこへ送る。無ければ何もしない（止めない） */
+async function toCalendar(env, ev) {
+  if (!env.CALENDAR_HOOK_URL) return { sent: false, reason: "受け口が未設定" };
+  const end = new Date(new Date(ev.at).getTime() + (ev.dur || 30) * 60000).toISOString();
+  try {
+    const res = await fetch(env.CALENDAR_HOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // 受け口のURLを知られただけで書き込まれないよう、合言葉を添える
+        token: env.CALENDAR_TOKEN || "",
+        op: ev.op || "add",
+        id: ev.id || "",
+        title: ev.title,
+        start: ev.at,
+        end,
+        details: ev.details || "",
+        location: ev.url || "",
+      }),
+    });
+    if (!res.ok) return { sent: false, reason: `受け口が ${res.status} を返しました` };
+    return { sent: true };
+  } catch {
+    // カレンダーに入らなくても、予約そのものは成立させる。ここで止めない
+    return { sent: false, reason: "受け口に届きませんでした" };
+  }
+}
+
 /* ============ オフィスアワー ============
    基本は予約制。枠（oh:slot:<id>）を運営が登録し、受講者が1つ押さえる。
    そのうえで、いま話せるときだけ運営が在席（oh:open）を立てる。
@@ -785,14 +850,28 @@ async function handleOhBook(request, env) {
   slot.bookedAt = new Date().toISOString();
   await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
 
+  const who = me.who.name || code;
+  const ev = {
+    id, at: slot.at, dur: slot.dur || 30,
+    title: `オフィスアワー：${who}`,
+    details: note || "（相談したいことは未記入）",
+    url: slot.url || env.OFFICE_URL || "",
+  };
+  const cal = await toCalendar(env, ev);
+
   const slack = await toSlack(env, {
     lesson: "オフィスアワー",
     slide: "",
-    name: `${me.who.name || code}（予約）`,
-    text: `${slot.at}（${slot.dur || 30}分）\n${note || "（相談したいことは未記入）"}`,
+    name: `${who}（予約）`,
+    text: `${slot.at}（${ev.dur}分）\n${ev.details}`
+      + `\n\n<${calendarLink(ev)}|▶ カレンダーに追加>`
+      + (cal.sent ? "\n（カレンダーには自動で入れました）" : ""),
   }, "work");
 
-  return json({ ok: true, delivered: slack.sent, slot: ohView({ id, ...slot }, code, false) });
+  return json({
+    ok: true, delivered: slack.sent, calendar: cal.sent,
+    slot: ohView({ id, ...slot }, code, false),
+  });
 }
 
 async function handleOhCancel(request, env) {
@@ -813,14 +892,21 @@ async function handleOhCancel(request, env) {
   delete slot.taken; delete slot.name; delete slot.note; delete slot.bookedAt;
   await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
 
+  // カレンダー側からも消す。残っていると、来ない予定を持ち続けることになる
+  const cal = await toCalendar(env, {
+    op: "remove", id, at: was.at, dur: slot.dur || 30,
+    title: `オフィスアワー：${me.who.name || code}`,
+  });
+
   await toSlack(env, {
     lesson: "オフィスアワー",
     slide: "",
     name: `${me.who.name || code}（取り消し）`,
-    text: `${was.at} の予約を取り消しました`,
+    text: `${was.at} の予約を取り消しました`
+      + (cal.sent ? "\n（カレンダーからも消しました）" : "\n（カレンダーは手で消してください）"),
   }, "work");
 
-  return json({ ok: true, id });
+  return json({ ok: true, id, calendar: cal.sent });
 }
 
 /** 枠の登録・削除と、在席の切り替え。運営だけが叩ける */
