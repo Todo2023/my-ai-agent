@@ -95,9 +95,15 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
-  /* **強調** だけ効かせる。HTMLは書かせない（崩れる元になる） */
+  /* **強調** と、<b> <br> だけ効かせる。ほかのHTMLは書かせない（崩れる元）。
+     <b> と <br> を戻していなかったため、**画面に <b> という文字が
+     そのまま出ていた**（2026-09-04 に気づいた）。原稿の書き方は
+     決めきれないので、どちらの書き方でも通るようにしておく。 */
   function rich(s) {
-    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    return esc(s)
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/&lt;(\/?)b&gt;/g, '<$1b>')
+      .replace(/&lt;br\s*\/?&gt;/g, '<br>');
   }
   function ymd(s) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));

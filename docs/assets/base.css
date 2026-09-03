@@ -24,6 +24,11 @@ body{
    日本語の読みやすさを優先している。無い環境では Noto Serif JP に落ちる。 */
 h1,h2,h3{font-family:'BIZ UDPMincho','Noto Serif JP',serif;font-weight:700;letter-spacing:.02em;}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px;}
+/* 広い画面では、置き場所そのものを広げる。
+   980px のままだと左右が大きく空き、そのぶん縦に長くなる。
+   段組みは広がったぶんだけ楽になり、文章のほうは中の max-width
+   （文字数で止めてある）が効くので、1行が読めない長さにはならない。 */
+@media (min-width:1100px){ body{--wrap:1180px;} }
 
 /* 広い画面では、入れ物の幅を広げる。
    1行が長すぎると読めなくなるので、**文章の側は ch で頭打ちにしてある。**
