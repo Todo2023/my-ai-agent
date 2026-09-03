@@ -1,0 +1,21 @@
+/* 提出物の一覧（運営用）。
+   見たいのは2つ。**誰が止まっているか**と、**まだ返していないもの**。 */
+
+.wk-sec{margin:34px 0 0;}
+.wk-sec h2{font-family:'Shippori Mincho',serif;font-size:17px;margin:0 0 16px;}
+
+.wk-people{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.wk-person{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;
+           padding:14px 16px;background:#fff;border:1px solid var(--hairline);
+           font:inherit;text-align:left;cursor:pointer;transition:.15s;}
+.wk-person:hover{background:var(--bg-soft);}
+.wk-person.is-on{border-color:var(--red);box-shadow:0 0 0 2px var(--red-bg);}
+.wp-name{font-size:15px;}
+.wp-num{font-size:12.5px;color:var(--text-soft);font-variant-numeric:tabular-nums;}
+.wp-bar{grid-column:1 / -1;height:4px;background:var(--hairline);margin:6px 0 2px;}
+.wp-bar i{display:block;height:100%;background:var(--red);}
+.wp-idle{font-size:11.5px;color:var(--text-soft);}
+.wp-wait{font-size:11.5px;color:var(--red-deep);text-align:right;}
+
+.wk-clear{margin:14px 0 0;}
+.wk-head{white-space:pre-wrap;}

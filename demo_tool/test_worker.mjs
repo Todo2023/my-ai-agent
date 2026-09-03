@@ -413,6 +413,74 @@ await t("まだ答えていない質問が先に並ぶ", async () => {
   assert.strictEqual(d.waiting, 1);
 });
 
+/* ---------- 提出物の一覧（運営用） ---------- */
+
+async function submitOnce(e, slug, text = "書きました") {
+  stubSlack();
+  return worker.fetch(api("/submit", { code: "CODE1", slug, text }), e);
+}
+
+await t("提出物の一覧は、合鍵がある人だけが見られる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(adminReq("/works", {}, "chigau"), e);
+  assert.strictEqual(res.status, 403);
+});
+
+await t("誰がどこまで出したかを返す", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  await submitOnce(e, "lesson-01");
+  await submitOnce(e, "lesson-02");
+  const d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  assert.strictEqual(d.works.length, 2);
+  const m = d.members.find((x) => x.code === "CODE1");
+  assert.strictEqual(m.name, "山田");
+  assert.strictEqual(m.done, 2, "出し終えた回の数");
+  assert.strictEqual(m.gating, 3, "提出を求める回の総数");
+  assert.strictEqual(m.waiting, 2, "まだ返していない数");
+});
+
+await t("一覧には本文の頭だけを載せる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  await submitOnce(e, "lesson-01", "あ".repeat(300));
+  const d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  assert.strictEqual(d.works[0].head.length, 80, "頭だけ");
+  assert.strictEqual(d.works[0].len, 300, "長さは分かる");
+  assert.ok(!("text" in d.works[0]), "全文は載せない");
+});
+
+await t("1件ずつなら全文を取れる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  await submitOnce(e, "lesson-01", "ぜんぶの本文");
+  const d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  const one = await (await worker.fetch(adminReq("/work", { id: d.works[0].id }), e)).json();
+  assert.strictEqual(one.text, "ぜんぶの本文");
+});
+
+await t("返した印を付けたり外したりできる", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  await submitOnce(e, "lesson-01");
+  let d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  const id = d.works[0].id;
+
+  await worker.fetch(adminReq("/work/mark", { id }), e);
+  d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  assert.strictEqual(d.works[0].replied, true);
+  assert.strictEqual(d.waiting, 0);
+
+  await worker.fetch(adminReq("/work/mark", { id, replied: false }), e);
+  d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  assert.strictEqual(d.works[0].replied, false);
+});
+
+await t("まだ返していないものが多い人が先に並ぶ", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  e.DEMO_KV.store.set("member:CODE2", JSON.stringify({ name: "佐藤", paidThrough: 9 }));
+  await submitOnce(e, "lesson-01");
+  const d = await (await worker.fetch(adminReq("/works", {}), e)).json();
+  assert.strictEqual(d.members[0].code, "CODE1", "未返信のある人が先");
+  assert.strictEqual(d.members[1].name, "佐藤");
+});
+
 /* ---------- 予約をカレンダーへ ---------- */
 
 await t("予約すると、カレンダーに追加するリンクがSlackに出る", async () => {
