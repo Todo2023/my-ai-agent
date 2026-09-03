@@ -1,0 +1,54 @@
+/* デモの応募用LP。1画面で「何を」「いつ」「どう申し込むか」が読める形にする。
+   写真は背景に敷く。まだ置かれていないときでも、色だけが出て崩れない
+   （img で置くと、無いときに壊れた印が出る）。 */
+
+.ad-hero{display:grid;gap:0;margin:0 0 46px;border:1px solid var(--hairline);
+  background:#fff;overflow:hidden;}
+.ad-shot{min-height:220px;background:#eef1f5 center/cover no-repeat;
+  background-image:url('../images/es-sheet.jpg');}
+.ad-words{padding:34px 28px 32px;}
+.ad-eyebrow{font-size:11px;letter-spacing:.2em;color:var(--red-deep);margin:0 0 16px;}
+.ad-words h1{font-family:'Shippori Mincho',serif;font-weight:600;
+  font-size:clamp(23px,3.4vw,34px);line-height:1.5;margin:0 0 18px;letter-spacing:.01em;}
+.ad-lead{margin:0 0 22px;font-size:14px;line-height:2.05;color:var(--text-soft);max-width:44ch;}
+.ad-lead b{color:var(--ink);font-weight:500;}
+
+.ad-facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:0 0 26px;}
+.ad-fact{font-size:14px;}
+.ad-fact em{display:block;font-style:normal;font-size:11px;letter-spacing:.12em;
+  color:var(--text-soft);margin-bottom:5px;}
+
+.ad-cta{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin:0;}
+.ad-or{font-size:12.5px;color:var(--text-soft);}
+.ad-line .btn{background:#06c755;border-color:transparent;color:#fff;}
+.ad-line .btn:hover{background:#05a648;}
+
+.ad-sec{margin:0 0 42px;}
+.ad-sec h2{font-family:'Shippori Mincho',serif;font-weight:600;font-size:18px;
+  margin:0 0 8px;letter-spacing:.02em;}
+.ad-sec > p{margin:0 0 18px;font-size:13.6px;line-height:2;color:var(--text-soft);max-width:52ch;}
+.ad-sec > p b{color:var(--ink);font-weight:500;}
+
+.ad-steps{border-top:1px solid var(--hairline-strong);}
+.ad-step{display:grid;grid-template-columns:2.4em 1fr;gap:4px 16px;
+  padding:16px 2px;border-bottom:1px solid var(--hairline);}
+.ad-step-n{font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.1em;
+  color:var(--red-deep);padding-top:3px;}
+.ad-step h3{font-size:15px;font-weight:700;margin:0 0 6px;}
+.ad-step p{margin:0;font-size:13.2px;line-height:1.95;color:var(--text-soft);}
+.ad-step p b{color:var(--ink);font-weight:500;}
+
+.ad-why{background:#faf9f5;border-left:2px solid var(--red);padding:20px 22px;
+  margin:0 0 42px;}
+.ad-why p{margin:0 0 12px;font-size:13.4px;line-height:2.05;color:var(--text-soft);}
+.ad-why p:last-child{margin:0;}
+.ad-why b{color:var(--ink);font-weight:500;}
+
+.ad-note{font-size:12.6px;color:var(--text-soft);line-height:1.95;margin:14px 0 0;max-width:52ch;}
+
+@media (min-width:820px){
+  .ad-hero{grid-template-columns:1fr 1fr;align-items:stretch;}
+  /* 写真は左。読む前に「何の話か」が目に入る */
+  .ad-shot{order:-1;min-height:380px;}
+  .ad-words{padding:44px 40px;}
+}
