@@ -297,6 +297,11 @@ async function handleAsk(request, env) {
         JSON.stringify({ slide: q.slide, text: q.text, at: q.at }),
         { expirationTtl: 60 * 60 * 24 * 180 }
       );
+      // どれがあるかの索引。受講者の画面で list を呼ばずに済ませるため
+      const key = `qidx:${slug}`;
+      const ids = (await readIndex(env, key)) || [];
+      ids.push(String(at));
+      await env.DEMO_KV.put(key, JSON.stringify(ids.slice(-PEER_QUESTIONS)));
     }
   }
 
@@ -340,6 +345,43 @@ async function listAsks(url, env) {
      の、**小さいほう**まで開く。順番に進んでもらいつつ、
      先払いしていない回は提出しても開かないようにするため。
    ------------------------------------------------------------------ */
+
+
+/* ============ 一覧（list）を、受講者が触る経路から無くす ============
+
+   KV の無料枠は「書き込み・削除・一覧」を合わせて1日1,000回までです。
+   読み出しは1日100,000回で、桁が2つ違います。
+   受講者が資料を開くたびに list を呼んでいると、**人が増えたときに
+   いちばん細い枠から先に詰まります。**
+
+   そこで、受講者が触る経路では list を使わず、
+   「どれがあるか」を控えた索引を1つ読んでから、中身を読み出します。
+   読み出しは潤沢なので、こちらに寄せるほうが安全です。 */
+
+async function readIndex(env, key) {
+  const raw = await env.DEMO_KV.get(key);
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 索引が無いとき（この仕組みより前に入れたもの）だけ、1度だけ list で作り直す */
+async function rebuildIndex(env, key, prefix, pick) {
+  const ids = [];
+  let cursor;
+  do {
+    const page = await env.DEMO_KV.list({ prefix, cursor });
+    for (const k of page.keys) ids.push(pick(k.name));
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  ids.sort();
+  await env.DEMO_KV.put(key, JSON.stringify(ids));
+  return ids;
+}
 
 /** 受講者の記録。無ければ null */
 async function member(env, code) {
@@ -563,12 +605,17 @@ async function handleQuestions(request, env) {
   }
   if (!env.DEMO_KV) return json({ questions: [] });
 
-  const list = await env.DEMO_KV.list({ prefix: `q:${slug}:` });
-  const keys = list.keys.slice(-PEER_QUESTIONS).reverse();
+  // 索引を1つ読んでから、中身を読み出す。list は使わない
+  const key = `qidx:${slug}`;
+  let ids = await readIndex(env, key);
+  if (ids === null) {
+    // この仕組みより前に入った質問。1度だけ作り直す
+    ids = await rebuildIndex(env, key, `q:${slug}:`, (n) => n.slice(`q:${slug}:`.length));
+  }
   const questions = [];
-  for (const k of keys) {
-    const v = await env.DEMO_KV.get(k.name);
-    if (v) questions.push({ id: k.name, ...JSON.parse(v) });
+  for (const at of ids.slice(-PEER_QUESTIONS).reverse()) {
+    const v = await env.DEMO_KV.get(`q:${slug}:${at}`);
+    if (v) questions.push({ id: `q:${slug}:${at}`, ...JSON.parse(v) });
   }
   return json({ questions });
 }
@@ -631,6 +678,13 @@ async function handleHide(request, url, env) {
   const id = String(body.id || "");
   if (!id.startsWith("q:")) return json({ error: "その質問はありません" }, 400);
   await env.DEMO_KV.delete(id);
+  // 索引にも残っていると、消えた質問を読みに行き続けることになる
+  const parts = id.split(":");
+  const idxKey = `qidx:${parts[1]}`;
+  const ids = await readIndex(env, idxKey);
+  if (ids) {
+    await env.DEMO_KV.put(idxKey, JSON.stringify(ids.filter((x) => String(x) !== parts[2])));
+  }
   return json({ ok: true, id });
 }
 
@@ -640,18 +694,18 @@ async function handleHide(request, url, env) {
    そのうえで、いま話せるときだけ運営が在席（oh:open）を立てる。
    在席は「その時できる場合のみ」の扱いなので、約束にはしない。 */
 
-/** 枠を全部読む。数が多くならない前提（週に数件） */
+/** 枠を全部読む。数が多くならない前提（週に数件）。
+   受講者も開く画面なので、list は使わず索引から読む */
 async function ohSlots(env) {
+  let ids = await readIndex(env, "ohidx");
+  if (ids === null) {
+    ids = await rebuildIndex(env, "ohidx", "oh:slot:", (n) => n.slice("oh:slot:".length));
+  }
   const out = [];
-  let cursor;
-  do {
-    const page = await env.DEMO_KV.list({ prefix: "oh:slot:", cursor });
-    for (const k of page.keys) {
-      const raw = await env.DEMO_KV.get(k.name);
-      if (raw) out.push({ id: k.name.slice("oh:slot:".length), ...JSON.parse(raw) });
-    }
-    cursor = page.list_complete ? null : page.cursor;
-  } while (cursor);
+  for (const id of ids) {
+    const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
+    if (raw) out.push({ id, ...JSON.parse(raw) });
+  }
   out.sort((a, b) => String(a.at).localeCompare(String(b.at)));
   return out.slice(0, OH_LIST_LIMIT);
 }
@@ -794,6 +848,8 @@ async function handleOhAdmin(request, url, env) {
     await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify({
       at: iso, dur: Number(body.dur) || 30, url: String(body.url || env.OFFICE_URL || ""),
     }));
+    const ids = (await readIndex(env, "ohidx")) || [];
+    if (!ids.includes(id)) await env.DEMO_KV.put("ohidx", JSON.stringify([...ids, id]));
     return json({ ok: true, id, at: iso });
   }
 
@@ -806,6 +862,8 @@ async function handleOhAdmin(request, url, env) {
       return json({ error: "その枠は予約が入っています。force を付けると消せます" }, 409);
     }
     await env.DEMO_KV.delete(`oh:slot:${id}`);
+    const ids = (await readIndex(env, "ohidx")) || [];
+    await env.DEMO_KV.put("ohidx", JSON.stringify(ids.filter((x) => x !== id)));
     return json({ ok: true, id });
   }
 
