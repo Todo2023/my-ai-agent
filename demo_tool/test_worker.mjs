@@ -328,6 +328,91 @@ function api(path, body) {
   });
 }
 
+/* ---------- 質問への回答を教材に戻す ---------- */
+
+function adminReq(path, body, key = "admin-key") {
+  return new Request("https://example.workers.dev" + path + "?key=" + key, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+async function askOnce(e, text = "MECEがよく分かりません") {
+  stubSlack();
+  const res = await worker.fetch(api("/ask", { text, slug: "lesson-03", lesson: "第3回" }), e);
+  assert.strictEqual(res.status, 200);
+  const list = await worker.fetch(new Request("https://example.workers.dev/ask?key=admin-key"), e);
+  return (await list.json()).questions[0];
+}
+
+await t("質問には番号が付き、運営の一覧に出る", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const q = await askOnce(e);
+  assert.ok(q.id.startsWith("ask:"));
+  assert.strictEqual(q.answer, undefined, "まだ答えていない");
+});
+
+await t("答えを戻すと、同じ回の人に見える", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const q = await askOnce(e);
+  const res = await worker.fetch(adminReq("/answer", { id: q.id, text: "もれなく、重なりなく分けることです" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(body.shown, true, "受講者側にも置けた");
+
+  stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-01", text: "x" }), e);
+  stubSlack();
+  await worker.fetch(api("/submit", { code: "CODE1", slug: "lesson-02", text: "x" }), e);
+  const seen = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-03" }), e);
+  const got = (await seen.json()).questions[0];
+  assert.strictEqual(got.answer, "もれなく、重なりなく分けることです");
+});
+
+await t("答えを戻しても、聞いた人の名前は出さない", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  await worker.fetch(api("/ask", { text: "質問です", slug: "lesson-01", name: "佐藤" }), e);
+  const list = await worker.fetch(new Request("https://example.workers.dev/ask?key=admin-key"), e);
+  const q = (await list.json()).questions[0];
+  await worker.fetch(adminReq("/answer", { id: q.id, text: "お答えします" }), e);
+  const seen = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  const text = JSON.stringify(await seen.json());
+  assert.ok(!text.includes("佐藤"), "名前は戻さない");
+  assert.ok(text.includes("お答えします"));
+});
+
+await t("答えを戻せるのは運営だけ", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const q = await askOnce(e);
+  const res = await worker.fetch(adminReq("/answer", { id: q.id, text: "x" }, "chigau"), e);
+  assert.strictEqual(res.status, 403);
+});
+
+await t("無い質問には答えられない", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(adminReq("/answer", { id: "ask:9999", text: "x" }), e);
+  assert.strictEqual(res.status, 404);
+});
+
+await t("空の答えは戻せない", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const q = await askOnce(e);
+  const res = await worker.fetch(adminReq("/answer", { id: q.id, text: "   " }), e);
+  assert.strictEqual(res.status, 400);
+});
+
+await t("まだ答えていない質問が先に並ぶ", async () => {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, { ASK_ADMIN_KEY: "admin-key" });
+  const a = await askOnce(e, "ひとつめ");
+  await worker.fetch(adminReq("/answer", { id: a.id, text: "答えました" }), e);
+  await askOnce(e, "ふたつめ");
+  const list = await worker.fetch(new Request("https://example.workers.dev/ask?key=admin-key"), e);
+  const d = await list.json();
+  assert.strictEqual(d.questions[0].text, "ふたつめ", "未回答が先");
+  assert.strictEqual(d.waiting, 1);
+});
+
 /* ---------- オフィスアワー ---------- */
 
 function ohEnv(extra = {}) {

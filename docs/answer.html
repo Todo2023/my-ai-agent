@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 運営用。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>質問に答える｜運営用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+<link rel="stylesheet" href="assets/answer.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 運営用</a>
+    <span class="navlinks"><a class="navlink" href="lessons.html">資料の一覧 →</a></span>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+  <div class="lesson-head">
+    <div class="kicker">Answer</div>
+    <h1>質問に答える</h1>
+    <p class="aim">Slackに届いた質問に、ここから答えます。書いた答えは、
+    <b>同じ回を開いている受講者の「みんなの質問」に並びます。</b>
+    お名前は出ません。</p>
+  </div>
+  <div id="gate" class="an-gate">
+    <p class="an-label">合鍵</p>
+    <form class="an-keyform">
+      <input type="password" id="key" autocomplete="off" placeholder="合鍵">
+      <button type="submit" class="deck-btn">開く</button>
+    </form>
+    <p class="an-say" id="gate-say" role="status"></p>
+  </div>
+  <div id="list"></div>
+</main>
+
+<footer>合同会社Todo　思考力×AI統合講座　運営用</footer>
+
+<script src="assets/course.js"></script>
+<script>
+/* 運営が質問に答えるための画面。
+   合鍵はここに保存しません（ブラウザを閉じると消えます）。
+   保存すると、その端末を触れる人が誰でも答えを書けてしまうためです。 */
+(function () {
+  var esc = Course.esc;
+  var API = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev';
+  var key = '';
+
+  var gate = document.getElementById('gate');
+  var list = document.getElementById('list');
+  var gateSay = document.getElementById('gate-say');
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso || '');
+    var p = function (n) { return ('0' + n).slice(-2); };
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function load() {
+    list.innerHTML = '<p class="an-empty">読み込んでいます…</p>';
+    fetch(API + '/ask?key=' + encodeURIComponent(key))
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { gateSay.textContent = res.d.error || '開けませんでした'; gate.hidden = false; return; }
+        gate.hidden = true;
+        render(res.d);
+      })
+      .catch(function () { list.innerHTML = '<p class="an-empty">通信できませんでした</p>'; });
+  }
+
+  function render(d) {
+    var qs = d.questions || [];
+    if (!qs.length) { list.innerHTML = '<p class="an-empty">まだ質問はありません。</p>'; return; }
+    list.innerHTML =
+      '<p class="an-count">未回答 <b>' + (d.waiting || 0) + '</b> 件 ／ 全 ' + qs.length + ' 件</p>'
+      + qs.map(function (q) {
+        return '<div class="an-item' + (q.answer ? ' is-done' : '') + '">'
+          + '<div class="an-meta"><span>' + when(q.at) + '</span>'
+          + '<span>' + esc(q.lesson || '') + (q.slide ? '／スライド ' + esc(q.slide) : '') + '</span>'
+          + '<span class="an-state">' + (q.answer ? '回答済み' : '未回答') + '</span></div>'
+          + '<p class="an-q">' + esc(q.text) + '</p>'
+          + (q.slug ? '' : '<p class="an-warn">この質問は回が分かりません。'
+                          + '答えても受講者の画面には出ず、控えだけに残ります。</p>')
+          + '<textarea class="an-in" data-id="' + esc(q.id) + '" rows="3" '
+          + 'placeholder="ここに答えを書きます">' + esc(q.answer || '') + '</textarea>'
+          + '<div class="an-act"><button type="button" class="deck-btn an-send" '
+          + 'data-id="' + esc(q.id) + '">' + (q.answer ? '書き直す' : '答えを戻す') + '</button>'
+          + '<span class="an-say" role="status"></span></div>'
+          + '</div>';
+      }).join('');
+
+    list.querySelectorAll('.an-send').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var box = list.querySelector('.an-in[data-id="' + b.dataset.id + '"]');
+        var say = b.parentElement.querySelector('.an-say');
+        var text = box.value.trim();
+        if (!text) { say.textContent = 'まだ何も書かれていません'; box.focus(); return; }
+        b.disabled = true;
+        say.textContent = '戻しています…';
+        fetch(API + '/answer?key=' + encodeURIComponent(key), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: b.dataset.id, text: text }),
+        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            b.disabled = false;
+            if (!res.ok) { say.textContent = res.d.error || '戻せませんでした'; return; }
+            say.textContent = res.d.shown ? '受講者の画面に出ました' : '控えに残しました（回が不明）';
+            b.closest('.an-item').classList.add('is-done');
+          }).catch(function () { b.disabled = false; say.textContent = '通信できませんでした'; });
+      });
+    });
+  }
+
+  gate.querySelector('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    key = document.getElementById('key').value.trim();
+    if (!key) return;
+    gateSay.textContent = '確かめています…';
+    load();
+  });
+  document.getElementById('key').focus();
+})();
+</script>
+
+</body>
+</html>
