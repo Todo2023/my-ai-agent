@@ -60,4 +60,11 @@ html{overflow-x:clip;}
 
 @media (min-width:820px){
   .ad-words{padding:38px 0 36px;}
+  /* 1行が短いと、そのぶん縦に伸びる。横を使って行数を減らす。
+     読みやすさの上限は 70〜75字あたりなので、そこまで広げる */
+  .ad-lead{max-width:70ch;font-size:14.5px;}
+  .ad-note{max-width:74ch;}
+  .ad-sec > p{max-width:70ch;}
+  .ad-why p{max-width:74ch;}
+  .ad-step p{max-width:none;}
 }
