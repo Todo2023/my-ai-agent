@@ -45,6 +45,11 @@
     <span class="tp-free">受講の有無にかかわらず、無料でご覧いただけます</span>
   </div>
 
+  <div class="tp-filter" id="tp-filter" hidden>
+    <span class="tp-filter-label">種別</span>
+    <div class="tp-chips" id="tp-chips"></div>
+  </div>
+
   <div class="tp-list" id="tp-list">
     <p class="tp-empty">読み込んでいます…</p>
   </div>
@@ -59,6 +64,28 @@
    のちにワークのお題として引くときも、同じファイルを読めばよい。 */
 (function () {
   var list = document.getElementById('tp-list');
+  var filter = document.getElementById('tp-filter');
+  var chips = document.getElementById('tp-chips');
+  var all = [];
+  var picked = '';   // 選んでいる種別。空なら全部
+
+  /* 種別ごとの色。よく使うものは決め打ちにして、
+     新しい種別が増えても色が付くよう、文字から作る色を用意しておく。
+     色を足すために毎回ここを触らずに済む */
+  var HUE = { '教育': 262, '仕事観': 24, '制度': 210, '技術': 168, '調査': 322, '事例': 45 };
+
+  function hueOf(tag) {
+    if (HUE[tag] !== undefined) return HUE[tag];
+    var n = 0;
+    for (var i = 0; i < tag.length; i++) n = (n * 31 + tag.charCodeAt(i)) % 360;
+    return n;
+  }
+
+  /* 淡い地に濃い文字。**色が変わっても読めること**を先に決めてある */
+  function tagStyle(tag) {
+    var h = hueOf(tag);
+    return 'background:hsl(' + h + ',72%,93%);color:hsl(' + h + ',48%,29%);';
+  }
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -78,6 +105,29 @@
     return /^https?:\/\//i.test(String(u || '')) ? esc(u) : '';
   }
 
+  function drawChips() {
+    var tags = [];
+    all.forEach(function (t) {
+      if (t.tag && tags.indexOf(t.tag) === -1) tags.push(t.tag);
+    });
+    if (tags.length < 2) return;   // 1種類しか無いときは、絞り込む意味がない
+    filter.hidden = false;
+    chips.innerHTML =
+      '<button type="button" class="tp-chip' + (picked ? '' : ' is-on') + '" data-tag="">全て</button>'
+      + tags.map(function (tag) {
+          return '<button type="button" class="tp-chip' + (picked === tag ? ' is-on' : '')
+            + '" data-tag="' + esc(tag) + '" style="' + tagStyle(tag) + '">'
+            + esc(tag) + '</button>';
+        }).join('');
+    chips.querySelectorAll('.tp-chip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        picked = b.dataset.tag;
+        drawChips();
+        render(picked ? all.filter(function (t) { return t.tag === picked; }) : all);
+      });
+    });
+  }
+
   function render(items) {
     if (!items.length) {
       list.innerHTML = '<p class="tp-empty">まだ記事がありません。</p>';
@@ -94,7 +144,8 @@
       }).join('');
       return '<article class="tp-item" id="' + esc(t.id || '') + '">'
         + '<div class="tp-meta"><span class="tp-date">' + ymd(t.date) + '</span>'
-        + (t.tag ? '<span class="tp-tag">' + esc(t.tag) + '</span>' : '') + '</div>'
+        + (t.tag ? '<span class="tp-tag" style="' + tagStyle(t.tag) + '">'
+                 + esc(t.tag) + '</span>' : '') + '</div>'
         + '<h2>' + rich(t.title) + '</h2>'
         + (t.lead ? '<p class="tp-lead">' + rich(t.lead) + '</p>' : '')
         + (t.why ? '<div class="tp-why"><p class="tp-label">なぜ取り上げたか</p><p>'
@@ -115,6 +166,8 @@
       var items = (d && d.topics ? d.topics : []).slice();
       /* 新しいものが上。json に書く順番を気にしなくて済むようにしておく */
       items.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+      all = items;
+      drawChips();
       render(items);
     })
     .catch(function () {

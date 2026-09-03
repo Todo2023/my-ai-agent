@@ -18,7 +18,9 @@
 .tp-item:last-child{border-bottom:none;}
 .tp-meta{display:flex;align-items:baseline;gap:14px;margin-bottom:12px;}
 .tp-date{font-size:12px;letter-spacing:.08em;color:var(--text-soft);font-variant-numeric:tabular-nums;}
-.tp-tag{font-size:11px;letter-spacing:.1em;color:var(--red);border:1px solid var(--red);border-radius:2px;padding:2px 8px;}
+/* 種別の札。色は記事ごとに JS が付ける（種別が増えても手を入れずに済む） */
+.tp-tag{font-size:11.5px;font-weight:700;letter-spacing:.04em;
+        border-radius:999px;padding:4px 12px;white-space:nowrap;}
 .tp-item h2{font-size:23px;margin:0 0 14px;line-height:1.6;}
 .tp-lead{margin:0 0 22px;font-size:15px;max-width:44em;}
 
@@ -49,4 +51,23 @@
   .tp-header{padding:44px 0 28px;}
   .tp-header h1{font-size:26px;}
   .tp-item h2{font-size:20px;}
+}
+
+/* 種別で絞り込む列。押した種別だけが残る */
+.tp-filter{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 20px;
+           padding:26px 0 6px;border-bottom:1px solid var(--hairline);}
+.tp-filter-label{font-family:'Shippori Mincho',serif;font-size:13.5px;color:var(--text-soft);
+                 padding:6px 20px 0 0;border-right:1px solid var(--hairline);white-space:nowrap;}
+.tp-chips{display:flex;flex-wrap:wrap;gap:8px 10px;}
+.tp-chip{font:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;
+         border:1px solid transparent;border-radius:999px;padding:6px 16px;cursor:pointer;
+         background:#eceff3;color:#5b6472;transition:.15s;}
+.tp-chip:hover{filter:brightness(.96);}
+/* 選んでいるものは、縁を付けて分かるようにする。色は変えない（種別の色を保つため） */
+.tp-chip.is-on{border-color:currentColor;box-shadow:0 0 0 2px rgba(0,0,0,.05);}
+.tp-chip[data-tag=""].is-on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+@media (max-width:640px){
+  .tp-filter{gap:10px;}
+  .tp-filter-label{border-right:none;padding-right:0;}
 }
