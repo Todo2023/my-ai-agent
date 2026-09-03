@@ -544,6 +544,36 @@ await t("取り消すと、カレンダーからも消すよう送る", async ()
   assert.strictEqual(cal[1].id, id, "どの予定を消すかを渡す");
 });
 
+await t("設定の確認（caltest）は、受け口と合言葉をそのまま使う", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", CALENDAR_HOOK_URL: "https://script.example/exec",
+                    CALENDAR_TOKEN: "aikotoba" });
+  const cal = [];
+  global.fetch = async (url, init) => {
+    if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
+    return new Response("ok", { status: 200 });
+  };
+  const res = await worker.fetch(
+    new Request("https://x/oh/admin?key=admin-key", {
+      method: "POST", body: JSON.stringify({ op: "caltest" }) }), e);
+  const d = await res.json();
+  assert.strictEqual(d.ok, true);
+  assert.strictEqual(cal.length, 1);
+  assert.strictEqual(cal[0].token, "aikotoba", "合言葉を添える");
+  assert.strictEqual(cal[0].op, "add");
+  assert.ok(cal[0].start > new Date().toISOString(), "これから先の時刻に入れる");
+});
+
+await t("受け口が未設定なら、caltest はその旨を返す（落ちない）", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(
+    new Request("https://x/oh/admin?key=admin-key", {
+      method: "POST", body: JSON.stringify({ op: "caltest" }) }), e);
+  const d = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(d.ok, false);
+  assert.ok(d.reason.includes("未設定"));
+});
+
 /* ---------- 無料枠を守る（一覧を数える） ---------- */
 
 /** KV の list が何回呼ばれたかを数える env。
