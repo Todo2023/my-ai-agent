@@ -38,3 +38,10 @@ section{padding:0 0 64px;}
 @media (max-width:640px){
   .nav-cred{width:100%;order:3;font-size:11px;}
 }
+
+/* 「合同会社Todo」から会社サイトへ。下線は引かず、太さで示す。
+   本文の中で下線が続くと、読む線が切れて見えるため */
+.co-link{font-weight:700;text-decoration:none;color:inherit;
+  border-bottom:0;transition:color .2s;}
+.co-link:hover{color:var(--red-deep);}
+.co-link:focus-visible{outline:2px solid var(--red);outline-offset:2px;}

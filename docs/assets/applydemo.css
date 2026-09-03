@@ -13,6 +13,13 @@
   background:#eef1f5 center 45%/cover no-repeat;
   background-image:url('../images/es-sheet.jpg');}
 
+/* 狭い画面では、左右とも画面いっぱいにする。
+   広い画面では右端を本文にそろえているが、スマホだと本文の余白が
+   28px しかないので、右だけ空いているように見えてしまう。 */
+@media (max-width:819px){
+  .ad-shot{width:100vw;}
+}
+
 /* 100vw には縦スクロールバーの幅が含まれるため、そのままだと数px
    はみ出して横スクロールバーが出る。はみ出しだけを切る。
    （body に付けると body 自体がスクロール枠になり、入れ子になる） */
