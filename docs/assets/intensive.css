@@ -1,0 +1,26 @@
+/* 1か月集中版の案内。月ごと版（pro.html）と同じ部品を使い、
+   ここでしか要らないものだけを足す。 */
+
+.in-h1{font-size:clamp(30px,5vw,52px);line-height:1.35;margin:18px 0 26px;}
+
+/* 4週間の並び。日程表ではなく、何をやる週かが分かればよい */
+.in-weeks{border-top:1px solid var(--hairline);}
+.in-week{display:grid;grid-template-columns:96px 1fr;gap:20px;align-items:baseline;
+         padding:18px 4px;border-bottom:1px solid var(--hairline);}
+.in-when{font-family:'Shippori Mincho',serif;font-size:14px;color:var(--red);}
+.in-what b{display:block;font-size:16.5px;margin-bottom:6px;}
+.in-what span{font-size:13.5px;color:var(--text-soft);line-height:1.9;}
+
+/* 負担の目安。数字を先に見せる */
+.in-load{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+         gap:14px;margin-top:30px;}
+.in-cell{padding:18px 20px;background:var(--bg-soft);border-top:2px solid var(--hairline-strong);
+         font-size:15px;}
+.in-cell em{display:block;font-style:normal;font-size:11px;letter-spacing:.12em;
+            color:var(--text-soft);margin-bottom:8px;}
+
+.in-note{margin:22px 0 0;font-size:13.5px;color:var(--text-soft);line-height:1.95;max-width:60ch;}
+
+@media (max-width:640px){
+  .in-week{grid-template-columns:1fr;gap:6px;}
+}
