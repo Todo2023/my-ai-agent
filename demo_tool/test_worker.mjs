@@ -413,6 +413,123 @@ await t("まだ答えていない質問が先に並ぶ", async () => {
   assert.strictEqual(d.waiting, 1);
 });
 
+/* ---------- オフィスアワー ---------- */
+
+function ohEnv(extra = {}) {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, extra);
+  e.DEMO_KV.store.set("member:CODE2", JSON.stringify({ name: "佐藤", paidThrough: 9 }));
+  return e;
+}
+
+async function addSlot(e, at, key = "admin-key") {
+  const res = await worker.fetch(new Request(
+    "https://example.workers.dev/oh/admin?key=" + key,
+    { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ op: "add", at }) }), e);
+  return (await res.json()).id;
+}
+
+await t("枠を登録できるのは運営だけ", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(new Request(
+    "https://example.workers.dev/oh/admin?key=chigau",
+    { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ op: "add", at: "2099-01-01T20:00+09:00" }) }), e);
+  assert.strictEqual(res.status, 403);
+});
+
+await t("枠を押さえられる", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await addSlot(e, "2099-01-01T20:00+09:00");
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id, note: "第3回の仮説について" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(body.slot.mine, true);
+});
+
+await t("埋まった枠は、あとの人には取れない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await addSlot(e, "2099-01-01T20:00+09:00");
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  const res = await worker.fetch(api("/oh/book", { code: "CODE2", id }), e);
+  assert.strictEqual(res.status, 409);
+  assert.ok((await res.json()).error.includes("埋まりました"));
+});
+
+await t("1人が同時に持てる予約は1つ", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const a = await addSlot(e, "2099-01-01T20:00+09:00");
+  const b = await addSlot(e, "2099-01-02T20:00+09:00");
+  await worker.fetch(api("/oh/book", { code: "CODE1", id: a }), e);
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id: b }), e);
+  assert.strictEqual(res.status, 409, "押さえたまま増やせない");
+});
+
+await t("過ぎた枠は押さえられない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  const id = await addSlot(e, "2020-01-01T20:00+09:00");
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  assert.strictEqual(res.status, 409);
+});
+
+await t("取り消せるのは自分の予約だけ", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await addSlot(e, "2099-01-01T20:00+09:00");
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  const res = await worker.fetch(api("/oh/cancel", { code: "CODE2", id }), e);
+  assert.strictEqual(res.status, 403, "他人の枠は空けられない");
+
+  stubSlack();
+  const ok = await worker.fetch(api("/oh/cancel", { code: "CODE1", id }), e);
+  assert.strictEqual(ok.status, 200);
+  const again = await worker.fetch(api("/oh/book", { code: "CODE2", id }), e);
+  assert.strictEqual(again.status, 200, "空いたので次の人が取れる");
+});
+
+await t("他の人の名前は出さない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await addSlot(e, "2099-01-01T20:00+09:00");
+  await worker.fetch(api("/oh/book", { code: "CODE1", id, note: "見せたくない相談" }), e);
+  const res = await worker.fetch(api("/oh", { code: "CODE2" }), e);
+  const text = JSON.stringify(await res.json());
+  assert.ok(!text.includes("山田") && !text.includes("見せたくない"), "埋まっていることしか分からない");
+});
+
+await t("場所は、自分の枠か在席のときだけ返す", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", OFFICE_URL: "https://meet.example/xyz" });
+  stubSlack();
+  const id = await addSlot(e, "2099-01-01T20:00+09:00");
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+
+  const other = await (await worker.fetch(api("/oh", { code: "CODE2" }), e)).json();
+  assert.strictEqual(other.slots[0].url, "", "予約していない人には出さない");
+  assert.strictEqual(other.nowUrl, "", "在席していないので入り口も出さない");
+
+  const mine = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  assert.ok(mine.slots[0].url.includes("meet.example"));
+});
+
+await t("在席にすると「いま話せます」が立つ", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", OFFICE_URL: "https://meet.example/xyz" });
+  await worker.fetch(new Request("https://example.workers.dev/oh/admin?key=admin-key",
+    { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ op: "open" }) }), e);
+  const d = await (await worker.fetch(api("/oh", { code: "CODE2" }), e)).json();
+  assert.strictEqual(d.open, true);
+  assert.ok(d.nowUrl.includes("meet.example"));
+});
+
+await t("合言葉が無ければ枠も見えない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(api("/oh", { code: "SHIRANAI" }), e);
+  assert.strictEqual(res.status, 403);
+});
+
 await t("合言葉が違えば、一覧すら返さない", async () => {
   const res = await worker.fetch(api("/me", { code: "SHIRANAI" }), envWithLessons());
   assert.strictEqual(res.status, 403);

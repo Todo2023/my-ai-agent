@@ -74,6 +74,11 @@ const MAX_QUESTION = 90;
 
 /* 教材に戻す答えの長さ。長い説明はオフィスアワーで話すほうが早い */
 const MAX_ANSWER = 1200;
+
+/* オフィスアワー。1人が同時に持てる予約は1つだけにする。
+   枠を押さえたまま来ない人が続くと、他の人が取れなくなるため */
+const OH_MAX_PER_PERSON = 1;
+const OH_LIST_LIMIT = 60;
 const MAX_EXPLANATION = 220;
 
 export function buildPrompt(audience, text) {
@@ -629,6 +634,188 @@ async function handleHide(request, url, env) {
   return json({ ok: true, id });
 }
 
+
+/* ============ オフィスアワー ============
+   基本は予約制。枠（oh:slot:<id>）を運営が登録し、受講者が1つ押さえる。
+   そのうえで、いま話せるときだけ運営が在席（oh:open）を立てる。
+   在席は「その時できる場合のみ」の扱いなので、約束にはしない。 */
+
+/** 枠を全部読む。数が多くならない前提（週に数件） */
+async function ohSlots(env) {
+  const out = [];
+  let cursor;
+  do {
+    const page = await env.DEMO_KV.list({ prefix: "oh:slot:", cursor });
+    for (const k of page.keys) {
+      const raw = await env.DEMO_KV.get(k.name);
+      if (raw) out.push({ id: k.name.slice("oh:slot:".length), ...JSON.parse(raw) });
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  out.sort((a, b) => String(a.at).localeCompare(String(b.at)));
+  return out.slice(0, OH_LIST_LIMIT);
+}
+
+async function ohIsOpen(env) {
+  return (await env.DEMO_KV.get("oh:open")) === "1";
+}
+
+/** 受講者に見せる形。**他の人の名前は出さない。**埋まっているかどうかだけ返す */
+function ohView(slot, code, open) {
+  const mine = slot.taken === code;
+  return {
+    id: slot.id,
+    at: slot.at,
+    dur: slot.dur || 30,
+    taken: Boolean(slot.taken),
+    mine,
+    // 場所（Meetなど）は、**自分が押さえた枠**か、いま在席のときだけ返す。
+    // 誰でも読めると、予約していない人が入ってきてしまう
+    url: mine || open ? (slot.url || "") : "",
+  };
+}
+
+async function handleOh(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+
+  const open = await ohIsOpen(env);
+  const now = new Date().toISOString();
+  const slots = (await ohSlots(env))
+    .filter((s) => s.at >= now || s.taken === code)
+    .map((s) => ohView(s, code, open));
+  return json({
+    open,
+    // 在席のときだけ、その場の入り口を出す
+    nowUrl: open ? (env.OFFICE_URL || "") : "",
+    slots,
+    mine: slots.filter((s) => s.mine),
+  });
+}
+
+async function handleOhBook(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const id = String(body.id || "").trim();
+  const note = String(body.note || "").trim().slice(0, MAX_ASK);
+
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+
+  const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
+  if (!raw) return json({ error: "その枠はありません" }, 404);
+  const slot = JSON.parse(raw);
+
+  if (slot.at < new Date().toISOString()) {
+    return json({ error: "その枠は過ぎています" }, 409);
+  }
+  if (slot.taken && slot.taken !== code) {
+    return json({ error: "その枠は、ひと足違いで埋まりました" }, 409);
+  }
+
+  // 1人1件まで。押さえたまま来ない枠が積み重なると、他の人が取れなくなる
+  const held = (await ohSlots(env))
+    .filter((s) => s.taken === code && s.id !== id && s.at >= new Date().toISOString());
+  if (held.length >= OH_MAX_PER_PERSON) {
+    return json({
+      error: "すでに予約があります。取り直すときは、先に今の予約を取り消してください",
+      held: held.map((s) => ({ id: s.id, at: s.at })),
+    }, 409);
+  }
+
+  slot.taken = code;
+  slot.name = me.who.name || "";
+  slot.note = note;
+  slot.bookedAt = new Date().toISOString();
+  await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
+
+  const slack = await toSlack(env, {
+    lesson: "オフィスアワー",
+    slide: "",
+    name: `${me.who.name || code}（予約）`,
+    text: `${slot.at}（${slot.dur || 30}分）\n${note || "（相談したいことは未記入）"}`,
+  }, "work");
+
+  return json({ ok: true, delivered: slack.sent, slot: ohView({ id, ...slot }, code, false) });
+}
+
+async function handleOhCancel(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code || "").trim().toUpperCase();
+  const id = String(body.id || "").trim();
+
+  const me = await whoAmI(env, code);
+  if (me.error) return json({ error: me.error }, 403);
+
+  const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
+  if (!raw) return json({ error: "その枠はありません" }, 404);
+  const slot = JSON.parse(raw);
+  // 自分の予約しか取り消せない。他人の枠を空けられては困る
+  if (slot.taken !== code) return json({ error: "その枠はあなたの予約ではありません" }, 403);
+
+  const was = { at: slot.at, note: slot.note || "" };
+  delete slot.taken; delete slot.name; delete slot.note; delete slot.bookedAt;
+  await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
+
+  await toSlack(env, {
+    lesson: "オフィスアワー",
+    slide: "",
+    name: `${me.who.name || code}（取り消し）`,
+    text: `${was.at} の予約を取り消しました`,
+  }, "work");
+
+  return json({ ok: true, id });
+}
+
+/** 枠の登録・削除と、在席の切り替え。運営だけが叩ける */
+async function handleOhAdmin(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const op = String(body.op || "");
+
+  if (op === "open" || op === "close") {
+    await env.DEMO_KV.put("oh:open", op === "open" ? "1" : "0");
+    return json({ ok: true, open: op === "open" });
+  }
+
+  if (op === "add") {
+    const at = String(body.at || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(at)) {
+      return json({ error: "日時は 2026-09-10T20:00+09:00 の形で入れてください" }, 400);
+    }
+    const iso = new Date(at).toISOString();
+    if (Number.isNaN(Date.parse(iso))) return json({ error: "日時が読み取れません" }, 400);
+    const id = iso.replace(/[^0-9]/g, "").slice(0, 12);
+    await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify({
+      at: iso, dur: Number(body.dur) || 30, url: String(body.url || env.OFFICE_URL || ""),
+    }));
+    return json({ ok: true, id, at: iso });
+  }
+
+  if (op === "remove") {
+    const id = String(body.id || "").trim();
+    const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
+    if (!raw) return json({ error: "その枠はありません" }, 404);
+    // 埋まっている枠を黙って消すと、来た人が締め出される
+    if (JSON.parse(raw).taken && !body.force) {
+      return json({ error: "その枠は予約が入っています。force を付けると消せます" }, 409);
+    }
+    await env.DEMO_KV.delete(`oh:slot:${id}`);
+    return json({ ok: true, id });
+  }
+
+  if (op === "list") {
+    return json({ open: await ohIsOpen(env), slots: await ohSlots(env) });
+  }
+
+  return json({ error: "op は add / remove / list / open / close のどれかです" }, 400);
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -652,6 +839,12 @@ export default {
     if (url.pathname === "/question/hide" && request.method === "POST") return handleHide(request, url, env);
     // 質問への答えを、教材の側に戻す
     if (url.pathname === "/answer" && request.method === "POST") return handleAnswer(request, url, env);
+
+    // オフィスアワー。基本は予約制で、在席しているときだけ「いま話せます」を出す
+    if (url.pathname === "/oh" && request.method === "POST") return handleOh(request, env);
+    if (url.pathname === "/oh/book" && request.method === "POST") return handleOhBook(request, env);
+    if (url.pathname === "/oh/cancel" && request.method === "POST") return handleOhCancel(request, env);
+    if (url.pathname === "/oh/admin" && request.method === "POST") return handleOhAdmin(request, url, env);
 
     // 資料ページからの質問。デモの書き換えとは別の入り口にする
     if (url.pathname === "/ask") {
