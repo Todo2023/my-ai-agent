@@ -44,20 +44,28 @@
       + (back ? '<p class="aim"><a href="lessons.html">資料の一覧に戻る →</a></p>' : '') + '</div>');
   }
 
-  /* 目次。見出しが無い回でも困らないよう、無ければ番号だけを並べる。
-     押すとその枚に飛ぶ。いま見ている行には印を付ける */
-  function tocHtml(d) {
-    var toc = d.toc && d.toc.length ? d.toc : null;
-    if (!toc) {
-      toc = [];
-      for (var i = 1; i <= d.slides; i++) toc.push({ n: i, t: i === 1 ? '表紙' : '' });
+  /* 目次。**章の頭だけ**を並べる。30枚を全部並べると、
+     目次のほうが長くなって探せない。章が無い回だけ、番号を並べる */
+  function tocRows(d) {
+    var all = (d.toc && d.toc.length) ? d.toc : [];
+    var parts = all.filter(function (e) { return e.part; });
+    if (parts.length >= 2) {
+      var rows = [{ n: 1, t: '表紙' }];
+      return rows.concat(parts.filter(function (e) { return e.n !== 1; }));
     }
+    // 章が無い回。番号だけ並べる（押せることは変わらない）
+    var out = [];
+    for (var i = 1; i <= d.slides; i++) out.push({ n: i, t: i === 1 ? '表紙' : '' });
+    return out;
+  }
+
+  function tocHtml(d) {
+    var rows = tocRows(d);
     return '<nav class="deck-toc" aria-label="目次">'
       + '<div class="deck-toc-head">目次<span>' + d.slides + '枚</span></div>'
       + '<ol class="deck-toc-list" id="deck-toc">'
-      + toc.map(function (e) {
-          return '<li><button type="button" class="toc-item' + (e.part ? ' is-part' : '')
-            + '" data-n="' + e.n + '">'
+      + rows.map(function (e) {
+          return '<li><button type="button" class="toc-item is-part" data-n="' + e.n + '">'
             + '<span class="toc-n">' + e.n + '</span>'
             + '<span class="toc-t">' + esc(e.t || '') + '</span></button></li>';
         }).join('')
@@ -95,6 +103,7 @@
       + '<div class="writer-bar">'
       + '<button type="button" class="deck-btn asker-send" id="work-send">提出する</button>'
       + '<button type="button" class="deck-btn writer-clear" id="work-clear">消す</button>'
+      + '<span class="writer-count" id="work-count" aria-live="polite">0字</span>'
       + '<p class="writer-note">書きかけは<b>あなたのブラウザの中にだけ</b>残ります。'
       + '<b>提出すると運営に届き、次の回が開きます。</b>'
       + '確認するのは運営だけで、<b>他の受講者にも、所属先にも見せません</b>'
@@ -127,7 +136,7 @@
       + '<div class="peers"><div class="peers-head">みんなの質問</div>'
       + '<div class="peers-body" id="peers"><p class="peers-empty">読み込んでいます…</p></div>'
       + '<p class="peers-note">この回に寄せられた質問と、その回答です。<b>お名前は出ません。</b>'
-      + '<a href="privacy.html" target="_blank" rel="noopener">扱いについて</a></p></div>'
+      + '<a href="privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a></p></div>'
       + '</aside>';
   }
 
@@ -231,20 +240,27 @@
       markToc();
     }
 
-    /* いま見ている行に印を付け、目次の外に出ていたら見える位置まで寄せる */
+    /* いま見ている章に印を付ける。目次は章の頭しか持っていないので、
+       **いま開いている枚以下で、いちばん近い章**を選ぶ */
     function markToc() {
       if (!toc) return;
       var items = toc.querySelectorAll('.toc-item');
+      var here = -1;
+      for (var j = 0; j < items.length; j++) {
+        if (Number(items[j].getAttribute('data-n')) <= state.i) here = j;
+      }
       for (var k = 0; k < items.length; k++) {
-        var on = Number(items[k].getAttribute('data-n')) === state.i;
+        var on = k === here;
         items[k].classList.toggle('is-now', on);
         if (on) {
           items[k].setAttribute('aria-current', 'true');
-          var box = toc.getBoundingClientRect();
-          var row = items[k].getBoundingClientRect();
-          if (row.top < box.top || row.bottom > box.bottom) {
-            items[k].scrollIntoView({ block: 'nearest' });
-          }
+          /* **目次の中だけを送る。**scrollIntoView を使うと、目次が
+             画面に収まっていないとき（スマホでスライドの下にあるとき）
+             ページごと下に飛んでしまう。実際、10枚目でそうなった。 */
+          var row = items[k].parentNode;              // <li>
+          var want = row.offsetTop - (toc.clientHeight - row.offsetHeight) / 2;
+          var max = toc.scrollHeight - toc.clientHeight;
+          if (max > 0) toc.scrollTop = Math.max(0, Math.min(want, max));
         } else {
           items[k].removeAttribute('aria-current');
         }
@@ -274,12 +290,25 @@
     var KEY = 'todo-work-' + d.slug;
     var timer;
 
+    /* いま何字書いたか。**出すものの目安が300字**なので、
+       近づいたら色を変えて分かるようにする */
+    var count = document.getElementById('work-count');
+    var AIM = 300;
+    function paintCount() {
+      var n = box.value.trim().length;
+      count.textContent = n + '字';
+      count.classList.toggle('is-near', n >= AIM * 0.7 && n < AIM);
+      count.classList.toggle('is-ok', n >= AIM);
+    }
+
     try {
       var saved = localStorage.getItem(KEY);
       if (saved) { box.value = saved; say.textContent = '前回の続きを開いています'; }
     } catch (e) {}
+    paintCount();
 
     box.addEventListener('input', function () {
+      paintCount();
       clearTimeout(timer);
       timer = setTimeout(function () {
         try { localStorage.setItem(KEY, box.value); } catch (e) {}
@@ -290,6 +319,7 @@
       if (!box.value.trim()) return;
       if (!confirm('書いた内容を消します。よろしいですか。')) return;
       box.value = '';
+      paintCount();
       try { localStorage.removeItem(KEY); } catch (e) {}
       box.focus();
     });
