@@ -1,0 +1,58 @@
+/* オフィスアワーの枠を出す画面（運営用）。
+   受講者の画面（office.css）とは別。ここは押し間違いが起きないことを優先し、
+   出ている枠・埋まっている枠・終わった枠を、色ではなく並びと言葉で分ける。 */
+
+.oa-sec{margin:0 0 34px;}
+.oa-sec h2{font-size:16px;font-weight:700;margin:0 0 12px;letter-spacing:.02em;}
+.oa-note{font-size:12.8px;color:var(--text-soft);line-height:1.9;margin:0 0 14px;}
+
+/* --- いま席にいるか --- */
+.oa-open{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:14px 16px;border:1px solid var(--hairline);background:#fff;margin-bottom:10px;}
+.oa-state{font-size:13.5px;color:var(--text-soft);}
+.oa-state.is-on{color:var(--red-deep);font-weight:700;}
+
+/* --- 日を選ぶ --- */
+.oa-days{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;}
+.oa-day{flex:none;font:inherit;cursor:pointer;background:#fff;color:var(--text-soft);
+  border:1px solid var(--hairline);padding:8px 12px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;line-height:1;}
+.oa-day-w{font-size:10.5px;letter-spacing:.1em;}
+.oa-day-n{font-size:13.5px;font-variant-numeric:tabular-nums;}
+.oa-day:hover{border-color:var(--hairline-strong);color:var(--ink);}
+.oa-day.is-now{background:var(--ink);color:#fff;border-color:transparent;}
+
+/* --- 時刻を選ぶ。押した分だけまとめて出す --- */
+.oa-times{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.oa-time{font:inherit;font-size:13px;cursor:pointer;background:#fff;color:var(--text-soft);
+  border:1px solid var(--hairline);padding:7px 11px;font-variant-numeric:tabular-nums;}
+.oa-time:hover:not(:disabled){border-color:var(--hairline-strong);color:var(--ink);}
+.oa-time.is-on{background:var(--red-deep);color:#fff;border-color:transparent;}
+/* もう出している時間。押せないことを、薄さと取り消し線の両方で示す */
+.oa-time.is-out{opacity:.4;cursor:default;text-decoration:line-through;}
+.oa-time:focus-visible,.oa-day:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+
+.oa-add{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.oa-go{background:var(--ink);color:#fff;border-color:transparent;}
+.oa-go:hover:not(:disabled){background:var(--red-deep);}
+.oa-say{font-size:12.5px;color:var(--red-deep);}
+
+/* --- 出している枠の一覧 --- */
+.oa-list{border-top:1px solid var(--hairline);}
+.oa-row{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;align-items:center;
+  padding:12px 2px;border-bottom:1px solid var(--hairline);font-size:13.5px;}
+.oa-when{font-variant-numeric:tabular-nums;}
+.oa-free{color:var(--text-soft);font-size:12.5px;}
+.oa-who{font-weight:700;}
+.oa-memo{grid-column:1 / -1;font-size:12.5px;color:var(--text-soft);line-height:1.8;}
+.oa-row.is-taken{background:#faf9f5;}
+.oa-del,.oa-noshow{font:inherit;font-size:12.5px;cursor:pointer;background:#fff;
+  border:1px solid var(--hairline);padding:6px 12px;color:var(--text-soft);}
+.oa-del:hover{border-color:var(--hairline-strong);color:var(--ink);}
+/* 取り返しがつかない側。押す前に色でも気づけるようにする */
+.oa-noshow{color:var(--red-deep);border-color:var(--red);}
+.oa-noshow:hover{background:var(--red-deep);color:#fff;border-color:transparent;}
+
+@media (max-width:520px){
+  .oa-row{grid-template-columns:1fr;}
+}

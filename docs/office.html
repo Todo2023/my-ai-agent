@@ -41,6 +41,11 @@
 
   var WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 
+  function day(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? iso : (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+
   function when(iso, dur) {
     var d = new Date(iso);
     if (isNaN(d)) return esc(iso);
@@ -65,6 +70,14 @@
         + '<p>下から枠を選んで予約してください。'
         + '席にいるときだけ、ここに「いま話す」が出ます。<b>出ていないときは予約でお願いします。</b></p>'
         + '</div>';
+
+    // 止められている人には、押す前に理由と期限を出す
+    var banBox = d.bannedUntil
+      ? '<div class="oh-ban"><p class="oh-label">いまは予約をお休みいただいています</p>'
+        + '<p>お約束の時間に、お知らせなくお越しにならなかったためです。'
+        + '<b>' + esc(day(d.bannedUntil)) + 'まで</b>お待ちください。'
+        + '急ぎのご相談は、Slackで直接お声がけください。</p></div>'
+      : '';
 
     var mineBox = mine.length
       ? '<section class="oh-sec"><h2>あなたの予約</h2>'
@@ -101,11 +114,14 @@
       + '<p class="aim">直接話す時間です。<b>予約制です。</b>'
       + '1人ずつ、30分。相談したいことを書いておくと、こちらで準備してから臨めます。</p>'
       + '</div>'
-      + nowBox + mineBox + listBox
+      + nowBox + banBox + mineBox + listBox
       + '<div class="oh-note">'
       + '<p class="oh-label">先に読んでください</p>'
-      + '<p>同時に持てる予約は1つです。取り直すときは、先に取り消してください。'
-      + '来られなくなったときも、取り消していただけると次の人が入れます。</p>'
+      + '<p>同時に持てる予約は1つです。取り直すときは、先に取り消してください。</p>'
+      + '<p><b>取り消しは' + (d.cancelMin || 30) + '分前までです。</b>'
+      + 'そこから先は、Slackで直接お知らせください。'
+      + '<b>お知らせなく来られなかった場合は、1週間ほど予約をお休みいただきます。</b>'
+      + '枠は1人1つで数も限られているため、空振りが続くと次の方が取れなくなるからです。</p>'
       + '<p>お名前と相談したいことは、運営のSlackと予定表に入ります。'
       + '<b>他の受講者には見えません。</b>'
       + '<a href="privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a></p>'
