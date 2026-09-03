@@ -1,0 +1,43 @@
+/* 就活生向けの体験会の案内。
+   **当日やることが分かること**が、いちばんの役目。
+   飾りより、時間割と持ち帰れるものを先に見せる。 */
+
+.ev-hero{padding:70px 0 46px;border-bottom:1px solid var(--hairline);}
+.ev-eyebrow{font-size:12px;letter-spacing:.18em;color:var(--red);margin:0 0 18px;}
+.ev-hero h1{font-size:clamp(28px,5vw,46px);line-height:1.4;margin:0 0 24px;}
+.ev-lead{font-size:15.5px;line-height:2;max-width:52ch;margin:0 0 30px;}
+
+.ev-facts{display:flex;flex-wrap:wrap;gap:10px 30px;margin:0 0 30px;}
+.ev-fact{font-size:14.5px;}
+.ev-fact em{display:block;font-style:normal;font-size:11px;letter-spacing:.12em;
+            color:var(--text-soft);margin-bottom:5px;}
+
+.ev-cta{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;margin:0;}
+
+/* 時間割。ここを見に来る人が多いので、いちばん読みやすくする */
+.ev-steps{border-top:1px solid var(--hairline);}
+.ev-step{display:grid;grid-template-columns:130px 1fr;gap:24px;
+         padding:22px 4px;border-bottom:1px solid var(--hairline);}
+.ev-when{font-family:'Shippori Mincho',serif;font-size:13.5px;color:var(--red);padding-top:2px;}
+.ev-body h3{font-size:17px;margin:0 0 10px;}
+.ev-body p{margin:0;font-size:14.5px;line-height:1.95;max-width:52ch;}
+
+.ev-gets{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+.ev-get{padding:24px 22px;background:var(--bg-soft);border-top:2px solid var(--red);}
+.ev-num{font-size:13px;letter-spacing:.1em;color:var(--red);margin-bottom:12px;}
+.ev-get p{margin:0;font-size:14.5px;line-height:1.95;}
+
+.ev-list{margin:0;padding-left:1.2em;max-width:52ch;}
+.ev-list li{font-size:15px;line-height:1.95;margin-bottom:12px;}
+.ev-list li::marker{color:var(--red);}
+
+.ev-bring{border-top:1px solid var(--hairline);}
+.ev-item{display:grid;grid-template-columns:110px 1fr;gap:20px;
+         padding:16px 4px;border-bottom:1px solid var(--hairline);font-size:14.5px;line-height:1.9;}
+.ev-item em{font-style:normal;font-size:12px;letter-spacing:.1em;color:var(--text-soft);}
+
+.ev-note{margin:20px 0 0;font-size:13.5px;color:var(--text-soft);line-height:1.95;max-width:56ch;}
+
+@media (max-width:640px){
+  .ev-step,.ev-item{grid-template-columns:1fr;gap:8px;}
+}
