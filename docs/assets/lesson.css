@@ -104,6 +104,30 @@ html{overflow-x:clip;}
 .studio .info .facts span{display:flex;gap:9px;align-items:baseline;}
 
 /* --- スライド --- */
+/* --- スライドと、その右の目次 ---
+   狭い画面では目次を下に回す。押して飛べることは変わらない */
+.deck{display:grid;gap:18px;}
+.deck-main{min-width:0;}
+.deck-toc{border:1px solid var(--hairline);background:#fff;display:flex;flex-direction:column;
+  max-height:340px;}
+.deck-toc-head{font-size:11px;letter-spacing:.18em;color:var(--red-deep);
+  padding:11px 14px;border-bottom:1px solid var(--hairline);
+  display:flex;justify-content:space-between;align-items:baseline;flex:none;}
+.deck-toc-head span{font-size:11px;letter-spacing:.04em;color:var(--text-soft);}
+.deck-toc-list{list-style:none;margin:0;padding:4px 0;overflow-y:auto;flex:1 1 auto;}
+.toc-item{display:flex;gap:9px;width:100%;text-align:left;font:inherit;font-size:12.6px;
+  line-height:1.55;padding:6px 14px;background:none;border:0;cursor:pointer;
+  color:var(--text-soft);align-items:baseline;}
+.toc-item:hover{background:#faf9f5;color:var(--ink);}
+.toc-item:focus-visible{outline:2px solid var(--red);outline-offset:-2px;}
+.toc-n{flex:none;width:1.9em;text-align:right;font-variant-numeric:tabular-nums;
+  font-size:11.5px;color:var(--hairline-strong);}
+.toc-t{min-width:0;}
+/* 章の頭は、めくっている途中でも位置が分かるように太くする */
+.toc-item.is-part{color:var(--ink);font-weight:700;margin-top:5px;}
+.toc-item.is-now{background:var(--ink);color:#fff;}
+.toc-item.is-now .toc-n{color:rgba(255,255,255,.6);}
+
 .deck-stage{background:#1d2330;border:1px solid var(--hairline-strong);
   width:100%;aspect-ratio:16/9;max-height:66vh;overflow:hidden;}
 .deck-stage img{width:100%;height:100%;object-fit:contain;display:block;
@@ -178,6 +202,14 @@ html{overflow-x:clip;}
   .studio .writer{grid-area:writer;}
   .studio .asker{grid-area:asker;}
   .studio .peers{grid-area:peers;}
+}
+
+/* 目次をスライドの右へ。ここより狭いと、両方が細くなって読めない */
+@media (min-width:900px){
+  .deck{grid-template-columns:minmax(0,1fr) 216px;gap:20px;align-items:start;}
+  /* スライドより下に伸びると、画面の下が目次だけになる。
+     画面の高さに合わせて頭打ちにし、中で送らせる */
+  .deck-toc{max-height:clamp(260px,46vh,520px);}
 }
 
 /* さらに広い画面では、右にもう1本。左が回の情報、右がみんなの質問 */
