@@ -53,6 +53,11 @@
   var API = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev';
   var key = '';
 
+  /* Slackのリンク（?id=ask:...）から来たときは、その質問を先頭に出して目立たせる。
+     番号を控えて貼り直す手間を無くすため */
+  var want = '';
+  try { want = new URLSearchParams(location.search).get('id') || ''; } catch (e) {}
+
   var gate = document.getElementById('gate');
   var list = document.getElementById('list');
   var gateSay = document.getElementById('gate-say');
@@ -79,10 +84,17 @@
   function render(d) {
     var qs = d.questions || [];
     if (!qs.length) { list.innerHTML = '<p class="an-empty">まだ質問はありません。</p>'; return; }
+    if (want) {
+      var hit = qs.filter(function (q) { return q.id === want; });
+      if (hit.length) qs = hit.concat(qs.filter(function (q) { return q.id !== want; }));
+    }
     list.innerHTML =
-      '<p class="an-count">未回答 <b>' + (d.waiting || 0) + '</b> 件 ／ 全 ' + qs.length + ' 件</p>'
+      '<p class="an-count">未回答 <b>' + (d.waiting || 0) + '</b> 件 ／ 全 ' + qs.length + ' 件'
+      + (want ? '　<span class="an-picked-note">Slackから開いた質問を先頭に出しています</span>' : '')
+      + '</p>'
       + qs.map(function (q) {
-        return '<div class="an-item' + (q.answer ? ' is-done' : '') + '">'
+        return '<div class="an-item' + (q.answer ? ' is-done' : '')
+          + (q.id === want ? ' is-picked' : '') + '">'
           + '<div class="an-meta"><span>' + when(q.at) + '</span>'
           + '<span>' + esc(q.lesson || '') + (q.slide ? '／スライド ' + esc(q.slide) : '') + '</span>'
           + '<span class="an-state">' + (q.answer ? '回答済み' : '未回答') + '</span></div>'
@@ -96,6 +108,13 @@
           + '<span class="an-say" role="status"></span></div>'
           + '</div>';
       }).join('');
+
+    var picked = list.querySelector('.an-item.is-picked');
+    if (picked) {
+      picked.scrollIntoView({ block: 'center' });
+      var box = picked.querySelector('.an-in');
+      if (box) box.focus();
+    }
 
     list.querySelectorAll('.an-send').forEach(function (b) {
       b.addEventListener('click', function () {

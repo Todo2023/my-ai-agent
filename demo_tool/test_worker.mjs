@@ -413,6 +413,69 @@ await t("まだ答えていない質問が先に並ぶ", async () => {
   assert.strictEqual(d.waiting, 1);
 });
 
+/* ---------- 予約をカレンダーへ ---------- */
+
+await t("予約すると、カレンダーに追加するリンクがSlackに出る", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", SLACK_WORK_WEBHOOK_URL: "https://slack.example/hook" });
+  await addSlot(e, "2099-01-01T20:00+09:00");
+  const posts = [];
+  global.fetch = async (url, init) => {
+    posts.push(JSON.parse(init.body).text);
+    return new Response("ok", { status: 200 });
+  };
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  await worker.fetch(api("/oh/book", { code: "CODE1", id: list.slots[0].id, note: "相談です" }), e);
+  assert.ok(posts.length, "Slackに送っている");
+  assert.ok(posts[0].includes("calendar.google.com/calendar/render"), "登録リンクが入っている");
+  assert.ok(posts[0].includes("action=TEMPLATE"));
+});
+
+await t("受け口が設定してあれば、カレンダーにも送る", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", SLACK_WORK_WEBHOOK_URL: "https://slack.example/hook",
+                    CALENDAR_HOOK_URL: "https://script.example/exec" });
+  await addSlot(e, "2099-01-01T20:00+09:00");
+  const cal = [];
+  global.fetch = async (url, init) => {
+    if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
+    return new Response("ok", { status: 200 });
+  };
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id: list.slots[0].id }), e);
+  assert.strictEqual((await res.json()).calendar, true);
+  assert.strictEqual(cal.length, 1);
+  assert.strictEqual(cal[0].op, "add");
+  assert.ok(cal[0].title.includes("山田"));
+  assert.ok(cal[0].start && cal[0].end, "始まりと終わりを送る");
+});
+
+await t("受け口が落ちていても、予約そのものは通る", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", CALENDAR_HOOK_URL: "https://script.example/exec" });
+  await addSlot(e, "2099-01-01T20:00+09:00");
+  global.fetch = async () => { throw new Error("落ちている"); };
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id: list.slots[0].id }), e);
+  const d = await res.json();
+  assert.strictEqual(res.status, 200, "予約は成立する");
+  assert.strictEqual(d.calendar, false, "カレンダーには入らなかったと返す");
+});
+
+await t("取り消すと、カレンダーからも消すよう送る", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", CALENDAR_HOOK_URL: "https://script.example/exec" });
+  await addSlot(e, "2099-01-01T20:00+09:00");
+  const cal = [];
+  global.fetch = async (url, init) => {
+    if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
+    return new Response("ok", { status: 200 });
+  };
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  const id = list.slots[0].id;
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  await worker.fetch(api("/oh/cancel", { code: "CODE1", id }), e);
+  assert.strictEqual(cal.length, 2);
+  assert.strictEqual(cal[1].op, "remove");
+  assert.strictEqual(cal[1].id, id, "どの予定を消すかを渡す");
+});
+
 /* ---------- 無料枠を守る（一覧を数える） ---------- */
 
 /** KV の list が何回呼ばれたかを数える env。
