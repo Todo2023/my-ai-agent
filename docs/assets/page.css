@@ -23,3 +23,10 @@ section{padding:0 0 64px;}
   .row{grid-template-columns:1fr;gap:6px;}
   .row .label{color:var(--text-soft);font-size:12px;}
 }
+
+/* お問い合わせページの、はじめの一言。
+   Xから来た人は、これが何なのかを知らないまま開く */
+.ct-what{margin:24px 0 0;padding:20px 22px;background:var(--bg-soft);
+         border-left:2px solid var(--red);max-width:60ch;}
+.ct-what p{margin:0 0 12px;font-size:14px;line-height:1.95;}
+.ct-what p:last-child{margin-bottom:0;}
