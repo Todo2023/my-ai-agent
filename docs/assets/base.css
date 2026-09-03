@@ -18,8 +18,19 @@ body{
   font-family:'Noto Sans JP', sans-serif;line-height:1.9;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3{font-family:'Shippori Mincho', serif;font-weight:600;letter-spacing:.02em;}
+/* 見出しの書体。**スライドと同じ教科書系の明朝**にそろえてある。
+   Shippori Mincho は字面が独特で、「文」などの字に違和感が出た。
+   BIZ UDPMincho は教科書や公文書のために作られた書体で、
+   日本語の読みやすさを優先している。無い環境では Noto Serif JP に落ちる。 */
+h1,h2,h3{font-family:'BIZ UDPMincho','Noto Serif JP',serif;font-weight:700;letter-spacing:.02em;}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px;}
+
+/* 広い画面では、入れ物の幅を広げる。
+   1行が長すぎると読めなくなるので、**文章の側は ch で頭打ちにしてある。**
+   広がるのは写真・見出し・表・並びのほうで、段組みが増えて縦が短くなる。 */
+@media (min-width:1100px){
+  body{--wrap:1180px;}
+}
 a{color:inherit;}
 
 /* ---------- nav ---------- */

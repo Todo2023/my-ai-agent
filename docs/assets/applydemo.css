@@ -2,13 +2,23 @@
    写真は背景に敷く。まだ置かれていないときでも、色だけが出て崩れない
    （img で置くと、無いときに壊れた印が出る）。 */
 
-.ad-hero{display:grid;gap:0;margin:0 0 46px;border:1px solid var(--hairline);
-  background:#fff;overflow:hidden;}
-/* 写真は横に長い1枚。縦長の枠に入れると上下が切れてシートが読めないので、
-   幅いっぱいの帯として置く。高さは画面幅に合わせて決める */
-.ad-shot{height:clamp(190px,32vw,400px);background:#eef1f5 center 45%/cover no-repeat;
+/* 写真は枠に入れない。囲むと、左を画面の端まで伸ばせない */
+.ad-hero{display:grid;gap:0;margin:0 0 40px;}
+
+/* 左だけ画面の端まで広げ、右端は本文にそろえる。
+   50% は親（本文の幅）、50vw は画面の半分なので、
+   その差が左の余白ぶんになる。 */
+.ad-shot{height:clamp(190px,30vw,420px);
+  margin-left:calc(50% - 50vw);width:calc(50% + 50vw);
+  background:#eef1f5 center 45%/cover no-repeat;
   background-image:url('../images/es-sheet.jpg');}
-.ad-words{padding:34px 28px 32px;}
+
+/* 100vw には縦スクロールバーの幅が含まれるため、そのままだと数px
+   はみ出して横スクロールバーが出る。はみ出しだけを切る。
+   （body に付けると body 自体がスクロール枠になり、入れ子になる） */
+html{overflow-x:clip;}
+@supports not (overflow-x:clip){ html{overflow-x:hidden;} }
+.ad-words{padding:30px 0 32px;}
 .ad-eyebrow{font-size:11px;letter-spacing:.2em;color:var(--red-deep);margin:0 0 16px;}
 .ad-words h1{font-family:'Shippori Mincho',serif;font-weight:600;
   font-size:clamp(23px,3.4vw,34px);line-height:1.5;margin:0 0 18px;letter-spacing:.01em;}
@@ -49,5 +59,12 @@
 .ad-note{font-size:12.6px;color:var(--text-soft);line-height:1.95;margin:14px 0 0;max-width:52ch;}
 
 @media (min-width:820px){
-  .ad-words{padding:40px 44px 38px;}
+  .ad-words{padding:38px 0 36px;}
+  /* 1行が短いと、そのぶん縦に伸びる。横を使って行数を減らす。
+     読みやすさの上限は 70〜75字あたりなので、そこまで広げる */
+  .ad-lead{max-width:70ch;font-size:14.5px;}
+  .ad-note{max-width:74ch;}
+  .ad-sec > p{max-width:70ch;}
+  .ad-why p{max-width:74ch;}
+  .ad-step p{max-width:none;}
 }
