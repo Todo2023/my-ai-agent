@@ -76,7 +76,9 @@
       + '<button type="button" class="deck-btn asker-send" id="work-send">提出する</button>'
       + '<button type="button" class="deck-btn writer-clear" id="work-clear">消す</button>'
       + '<p class="writer-note">書きかけは<b>あなたのブラウザの中にだけ</b>残ります。'
-      + '<b>提出すると運営に届き、次の回が開きます。</b></p>'
+      + '<b>提出すると運営に届き、次の回が開きます。</b>'
+      + '読むのは運営だけで、<b>他の受講者にも、会社にも見せません</b>'
+      + '（<a href="privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>）。</p>'
       + '</div></div>';
   }
 
@@ -92,13 +94,16 @@
       + '<span class="asker-state" id="ask-state" role="status"></span></div>'
       + '<input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">'
       + '<p class="writer-note">運営に直接届きます。<b>質問は24時間以内に回答します。</b>'
-      + '答えはSlackでお返しします。</p></div>';
+      + '答えはSlackでお返しし、<b>お名前を伏せて「みんなの質問」にも並びます。</b>'
+      + '勤務先が分かることは書かないでください（<a href="privacy.html" target="_blank" '
+      + 'rel="noopener">個人情報の取り扱い</a>）。</p></div>';
   }
 
   function peersHtml() {
     return '<aside class="peers"><div class="peers-head">みんなの質問</div>'
       + '<div class="peers-body" id="peers"><p class="peers-empty">読み込んでいます…</p></div>'
-      + '<p class="peers-note">この回に寄せられた質問と、その回答です。<b>お名前は出ません。</b></p></aside>';
+      + '<p class="peers-note">この回に寄せられた質問と、その回答です。<b>お名前は出ません。</b>'
+      + '<a href="privacy.html" target="_blank" rel="noopener">扱いについて</a></p></aside>';
   }
 
   function loadPeers(d) {

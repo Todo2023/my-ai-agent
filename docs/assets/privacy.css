@@ -1,0 +1,27 @@
+/* 個人情報の取り扱い。**読ませるための体裁**にする。
+   細かい字で長く書くと読まれず、書いていないのと同じになる。 */
+
+.pv-when{margin:14px 0 0;font-size:12px;color:var(--text-soft);}
+.pv-lead{font-size:14.5px;line-height:1.95;margin:0 0 20px;max-width:62ch;}
+.pv-note{margin:18px 0 0;font-size:13px;color:var(--text-soft);line-height:1.9;max-width:62ch;}
+
+.pv-table{border-top:1px solid var(--hairline);}
+.pv-row{display:grid;grid-template-columns:210px 1fr;gap:20px;
+        padding:16px 4px;border-bottom:1px solid var(--hairline);}
+.pv-what{font-size:14px;font-weight:700;}
+.pv-detail{font-size:14px;line-height:1.9;color:var(--ink);}
+
+.pv-list{margin:0;padding-left:1.2em;max-width:62ch;}
+.pv-list li{font-size:14.5px;line-height:1.95;margin-bottom:10px;}
+.pv-list li::marker{color:var(--red);}
+
+/* 見落とされると困るところ。囲んで、飛ばし読みでも目に入るようにする */
+.pv-callout{background:var(--bg-soft);border-left:2px solid var(--red);
+            padding:20px 24px;max-width:64ch;}
+.pv-callout.is-warn{border-left-color:var(--red-deep);background:var(--red-bg);}
+.pv-callout p{margin:0 0 14px;font-size:14.5px;line-height:1.95;}
+.pv-callout p:last-child{margin-bottom:0;}
+
+@media (max-width:640px){
+  .pv-row{grid-template-columns:1fr;gap:6px;}
+}
