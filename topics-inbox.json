@@ -1,0 +1,5 @@
+{
+ "_": "AI Topics の候補置き場。tools/topics_inbox.py が毎朝ここに書きます。配信はしていません（docs/ の外）。読むには python tools/topics_inbox.py --show",
+ "updated": "",
+ "items": []
+}
