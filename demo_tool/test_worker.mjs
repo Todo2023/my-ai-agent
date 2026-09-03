@@ -413,6 +413,78 @@ await t("まだ答えていない質問が先に並ぶ", async () => {
   assert.strictEqual(d.waiting, 1);
 });
 
+/* ---------- 無料枠を守る（一覧を数える） ---------- */
+
+/** KV の list が何回呼ばれたかを数える env。
+   無料枠でいちばん細いのが「書き込み・削除・一覧」の合計1日1,000回なので、
+   **受講者が触る経路では list を使わない**ことを試験で固定する */
+function countingEnv(extra = {}) {
+  const e = envWithLessons({ name: "山田", paidThrough: 9 }, extra);
+  e.lists = 0;
+  const orig = e.DEMO_KV.list.bind(e.DEMO_KV);
+  e.DEMO_KV.list = (opts) => { e.lists += 1; return orig(opts); };
+  return e;
+}
+
+await t("みんなの質問は、一覧を使わずに読む", async () => {
+  const e = countingEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  await worker.fetch(api("/ask", { text: "質問です", slug: "lesson-01" }), e);
+  e.lists = 0;
+  const res = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual((await res.json()).questions.length, 1);
+  assert.strictEqual(e.lists, 0, "受講者の画面で list を呼ばない");
+});
+
+await t("何度開いても、一覧は増えない", async () => {
+  const e = countingEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  await worker.fetch(api("/ask", { text: "質問です", slug: "lesson-01" }), e);
+  e.lists = 0;
+  for (let i = 0; i < 20; i++) {
+    await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  }
+  assert.strictEqual(e.lists, 0);
+});
+
+await t("オフィスアワーの画面も、一覧を使わない", async () => {
+  const e = countingEnv({ ASK_ADMIN_KEY: "admin-key", OFFICE_URL: "https://meet.example/x" });
+  await worker.fetch(new Request(
+    "https://example.workers.dev/oh/admin?key=admin-key",
+    { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ op: "add", at: "2099-01-01T20:00+09:00" }) }), e);
+  e.lists = 0;
+  const res = await worker.fetch(api("/oh", { code: "CODE1" }), e);
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual((await res.json()).slots.length, 1);
+  assert.strictEqual(e.lists, 0, "受講者の画面で list を呼ばない");
+});
+
+await t("索引が無い古い質問も、1度だけ作り直して読める", async () => {
+  const e = countingEnv({ ASK_ADMIN_KEY: "admin-key" });
+  // この仕組みより前に入った質問を、直接置く
+  e.DEMO_KV.store.set("q:lesson-01:1000", JSON.stringify({ slide: "", text: "古い質問", at: "2026-01-01T00:00:00Z" }));
+  const first = await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  assert.strictEqual((await first.json()).questions[0].text, "古い質問");
+  assert.strictEqual(e.lists, 1, "作り直しのときだけ1回");
+  e.lists = 0;
+  await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e);
+  assert.strictEqual(e.lists, 0, "2度目からは呼ばない");
+});
+
+await t("取り下げた質問は、索引からも消える", async () => {
+  const e = countingEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  await worker.fetch(api("/ask", { text: "消す質問", slug: "lesson-01" }), e);
+  const before = await (await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e)).json();
+  await worker.fetch(adminReq("/question/hide", { id: before.questions[0].id }), e);
+  const after = await (await worker.fetch(api("/questions", { code: "CODE1", slug: "lesson-01" }), e)).json();
+  assert.strictEqual(after.questions.length, 0);
+  const idx = JSON.parse(e.DEMO_KV.store.get("qidx:lesson-01"));
+  assert.strictEqual(idx.length, 0, "索引にも残さない");
+});
+
 /* ---------- オフィスアワー ---------- */
 
 function ohEnv(extra = {}) {
