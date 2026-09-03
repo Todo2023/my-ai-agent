@@ -4,7 +4,9 @@
 
 .ad-hero{display:grid;gap:0;margin:0 0 46px;border:1px solid var(--hairline);
   background:#fff;overflow:hidden;}
-.ad-shot{min-height:220px;background:#eef1f5 center/cover no-repeat;
+/* 写真は横に長い1枚。縦長の枠に入れると上下が切れてシートが読めないので、
+   幅いっぱいの帯として置く。高さは画面幅に合わせて決める */
+.ad-shot{height:clamp(190px,32vw,400px);background:#eef1f5 center 45%/cover no-repeat;
   background-image:url('../images/es-sheet.jpg');}
 .ad-words{padding:34px 28px 32px;}
 .ad-eyebrow{font-size:11px;letter-spacing:.2em;color:var(--red-deep);margin:0 0 16px;}
@@ -47,8 +49,5 @@
 .ad-note{font-size:12.6px;color:var(--text-soft);line-height:1.95;margin:14px 0 0;max-width:52ch;}
 
 @media (min-width:820px){
-  .ad-hero{grid-template-columns:1fr 1fr;align-items:stretch;}
-  /* 写真は左。読む前に「何の話か」が目に入る */
-  .ad-shot{order:-1;min-height:380px;}
-  .ad-words{padding:44px 40px;}
+  .ad-words{padding:40px 44px 38px;}
 }
