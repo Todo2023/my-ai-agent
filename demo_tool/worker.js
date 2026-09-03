@@ -957,7 +957,22 @@ async function handleOhAdmin(request, url, env) {
     return json({ open: await ohIsOpen(env), slots: await ohSlots(env) });
   }
 
-  return json({ error: "op は add / remove / list / open / close のどれかです" }, 400);
+  // 設定が通っているかを、1件の予定を入れて確かめる。
+  // 受け口のURLと合言葉を両方使うので、どこが違うのかがここで分かる。
+  // KVには何も書かないので、無料枠は減らない。
+  if (op === "caltest") {
+    const at = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const cal = await toCalendar(env, {
+      id: `caltest-${Date.now()}`,
+      at, dur: 15,
+      title: "テスト：カレンダー連携の確認",
+      details: "設定の確認用です。見終わったら消してください。",
+      url: "",
+    });
+    return json({ ok: cal.sent, at, ...cal });
+  }
+
+  return json({ error: "op は add / remove / list / open / close / caltest のどれかです" }, 400);
 }
 
 
