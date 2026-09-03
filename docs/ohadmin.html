@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 運営用。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>オフィスアワーの枠｜運営用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+<link rel="stylesheet" href="assets/answer.css">
+<link rel="stylesheet" href="assets/ohadmin.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 運営用</a>
+    <span class="navlinks">
+      <a class="navlink" href="works.html">提出物 →</a>
+      <a class="navlink" href="answer.html">質問に答える →</a>
+      <a class="navlink" href="office.html">受講者の画面 →</a>
+    </span>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+  <div class="lesson-head">
+    <div class="kicker">Office hours</div>
+    <h1>オフィスアワーの枠</h1>
+    <p class="aim">話せる時間を選んで出します。<b>出した枠だけが、受講者の画面に並びます。</b>
+    来なかった方の記録も、ここから付けます。</p>
+  </div>
+  <div id="gate" class="an-gate">
+    <p class="an-label">合鍵</p>
+    <form class="an-keyform">
+      <input type="password" id="key" autocomplete="off" placeholder="合鍵">
+      <button type="submit" class="deck-btn">開く</button>
+    </form>
+    <p class="an-say" id="gate-say" role="status"></p>
+  </div>
+  <div id="body"></div>
+</main>
+
+<footer>合同会社Todo　思考力×AI統合講座　運営用</footer>
+
+<script src="assets/course.js"></script>
+<script>
+/* 運営がオフィスアワーの枠を出す画面。
+   合鍵はここに保存しません（ブラウザを閉じると消えます）。 */
+(function () {
+  var esc = Course.esc;
+  var API = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev';
+  var key = '';
+  var data = null;
+  /* 出したあとは一覧を読み直すので、画面が組み直される。
+     知らせを変数に持っておかないと、押した手応えが消える */
+  var flash = '';
+
+  var gate = document.getElementById('gate');
+  var gateSay = document.getElementById('gate-say');
+  var body = document.getElementById('body');
+
+  var WEEK = ['日', '月', '火', '水', '木', '金', '土'];
+  /* 出せる時刻。30分刻みで、朝9時から夜10時まで。
+     ここに無い時間に出したいときは、日付の欄の下から直に入れられる */
+  var HOURS = [];
+  for (var h = 9; h <= 22; h++) {
+    HOURS.push([h, 0]);
+    if (h < 22) HOURS.push([h, 30]);
+  }
+
+  function p2(n) { return ('0' + n).slice(-2); }
+
+  function when(iso, dur) {
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso);
+    var end = new Date(d.getTime() + (dur || 30) * 60000);
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WEEK[d.getDay()] + '）　'
+      + p2(d.getHours()) + ':' + p2(d.getMinutes())
+      + '–' + p2(end.getHours()) + ':' + p2(end.getMinutes());
+  }
+
+  function call(op, extra) {
+    var payload = Object.assign({ op: op }, extra || {});
+    return fetch(API + '/oh/admin?key=' + encodeURIComponent(key), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    });
+  }
+
+  /* きょうから2週間ぶんの日付。過ぎた日を出しても押せないだけなので出さない */
+  function days() {
+    var out = [];
+    var t = new Date();
+    for (var i = 0; i < 14; i++) {
+      var d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i);
+      out.push(d);
+    }
+    return out;
+  }
+
+  function render() {
+    // 時間の順に並べる。出した順のまま並ぶと、次がどれか分からない
+    var slots = (data.slots || []).slice()
+      .sort(function (a, b) { return String(a.at).localeCompare(String(b.at)); });
+    var now = new Date().toISOString();
+    var ahead = slots.filter(function (s) { return s.at >= now; });
+    var past = slots.filter(function (s) { return s.at < now; });
+
+    body.innerHTML =
+      '<section class="oa-sec"><h2>いま席にいるか</h2>'
+      + '<div class="oa-open">'
+      + '<span class="oa-state' + (data.open ? ' is-on' : '') + '">'
+      + (data.open ? '席にいます（予約なしでも入れます）' : '席にいません（予約制のみ）') + '</span>'
+      + '<button type="button" class="deck-btn" id="oa-toggle">'
+      + (data.open ? '席を外す' : '席にいると出す') + '</button></div>'
+      + '<p class="oa-note">「席にいます」は約束ではありません。'
+      + '出せるときだけ出して、離れるときは戻してください。</p></section>'
+
+      + '<section class="oa-sec"><h2>枠を出す</h2>'
+      + '<p class="oa-note">日を選び、話せる時間を押してください。'
+      + '<b>いくつでもまとめて出せます。</b></p>'
+      + '<div class="oa-days" id="oa-days">'
+      + days().map(function (d, i) {
+          return '<button type="button" class="oa-day' + (i === 0 ? ' is-now' : '') + '"'
+            + ' data-y="' + d.getFullYear() + '" data-m="' + d.getMonth() + '" data-d="' + d.getDate() + '">'
+            + '<span class="oa-day-w">' + WEEK[d.getDay()] + '</span>'
+            + '<span class="oa-day-n">' + (d.getMonth() + 1) + '/' + d.getDate() + '</span></button>';
+        }).join('')
+      + '</div>'
+      + '<div class="oa-times" id="oa-times"></div>'
+      + '<div class="oa-add"><button type="button" class="deck-btn oa-go" id="oa-add" disabled>'
+      + 'この時間を出す</button>'
+      + '<span class="oa-say" id="oa-say" role="status">' + esc(flash) + '</span></div></section>'
+
+      + '<section class="oa-sec"><h2>出している枠（' + ahead.length + '）</h2>'
+      + (ahead.length
+          ? '<div class="oa-list">' + ahead.map(row).join('') + '</div>'
+          : '<p class="oa-note">まだ1つも出ていません。受講者の画面には'
+            + '「いまは枠が出ていません」と表示されます。</p>')
+      + '</section>'
+
+      + (past.length
+          ? '<section class="oa-sec"><h2>終わった枠（' + past.length + '）</h2>'
+            + '<p class="oa-note">お知らせなく来られなかった方は、ここで記録します。'
+            + '記録すると、その方は<b>1週間、予約できなくなります。</b></p>'
+            + '<div class="oa-list">' + past.map(row).join('') + '</div></section>'
+          : '');
+
+    wire();
+  }
+
+  function row(s) {
+    var who = s.taken
+      ? '<span class="oa-who">' + esc(s.name || s.taken) + '</span>'
+        + (s.note ? '<span class="oa-memo">' + esc(s.note) + '</span>' : '')
+      : '<span class="oa-free">空き</span>';
+    var acts = s.taken
+      ? '<button type="button" class="oa-noshow" data-id="' + esc(s.id) + '"'
+        + ' data-who="' + esc(s.name || s.taken) + '">来なかった</button>'
+      : '<button type="button" class="oa-del" data-id="' + esc(s.id) + '">取り下げる</button>';
+    return '<div class="oa-row' + (s.taken ? ' is-taken' : '') + '">'
+      + '<span class="oa-when">' + when(s.at, s.dur) + '</span>'
+      + who + acts + '</div>';
+  }
+
+  /* 選んだ日と時刻。押すたびに入れ替える */
+  var picked = { y: 0, m: 0, d: 0, times: {} };
+
+  function paintTimes() {
+    var box = document.getElementById('oa-times');
+    var taken = {};
+    (data.slots || []).forEach(function (s) {
+      var t = new Date(s.at);
+      if (t.getFullYear() === picked.y && t.getMonth() === picked.m && t.getDate() === picked.d) {
+        taken[p2(t.getHours()) + ':' + p2(t.getMinutes())] = true;
+      }
+    });
+    box.innerHTML = HOURS.map(function (h) {
+      var label = p2(h[0]) + ':' + p2(h[1]);
+      var out = taken[label];
+      return '<button type="button" class="oa-time' + (out ? ' is-out' : '')
+        + (picked.times[label] ? ' is-on' : '') + '"'
+        + (out ? ' disabled title="もう出しています"' : '')
+        + ' data-t="' + label + '">' + label + '</button>';
+    }).join('');
+    document.getElementById('oa-add').disabled = !Object.keys(picked.times).length;
+  }
+
+  function wire() {
+    document.getElementById('oa-toggle').addEventListener('click', function () {
+      call(data.open ? 'close' : 'open').then(load);
+    });
+
+    var dayBox = document.getElementById('oa-days');
+    dayBox.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.oa-day') : null;
+      if (!b) return;
+      dayBox.querySelectorAll('.oa-day').forEach(function (x) { x.classList.remove('is-now'); });
+      b.classList.add('is-now');
+      picked = { y: +b.dataset.y, m: +b.dataset.m, d: +b.dataset.d, times: {} };
+      paintTimes();
+    });
+
+    document.getElementById('oa-times').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.oa-time') : null;
+      if (!b || b.disabled) return;
+      var t = b.dataset.t;
+      if (picked.times[t]) delete picked.times[t]; else picked.times[t] = true;
+      paintTimes();
+    });
+
+    document.getElementById('oa-add').addEventListener('click', function () {
+      var say = document.getElementById('oa-say');
+      var list = Object.keys(picked.times).sort().map(function (t) {
+        var hm = t.split(':');
+        // 端末の時計に合わせて組む。ここは日本で使う前提
+        return new Date(picked.y, picked.m, picked.d, +hm[0], +hm[1]).toISOString();
+      });
+      if (!list.length) return;
+      say.textContent = '出しています…';
+      call('add', { at: list }).then(function (res) {
+        if (!res.ok) { say.textContent = res.d.error || '出せませんでした'; return; }
+        flash = res.d.added + 'つ出しました';
+        load();
+      }).catch(function () { say.textContent = '通信できませんでした'; });
+    });
+
+    body.querySelectorAll('.oa-del').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('この枠を取り下げます。よろしいですか。')) return;
+        call('remove', { id: b.dataset.id }).then(function (res) {
+          if (!res.ok) { alert(res.d.error || '取り下げられませんでした'); return; }
+          load();
+        });
+      });
+    });
+
+    body.querySelectorAll('.oa-noshow').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm(b.dataset.who + ' さんを「お知らせなく来られなかった」として記録します。\n'
+                     + 'この方は1週間、予約できなくなります。よろしいですか。')) return;
+        call('noshow', { id: b.dataset.id }).then(function (res) {
+          if (!res.ok) { alert(res.d.error || '記録できませんでした'); return; }
+          load();
+        });
+      });
+    });
+  }
+
+  function load() {
+    return call('list').then(function (res) {
+      if (!res.ok) { gateSay.textContent = res.d.error || '開けませんでした'; return; }
+      data = res.d;
+      gate.style.display = 'none';
+      render();
+      // 日付は初日を選んだ状態にしておく。開いてすぐ押せる
+      var first = document.querySelector('.oa-day');
+      if (first) first.click();
+    });
+  }
+
+  gate.querySelector('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    key = document.getElementById('key').value.trim();
+    if (!key) return;
+    gateSay.textContent = '開いています…';
+    load().catch(function () { gateSay.textContent = '通信できませんでした'; });
+  });
+})();
+</script>
+
+</body>
+</html>

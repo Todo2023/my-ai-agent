@@ -588,6 +588,115 @@ await t("受け口が200で断ってきたら、送れたことにしない", as
   assert.ok(d.reason.includes("合言葉が違います"), "受け口の言い分をそのまま出す");
 });
 
+/* ---------- 取り消しの締切と、無断キャンセル ---------- */
+
+/** いまから n 分後の枠を1つ作る */
+async function slotIn(e, minutes) {
+  const at = new Date(Date.now() + minutes * 60000).toISOString();
+  return addSlot(e, at);
+}
+
+function admin(body, key = "admin-key") {
+  return new Request("https://example.workers.dev/oh/admin?key=" + key, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body) });
+}
+
+await t("30分前を過ぎたら、画面からは取り消せない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await slotIn(e, 20);              // 20分後
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  const res = await worker.fetch(api("/oh/cancel", { code: "CODE1", id }), e);
+  const d = await res.json();
+  assert.strictEqual(res.status, 409);
+  assert.ok(d.error.includes("30分前"), "締切を文に出す");
+  assert.ok(d.error.includes("Slack"), "どうすればよいかも言う");
+});
+
+await t("まだ余裕があれば、これまで通り取り消せる", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await slotIn(e, 180);             // 3時間後
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  const res = await worker.fetch(api("/oh/cancel", { code: "CODE1", id }), e);
+  assert.strictEqual(res.status, 200);
+});
+
+await t("無断キャンセルを記録すると、枠が空き、1週間予約できない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await slotIn(e, 60);
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+
+  const res = await worker.fetch(admin({ op: "noshow", id }), e);
+  const d = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(d.code, "CODE1");
+  const days = (new Date(d.until) - Date.now()) / 86400000;
+  assert.ok(days > 6.9 && days < 7.1, "1週間");
+
+  // 枠は空いている
+  const list = await (await worker.fetch(api("/oh", { code: "CODE2" }), e)).json();
+  assert.strictEqual(list.slots.find((s) => s.id === id).taken, false);
+
+  // 本人は予約できない
+  const again = await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  const dd = await again.json();
+  assert.strictEqual(again.status, 403);
+  assert.ok(dd.error.includes("無断キャンセル"));
+  assert.ok(dd.bannedUntil);
+
+  // ほかの人は取れる
+  const other = await worker.fetch(api("/oh/book", { code: "CODE2", id }), e);
+  assert.strictEqual(other.status, 200);
+});
+
+await t("止められていることは、押す前に画面へ出す", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await slotIn(e, 60);
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  await worker.fetch(admin({ op: "noshow", id }), e);
+  const d = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  assert.ok(d.bannedUntil, "いつまでかを返す");
+  assert.strictEqual(d.cancelMin, 30);
+});
+
+await t("行き違いだったときは、すぐ戻せる", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  stubSlack();
+  const id = await slotIn(e, 60);
+  await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  await worker.fetch(admin({ op: "noshow", id }), e);
+  await worker.fetch(admin({ op: "unban", code: "CODE1" }), e);
+  const res = await worker.fetch(api("/oh/book", { code: "CODE1", id }), e);
+  assert.strictEqual(res.status, 200);
+});
+
+await t("枠はまとめて足せる。索引の書き込みは1回だけ", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  let idx = 0;
+  const put = e.DEMO_KV.put.bind(e.DEMO_KV);
+  e.DEMO_KV.put = async (k, v) => { if (k === "ohidx") idx++; return put(k, v); };
+  const res = await worker.fetch(admin({ op: "add", at: [
+    "2099-01-01T20:00+09:00", "2099-01-01T20:30+09:00", "2099-01-01T21:00+09:00"] }), e);
+  const d = await res.json();
+  assert.strictEqual(d.added, 3);
+  assert.strictEqual(idx, 1, "索引は1回しか書かない");
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  assert.strictEqual(list.slots.length, 3);
+});
+
+await t("まとめて足すとき、1つでも形が違えば何も足さない", async () => {
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key" });
+  const res = await worker.fetch(admin({ op: "add", at: [
+    "2099-01-01T20:00+09:00", "あした"] }), e);
+  assert.strictEqual(res.status, 400);
+  const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
+  assert.strictEqual(list.slots.length, 0, "途中まで足さない");
+});
+
 /* ---------- 無料枠を守る（一覧を数える） ---------- */
 
 /** KV の list が何回呼ばれたかを数える env。
@@ -673,7 +782,9 @@ async function addSlot(e, at, key = "admin-key") {
     "https://example.workers.dev/oh/admin?key=" + key,
     { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ op: "add", at }) }), e);
-  return (await res.json()).id;
+  const d = await res.json();
+  // まとめて足せるようにしたので、返りは一覧になっている
+  return d.slots ? d.slots[0].id : d.id;
 }
 
 await t("枠を登録できるのは運営だけ", async () => {

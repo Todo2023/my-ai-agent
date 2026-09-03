@@ -41,3 +41,10 @@
   .oh-row{grid-template-columns:1fr auto;gap:8px 12px;}
   .oh-state{text-align:right;}
 }
+
+/* 予約をお休みいただいている間の知らせ。
+   叱る見た目にはしない。理由といつまでかが分かればよい */
+.oh-ban{border:1px solid var(--red);border-left-width:2px;background:#fff;
+  padding:15px 18px;margin:0 0 22px;}
+.oh-ban p{margin:0;font-size:13.2px;line-height:1.95;color:var(--text-soft);}
+.oh-ban .oh-label{color:var(--red-deep);margin-bottom:7px;}

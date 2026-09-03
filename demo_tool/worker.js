@@ -82,6 +82,12 @@ const MAX_ANSWER = 1200;
    枠を押さえたまま来ない人が続くと、他の人が取れなくなるため */
 const OH_MAX_PER_PERSON = 1;
 const OH_LIST_LIMIT = 60;
+/* 取り消しは30分前まで。直前に空いても、次の人はもう予定を立てられない。
+   運営が待つだけになるので、そこから先は一声かけてもらう */
+const OH_CANCEL_MIN = 30;
+/* 断りなく来なかった人は、しばらく予約できない。
+   枠は1人1つで数も少ないので、空振りが続くと他の人が取れなくなる */
+const OH_BAN_DAYS = 7;
 const MAX_EXPLANATION = 220;
 
 export function buildPrompt(audience, text) {
@@ -786,6 +792,21 @@ async function ohSlots(env) {
   return out.slice(0, OH_LIST_LIMIT);
 }
 
+/** 「9月10日」の形。断りの文に ISO をそのまま出すと読めない */
+function jpDay(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? String(iso)
+    : `${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
+}
+
+/** 予約を止められている人か。止めていなければ null を返す */
+async function ohBannedUntil(env, code) {
+  const until = await env.DEMO_KV.get(`oh:ban:${code}`);
+  if (!until) return null;
+  if (until <= new Date().toISOString()) return null;   // 期限切れは無いのと同じ
+  return until;
+}
+
 async function ohIsOpen(env) {
   return (await env.DEMO_KV.get("oh:open")) === "1";
 }
@@ -822,6 +843,10 @@ async function handleOh(request, env) {
     nowUrl: open ? (env.OFFICE_URL || "") : "",
     slots,
     mine: slots.filter((s) => s.mine),
+    // 止められている人には、画面でその理由といつまでかを見せる。
+    // 押してから断られるより、先に分かるほうがよい
+    bannedUntil: await ohBannedUntil(env, code),
+    cancelMin: OH_CANCEL_MIN,
   });
 }
 
@@ -833,6 +858,15 @@ async function handleOhBook(request, env) {
 
   const me = await whoAmI(env, code);
   if (me.error) return json({ error: me.error }, 403);
+
+  const banned = await ohBannedUntil(env, code);
+  if (banned) {
+    return json({
+      error: `無断キャンセルがあったため、${jpDay(banned)}まで予約をお休みいただいています。`
+        + "急ぎのご相談は、Slackで直接お声がけください。",
+      bannedUntil: banned,
+    }, 403);
+  }
 
   const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
   if (!raw) return json({ error: "その枠はありません" }, 404);
@@ -899,6 +933,17 @@ async function handleOhCancel(request, env) {
   // 自分の予約しか取り消せない。他人の枠を空けられては困る
   if (slot.taken !== code) return json({ error: "その枠はあなたの予約ではありません" }, 403);
 
+  // 直前の取り消しは受けない。運営が待つだけになるので、一声かけてもらう
+  const left = (new Date(slot.at).getTime() - Date.now()) / 60000;
+  if (left < OH_CANCEL_MIN) {
+    return json({
+      error: `取り消しは${OH_CANCEL_MIN}分前までです。`
+        + "この時間からは、Slackで直接お知らせください。"
+        + "\n何も言わずに来られなかった場合は、"
+        + `${OH_BAN_DAYS}日間、予約をお休みいただきます。`,
+    }, 409);
+  }
+
   const was = { at: slot.at, note: slot.note || "" };
   delete slot.taken; delete slot.name; delete slot.note; delete slot.bookedAt;
   await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
@@ -935,19 +980,34 @@ async function handleOhAdmin(request, url, env) {
   }
 
   if (op === "add") {
-    const at = String(body.at || "").trim();
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(at)) {
-      return json({ error: "日時は 2026-09-10T20:00+09:00 の形で入れてください" }, 400);
+    // 1件でも、まとめてでも受ける。画面から「その日の空き時間」を
+    // いくつも選べるようにするため
+    const list = Array.isArray(body.at) ? body.at : [body.at];
+    if (!list.length) return json({ error: "日時が空です" }, 400);
+
+    const made = [];
+    for (const one of list) {
+      const at = String(one || "").trim();
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(at)) {
+        return json({ error: `日時が読み取れません（${at}）。`
+                             + "2026-09-10T20:00+09:00 の形で入れてください" }, 400);
+      }
+      const iso = new Date(at).toISOString();
+      if (Number.isNaN(Date.parse(iso))) return json({ error: `日時が読み取れません（${at}）` }, 400);
+      made.push({ id: iso.replace(/[^0-9]/g, "").slice(0, 12), at: iso });
     }
-    const iso = new Date(at).toISOString();
-    if (Number.isNaN(Date.parse(iso))) return json({ error: "日時が読み取れません" }, 400);
-    const id = iso.replace(/[^0-9]/g, "").slice(0, 12);
-    await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify({
-      at: iso, dur: Number(body.dur) || 30, url: String(body.url || env.OFFICE_URL || ""),
-    }));
+
+    for (const m of made) {
+      await env.DEMO_KV.put(`oh:slot:${m.id}`, JSON.stringify({
+        at: m.at, dur: Number(body.dur) || 30, url: String(body.url || env.OFFICE_URL || ""),
+      }));
+    }
+    // 索引は最後に1回だけ書く。1件ごとに書くと、
+    // まとめて足すほど書き込み回数が倍になる
     const ids = (await readIndex(env, "ohidx")) || [];
-    if (!ids.includes(id)) await env.DEMO_KV.put("ohidx", JSON.stringify([...ids, id]));
-    return json({ ok: true, id, at: iso });
+    const add = made.map((m) => m.id).filter((id) => !ids.includes(id));
+    if (add.length) await env.DEMO_KV.put("ohidx", JSON.stringify([...ids, ...add]));
+    return json({ ok: true, added: made.length, slots: made });
   }
 
   if (op === "remove") {
@@ -964,8 +1024,45 @@ async function handleOhAdmin(request, url, env) {
     return json({ ok: true, id });
   }
 
+  // 来なかった人を記録する。枠を空け、しばらく予約できないようにする
+  if (op === "noshow") {
+    const id = String(body.id || "").trim();
+    const raw = await env.DEMO_KV.get(`oh:slot:${id}`);
+    if (!raw) return json({ error: "その枠はありません" }, 404);
+    const slot = JSON.parse(raw);
+    if (!slot.taken) return json({ error: "その枠には予約が入っていません" }, 409);
+
+    const who = slot.taken;
+    const name = slot.name || who;
+    const days = Number(body.days) || OH_BAN_DAYS;
+    const until = new Date(Date.now() + days * 86400000).toISOString();
+    // 期限そのものを持たせ、TTL は念のため少し長めにする。
+    // TTL だけに頼ると、いつまでかを画面に出せない
+    await env.DEMO_KV.put(`oh:ban:${who}`, until,
+                          { expirationTtl: Math.round(days * 86400) + 86400 });
+
+    delete slot.taken; delete slot.name; delete slot.note; delete slot.bookedAt;
+    await env.DEMO_KV.put(`oh:slot:${id}`, JSON.stringify(slot));
+    await toCalendar(env, { op: "remove", id, at: slot.at, dur: slot.dur || 30,
+                            title: `オフィスアワー：${name}` });
+    await toSlack(env, {
+      lesson: "オフィスアワー", slide: "", name: `${name}（無断キャンセル）`,
+      text: `${slot.at} の枠。${jpDay(until)}まで予約をお休みいただきます`,
+    }, "work");
+    return json({ ok: true, id, code: who, until });
+  }
+
+  // 行き違いだったときに、すぐ戻せるようにしておく
+  if (op === "unban") {
+    const who = String(body.code || "").trim().toUpperCase();
+    if (!who) return json({ error: "誰の分かを指定してください" }, 400);
+    await env.DEMO_KV.delete(`oh:ban:${who}`);
+    return json({ ok: true, code: who });
+  }
+
   if (op === "list") {
-    return json({ open: await ohIsOpen(env), slots: await ohSlots(env) });
+    return json({ open: await ohIsOpen(env), slots: await ohSlots(env),
+                  cancelMin: OH_CANCEL_MIN, banDays: OH_BAN_DAYS });
   }
 
   // 設定が通っているかを、1件の予定を入れて確かめる。
@@ -983,7 +1080,8 @@ async function handleOhAdmin(request, url, env) {
     return json({ ok: cal.sent, at, ...cal });
   }
 
-  return json({ error: "op は add / remove / list / open / close / caltest のどれかです" }, 400);
+  return json({ error: "op は add / remove / list / open / close / noshow / unban / caltest "
+                       + "のどれかです" }, 400);
 }
 
 
