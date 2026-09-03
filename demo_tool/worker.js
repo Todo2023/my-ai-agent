@@ -747,6 +747,17 @@ async function toCalendar(env, ev) {
       }),
     });
     if (!res.ok) return { sent: false, reason: `受け口が ${res.status} を返しました` };
+    // 受け口（Apps Script）は、合言葉違いなどの断りも 200 で返す。
+    // 番号だけ見ていると「送れた」と誤って報告するので、中身まで読む。
+    const body = await res.text();
+    let parsed;
+    try { parsed = JSON.parse(body); } catch { parsed = null; }
+    if (parsed && parsed.error) {
+      return { sent: false, reason: `受け口が「${parsed.error}」と返しました` };
+    }
+    if (!parsed || parsed.ok !== true) {
+      return { sent: false, reason: `受け口の返事を読み取れません：${body.slice(0, 120)}` };
+    }
     return { sent: true };
   } catch {
     // カレンダーに入らなくても、予約そのものは成立させる。ここで止めない

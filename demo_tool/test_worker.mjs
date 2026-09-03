@@ -489,7 +489,7 @@ await t("予約すると、カレンダーに追加するリンクがSlackに出
   const posts = [];
   global.fetch = async (url, init) => {
     posts.push(JSON.parse(init.body).text);
-    return new Response("ok", { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   };
   const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
   await worker.fetch(api("/oh/book", { code: "CODE1", id: list.slots[0].id, note: "相談です" }), e);
@@ -505,7 +505,7 @@ await t("受け口が設定してあれば、カレンダーにも送る", async
   const cal = [];
   global.fetch = async (url, init) => {
     if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
-    return new Response("ok", { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   };
   const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
   const res = await worker.fetch(api("/oh/book", { code: "CODE1", id: list.slots[0].id }), e);
@@ -533,7 +533,7 @@ await t("取り消すと、カレンダーからも消すよう送る", async ()
   const cal = [];
   global.fetch = async (url, init) => {
     if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
-    return new Response("ok", { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   };
   const list = await (await worker.fetch(api("/oh", { code: "CODE1" }), e)).json();
   const id = list.slots[0].id;
@@ -550,7 +550,7 @@ await t("設定の確認（caltest）は、受け口と合言葉をそのまま�
   const cal = [];
   global.fetch = async (url, init) => {
     if (String(url).includes("script.example")) cal.push(JSON.parse(init.body));
-    return new Response("ok", { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   };
   const res = await worker.fetch(
     new Request("https://x/oh/admin?key=admin-key", {
@@ -572,6 +572,20 @@ await t("受け口が未設定なら、caltest はその旨を返す（落ちな
   assert.strictEqual(res.status, 200);
   assert.strictEqual(d.ok, false);
   assert.ok(d.reason.includes("未設定"));
+});
+
+await t("受け口が200で断ってきたら、送れたことにしない", async () => {
+  // Apps Script は合言葉違いも 200 で返す。番号だけ見ていると取りこぼす
+  const e = ohEnv({ ASK_ADMIN_KEY: "admin-key", CALENDAR_HOOK_URL: "https://script.example/exec",
+                    CALENDAR_TOKEN: "ちがう合言葉" });
+  global.fetch = async () =>
+    new Response(JSON.stringify({ error: "合言葉が違います" }), { status: 200 });
+  const res = await worker.fetch(
+    new Request("https://x/oh/admin?key=admin-key", {
+      method: "POST", body: JSON.stringify({ op: "caltest" }) }), e);
+  const d = await res.json();
+  assert.strictEqual(d.ok, false);
+  assert.ok(d.reason.includes("合言葉が違います"), "受け口の言い分をそのまま出す");
 });
 
 /* ---------- 無料枠を守る（一覧を数える） ---------- */
