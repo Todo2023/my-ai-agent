@@ -44,9 +44,30 @@
       + (back ? '<p class="aim"><a href="lessons.html">資料の一覧に戻る →</a></p>' : '') + '</div>');
   }
 
+  /* 目次。見出しが無い回でも困らないよう、無ければ番号だけを並べる。
+     押すとその枚に飛ぶ。いま見ている行には印を付ける */
+  function tocHtml(d) {
+    var toc = d.toc && d.toc.length ? d.toc : null;
+    if (!toc) {
+      toc = [];
+      for (var i = 1; i <= d.slides; i++) toc.push({ n: i, t: i === 1 ? '表紙' : '' });
+    }
+    return '<nav class="deck-toc" aria-label="目次">'
+      + '<div class="deck-toc-head">目次<span>' + d.slides + '枚</span></div>'
+      + '<ol class="deck-toc-list" id="deck-toc">'
+      + toc.map(function (e) {
+          return '<li><button type="button" class="toc-item' + (e.part ? ' is-part' : '')
+            + '" data-n="' + e.n + '">'
+            + '<span class="toc-n">' + e.n + '</span>'
+            + '<span class="toc-t">' + esc(e.t || '') + '</span></button></li>';
+        }).join('')
+      + '</ol></nav>';
+  }
+
   function deckHtml(d) {
     if (!d.slides) return '';
     return '<div class="deck">'
+      + '<div class="deck-main">'
       + '<div class="deck-stage"><img id="deck-img" src="' + Course.slideUrl(d.slug, '01', d.rev)
       + '" alt="' + esc(d.label) + ' スライド 1" draggable="false" decoding="async"></div>'
       + '<div class="deck-bar">'
@@ -54,7 +75,9 @@
       + '<span class="deck-count"><b id="deck-now">1</b> / ' + d.slides
       + '<em>矢印キーでも進みます</em></span>'
       + '<button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>'
-      + '</div></div>';
+      + '</div></div>'
+      + tocHtml(d)
+      + '</div>';
   }
 
   function writerHtml(d) {
@@ -190,6 +213,7 @@
     var now = document.getElementById('deck-now');
     var prev = document.getElementById('deck-prev');
     var next = document.getElementById('deck-next');
+    var toc = document.getElementById('deck-toc');
     var pad = function (n) { return n < 10 ? '0' + n : String(n); };
 
     function show(n) {
@@ -202,7 +226,35 @@
       if (state.i < state.total) new Image().src = Course.slideUrl(d.slug, pad(state.i + 1), d.rev);
       var where = document.getElementById('ask-where');
       if (where) where.textContent = 'スライド ' + state.i;
+      markToc();
     }
+
+    /* いま見ている行に印を付け、目次の外に出ていたら見える位置まで寄せる */
+    function markToc() {
+      if (!toc) return;
+      var items = toc.querySelectorAll('.toc-item');
+      for (var k = 0; k < items.length; k++) {
+        var on = Number(items[k].getAttribute('data-n')) === state.i;
+        items[k].classList.toggle('is-now', on);
+        if (on) {
+          items[k].setAttribute('aria-current', 'true');
+          var box = toc.getBoundingClientRect();
+          var row = items[k].getBoundingClientRect();
+          if (row.top < box.top || row.bottom > box.bottom) {
+            items[k].scrollIntoView({ block: 'nearest' });
+          }
+        } else {
+          items[k].removeAttribute('aria-current');
+        }
+      }
+    }
+    if (toc) {
+      toc.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('.toc-item') : null;
+        if (b) show(Number(b.getAttribute('data-n')));
+      });
+    }
+    markToc();
     prev.addEventListener('click', function () { show(state.i - 1); });
     next.addEventListener('click', function () { show(state.i + 1); });
     document.addEventListener('keydown', function (e) {
