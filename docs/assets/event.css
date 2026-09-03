@@ -12,6 +12,7 @@
 .ev-fact em{display:block;font-style:normal;font-size:11px;letter-spacing:.12em;
             color:var(--text-soft);margin-bottom:5px;}
 
+.ev-when-note{margin:0 0 28px;font-size:13.5px;color:var(--text-soft);line-height:1.95;max-width:52ch;}
 .ev-cta{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;margin:0;}
 
 /* 時間割。ここを見に来る人が多いので、いちばん読みやすくする */
