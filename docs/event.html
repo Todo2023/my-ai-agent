@@ -10,12 +10,37 @@
 <meta property="og:description" content="9/21 8:00〜9/25 20:00 の5日間、いつでも。5分から、何度でも。集まる形ではありません。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPMincho:wght@400;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
-<link rel="stylesheet" href="assets/page.css">
+<link rel="stylesheet" href="assets/page.css?v=2">
 <link rel="stylesheet" href="assets/event.css">
+<style>
+  /* 読み物として横を使う。スマホでは base の値がそのまま効く */
+  @media (min-width:900px){ body{--wrap:1180px;} }
+</style>
 </head>
 <body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="event.html">合同会社To<em>do</em> — 思考力×AI講座（学生向け）</a>
+
+    <span class="nav-cred">監修｜現役の大学教員・データサイエンティスト・MBAホルダー ほか</span>
+  </div>
+  <div class="tabbar">
+    <div class="tabbar-inner">
+      <!-- 公開しているのはこの4ページだけ。他は鍵がかかっているので並べない
+           （来た人がパスワードを求められて終わる）。公開時に元に戻す。
+           **4ページで同じ並びにしてある。**どこへ行っても迷わないため。 -->
+      <div class="tabs">
+        <a class="tab" href="apply-demo.html">お申し込み</a>
+        <a class="tab is-current" href="event.html" aria-current="page">9月のデモについて</a>
+        <a class="tab" href="topics.html">AI Topics</a>
+        <a class="tab" href="contact.html">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</nav>
 
 <main class="wrap">
 
@@ -31,7 +56,6 @@
       <div class="ev-fact"><em>期間</em>9月21日（月）8:00 〜 9月25日（金）20:00</div>
       <div class="ev-fact"><em>場所</em>オンライン（リンクを開くだけ）</div>
       <div class="ev-fact"><em>所要</em>5分から。何度でも</div>
-      <div class="ev-fact"><em>監修</em>現役の大学教員・データサイエンティスト・MBAホルダー ほか</div>
     </div>
     <p class="ev-when-note"><b>集まる形ではありません。</b>5日間のうち、
     ご都合のよい時間に、ご自身の端末から使えます。</p>
@@ -140,6 +164,7 @@
 
   <section>
     <h2 class="group-title">よくある質問</h2>
+    <div id="faq-2col">
     <div class="faq-item">
       <div class="q"><span>Q</span>そのあと勧誘されますか。</div>
       <div class="a">A　しません。<b>結果の画面の下に、講座の案内が小さく出るだけ</b>です。
@@ -171,6 +196,7 @@
       <div class="q"><span>Q</span>期間を過ぎたら使えませんか。</div>
       <div class="a">A　9月25日20:00で受付を終了します。
       <b>10月1日からは講座が始まります。</b>案内は<a href="contact.html">お問い合わせ</a>からお送りします。</div>
+    </div>
     </div>
   </section>
 

@@ -8,7 +8,7 @@
 <title>講座資料｜思考力×AI統合講座</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPMincho:wght@400;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/lesson.css">
 </head>
@@ -67,7 +67,6 @@
   function deckHtml(d) {
     if (!d.slides) return '';
     return '<div class="deck">'
-      + '<div class="deck-main">'
       + '<div class="deck-stage"><img id="deck-img" src="' + Course.slideUrl(d.slug, '01', d.rev)
       + '" alt="' + esc(d.label) + ' スライド 1" draggable="false" decoding="async"></div>'
       + '<div class="deck-bar">'
@@ -75,9 +74,7 @@
       + '<span class="deck-count"><b id="deck-now">1</b> / ' + d.slides
       + '<em>矢印キーでも進みます</em></span>'
       + '<button type="button" class="deck-btn" id="deck-next" aria-label="次のスライド">次 →</button>'
-      + '</div></div>'
-      + tocHtml(d)
-      + '</div>';
+      + '</div></div>';
   }
 
   function writerHtml(d) {
@@ -122,11 +119,16 @@
       + 'rel="noopener">個人情報の取り扱い</a>）。</p></div>';
   }
 
-  function peersHtml() {
-    return '<aside class="peers"><div class="peers-head">みんなの質問</div>'
+  /* ページの右側。上に目次、下にみんなの質問。
+     どちらも中で送れるので、増えても列が伸びない */
+  function railHtml(d) {
+    return '<aside class="rail">'
+      + tocHtml(d)
+      + '<div class="peers"><div class="peers-head">みんなの質問</div>'
       + '<div class="peers-body" id="peers"><p class="peers-empty">読み込んでいます…</p></div>'
       + '<p class="peers-note">この回に寄せられた質問と、その回答です。<b>お名前は出ません。</b>'
-      + '<a href="privacy.html" target="_blank" rel="noopener">扱いについて</a></p></aside>';
+      + '<a href="privacy.html" target="_blank" rel="noopener">扱いについて</a></p></div>'
+      + '</aside>';
   }
 
   function loadPeers(d) {
@@ -197,7 +199,7 @@
     // 左右の柱が流れてしまう（動くのは真ん中だけにしたい）
     var top = d.slides
       ? '<section class="studio"><div class="studio-inner">'
-        + info + deckHtml(d) + writerHtml(d) + askerHtml(d) + middle + peersHtml()
+        + info + deckHtml(d) + askerHtml(d) + writerHtml(d) + middle + railHtml(d)
         + '</div></section>' + foot
       : '<div class="lesson-head">' + info + '</div>' + writerHtml(d) + middle + foot;
 

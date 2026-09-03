@@ -106,10 +106,11 @@ html{overflow-x:clip;}
 /* --- スライド --- */
 /* --- スライドと、その右の目次 ---
    狭い画面では目次を下に回す。押して飛べることは変わらない */
-.deck{display:grid;gap:18px;}
-.deck-main{min-width:0;}
+.deck{display:block;}
+/* --- 右側の柱。上に目次、下にみんなの質問 --- */
+.rail{display:flex;flex-direction:column;gap:20px;min-width:0;}
 .deck-toc{border:1px solid var(--hairline);background:#fff;display:flex;flex-direction:column;
-  max-height:340px;}
+  max-height:340px;flex:none;}
 .deck-toc-head{font-size:11px;letter-spacing:.18em;color:var(--red-deep);
   padding:11px 14px;border-bottom:1px solid var(--hairline);
   display:flex;justify-content:space-between;align-items:baseline;flex:none;}
@@ -190,7 +191,9 @@ html{overflow-x:clip;}
 @media (min-width:1080px){
   .studio-inner{
     grid-template-columns:238px minmax(0,1fr);
-    grid-template-areas:"info deck" "info writer" "info asker" "info body" "info peers";
+    /* 上から 資料 → 質問 → ワーク。分からないことを先に聞き、
+       そのうえで書くほうが順番として自然 */
+    grid-template-areas:"info deck" "info asker" "info writer" "info body" "info peers";
     column-gap:34px;row-gap:24px;
   }
   /* 動くのは真ん中だけ。両端は貼りついたまま残す */
@@ -201,15 +204,7 @@ html{overflow-x:clip;}
   .studio .deck{grid-area:deck;}
   .studio .writer{grid-area:writer;}
   .studio .asker{grid-area:asker;}
-  .studio .peers{grid-area:peers;}
-}
-
-/* 目次をスライドの右へ。ここより狭いと、両方が細くなって読めない */
-@media (min-width:900px){
-  .deck{grid-template-columns:minmax(0,1fr) 216px;gap:20px;align-items:start;}
-  /* スライドより下に伸びると、画面の下が目次だけになる。
-     画面の高さに合わせて頭打ちにし、中で送らせる */
-  .deck-toc{max-height:clamp(260px,46vh,520px);}
+  .studio .rail{grid-area:peers;}
 }
 
 /* さらに広い画面では、右にもう1本。左が回の情報、右がみんなの質問 */
@@ -218,11 +213,17 @@ html{overflow-x:clip;}
     /* 柱が1本増えた分だけ全体を広げる。広げないとスライドがその分だけ縮む */
     max-width:1680px;
     grid-template-columns:238px minmax(0,1fr) 238px;
-    grid-template-areas:"info deck peers" "info writer peers" "info asker peers" "info body peers";
+    grid-template-areas:"info deck peers" "info asker peers" "info writer peers" "info body peers";
   }
-  .studio .peers{position:sticky;top:24px;align-self:start;
+  /* 柱ごと貼りつけ、中の2つがそれぞれ送れるようにする。
+     柱そのものを送らせると、目次まで流れて押しにくい */
+  .studio .rail{position:sticky;top:24px;align-self:start;
     padding-left:26px;border-left:1px solid var(--hairline);
-    max-height:calc(100vh - 48px);overflow-y:auto;}
+    max-height:calc(100vh - 48px);}
+  .studio .rail .deck-toc{max-height:min(46vh,420px);}
+  /* 質問は増える。柱の残りいっぱいを使い、あふれたら中で送る */
+  .studio .rail .peers{min-height:0;display:flex;flex-direction:column;}
+  .studio .rail .peers-body{overflow-y:auto;min-height:0;}
 }
 
 /* --- ワークのお題。書く欄のすぐ上に置く --- */

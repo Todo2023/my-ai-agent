@@ -42,3 +42,22 @@
 @media (max-width:640px){
   .ev-step,.ev-item{grid-template-columns:1fr;gap:8px;}
 }
+
+/* ---------- 横を使って、縦を短くする ----------
+   980px の1列だと、読み物として縦に長くなりすぎる。
+   広い画面では2列にし、**狭い画面では auto-fit が1列に戻す。**
+   段数を画面幅に決めさせるので、スマホで崩れる余地がない。 */
+@media (min-width:900px){
+  /* 1行が短いと、そのぶん縦に伸びる。横を使って行数を減らす */
+  .ev-lead{max-width:70ch;font-size:16px;}
+  .ev-when-note,.ev-note{max-width:70ch;}
+  .ev-body p{max-width:none;}
+  .ev-steps{display:grid;grid-template-columns:repeat(2,1fr);
+    column-gap:40px;border-top:0;}
+  .ev-step{border-top:1px solid var(--hairline);}
+  .ev-list{columns:2;column-gap:44px;max-width:none;}
+  .ev-list li{break-inside:avoid;}
+  /* よくある質問。1列だと下まで長い */
+  #faq-2col{display:grid;grid-template-columns:repeat(2,1fr);column-gap:44px;}
+  #faq-2col .faq-item{break-inside:avoid;}
+}
