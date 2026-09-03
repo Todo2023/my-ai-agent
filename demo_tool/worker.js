@@ -960,6 +960,114 @@ async function handleOhAdmin(request, url, env) {
   return json({ error: "op は add / remove / list / open / close のどれかです" }, 400);
 }
 
+
+/* ============ 提出物の一覧（運営用） ============
+   Slackに流れるだけだと、誰がどこまで出したかが分からない。
+   溜まったときに「まだ返していないもの」から片づけられるようにする。
+
+   ここは**運営しか開かない画面**なので、一覧（list）を使ってよい。
+   受講者が触る経路では使わない（無料枠のいちばん細いところを消費するため）。 */
+
+/** 受講者を全部読む。人数が増えても数十人の想定 */
+async function allMembers(env) {
+  const out = [];
+  let cursor;
+  do {
+    const page = await env.DEMO_KV.list({ prefix: "member:", cursor });
+    for (const k of page.keys) {
+      const raw = await env.DEMO_KV.get(k.name);
+      if (raw) out.push({ code: k.name.slice("member:".length), ...JSON.parse(raw) });
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  return out;
+}
+
+/** 提出物の一覧。合鍵が要る。
+   本文まで返すと画面が重くなるので、頭だけを返し、全文は1件ずつ取りに来てもらう */
+async function listWorks(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  if (!env.DEMO_KV) return json({ members: [], works: [] });
+
+  const index = await lessonIndex(env);
+  const gating = index.filter((e) => e.gates).length;
+
+  const works = [];
+  let cursor;
+  do {
+    const page = await env.DEMO_KV.list({ prefix: "work:", cursor });
+    for (const k of page.keys) {
+      const raw = await env.DEMO_KV.get(k.name);
+      if (!raw) continue;
+      const w = JSON.parse(raw);
+      works.push({
+        id: k.name,
+        code: w.code, name: w.name || "", slug: w.slug, label: w.label,
+        at: w.at, replied: Boolean(w.replied),
+        head: String(w.text || "").slice(0, 80),
+        len: String(w.text || "").length,
+      });
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  works.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+
+  const members = [];
+  for (const m of await allMembers(env)) {
+    const stored = await progressOf(env, m.code);
+    const progress = stored === -1 ? firstGating(index) - 1 : stored;
+    const mine = works.filter((w) => w.code === m.code);
+    members.push({
+      code: m.code, name: m.name || "", paidThrough: m.paidThrough ?? -1,
+      done: index.filter((e, i) => e.gates && i <= progress).length,
+      gating,
+      last: mine.length ? mine[0].at : "",
+      waiting: mine.filter((w) => !w.replied).length,
+    });
+  }
+  // 返していないものが多い人を先に。次に、間が空いている人
+  members.sort((a, b) => (b.waiting - a.waiting) || String(a.last).localeCompare(String(b.last)));
+
+  return json({ members, works, waiting: works.filter((w) => !w.replied).length });
+}
+
+/** 提出物1件の全文。合鍵が要る */
+async function getWork(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const id = String(body.id || "");
+  if (!id.startsWith("work:")) return json({ error: "その提出はありません" }, 400);
+  const raw = await env.DEMO_KV.get(id);
+  if (!raw) return json({ error: "その提出はありません" }, 404);
+  return json({ id, ...JSON.parse(raw) });
+}
+
+/** 「返した」の印をつける・外す。添削そのものはSlackで返すので、
+   ここでは片づいたかどうかだけを持つ */
+async function markWork(request, url, env) {
+  const key = url.searchParams.get("key") || "";
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const id = String(body.id || "");
+  if (!id.startsWith("work:")) return json({ error: "その提出はありません" }, 400);
+  const raw = await env.DEMO_KV.get(id);
+  if (!raw) return json({ error: "その提出はありません" }, 404);
+  const w = JSON.parse(raw);
+  w.replied = body.replied !== false;
+  w.repliedAt = w.replied ? new Date().toISOString() : "";
+  // 提出そのものは1年残す。印を付け直しても、その期限は変えない
+  await env.DEMO_KV.put(id, JSON.stringify(w), { expirationTtl: 60 * 60 * 24 * 365 });
+  return json({ ok: true, id, replied: w.replied });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -983,6 +1091,11 @@ export default {
     if (url.pathname === "/question/hide" && request.method === "POST") return handleHide(request, url, env);
     // 質問への答えを、教材の側に戻す
     if (url.pathname === "/answer" && request.method === "POST") return handleAnswer(request, url, env);
+
+    // 提出物の一覧（運営用）
+    if (url.pathname === "/works" && request.method === "POST") return listWorks(request, url, env);
+    if (url.pathname === "/work" && request.method === "POST") return getWork(request, url, env);
+    if (url.pathname === "/work/mark" && request.method === "POST") return markWork(request, url, env);
 
     // オフィスアワー。基本は予約制で、在席しているときだけ「いま話せます」を出す
     if (url.pathname === "/oh" && request.method === "POST") return handleOh(request, env);

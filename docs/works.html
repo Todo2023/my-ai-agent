@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 運営用。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>提出物の一覧｜運営用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+<link rel="stylesheet" href="assets/answer.css">
+<link rel="stylesheet" href="assets/works.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 運営用</a>
+    <span class="navlinks">
+      <a class="navlink" href="answer.html">質問に答える →</a>
+      <a class="navlink" href="lessons.html">資料の一覧 →</a>
+    </span>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+  <div class="lesson-head">
+    <div class="kicker">Works</div>
+    <h1>提出物の一覧</h1>
+    <p class="aim">誰がどこまで出したかと、<b>まだ返していない提出</b>を並べます。
+    添削そのものはSlackで返し、ここでは<b>片づいたかどうかの印だけ</b>を付けます。</p>
+  </div>
+  <div id="gate" class="an-gate">
+    <p class="an-label">合鍵</p>
+    <form class="an-keyform">
+      <input type="password" id="key" autocomplete="off" placeholder="合鍵">
+      <button type="submit" class="deck-btn">開く</button>
+    </form>
+    <p class="an-say" id="gate-say" role="status"></p>
+  </div>
+  <div id="body"></div>
+</main>
+
+<footer>合同会社Todo　思考力×AI統合講座　運営用</footer>
+
+<script src="assets/course.js"></script>
+<script>
+/* 運営が提出物を見る画面。
+   合鍵はここに保存しません（ブラウザを閉じると消えます）。 */
+(function () {
+  var esc = Course.esc;
+  var API = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev';
+  var key = '';
+  var data = null;
+  var only = '';   // 絞り込んでいる受講者の合言葉
+
+  var gate = document.getElementById('gate');
+  var body = document.getElementById('body');
+  var gateSay = document.getElementById('gate-say');
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso || '—');
+    var p = function (n) { return ('0' + n).slice(-2); };
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  /* 最後の提出から何日空いたか。**間が空いた人ほど、離脱が近い。** */
+  function idle(iso) {
+    if (!iso) return '—';
+    var days = Math.floor((Date.now() - new Date(iso)) / 86400000);
+    return days <= 0 ? '今日' : days + '日前';
+  }
+
+  function load() {
+    body.innerHTML = '<p class="an-empty">読み込んでいます…</p>';
+    fetch(API + '/works?key=' + encodeURIComponent(key), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { gateSay.textContent = res.d.error || '開けませんでした'; gate.hidden = false; return; }
+        gate.hidden = true;
+        data = res.d;
+        render();
+      })
+      .catch(function () { body.innerHTML = '<p class="an-empty">通信できませんでした</p>'; });
+  }
+
+  function render() {
+    var ms = data.members || [];
+    var ws = (data.works || []).filter(function (w) { return !only || w.code === only; });
+
+    body.innerHTML =
+      '<p class="an-count">まだ返していない提出 <b>' + (data.waiting || 0) + '</b> 件</p>'
+
+      + '<section class="wk-sec"><h2>受講者ごとの進み</h2>'
+      + '<div class="wk-people">' + ms.map(function (m) {
+          return '<button type="button" class="wk-person' + (only === m.code ? ' is-on' : '')
+            + '" data-code="' + esc(m.code) + '">'
+            + '<span class="wp-name">' + esc(m.name || m.code) + '</span>'
+            + '<span class="wp-bar"><i style="width:'
+            + (m.gating ? Math.round(m.done / m.gating * 100) : 0) + '%"></i></span>'
+            + '<span class="wp-num">' + m.done + ' / ' + m.gating + '</span>'
+            + '<span class="wp-idle">最後の提出 ' + idle(m.last) + '</span>'
+            + (m.waiting ? '<span class="wp-wait">未返信 ' + m.waiting + '</span>' : '')
+            + '</button>';
+        }).join('') + '</div>'
+      + (only ? '<p class="wk-clear"><button type="button" class="btn-text" id="clear">'
+                + 'すべての人を見る</button></p>' : '')
+      + '</section>'
+
+      + '<section class="wk-sec"><h2>提出物</h2>'
+      + (ws.length ? ws.map(row).join('') : '<p class="an-empty">まだ提出はありません。</p>')
+      + '</section>';
+
+    body.querySelectorAll('.wk-person').forEach(function (b) {
+      b.addEventListener('click', function () {
+        only = (only === b.dataset.code) ? '' : b.dataset.code;
+        render();
+      });
+    });
+    var clear = document.getElementById('clear');
+    if (clear) clear.addEventListener('click', function () { only = ''; render(); });
+
+    body.querySelectorAll('.wk-open').forEach(function (b) {
+      b.addEventListener('click', function () { openWork(b); });
+    });
+    body.querySelectorAll('.wk-mark').forEach(function (b) {
+      b.addEventListener('click', function () { mark(b); });
+    });
+  }
+
+  function row(w) {
+    return '<div class="an-item' + (w.replied ? ' is-done' : '') + '" data-id="' + esc(w.id) + '">'
+      + '<div class="an-meta"><span>' + when(w.at) + '</span>'
+      + '<span>' + esc(w.name || w.code) + '</span>'
+      + '<span>' + esc(w.label || w.slug) + '</span>'
+      + '<span>' + w.len + '字</span>'
+      + '<span class="an-state">' + (w.replied ? '返信済み' : '未返信') + '</span></div>'
+      + '<p class="an-q wk-head">' + esc(w.head) + (w.len > 80 ? '…' : '') + '</p>'
+      + '<div class="an-act">'
+      + '<button type="button" class="deck-btn wk-open" data-id="' + esc(w.id) + '">全文を見る</button>'
+      + '<button type="button" class="deck-btn wk-mark" data-id="' + esc(w.id) + '" '
+      + 'data-to="' + (w.replied ? 'no' : 'yes') + '">'
+      + (w.replied ? '未返信に戻す' : '返したことにする') + '</button>'
+      + '<span class="an-say" role="status"></span></div>'
+      + '</div>';
+  }
+
+  function openWork(b) {
+    var item = b.closest('.an-item');
+    var head = item.querySelector('.wk-head');
+    if (item.dataset.full) {  // 一度開いたら、開き直さない（読み出しを増やさない）
+      head.textContent = item.dataset.full;
+      b.remove();
+      return;
+    }
+    b.disabled = true;
+    fetch(API + '/work?key=' + encodeURIComponent(key), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: b.dataset.id }),
+    }).then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.error) { b.disabled = false; return; }
+        item.dataset.full = d.text || '';
+        head.textContent = d.text || '';
+        b.remove();
+      }).catch(function () { b.disabled = false; });
+  }
+
+  function mark(b) {
+    var say = b.parentElement.querySelector('.an-say');
+    var to = b.dataset.to === 'yes';
+    b.disabled = true;
+    say.textContent = '記録しています…';
+    fetch(API + '/work/mark?key=' + encodeURIComponent(key), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: b.dataset.id, replied: to }),
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        b.disabled = false;
+        if (!res.ok) { say.textContent = res.d.error || '記録できませんでした'; return; }
+        // 手元の控えも合わせてから描き直す。読み直すと、その分だけ枠を使う
+        (data.works || []).forEach(function (w) { if (w.id === res.d.id) w.replied = res.d.replied; });
+        data.waiting = (data.works || []).filter(function (w) { return !w.replied; }).length;
+        (data.members || []).forEach(function (m) {
+          m.waiting = (data.works || []).filter(function (w) {
+            return w.code === m.code && !w.replied;
+          }).length;
+        });
+        render();
+      }).catch(function () { b.disabled = false; say.textContent = '通信できませんでした'; });
+  }
+
+  gate.querySelector('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    key = document.getElementById('key').value.trim();
+    if (!key) return;
+    gateSay.textContent = '確かめています…';
+    load();
+  });
+  document.getElementById('key').focus();
+})();
+</script>
+
+</body>
+</html>
