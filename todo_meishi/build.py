@@ -9,8 +9,8 @@
 import segno
 from pathlib import Path
 
-TITLE = "辰巳彩香｜合同会社To do"
-DESC = "合同会社To do・辰巳彩香のオンライン名刺。連絡先はそのまま電話帳に入れられます。"
+TITLE = "竹田彩香｜合同会社To do"
+DESC = "合同会社To do・竹田彩香のオンライン名刺。連絡先はそのまま電話帳に入れられます。"
 URL = "https://todo2023.github.io/my-ai-agent/todo_meishi/"
 
 here = Path(__file__).parent

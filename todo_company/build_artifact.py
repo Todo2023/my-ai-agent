@@ -8,8 +8,8 @@
 """
 from pathlib import Path
 
-TITLE = "辰巳彩香の脳内マップ"
-DESC = "辰巳彩香の頭の中にあるものを、動かせる地図にした1枚。いまは合同会社To doのぶんが埋まっている。"
+TITLE = "竹田彩香の脳内マップ"
+DESC = "竹田彩香の頭の中にあるものを、動かせる地図にした1枚。いまは合同会社To doのぶんが埋まっている。"
 
 here = Path(__file__).parent
 body = (here / "_body.html").read_text(encoding="utf-8").strip()

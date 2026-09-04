@@ -1,4 +1,4 @@
-<title>辰巳彩香｜合同会社To do</title>
+<title>竹田彩香｜合同会社To do</title>
 <style>
 /*
  * 合同会社To do のオンライン名刺。
@@ -239,7 +239,8 @@ body {
   <main>
     <article class="card">
       <p class="card__co">合同会社To do</p>
-      <h1 class="card__name">辰巳 彩香</h1>
+      <h1 class="card__name">竹田 彩香</h1>
+      <p class="card__romaji">Ayaka Takeda</p>
       <hr class="card__rule" />
       <p class="card__line">
         〒004-0022<br />
@@ -370,8 +371,11 @@ body {
   var VCARD = [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    'N:辰巳;彩香;;;',
-    'FN:辰巳 彩香',
+    'N:竹田;彩香;;;',
+    'FN:竹田 彩香',
+    // 電話帳はふりがなで並ぶので、読みも渡しておく
+    'X-PHONETIC-LAST-NAME:タケダ',
+    'X-PHONETIC-FIRST-NAME:アヤカ',
     'ORG:合同会社To do',
     'TEL;TYPE=CELL,VOICE:+81-70-9136-4879',
     'EMAIL;TYPE=INTERNET:todo.inc.2023.10.13@gmail.com',
@@ -381,7 +385,7 @@ body {
     'END:VCARD'
   ].join('\r\n') + '\r\n';
 
-  var NAME = 'todo-tatsumi.vcf';
+  var NAME = 'todo-takeda.vcf';
   var btn = document.getElementById('vcard');
   var toastEl = document.getElementById('toast');
   if (!btn) return;

@@ -5,8 +5,11 @@
   var VCARD = [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    'N:辰巳;彩香;;;',
-    'FN:辰巳 彩香',
+    'N:竹田;彩香;;;',
+    'FN:竹田 彩香',
+    // 電話帳はふりがなで並ぶので、読みも渡しておく
+    'X-PHONETIC-LAST-NAME:タケダ',
+    'X-PHONETIC-FIRST-NAME:アヤカ',
     'ORG:合同会社To do',
     'TEL;TYPE=CELL,VOICE:+81-70-9136-4879',
     'EMAIL;TYPE=INTERNET:todo.inc.2023.10.13@gmail.com',
@@ -16,7 +19,7 @@
     'END:VCARD'
   ].join('\r\n') + '\r\n';
 
-  var NAME = 'todo-tatsumi.vcf';
+  var NAME = 'todo-takeda.vcf';
   var btn = document.getElementById('vcard');
   var toastEl = document.getElementById('toast');
   if (!btn) return;

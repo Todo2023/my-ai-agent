@@ -17,7 +17,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 OUT = Path(sys.argv[1]).expanduser() if len(sys.argv) > 1 else HERE / "obsidian"
-ROOT = "辰巳彩香の脳内マップ"
+ROOT = "竹田彩香の脳内マップ"
 
 # Obsidian のファイル名に使えない文字
 BAD = r'[\\/:*?"<>|#^\[\]]'
@@ -111,7 +111,24 @@ def main():
 
     (OUT / (ROOT + ".md")).write_text(idx, encoding="utf-8")
 
-    print(f"{OUT} に {len(written) + 1} 枚（入口1枚 + 丸{len(written)}枚）")
+    # 丸の名前が変わったり消えたりしたときに、前の名前のノートが残らないようにする。
+    # 前回この書き出しが作ったファイルだけを控えてあり、そこに載っているものしか
+    # 消さない。保管庫へ直接書き出しても、自分で作ったノートには触れない。
+    made = sorted([fname(n["label"]) + ".md" for n in written] + [ROOT + ".md"])
+    manifest = OUT / ".export-manifest.txt"
+    removed = []
+    if manifest.exists():
+        before = manifest.read_text(encoding="utf-8").splitlines()
+        for old in before:
+            if old and old not in made and (OUT / old).exists():
+                (OUT / old).unlink()
+                removed.append(old)
+    manifest.write_text("\n".join(made) + "\n", encoding="utf-8")
+
+    note = f"／ 前の名前のノートを{len(removed)}枚消した" if removed else ""
+    print(f"{OUT} に {len(made)} 枚（入口1枚 + 丸{len(written)}枚）{note}")
+    for r in removed:
+        print(f"  消した: {r}")
 
 
 if __name__ == "__main__":
