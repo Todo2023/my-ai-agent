@@ -1,0 +1,422 @@
+<title>辰巳彩香｜合同会社To do</title>
+<style>
+/*
+ * 合同会社To do のオンライン名刺。
+ * 紙の名刺を渡す代わりに、URLひとつを渡すためのページ。
+ * 会社のホームページと同じ緑・差し色を使っている。
+ */
+
+:root {
+  --brand: #1f5d50;
+  --brand-deep: #12362f;
+  --brand-tint: #eef5f3;
+  --accent: #c9744a;
+
+  --ink: #16221f;
+  --muted: #55605c;
+  --line: #dbe4e1;
+  --paper: #ffffff;
+  --paper-soft: #f4f8f6;
+
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+    "Noto Sans JP", Meiryo, system-ui, sans-serif;
+  --font-display: "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", "Times New Roman", serif;
+  --font-util: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* 端末が暗いとき（テーマ未指定ならここだけが効く） */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand: #6fbfa8;
+    --brand-deep: #a9dccc;
+    --brand-tint: #16241f;
+    --accent: #e0966b;
+    --ink: #e7efec;
+    --muted: #9aaba6;
+    --line: rgba(231, 239, 236, 0.15);
+    --paper: #111a17;
+    --paper-soft: #16211d;
+  }
+}
+:root[data-theme="dark"] {
+  --brand: #6fbfa8;
+  --brand-deep: #a9dccc;
+  --brand-tint: #16241f;
+  --accent: #e0966b;
+  --ink: #e7efec;
+  --muted: #9aaba6;
+  --line: rgba(231, 239, 236, 0.15);
+  --paper: #111a17;
+  --paper-soft: #16211d;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding: 0 18px 56px;
+}
+
+/* 名刺そのもの ------------------------------------------------------ */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  margin-top: 22px;
+  padding: 34px 26px 28px;
+  text-align: center;
+}
+
+.card__co {
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--brand);
+  font-weight: 700;
+  margin: 0 0 0.9em;
+}
+.card__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 9vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
+  margin: 0 0 0.25em;
+}
+.card__romaji {
+  font-family: var(--font-util);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.card__rule {
+  width: 40px; height: 2px;
+  background: var(--accent);
+  border: 0; border-radius: 2px;
+  margin: 22px auto;
+}
+
+.card__line {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.card__line a { color: inherit; }
+
+/* 押せるところ ------------------------------------------------------ */
+.acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.acts li { min-width: 0; }
+.acts--wide { grid-template-columns: 1fr; margin-top: 10px; }
+
+.act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--brand);
+  color: var(--brand);
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+.act:hover { background: var(--brand-tint); }
+.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.act--fill { background: var(--brand); color: var(--paper); border-color: var(--brand); }
+.act--fill:hover { background: var(--brand-deep); border-color: var(--brand-deep); color: var(--paper); }
+.act svg { width: 18px; height: 18px; flex: 0 0 auto; fill: currentColor; }
+
+/* 節 ---------------------------------------------------------------- */
+.block { margin-top: 34px; }
+.block > h2 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 14px;
+  color: var(--brand-deep);
+}
+
+.doing { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.doing li {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 13px 16px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.doing b { display: block; font-size: 0.92rem; }
+.doing span { color: var(--muted); font-size: 0.82rem; }
+
+/* AI講座の知らせ */
+.pitch {
+  background: var(--brand-tint);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 20px 18px;
+}
+.pitch__tag {
+  display: inline-block;
+  font-family: var(--font-util);
+  font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700;
+  margin-bottom: 8px;
+}
+.pitch p { margin: 0 0 0.7em; font-size: 0.88rem; line-height: 1.85; }
+.pitch p:last-child { margin-bottom: 0; }
+.pitch q { font-family: var(--font-display); font-size: 1rem; font-style: normal; }
+
+/* 会社概要 */
+.facts { margin: 0; border-top: 1px solid var(--line); }
+.facts > div {
+  display: grid; gap: 1px 16px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--line);
+}
+@media (min-width: 420px) { .facts > div { grid-template-columns: 7.5em 1fr; } }
+.facts dt { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-deep); }
+.facts dd { margin: 0; font-size: 0.86rem; overflow-wrap: anywhere; }
+.facts .num { font-family: var(--font-util); font-variant-numeric: tabular-nums; }
+
+.foot {
+  margin-top: 34px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* 押したときの知らせ */
+.toast {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(10px);
+  background: var(--ink); color: var(--paper);
+  font-size: 0.8rem; font-weight: 700;
+  padding: 9px 20px; border-radius: 999px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 20;
+}
+.toast.is-on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+</style>
+
+<div class="sheet">
+
+  <main>
+    <article class="card">
+      <p class="card__co">合同会社To do</p>
+      <h1 class="card__name">辰巳 彩香</h1>
+      <hr class="card__rule" />
+      <p class="card__line">
+        〒004-0022<br />
+        北海道札幌市厚別区厚別南1-4-3<br />
+        Asterope厚別南101
+      </p>
+      <p class="card__line" style="margin-top:0.7em">受付時間　平日 9:00〜18:00</p>
+
+      <ul class="acts">
+        <li>
+          <a class="act act--fill" href="tel:07091364879">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+            電話する
+          </a>
+        </li>
+        <li>
+          <a class="act" href="mailto:todo.inc.2023.10.13@gmail.com">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            メールする
+          </a>
+        </li>
+      </ul>
+
+      <ul class="acts acts--wide">
+        <li>
+          <button type="button" class="act" id="vcard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>
+            連絡先に追加する
+          </button>
+        </li>
+        <li>
+          <a class="act" href="https://www.facebook.com/profile.php?id=61553259485518"
+            target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.5 2.9h-2.3v7A10 10 0 0 0 22 12z"/></svg>
+            Facebookを見る
+          </a>
+        </li>
+      </ul>
+    </article>
+
+    <section class="block">
+      <h2>できること</h2>
+      <ul class="doing">
+        <li>
+          <b>営業・販促資料の作成</b>
+          <span>伝わらない資料を、意思決定が進む資料に作り直します。</span>
+        </li>
+        <li>
+          <b>ロゴ・名刺などのデザイン</b>
+          <span>会社の顔になるものを、一式そろえて整えます。</span>
+        </li>
+        <li>
+          <b>秘書・バックオフィス代行</b>
+          <span>月額で、事務まわりを継続的にお預かりします。</span>
+        </li>
+        <li>
+          <b>AI活用・業務自動化の支援</b>
+          <span>「AIで何ができるか」を、自社の業務に当てはめて考えます。</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2>AI講座（全12回）</h2>
+      <div class="pitch">
+        <span class="pitch__tag">Course</span>
+        <p><q>問いは、深く考えた人にしか立てられない。</q></p>
+        <p>
+          奇数回で考えを深め、偶数回でそれをAIという道具に載せます。
+          AIの使い方を覚える講座ではありません。
+        </p>
+        <p>
+          1回は、資料を読む → その場で質問する（24時間以内に回答）→
+          ワークを書いて提出する、の3つ。提出すると次の回が開きます。
+        </p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>会社概要</h2>
+      <dl class="facts">
+        <div>
+          <dt>商号</dt>
+          <dd>合同会社To do</dd>
+        </div>
+        <div>
+          <dt>創業</dt>
+          <dd>2023年10月</dd>
+        </div>
+        <div>
+          <dt>電話番号</dt>
+          <dd class="num"><a href="tel:07091364879">070-9136-4879</a></dd>
+        </div>
+        <div>
+          <dt>メール</dt>
+          <dd><a href="mailto:todo.inc.2023.10.13@gmail.com">todo.inc.2023.10.13@gmail.com</a></dd>
+        </div>
+        <div>
+          <dt>登録番号</dt>
+          <dd class="num">T4011603004093</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="block">
+      <h2>この名刺を渡す</h2>
+      <div class="qr">
+        <svg role="img" aria-label="この名刺のQRコード" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#12362f" d="M2 2.5h7m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m3 0h4m1 0h7m-33 1h1m5 0h1m9 0h2m1 0h2m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m4 0h1m4 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m2 0h3m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h1m3 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m1 0h1m2 0h1m2 0h2m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h2m1 0h5m2 0h2m1 0h1m-25 1h1m3 0h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h3m1 0h1m1 0h5m2 0h1m-32 1h4m2 0h1m5 0h4m1 0h1m3 0h4m3 0h3m-32 1h1m1 0h1m2 0h2m3 0h3m2 0h1m1 0h1m3 0h1m1 0h4m2 0h1m1 0h1m-30 1h4m4 0h3m1 0h2m1 0h2m1 0h2m2 0h3m4 0h1m-31 1h2m1 0h3m1 0h1m2 0h5m2 0h6m2 0h1m1 0h2m-25 1h1m1 0h5m1 0h1m2 0h1m2 0h2m9 0h1m-31 1h2m3 0h3m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h7m2 0h1m-32 1h3m4 0h1m4 0h2m3 0h1m1 0h4m1 0h3m1 0h1m-28 1h6m1 0h1m2 0h5m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m2 0h1m-31 1h3m1 0h1m1 0h1m1 0h1m5 0h4m2 0h3m5 0h3m-32 1h1m1 0h1m3 0h3m1 0h6m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m-29 1h1m1 0h1m1 0h1m1 0h1m2 0h5m6 0h1m1 0h2m2 0h1m3 0h1m-30 1h2m2 0h4m1 0h3m1 0h2m3 0h3m1 0h1m1 0h4m1 0h1m-32 1h1m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m-30 1h1m2 0h3m2 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h2m-29 1h1m1 0h1m3 0h1m1 0h1m2 0h4m3 0h1m1 0h2m6 0h2m-33 1h2m2 0h4m2 0h3m1 0h1m2 0h1m2 0h2m2 0h5m2 0h2m-25 1h1m1 0h1m1 0h1m2 0h1m2 0h1m5 0h1m3 0h1m1 0h2m-32 1h7m1 0h5m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h1m5 0h1m2 0h1m1 0h1m1 0h1m3 0h5m2 0h1m3 0h1m2 0h1m-32 1h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h1m2 0h5m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m3 0h4m2 0h2m3 0h1m1 0h1m2 0h5m-31 1h1m1 0h3m1 0h1m5 0h1m1 0h1m1 0h2m6 0h1m1 0h3m-29 1h1m5 0h1m2 0h2m3 0h1m2 0h2m2 0h6m-27 1h7m1 0h2m1 0h1m2 0h2m1 0h1m2 0h5m7 0h1"/></svg>
+        <p class="qr__url">https://todo2023.github.io/my-ai-agent/todo_meishi/</p>
+        <p class="qr__note">読み取ると、この名刺がひらきます。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>© 2026 合同会社To do</p>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* 連絡先に追加する。スマホの電話帳にそのまま入る形（vCard）で渡す。 */
+(function () {
+  'use strict';
+
+  var VCARD = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    'N:辰巳;彩香;;;',
+    'FN:辰巳 彩香',
+    'ORG:合同会社To do',
+    'TEL;TYPE=CELL,VOICE:+81-70-9136-4879',
+    'EMAIL;TYPE=INTERNET:todo.inc.2023.10.13@gmail.com',
+    'ADR;TYPE=WORK:;;北海道札幌市厚別区厚別南1-4-3 Asterope厚別南101;札幌市;北海道;004-0022;日本',
+    'URL:https://www.facebook.com/profile.php?id=61553259485518',
+    'NOTE:営業・販促資料の作成／ロゴ・名刺などのデザイン／秘書・バックオフィス代行／AI活用・業務自動化の支援',
+    'END:VCARD'
+  ].join('\r\n') + '\r\n';
+
+  var NAME = 'todo-tatsumi.vcf';
+  var btn = document.getElementById('vcard');
+  var toastEl = document.getElementById('toast');
+  if (!btn) return;
+
+  var timer = null;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(timer);
+    timer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 2600);
+  }
+
+  btn.addEventListener('click', function () {
+    // Artifact の中では、ページから始めた保存は止められる。
+    // 用意されている保存の口があれば、そちらを使う
+    var d = window.claude && window.claude.downloads;
+    if (d && d.save) {
+      d.save({ filename: NAME, data: VCARD }).then(
+        function () { toast('連絡先を保存しました'); },
+        function () { toast('保存できませんでした'); }
+      );
+      return;
+    }
+
+    var blob = new Blob([VCARD], { type: 'text/vcard;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = NAME;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    toast('連絡先ファイルを開きました');
+  });
+})();
+</script>
