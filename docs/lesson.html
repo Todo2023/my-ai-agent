@@ -122,7 +122,7 @@
       + '<button type="button" class="deck-btn asker-send" id="ask-send">運営に送る</button>'
       + '<span class="asker-state" id="ask-state" role="status"></span></div>'
       + '<input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">'
-      + '<p class="writer-note">運営に直接届きます。<b>質問は24時間以内に回答します。</b>'
+      + '<p class="writer-note">運営に直接届きます。<b>質問は1営業日以内に回答します。</b>'
       + '答えはSlackでお返しし、<b>お名前を伏せて「みんなの質問」にも並びます。</b>'
       + 'お名前や連絡先は書かないでください（<a href="privacy.html" target="_blank" '
       + 'rel="noopener">個人情報の取り扱い</a>）。</p></div>';
@@ -373,7 +373,7 @@
         ask.value = '';
         loadPeers(d);
         say.textContent = res.d.delivered
-          ? '送りました。24時間以内にお返事します'
+          ? '送りました。1営業日以内にお返事します'
           : '受け付けました。ただ運営への通知が届いていない可能性があります。Slackでも一声かけてください';
       }).catch(function () {
         send.disabled = false;
