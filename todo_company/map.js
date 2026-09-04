@@ -424,7 +424,7 @@
   // キーボードでも順に見ていけるように
   canvas.setAttribute('tabindex', '0');
   canvas.addEventListener('keydown', function (ev) {
-    var pickable = NODES.filter(function (n) { return n.r >= 9; });
+    var pickable = NODES;
     if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft' && ev.key !== 'Enter') return;
     ev.preventDefault();
     var i = pickable.indexOf(selected);
@@ -660,19 +660,29 @@
   // 索引（指でもキーボードでも開ける入口）
   // ---------------------------------------------------------------
   if (indexList) {
-    NODES.forEach(function (n) {
-      if (n.r < 9) return;
-      var li = document.createElement('li');
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.innerHTML = '<i style="--dot:' + esc(COLOR[n.cat]) + '"></i>';
-      b.appendChild(document.createTextNode(n.label));
-      b.addEventListener('click', function () {
-        select(n);
-        canvas.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'center' });
+    // 種類ごとにまとめる。小さい丸も全部載せる（ここが指以外の入口なので）
+    Object.keys(CATS).forEach(function (cid) {
+      var group = NODES.filter(function (n) { return n.cat === cid; });
+      if (!group.length) return;
+
+      var head = document.createElement('li');
+      head.className = 'index__head';
+      head.textContent = CATS[cid].label;
+      indexList.appendChild(head);
+
+      group.forEach(function (n) {
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<i style="--dot:' + esc(COLOR[n.cat]) + '"></i>';
+        b.appendChild(document.createTextNode(n.label));
+        b.addEventListener('click', function () {
+          select(n);
+          canvas.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'center' });
+        });
+        li.appendChild(b);
+        indexList.appendChild(li);
       });
-      li.appendChild(b);
-      indexList.appendChild(li);
     });
   }
 

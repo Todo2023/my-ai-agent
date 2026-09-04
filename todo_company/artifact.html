@@ -164,6 +164,7 @@ body {
 }
 .sure[data-sure="site"] { background: #7fa9c4; }
 .sure[data-sure="chat"] { background: var(--c-co); }
+.sure[data-sure="doc"] { background: var(--c-next); }
 .sure[data-sure="guess"] { background: transparent; color: var(--c-blank); box-shadow: inset 0 0 0 1px var(--c-blank); }
 
 /* 配信 -------------------------------------------------------------- */
@@ -247,9 +248,18 @@ body {
 .index > summary:focus-visible { outline: 2px solid var(--c-biz); outline-offset: 2px; }
 
 .index__list {
-  display: flex; flex-wrap: wrap; gap: 7px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
   margin: 10px 0 0; padding: 0; list-style: none;
 }
+/* 種類の見出し。次の種類まで改行して区切る */
+.index__head {
+  flex-basis: 100%;
+  margin-top: 12px;
+  font-family: var(--font-util);
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--dim);
+}
+.index__head:first-child { margin-top: 0; }
 .index__list button {
   font: inherit; font-size: 0.78rem;
   color: var(--ink); background: transparent;
@@ -283,7 +293,7 @@ body {
   <header class="head">
     <h1>辰巳彩香の脳内マップ</h1>
     <p class="lead">
-      頭の中にあるものを並べた地図。いまは合同会社To doと、これからやってみたいことが入っている。
+      頭の中にあるものを並べた地図。いまは合同会社To do、AI講座（全12回）、これからやってみたいことが入っている。
       ●をドラッグで動かし、クリックで中身と投稿文を開く。
     </p>
     <p class="hint">drag to move &middot; click a node &middot; click empty space to deselect</p>
@@ -367,6 +377,7 @@ var CATS = {
 var SURE = {
   site:  { label: 'サイトから', note: 'ホームページの文言をもとにしています' },
   chat:  { label: '直接きいた', note: 'やりとりの中で本人から聞いたことです' },
+  doc:   { label: '資料から', note: 'いただいた資料がもとです' },
   guess: { label: 'こちらの補い', note: 'まだ確かめていません。違っていたら直します' }
 };
 
@@ -449,11 +460,83 @@ var NODES = [
   { id: 'ai', cat: 'biz', r: 18, label: 'AI活用・業務自動化の支援',
     body: '「AIで何ができるか」を、その会社の業務に当てはめて考える。ツールを入れて終わりにせず、実際の業務フローに載るところまで付き添う。',
     src: '事業内容', post: true },
-  { id: 'course', sure: 'chat', cat: 'biz', r: 14, label: 'AI講座',
-    body: 'AIの講座をやっている、と伺ったところまで。回ごとの題目や講座録はまだ受け取っていないので、'
-      + 'この丸はいまのところ見出しだけ。資料か講座録をもらえれば、回ごとに丸を分けて、'
-      + '話した内容そのものを地図に載せられる。',
-    waiting: '中身がまだ無いので、投稿文は作っていません。講座録や資料をもらえれば、回ごとに書けます。' },
+  { id: 'course', sure: 'doc', cat: 'biz', r: 18, label: 'AI講座',
+    body: '全12回。奇数回が思考力、偶数回がAI実践で、奇数で深めたものを偶数で道具に載せる。順番は入れ替えられない（考えが深まっていないところに道具を足しても、出てくるものは変わらないため）。ほかに番号のない回が2つある。',
+    src: '講座の台本（2026-09-04）', post: true },
+
+  { id: 'c-premise', sure: 'doc', cat: 'think', r: 16, label: '問いは、深く考えた人にしか立てられない',
+    body: '「良い問いを立てましょう」と言われて、その場で立てられる人はいない。問いは思いつきではなく、考えた量の結果として出てくる。前提を疑い、事実と意見を分け、筋を通す——その深さが、そのまま問いの質になる。だからこの講座は、AIの操作からは入らない。AIの使い方を覚える講座ではない。',
+    src: '講座の台本「この講座が立っている前提」', post: true },
+
+  { id: 'c-doubt', sure: 'doc', cat: 'think', r: 12, label: '前提を疑う',
+    body: '当たり前だと思っていることを、いちど外す。深まっていないと、問いが大きすぎて答えが返らない。外すべき前提はその人の持ち場にしかないので、AIには代われない。',
+    src: '講座の台本「深めるとは、何をすることか」', post: true },
+  { id: 'c-fact', sure: 'doc', cat: 'think', r: 12, label: '事実と意見を分ける',
+    body: '同じ文体で書かれたものに、線を引く。深まっていないと、意見を事実として引用してしまう。線を引く基準はその人の判断なので、AIには代われない。',
+    src: '講座の台本「深めるとは、何をすることか」', post: true },
+  { id: 'c-logic', sure: 'doc', cat: 'think', r: 12, label: '筋を通す',
+    body: 'なぜその順番なのかを言えるようにする。深まっていないと、並べたのに伝わらない。順番の理由はその人が言うことなので、AIには代われない。',
+    src: '講座の台本「深めるとは、何をすることか」', post: true },
+
+  { id: 'c-think', sure: 'doc', cat: 'biz', r: 14, label: '思考力（奇数回）',
+    body: '1・3・5・7・9・11回。考えを深めるほうの6回。ここで深めたものを、次の偶数回で道具に載せる。',
+    src: '講座の台本「全体の並び」' },
+  { id: 'c-ai', sure: 'doc', cat: 'biz', r: 14, label: 'AI実践（偶数回）',
+    body: '2・4・6・8・10・12回。前の奇数回で深めたものを、AIという道具に載せるほうの6回。',
+    src: '講座の台本「全体の並び」' },
+
+  { id: 'c1', sure: 'doc', cat: 'biz', r: 8, label: '第1回 問いを立てる',
+    body: '思考力の回。深める考え方は「前提を疑う」。ねらいは、「良い問い」と「曖昧な問い」の違いを言語化できるようになる。あわせて、なぜ問いを立てることが本来難しいのかを、裏付けとともに理解する。出すものは、曖昧な問い3つ／書き換えた問い1つ／変えた点1行（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c2', sure: 'doc', cat: 'biz', r: 8, label: '第2回 AIとの役割分担',
+    body: 'AI実践の回。深める考え方は「判断を手放さない」。ねらいは、AIに「何を任せるか」「何は自分で判断すべきか」の線引きができるようになる。出すものは、3箇所と、その理由（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c3', sure: 'doc', cat: 'biz', r: 8, label: '第3回 構造化・仮説構築',
+    body: '思考力の回。深める考え方は「筋を通す」。ねらいは、情報を集める前に、仮説を持てるようになる。出すものは、仮説3つと、その検証方法（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c4', sure: 'doc', cat: 'biz', r: 8, label: '第4回 情報収集・要約のAI活用',
+    body: 'AI実践の回。深める考え方は「事実と意見を分ける」。ねらいは、AIによる要約を「当たり障りのない要約」で終わらせない聞き方を身につける。出すものは、使った聞き方2つと、分かったこと（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c5', sure: 'doc', cat: 'biz', r: 8, label: '第5回 リサーチ設計',
+    body: '思考力の回。深める考え方は「確かめ方を先に決める」。ねらいは、一次情報と二次情報の使い分け、情報の非対称性の埋め方を理解する。出すものは、5つの仕分けと、聞く相手・聞くこと（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c6', sure: 'doc', cat: 'biz', r: 8, label: '第6回 データ整理・分析のAI活用',
+    body: 'AI実践の回。深める考え方は「数字の意味を疑う」。ねらいは、集めた情報・データをAIで整理し、意思決定に使える形にする。出すものは、傾向1つと、相関か因果かの判断（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c7', sure: 'doc', cat: 'biz', r: 8, label: '第7回 結論から書く・話す',
+    body: '思考力の回。深める考え方は「言い切る」。ねらいは、結論を「話しながら探す」のではなく「決めてから話す」ができるようになる。出すものは、前の文章／書き直した文章／変えた点1行（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c8', sure: 'doc', cat: 'biz', r: 8, label: '第8回 文章生成・提案書支援のAI活用',
+    body: 'AI実践の回。深める考え方は「自分の言葉に戻す」。ねらいは、AIに文章を「書かせる」のではなく「磨かせる」使い方を身につける。出すものは、指摘の仕分けと、直したあとの文章（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c9', sure: 'doc', cat: 'biz', r: 8, label: '第9回 発表・アウトプット',
+    body: '思考力の回。深める考え方は「相手の前提に立つ」。ねらいは、これまで作ってきた問い・仮説・リサーチ・文章を、人に伝わる形にまとめる。出すものは、構成メモと、一番伝えたい一文（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c10', sure: 'doc', cat: 'biz', r: 8, label: '第10回 自動化・ミニ制作',
+    body: 'AI実践の回。深める考え方は「どこまで任せるかを決める」。ねらいは、思考力とAI実践の統合として、簡単な自動化やミニ制作を自分の手で動かしてみる。出すものは、くり返し作業3つ／要件／作れたところ、または詰まった箇所（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c11', sure: 'doc', cat: 'biz', r: 8, label: '第11回 フィードバックを力に変える',
+    body: '思考力の回。深める考え方は「反対の見方を取り込む」。ねらいは、他者からの指摘・添削を、次の問いの精度を上げる材料として使えるようになる。出すものは、選んだ指摘／3段の整理／次に変えること（目安300字）。',
+    src: '講座の台本' },
+  { id: 'c12', sure: 'doc', cat: 'biz', r: 8, label: '第12回 AIとの付き合い方をアップデートし続ける',
+    body: 'AI実践・総仕上げの回。深める考え方は「自分で問いを更新し続ける」。ねらいは、講座終了後も、自分で問いの立て方・AIの使い方を更新し続ける仕組みを持つ。出すものは、チェックリスト（5〜10項目）。',
+    src: '講座の台本' },
+
+  { id: 'c-intro', sure: 'doc', cat: 'biz', r: 10, label: 'はじめに（AIとの付き合い方）',
+    body: '15分・提出なし。番号のない回。この講座はAIの使い方講座ではないという前提を共有し、AIに何を任せて何を任せないかの線引きと、守ってほしい約束を確かめる。',
+    src: '講座の台本' },
+  { id: 'c-demo', sure: 'doc', cat: 'biz', r: 10, label: 'デモ（体験ツール）',
+    body: '9月21〜25日。番号のない回で、提出は求めない。説明ではなく体験で伝える。',
+    src: '講座の台本' },
+  { id: 'c-flow', sure: 'doc', cat: 'biz', r: 11, label: '進み方（1回のかたち）',
+    body: '資料を読む（30枚前後）→ 分からないところをその場で質問（24時間以内に回答）→ ワークを書いて提出（目安300字）→ 提出すると次の回が開く。ほかに、オフィスアワー（1対1・30分・予約制）と、みんなの質問（同じ回に寄せられた質問と回答。名前は出ない）がある。',
+    src: '講座の台本「進み方」', post: true },
+
+  { id: 'c-open', sure: 'doc', cat: 'blank', r: 13, label: '講座でまだ決まっていないこと',
+    body: '台本に挙がっている練り直しの候補は5つ。各回のワークのお題／深める考え方12個の言葉づかい（第7回「言い切る」など強い言葉を残すか）／偶数回の題材を実務・研究に寄せるか／第12回の締め方（修了後に何を持ち帰るか）／1か月集中版と月1回版の中身の差。',
+    src: '講座の台本「いま決まっていないこと」',
+    waiting: 'まだ中身が無いので、投稿文は作っていません。台本に「決まっていない」と書かれている5つです。決まればこの丸を埋められます。' },
+
   { id: 'ai1', cat: 'biz', r: 7, label: '生成AIの導入と使い方の整理' },
   { id: 'ai2', cat: 'biz', r: 7, label: '定型業務の自動化' },
   { id: 'ai3', cat: 'biz', r: 7, label: '人が見る線引きの設計' },
@@ -498,7 +581,8 @@ var NODES = [
   { id: 's-biz', cat: 'src', r: 8, label: '事業内容' },
   { id: 's-com', cat: 'src', r: 8, label: '会社概要' },
   { id: 's-news', cat: 'src', r: 7, label: 'お知らせ' },
-  { id: 's-ct', cat: 'src', r: 7, label: 'お問い合わせ' }
+  { id: 's-ct', cat: 'src', r: 7, label: 'お問い合わせ' },
+  { id: 's-course', cat: 'src', r: 8, label: '講座の台本（9/4）' }
 ];
 
 var LINKS = [
@@ -519,6 +603,27 @@ var LINKS = [
   ['design', 'des1'], ['design', 'des2'], ['design', 'des3'],
   ['back', 'bk1'], ['back', 'bk2'], ['back', 'bk3'],
   ['ai', 'course'], ['course', 'dogfood'],
+
+  /* AI講座の中身。前提が3本の柱を支え、柱が12回に効いている */
+  ['course', 'c-premise'],
+  ['c-premise', 'c-doubt'], ['c-premise', 'c-fact'], ['c-premise', 'c-logic'],
+  ['course', 'c-think'], ['course', 'c-ai'],
+  ['course', 'c-intro'], ['course', 'c-demo'], ['course', 'c-flow'], ['course', 'c-open'],
+  ['c-doubt', 'c1'], ['c-fact', 'c4'], ['c-logic', 'c3'],
+  ['c-logic', 'doc'],
+  ['s-course', 'course'],
+  ['c-think', 'c1'],
+  ['c-ai', 'c2'],
+  ['c-think', 'c3'],
+  ['c-ai', 'c4'],
+  ['c-think', 'c5'],
+  ['c-ai', 'c6'],
+  ['c-think', 'c7'],
+  ['c-ai', 'c8'],
+  ['c-think', 'c9'],
+  ['c-ai', 'c10'],
+  ['c-think', 'c11'],
+  ['c-ai', 'c12'],
   ['ai', 'ai1'], ['ai', 'ai2'], ['ai', 'ai3'],
 
   ['shape', 'f1'], ['shape', 'f2'], ['shape', 'f3'], ['shape', 'f4'],
@@ -972,7 +1077,7 @@ var LINKS = [
   // キーボードでも順に見ていけるように
   canvas.setAttribute('tabindex', '0');
   canvas.addEventListener('keydown', function (ev) {
-    var pickable = NODES.filter(function (n) { return n.r >= 9; });
+    var pickable = NODES;
     if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft' && ev.key !== 'Enter') return;
     ev.preventDefault();
     var i = pickable.indexOf(selected);
@@ -1208,19 +1313,29 @@ var LINKS = [
   // 索引（指でもキーボードでも開ける入口）
   // ---------------------------------------------------------------
   if (indexList) {
-    NODES.forEach(function (n) {
-      if (n.r < 9) return;
-      var li = document.createElement('li');
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.innerHTML = '<i style="--dot:' + esc(COLOR[n.cat]) + '"></i>';
-      b.appendChild(document.createTextNode(n.label));
-      b.addEventListener('click', function () {
-        select(n);
-        canvas.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'center' });
+    // 種類ごとにまとめる。小さい丸も全部載せる（ここが指以外の入口なので）
+    Object.keys(CATS).forEach(function (cid) {
+      var group = NODES.filter(function (n) { return n.cat === cid; });
+      if (!group.length) return;
+
+      var head = document.createElement('li');
+      head.className = 'index__head';
+      head.textContent = CATS[cid].label;
+      indexList.appendChild(head);
+
+      group.forEach(function (n) {
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<i style="--dot:' + esc(COLOR[n.cat]) + '"></i>';
+        b.appendChild(document.createTextNode(n.label));
+        b.addEventListener('click', function () {
+          select(n);
+          canvas.scrollIntoView({ behavior: still.matches ? 'auto' : 'smooth', block: 'center' });
+        });
+        li.appendChild(b);
+        indexList.appendChild(li);
       });
-      li.appendChild(b);
-      indexList.appendChild(li);
     });
   }
 
