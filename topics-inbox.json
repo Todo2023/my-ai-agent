@@ -1,5 +1,485 @@
 {
- "_": "AI Topics の候補置き場。tools/topics_inbox.py が毎朝ここに書きます。配信はしていません（docs/ の外）。読むには python tools/topics_inbox.py --show",
- "updated": "",
- "items": []
+ "updated": "2026-09-04 09:47",
+ "items": [
+  {
+   "date": "Thu, 03 Sep 2026",
+   "title": "「レポートを書かせれば評価できる」は終わった――MITが示したAI時代の大学教育（塚越健司） - エキスパート - Yahoo!ニュース",
+   "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNXzM2X1VUTGpvUWhFMlR1aEFUbjZEemN6VENGX0VOekJVR3JrSktkd0R3OXVYNkV6bW1tU2NOWVBMcElGaEZ2dDRUVF9wSnRIbVVwRllzVlV0R01yM0FlT01iZjZGNDIwXzZqM200UmZyTGNmdG1YUFBPb0wxVWlEUlhmNk1sdFd1?oc=5",
+   "source": "Yahoo!ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 03 Sep 2026",
+   "title": "Google Cloudとの包括連携協定で「AIネイティブ大学」の実現へ 学生・教職員約2万人超へ「Google AI Pro for Education」を導入 - アットプレス",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5yV0tCUUlHQ2RwSDc3UlNja05DejlYalMtUlpPRl9CYWhPckJ3YnUxSm9waUl0LUJTX3VMRTVOblphZTIzX1luVWZSZFBxVjg?oc=5",
+   "source": "アットプレス",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 31 Aug 2026",
+   "title": "ガイアックス、全国の教育委員会を対象に生成AI活用の研修を無償提供 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1LMnRBQmlVLXJwNWFkYnRXejhuZmZhWXRwZWxhajNPUGlxR3BGZmF0NEIyVUJNWE9KeVZETVl1aVhGN3BhaGE1akFISFZLWHpfLTN4Q0JnZWpJdWIyODc0LWlqRjRac1N4TXc?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 31 Aug 2026",
+   "title": "新たな学習指導要領 生成AI念頭 情報教育を新教科で大幅拡充へ - NHKニュース",
+   "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8xM21nS3hBVTdmUVp2WEJZSnVhNjZlWC1MQURDdk12dWtsZ29ZN2NWbnpHaTllSy1iajBHejRqQ1JRZFhEZERqOUxPemRCamtPa21DSFNoTDFMVlppeF9V?oc=5",
+   "source": "NHKニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 17 Aug 2026",
+   "title": "AIリスクどう考える「教師も学んで」 シンポで教育関係者ら語る [AIの時代] - 朝日新聞",
+   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EQnpveGZOOFlVcDF1Tmt3VXd0b0VMMzcxLUdtaTVMYXE5UUtBLTRmeFZOd1BBLURQWmFoVkRzeFhnOFc5cU1HS0Jfc0ZhQnN4SEtHaFdVNlpuRkdjUlREdndZZ0lvQ0k?oc=5",
+   "source": "朝日新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 24 Aug 2026",
+   "title": "AI時代の主体的な学びへの転換「第5回 学びの伴走者！生成AIからのフィードバック～福岡県筑前町の取組から～」中村学園大学教育学部 山本朋弘教授 - 教育家庭新聞社",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE52VzcwS3NHQzhNQ0R1MVBrbkIwdnQ3LWdma3JudURaVzVDWWlHQTNwTFBDMjEwS01pZGdja2YtdDVvZERfc3VEWFhxSkFwZTNYQkFxOTh3?oc=5",
+   "source": "教育家庭新聞社",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 02 Sep 2026",
+   "title": "AI活用をゲーム・3DCG教育にも―デジタルハリウッド大学、全学AI基盤を導入 - article.auone.jp",
+   "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE90UEYyY0thUzFCX3hwelhhU2lNWHkwTHZqeW1FZzkyck9iaWFWekdOdlg4ZnFRMURkNG9QLTM1TXhXcFdVMXFlX3MwNXJocXV2Y3BnODRhYkdFdmVVdVNUWDJya0Ezd2JMdWE4T3Nn?oc=5",
+   "source": "article.auone.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Sun, 30 Aug 2026",
+   "title": "韓国、大学課題で生成AI使えば利用事実の明示必要に…政府指針を確定（KOREA WAVE） - Yahoo!ニュース",
+   "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBUNHotOUdVbkd6Z1luYjZtd0tCa0ZIYjhUbFZBNlJGNFhjVFBlN1VhaDU5WUNuTUhFOUpZXzRvMzN0VF9NaXRHdlRXcVk1T2lDdmZ6NXZYcm5qaVh6d3JpOVFPYzh5UGJNTlZ4QVlrLXZSRFo2aEZOMG1OcmtqczA?oc=5",
+   "source": "Yahoo!ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 26 Aug 2026",
+   "title": "【2026年最新】教育現場でのAI活用事例・導入のメリット・デメリット - SHIFT AI",
+   "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE1JWU11RlNaNEtQc2dsaXpoZnpKdmNiRFJrMDM3VUs3bC1lbjJCU3FrZVVVM3dGeVVvRXJad1Iwc2t4dXJaaGtudw?oc=5",
+   "source": "SHIFT AI",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 20 Aug 2026",
+   "title": "【京都産業大学】単なる規制から、AIを“思考のパートナー”にする「教育」へ。大学での学びの基本姿勢を説く独自の形で「生成AI利用ガイドライン」を策定・公開 - Infoseek",
+   "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFAtNWZtaEM3R0ZXZUdVR29UMWpCUEdCZ1E0Qkw4U3ZBMnhOWlNsdVF3M19oTzJOdEZvLVRDNzFwM2NvMzBlRHduN0tpZXg1eTdLLTdiYXJwX01yVHRzXzVSQ2hsSUNQTXRCR1R6cVpn?oc=5",
+   "source": "Infoseek",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 27 Jul 2026",
+   "title": "北海道新聞に本学の生成AI教育が掲載されました｜ニュース一覧 - siu.ac.jp",
+   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1kOVp6OHJFNE5meUh1RG9vbjJJdDhQTU85TDRtVmRyWFlaUFpPbDR0RG9TSTB5ak90bElqVW43N29ZalkxMmlJcEd6TGI5QTMtZGZLSXpEWlFRMjgy?oc=5",
+   "source": "siu.ac.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 01 Jun 2026",
+   "title": "AIが問う大学教育、学びの価値どう保つ 導入格差に対策を - 日本経済新聞",
+   "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBfWGNOSlNLcTdzREhTTDNFbmZGYk9mV2hZdzRTQU94VmRMRWkteldJaVZpQ1phbkx5NDFualNKRVQ2Q2huYzM4eVE5UmIxTlRkWHNlQndvcnlkTkFZbXFoQWJMME1WejY3UjVHNA?oc=5",
+   "source": "日本経済新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 14 Jul 2026",
+   "title": "文科省、教育×生成AIシンポ7/30…OECD視点から学びを再構築 - リセマム",
+   "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9xWjJZRDd1ZGwzSnJqX0tqR0phd3BZU2t6SS05VGVpYk5ad3lMbU1QV2prWkNtdV81OGp4RTRpZHU1Q1Q4d0h1aUswYzV3SlJvMS15VGg5N2NmX3pTN1NheS1vZHNaQQ?oc=5",
+   "source": "リセマム",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 13 May 2026",
+   "title": "教育特化型の生成AIとエージェントで目指す“学校現場で使えるAI”：教育とICT Online - 日経BP",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE43RnNqd3FESzFseE1GSGJNYm1mU0JCU1A5eDR3RUgwNTJkZldGZE5PRHNYWVlFTDJMQkxmZzR6eTdZQlVpSkNTY1JRRHVlSGZkZEt6YWZ4TUo0US1wS2EtQW9hanZ6dG5Rbm9PMzFsejRPUQ?oc=5",
+   "source": "日経BP",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 29 Jul 2026",
+   "title": "数の確保から「教育の質向上」へ、鍵を握る生成AIの教学活用 - m2ri.jp",
+   "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE93dXpGS1FrVGphU3kyMm9KOWFqYkFNekpnc1ZYbkRvQUlubjNINjFrZUlqUUJKcG9XUHFYdWZpZXhVQ21WNi1PUmp6M0J6SVZHTm9qcDM1MVBDdw?oc=5",
+   "source": "m2ri.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 26 Aug 2026",
+   "title": "生成AI時代の学習指導要領 武藤久慶さんが「未来の先生フォーラム」で語る - 朝日新聞",
+   "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1IdWc0T1RJUlpSQ3pLVFY1QkNpUWU3cXNPSkhTRmcwWkZjNkhoMVU2YzJ6cTQ5dTZ5V2ZwdDNLcjZMaUVNMTdEUlNuWnY1U0pDMERsWjZNNWh1ZWxhM3NEMER2SkM?oc=5",
+   "source": "朝日新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 17 Jun 2026",
+   "title": "東海大学にて生成AIワークショップを実施 計49名の学生へ最新AI活用の実践知を紹介 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE54Uzh2ODU3S2ZwbHc4b0JMQnVPN1dUdlNiWjZscW5tM0I2MHRGbDB6VlphVnEtTTVLaUZweEdtbzdPbFVVTk1RNGxOYWlmOUl0WlNyWFRGUDB3ZkF0TTg3ZDlsSVkyekUza2c?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 24 Jun 2026",
+   "title": "生成AI時代に「考えざるを得ない授業」をどう設計するか――New Education Expo 2026：教育とICT Online - 日経BP",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9FaHZ1UFk5RE40RGx1QmFyUXJmamZHUkZXdkFpUEZmWVl4VU95VldWU0w2ZFVNa295R2wxeENITmdmXzQ2SEkwelFHa0pvcXE0MmlONTJBMGIzeWQwa1ZkZk02X3dHOTFrNl8zaW5CSVQ1Zw?oc=5",
+   "source": "日経BP",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 03 Jul 2026",
+   "title": "文科省、生成AIとセキュリティ指針を改訂…次世代校務DX - リセマム",
+   "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFB2bzJzVHVON3V2TWg4bkc1VTNCTG5iV3FlS2Vmc1dTSzNyNmVLUk41YWlza0FiT1UzelphYW5wSjZSNjJVOFZUelVuNHlJc0FnanNrMVZId2JCbTFqRDVvVUYwclFHQQ?oc=5",
+   "source": "リセマム",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 13 Aug 2026",
+   "title": "大学生「生成AIが使えなくなると困る」生成AIの継続利用率が84.5％に──ChatGPT利用は9割超、就職活動への利用も - Yahoo!ニュース",
+   "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOQ1lEYVpYdVUxSFZ1Z0g0eTUwSmlidzZ5NndTc3ZMbDBDMkpWU3JTOWplaHU1d3JYd3F5SVI5blF2MGhyVmRwMnlGMVhSMUtEQnh3ajVxdHRUdV9aVHJoWWQyVHRKcnl0bzBOVnVWQjEwd3Vucm92TGZKb0xpVUxjNHlhajUxc0Vr?oc=5",
+   "source": "Yahoo!ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 16 Jul 2026",
+   "title": "【地域クリエーション学科】高大連携講座（オンライン）「AIを味方に、「話す力」を育てる。―生成AIを活用した教育実践―」の開催のお知らせ[8月8日・土曜日] | 大学からのお知らせ | 相模女子大学・相模女子大学短期大学部 - 相模女子大学",
+   "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5HN21nbmVZVXFXZ1J3VWRZZlprQXYyWmFFMGF2VWw1dzZGdGd1T2t5bUpFRXZPcHNNY3JXbHR4cVBJZEZNSzlYa3pSYkIxWFQyMXJtWnpVSDE?oc=5",
+   "source": "相模女子大学",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 27 Jul 2026",
+   "title": "AI時代の主体的な学びへの転換「第4回 生成AIと郷土を探究する自立活動～福岡県久留米市立田主丸中学校の取組から～」中村学園大学教育学部 山本朋弘教授 - 教育家庭新聞社",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBZaUszOW9IaldvcDc4RTNCdms2RUR2NGFNS01HZG9aTUNHcWJTTDlScWR6cXlrQnVwenBjd0IwcDZjTDZLZ3Q2dndPVHVzUkdYN2JNV2dR?oc=5",
+   "source": "教育家庭新聞社",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 22 Jun 2026",
+   "title": "AI時代の主体的な学びへの転換「第3回 生成AIで生徒の語感を磨く～北海道旭川市立緑が丘中学校の取組から～」中村学園大学教育学部 山本朋弘教授 - 教育家庭新聞社",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE14cFZ3ektKZ0xJcDlEV25ReG5EaW5HeldnVHRxZ3RMV0xoLVZ5TFFUMmFCVXRKb1hFUWdPald0cW9IZ1A0aWktRkd0aXM1VzFkMi1WTUl3?oc=5",
+   "source": "教育家庭新聞社",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 31 Jul 2026",
+   "title": "学生の生成AI利用 - 毎日新聞",
+   "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE13Y0ZFaTBacmlJdk5ka3NVRy1yYS1kTjRvV080eG9McHMzV3pybkVJa2tZWVZMVUt2bUlEX2RjNmx1ODR4VHpnNVgyZnRxMVNBaEprVGVWdkh2Qkw3RlpiSEs0RXZMc0NQZ0JqdG5ZRmo?oc=5",
+   "source": "毎日新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 11 May 2026",
+   "title": "〈大学ランキング2027〉AI時代の大学教育「“ゼロリスク主義”では世界に取り残される」東京大学・鈴木寛教授 - AERA DIGITAL",
+   "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBZVEdFR0QxTnJHdkZlRWxkNVRwVTI4NmlsLWdqLTZCS2xRTUdGWlhDMnNISkZwSkwyblFBWW81Q18tREQ4UHRQLXJCMEhXU09WWjl6RzF2Nkw1dw?oc=5",
+   "source": "AERA DIGITAL",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 30 Mar 2026",
+   "title": "大学のライティング教育、AI時代の使命は 責任と誇りの主体育てよ - 日本経済新聞",
+   "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFAzY3A2SHZHd1VIWTZmSm9NUXBELUw4bHkzZnIyWnBTeEpjNU9uRmFvYkpTWlBSeWxLWGphMUM3SUYyQmMxWlF1a19nYzdINUNMU1VWNVluQ3REd3NZMk5xTjVnNDVIVUc4ZkpkaA?oc=5",
+   "source": "日本経済新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 22 Jun 2026",
+   "title": "生成AI時代の探究学習で課題解決をどう設計するか――New Education Expo 2026：教育とICT Online - 日経BP",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9VU1hmNmRpTlpCMFVXVzNPSC1GTEpSUHFWcFZoZy0zUGZ2QkZQMXRvQTJQa0E1VWlDNEFDM1QxREhVZ1Nadkt1dVY4d0ttLWxOeTZkYks5N2EzQ0FIeDFHVHlGZktxSWxWTHU4b1l5M0J3Zw?oc=5",
+   "source": "日経BP",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 13 Jul 2026",
+   "title": "なぜ日本はAIで米中に勝てないのか？「世界11位」でも喜べない「教育の致命的欠陥」 - ビジネス+IT",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1UOVBMRXhyNi1ST0cxT2R2NHMyVnozM01jS2xtazZhUEM5WG11VUhERTRaWVpTUmplOVZ4dEtCdGp5R3JxUTgtLUQ5YmxCcGc?oc=5",
+   "source": "ビジネス+IT",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 28 Apr 2026",
+   "title": "生成AIは子どもたちの「ドラえもん」になれるか①――AI研究の特別支援学校教員に聞く 子どもの力を引き出す活用術 - 朝日新聞",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBuRDdjZnVEcERXcEZDdndLRDNWT1FyUmpnVHJwTTFROTQ3MFpnb09xUnRBOE1tWF9Qc3NnSEk0eG5Qa3JTSEZTYk9nZG1SU0VYdEZuc2Zn?oc=5",
+   "source": "朝日新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 27 Jul 2026",
+   "title": "未来の学習コンテンツEX「生成AIを活用した授業と評価」8/21 - リセマム",
+   "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5zbGs5ZElkNUJqWlczc1hCUGhKeWs5UDlMaXpWY2xwLUlkNlVERm8zSENpQVotbXpJd3ZUbG1vTERTNlJFMVk5NVByTXFOV01RcHRfLWZySjE1TXVjd1E4aG9feU9QZw?oc=5",
+   "source": "リセマム",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 06 Apr 2026",
+   "title": "人間が判断し、責任を持つ「教育と生成AI」の今 『教育現場のためのAI導入活用ガイド 2026』を4月6日に発売 - 株式会社インプレス",
+   "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5zMFJkSExUYkhmOXVTVEVKWDREVkFYN1NnSXpIYWZ3MmYzclpCSlduUU5TMW53aDdiRmhXLTEzd29pdWVKSkY4amNqM0RCRE1zaG1xQnducG9qZEFUUVRIQVhCb3MwUktubzlEX1FHTQ?oc=5",
+   "source": "株式会社インプレス",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 31 Mar 2026",
+   "title": "早稲田教育叢書No.45『生成AIを活用した探究的な学習の理論と実践 ―子どもの生成力を育てる単元モデルと授業実践―』 - waseda.jp",
+   "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE5sTjVoRk0yOXdCRF9QVmI5UU1jSGxPckUzYnBBd2prOHpyODhvdVd5UUlKcXRRdHhqM0d5b1dIWlZQQ01lcFVWMzFLSjBYcURFWE9Kd1l5eGVtbDk5dzEyRWhYNA?oc=5",
+   "source": "waseda.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 28 Apr 2026",
+   "title": "【新連載】AI時代の主体的な学びへの転換「第1回 教員が生成AIで教材開発～福岡県苅田町立新津中学校の取組から～」中村学園大学教育学部 山本朋弘教授 - 教育家庭新聞社",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5lVzc5aDRmaUl3c3ltUnJoS0Uya2stT0V3Z25IWVlxV1Ruam9UZEVvUDBwTUphX2dsUEJPbjI5bVhaamNiTmdZZGEzeDF0RGZyWmViRVNn?oc=5",
+   "source": "教育家庭新聞社",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 06 Jul 2026",
+   "title": "金沢工業大学、DXハイスクール応援イベントを開催 生成AIやVRの高校事例を紹介 - こどもとIT",
+   "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1PYndTM1JxcUQxcGlwYU5IV3BjbkJ2M2h5NWFLUkQtdzZLMmw2VkVJWDNTeWZ5SFIyQjZjaG1Fb3d4UFBrSGRzWGJKOHJaWmRNSXlwOGdwRDZ0Nm5SVWUwZ3ZjMW1QVV9DMm1Fcg?oc=5",
+   "source": "こどもとIT",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 27 Jul 2026",
+   "title": "生成AI活用から学校改革まで「コアネット私学教育フォーラム」8/18 - リセマム",
+   "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1qWWZZOThfNzJjMGR3NWtCT3kxZk1iOC1ZNXJ2WDhPTzBQY3ZaZUxUQl9GejFFT18xaF9vTlpSTHZBRDZVenR4RDZZaXQteW1LMmdRODhpMHk4MDJTdDEyS0ZPSUdjQQ?oc=5",
+   "source": "リセマム",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 18 Jun 2026",
+   "title": "学校現場の生成AI活用「ガードレール必要」 維新、文科相に提言 - 教育新聞",
+   "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE85RG4zdUF5SUV2cFFvSVdPTmlwcXZpLWJMRlAxM0x6YTVyVXhWWVF0UVJpa1B5dUttenp2QlMyRVNMY3BBUFFUNXpIYUxUSjZiZFI2SGxR?oc=5",
+   "source": "教育新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 15 Jul 2026",
+   "title": "文科省、「教育×生成AIシンポジウム 生成AI時代、学びはどこへ向かうのか」30日開催 - ICT教育ニュース",
+   "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5JLXRkZ3RKNUhfLVc3Z0JnSWdsVzJwRUowRjNQaVBuV291bG1scTgyMmF5em9jbkFnclVwU3Q4Z3R1a0VDYzVoODhZZ2Nkc3Nx?oc=5",
+   "source": "ICT教育ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Sat, 20 Jun 2026",
+   "title": "まるでネイティブ講師 学校で導入進む生成AI 偏った情報への懸念と求められるリテラシー - newsdig.tbs.co.jp",
+   "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1YR0VDaVhJeENYdExGUmFmMVN5X2JaYVdzLURVZlptUEVoMjkzM194SEtRVlZfLWlDRV9ObnRaeXdhSUtjSVJzQUxGNTY5TGEwdVJQdjAzWWpmVk9qTjI3VUR3Yw?oc=5",
+   "source": "newsdig.tbs.co.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 12 May 2026",
+   "title": "「答えじゃなくてヒントをくれるからいい」、大阪市生成AIパイロット校1年目の現場から - こどもとIT",
+   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1hWjZJb2RLM2R0bm5JdW5mTzZIZnN0NWRnV29GdFp2TXdCbWQxeGw4LS1JeXphQ0wtazZwQnIwQmhhWEw3c3BENDE3bFhhMnZwT3FTMFN1MFQta3VwWEVPeHNrX2p5MlE?oc=5",
+   "source": "こどもとIT",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 12 Jun 2026",
+   "title": "【業務効率化】Google Workspaceの使い方講座〜資料作りから生成AI活用まで〜｜お出かけ情報 - kumanichi.com",
+   "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE8xNzlZbTdUdHJHUndmckNqcXVuT3piLXlKd0xwWmZfLU9PaGpDdVNDdnc2RWF1YTVQSWVTU0tNTTBzZTRUbjc3UndVNA?oc=5",
+   "source": "kumanichi.com",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Sat, 18 Apr 2026",
+   "title": "【私見創見】安中進氏 大学教育の在り方は 生成ＡＩの進歩は驚異/脅威的 - デーリー東北",
+   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE03Q2xobFRwRXpvc0RYeHNmTnRnVzVLeXhYU0Ricl8zLVhiV3pjV3FTX2IwRHFGQVFqOG5COEJ6VWc3cnE4MzhQX1hXeXdFWDVPNmxaRVF4bDJyZ2RHOHI2MkIxWWlZZEU?oc=5",
+   "source": "デーリー東北",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 14 Apr 2026",
+   "title": "【見逃し配信】生成AI時代における学びの再設計～学習ハーネス: 問いを回し、AIと深める授業へ～ - 朝日新聞",
+   "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFA1SEJXY2hlc3lIZFg5MGE1Smw5d24xSTdBOEtBa015bWtOdEdCYno5VDg4MHAxQXhZQ0Uzc1A3dXRJX2JCaDlKOVFReXZYS0VmZTNqUk4xNjctTWg3c0tmTERRaDk?oc=5",
+   "source": "朝日新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 17 Jul 2026",
+   "title": "【64選】大学でのChatGPT導入事例 ― 最新のAI対応方針・活用事例 - ChatSense",
+   "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9SX0lobnd4dGI4bkEtdmNqMmlaajJVR3EtM21ySWNwcm84YW5OdUFUZkMxMTczOEdMRWlsdFkyaU1YWE9iYWw5Z2UxbDJYX2Q3enNRbzNvcFdMRW9XQ1JjUUN3Zk5NTzNpS2s0S2lZOA?oc=5",
+   "source": "ChatSense",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 01 May 2026",
+   "title": "コニカミノルタ、教育データと生成AIの事例をEDIXで紹介（こどもとIT） - Yahoo!ニュース",
+   "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE44WnotNHB1bElzN0RnaHFPUW1ESDd4RDVPTURDX3VxaWFsYV9xc1Q1eEs4bWViR1o3YTk1ZXJNMF96ZTVHcDMwM3lweGNSQkZ4a01UYnJzX1UxcE5DR0FrM0Z0by13VXhRT1pVbVNPblJUQzdja1JMazB1UzFQMFU?oc=5",
+   "source": "Yahoo!ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 30 Jul 2026",
+   "title": "大学教育に生成AI 同志社大が1年間の実証実験へ 狙いは？（画像）（4/5枚目） - ITmedia",
+   "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9hVy1CUmZkTzVkMGlLWlBCREdRVVBNSWNaNnhhR2t5TG9jcUtjLUFxQUg0RUwyNHIzRGlOUUFNQUtHZ3ZxcGl5dkNvQ0lIX25EWHcyN0N2bE9zOVB2b0U0eU9TZjAybElJVzV4RXVraDBkTFQwVDY0dDNlTQ?oc=5",
+   "source": "ITmedia",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 31 Mar 2026",
+   "title": "5/16開催！生成AIの利活用を通じて、未来の学びを考えるシンポジウム | 特定非営利活動法人みんなのコードのプレスリリース - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFAyUlBiX1c3dnJ1cTU3S2ZmbXhuZTZSUG1sYTRzZlRXMHVoMHlwODFmeXVZOHViWEJkWDJlMkVoa0hYd3J3R2lMNm5SX0c1a0lFa3RZZHVwYnI5d0J0dUYzZTRXMVRlSnIxX2c?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 01 Jun 2026",
+   "title": "【セミナーレポート】自治体DXの最前線！ 〜広島県の生成AI活用事例とAI時代の人材戦略を探る〜 - 自治体通信Online",
+   "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBLWjN4dzRSU3luNExSZVpuZVFZd19MeE9DZXFJVkRRdkxfWUpiYjNZSnNSVGVRUjhOLWd4X2JNaDV5MTR3X2trVHQ3T1N1MlRlYUdKcXgtY3hOM0J6Q3pIRl9xVGFrR2VCVUFrTUFaaENiaWl4VUZJ?oc=5",
+   "source": "自治体通信Online",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 24 Mar 2026",
+   "title": "FDセミナー（令和7年度）「AIはもう“未来”ではない－今、大学教育に求められる転換」開催報告 - shiga-u.ac.jp",
+   "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBRZ0VnZDFhb2FJMGp3U2tTejJYSzNiUEdMbzJ1Z3JpY1lnZEpvdGtiUEhYaFRzY3dETk9jOFVBLUxja0l4dXBN?oc=5",
+   "source": "shiga-u.ac.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 17 Mar 2026",
+   "title": "【武蔵野大学】全国の高校・大学教育関係者必見！ 高大連携シンポジウムを３月29日（日）に開催「生成AI時代の教育を考える～AIは教育をどう変え、人間をどう幸せにするのか～」 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9oR016R1BoZXE2U1pjREFFdE90cEhhWnB6UTh5THJxMWU5SVRrbThKQkhOT0U2QjluYnN1cE4za3FkLW5zaEYtTG15eHVldmtnWGZpRUJDT0F0MmR6ZWlKTWExOWdPZVBoN1E?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 15 Apr 2026",
+   "title": "全学生約9,500人に向け新たに生成AI「Gemini」などを導入。独自ガイドラインを制定し、学生の効果的な活用を促進 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE4wN29KNTRXRUliMUpXQ21Fd3doM0dxZ1VkVjlFNGg1MGlybFNEYnczT184a053bnJPT3FhaTN3SHRQVk9ad1VIcVFRVlFnUVFDMzhXcng3WXVhMnNCYXhWc2o4VUhBTVJId1E?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 16 Mar 2026",
+   "title": "英検協会と宇都宮大、生成AI英語学習で大学教育高度化…約2,000人で効果検証 - リセマム",
+   "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE51ZHc1N0NVQXBEUmVfLWF3Vm9KaXlsajNKTzVlQk55VEZhVUlsUDdwOTBXdzR1MHZFUmxBTW9keXBOdEN2bG84RmZEemtLQkVCWlZoMXZpSDZHQTFTYV9LMlJwWmhWZw?oc=5",
+   "source": "リセマム",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 17 Apr 2026",
+   "title": "追手門学院大学、全学生約9500人に向け新たに生成AI「Gemini」などを導入 - ICT教育ニュース",
+   "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1wb05idko0S2hUejRKZUhXc0VIMDByUExZeTg2b2dmZnAxTkVLenFJZG5tTk9wLUJqZTB2RU41RTgxNDJxbnlibFdwNlNiOVM1aXhn?oc=5",
+   "source": "ICT教育ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 26 Mar 2026",
+   "title": "生成AI時代の新しい教育を滋賀大学から 2026年度春学期に生成AI講義を新規開講、AI時代の新しいデータサイエンスの教科書を新著 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBha1EzX0tDSU1CQWlSOFl4cXVYa1FNNkM1ZGhVTV9ySWFHS24zV1BOWjF6NVBtY2laUC14M3pZTnhkMDRVU1FZQTdtN0hScDVWRl9VbzRVUDdSSXpiT0x4NkVrS3ByZlBiWUE?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 03 Apr 2026",
+   "title": "\"友達作り\"も相談 イマドキ大学生の「生成AI」の使い方 入学式で聞いてみると・・・ | MRTニュース ｜ ＭＲＴ宮崎放送 (1ページ) - newsdig.tbs.co.jp",
+   "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9Lb2RYT1gzVWNLSHJXWEN4YUp1MkpYUjNUX3RXNWZKYmpDTDREb0I2cThHd29fc014VzZnY2t4REJYOXZvaGlFWHN1cnFVM252TGdoVEtaMFNxSjNGeTBSNzNrM2tQS0E?oc=5",
+   "source": "newsdig.tbs.co.jp",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 19 Mar 2026",
+   "title": "【教材公開】「そのまま使える授業台本」付の小学生向け生成AI授業教材・全国配布開始 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9jVnNocXZVQ1c4YmJGMWNObVZxdVJRSnBWRkR0M3ExYW1pWl9rZFRlN1g0TkhESnFHOVQ1eWlCdG9uS0JnZkRya211UVZscXBNUnc4aEpDV0hZR0x1UkNDQ2NhT1R2bFZRRlE?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Wed, 01 Apr 2026",
+   "title": "みんなのコードと日本マイクロソフト、生成AIの活用をテーマにした教育シンポジウム 5月16日に開催（こどもとIT） - Yahoo!ニュース",
+   "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5PZmExb2Y0WUFhQnMyLTVWM21QQjdtUTNXTUl5ZmtER0hFOGk2VVMtX3lpUl9FcmZWbVMtQThjN1E5ZXZKLWFlU1I2OXFTRDNHWWVYZDNSZE4yQ2djX0hFT3RRMzh3U2lCbTd6d3luN0Rhc3ZYaG1LZzBjVl9SNEk?oc=5",
+   "source": "Yahoo!ニュース",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Mon, 09 Mar 2026",
+   "title": "【大阪成蹊大学】公開シンポジウム「教育改革と可視化－生成AIは大学をどう変えるのか－」を開催(3月19日) - Digital PR Platform",
+   "url": "https://news.google.com/rss/articles/CBMiQ0FVX3lxTFBSNUZzVWFiMFk1TkgtVm5RWTRfdGJ6ZDAybC1OVlkyLTlZQVV6X3pEeDdHWWYtR2RwUTFMb2NUc0l5WGs?oc=5",
+   "source": "Digital PR Platform",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Fri, 28 Nov 2025",
+   "title": "【生成AI×教育】調査 去年の大学受験生、今なら62％が入試に向け生成AIを活用したいと回答。実際の活用率は37％。 - PR TIMES",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5YNUJwTmJWSEc3ZHgxZGtwUzJ2UFlTUHB1RVZ3U0pKbE9rdVh6VTRNVXYxeTJLeWxYdVFmRUpLTzhaSTFoZlFpc1lCcFNqNGZZWm0tdjZZOEhLZmVXNGNKY3Q3dXNYZWUyOGc?oc=5",
+   "source": "PR TIMES",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Tue, 09 Dec 2025",
+   "title": "大学、生成AI活用6割 532校調査 向き合い方二極化 成績評価や入試に/不正警戒で二の足 - 日本経済新聞",
+   "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5lR1pGS2pjZTZfVTVNSnVCM0VlcERtMHRSNDdjZUtYRi1ZRllfXzcyV0VEYUlpeWJWS0tpa1ppZllPZnJyVEJuMEQ0dVdUaUh1MTZnSk85YkFXWHI5bHVpVFpGcnNVdGZTeGxkYQ?oc=5",
+   "source": "日本経済新聞",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  },
+  {
+   "date": "Thu, 05 Feb 2026",
+   "title": "アメリカ大学・カレッジ協会（AAC&U）とイーロン大学、全国の大学教員を対象とした、生成AIが教育と学生の成績に及ぼす影響に関する調査結果を発表 - カレントアウェアネス・ポータル",
+   "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE9ENkJyTGZCSkRneldqd3VpNUpCRllvRUJUdEEtS2taNmhHdEs4eF9ia1RvRDBjLWhaUDJzVG9kLUYwUTRtRV9qMnRyUHI?oc=5",
+   "source": "カレントアウェアネス・ポータル",
+   "q": "生成AI 大学 教育",
+   "seen": "2026-09-04"
+  }
+ ]
 }
