@@ -21,23 +21,32 @@
  *   このリポジトリは package.json を持たない。標準の node だけで動く。
  */
 import { readFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 
 /* Instagram 側の上限。超えると弾かれる */
 const MAX_CHARS = 2200;
 const MAX_TAGS = 30;
 
-/* 書いてはいけない言葉。
-   景品表示法まわりで危ないものと、いま事実でないものを混ぜてある。
-   「無料」は、体験期間を無料にするか決めていないため入れてある（決めたら外す）。 */
+/* 書いてはいけない言葉。景品表示法まわりで危ないものと、書きかけの印。 */
 const NG = [
   { word: "必ず儲か", why: "断定できない。景品表示法で問題になりうる" },
   { word: "絶対に稼げ", why: "同上" },
   { word: "誰でも稼げ", why: "同上" },
   { word: "確実に内定", why: "断定できない" },
   { word: "100%", why: "断定に読める。割合を出すなら出典を添える" },
-  { word: "無料", why: "体験期間を無料にするか未定。決まるまで書かない" },
   { word: "要記入", why: "書きかけが残っている" },
   { word: "TODO", why: "書きかけが残っている" },
+];
+
+/* 相手によって、だめかどうかが変わる言葉。
+   絵本（`ehon/`）は本当に無料なので、「無料」と書いてよい。
+   講座の話に「無料」が出てきたときだけ止める（体験期間を無料にするか未定のため）。 */
+const NG_IF = [
+  {
+    word: "無料",
+    when: /講座|体験|デモ|受講|セミナー/,
+    why: "講座の無料は未定。決まるまで書かない（絵本の無料は書いてよい）",
+  },
 ];
 
 /* 数字を出したら、出どころも出す。この語が近くにあれば出典とみなす */
@@ -80,6 +89,9 @@ export function kensa(text) {
   for (const { word, why } of NG) {
     if (body.includes(word)) ng(`「${word}」がある`, why);
   }
+  for (const { word, when, why } of NG_IF) {
+    if (body.includes(word) && when.test(body)) ng(`「${word}」がある`, why);
+  }
 
   /* ⑤ 個人情報 */
   for (const { re, why } of PRIVATE) {
@@ -97,12 +109,16 @@ export function kensa(text) {
   }
 
   /* ⑦ 最初の2行で指が止まるか。
-     数字か、読み手の思い込みを否定する形があるか。どちらも無ければ弱い */
+     数字か、読み手の思い込みを否定する形があるか。どちらも無ければ弱い。
+
+     **絵本の投稿には掛けない。** あれは煽って読ませるものではないし、
+     毎日59件に同じ指摘が出ると、指摘そのものを読まなくなる。 */
+  const isEhon = /\/ehon\//.test(body) || body.includes("絵本");
   const head = lines.filter((l) => l.trim()).slice(0, 2).join("");
   const stops =
     /\d/.test(head) ||
     /ではありません|ではない|違います|逆です|間違|ではなく/.test(head);
-  if (head && !stops) {
+  if (head && !stops && !isEhon) {
     warn("最初の2行が弱い", "数字を出すか、読み手が用意している説明を先に否定する");
   }
 
@@ -133,7 +149,8 @@ function show(items) {
 function selfTest() {
   const cases = [
     ["空", "", 0],
-    ["無料が入っている", "無料で配ります", 1],
+    ["絵本の無料は通す", "無料で読める絵本です", 0],
+    ["講座の無料は止める", "この講座は無料で受けられます", 1],
     ["出どころのない数字", "利用率は86%でした。\n\n\n", 0],
     ["出どころのある数字", "白書によると利用率は86%でした。", 0],
     ["メールアドレス", "連絡は a@b.com まで", 1],
@@ -149,8 +166,12 @@ function selfTest() {
   return ng ? 1 : 0;
 }
 
-const arg = process.argv[2];
-if (!arg) {
+/* 直に叩かれたときだけ動かす。unei.mjs から読み込むときは動かさない */
+const direct = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+const arg = direct ? process.argv[2] : null;
+if (!direct) {
+  /* 読み込まれただけ。kensa() を使ってもらう */
+} else if (!arg) {
   console.log("使い方: node insta/tools/kensa.mjs <ファイル>\n        node insta/tools/kensa.mjs --self-test");
   process.exit(2);
 } else if (arg === "--self-test") {
