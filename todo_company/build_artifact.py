@@ -14,10 +14,14 @@ DESC = "辰巳彩香の頭の中にあるものを、動かせる地図にした
 here = Path(__file__).parent
 body = (here / "_body.html").read_text(encoding="utf-8").strip()
 css = (here / "map.css").read_text(encoding="utf-8").rstrip()
+data = (here / "map.data.js").read_text(encoding="utf-8").rstrip()
 js = (here / "map.js").read_text(encoding="utf-8").rstrip()
 
 # Artifact は <head> を書けないので、body の中身＋インラインの style/script だけ
-artifact = f"<title>{TITLE}</title>\n<style>\n{css}\n</style>\n\n{body}\n\n<script>\n{js}\n</script>\n"
+artifact = (
+    f"<title>{TITLE}</title>\n<style>\n{css}\n</style>\n\n{body}\n\n"
+    f"<script>\n{data}\n</script>\n<script>\n{js}\n</script>\n"
+)
 (here / "artifact.html").write_text(artifact, encoding="utf-8")
 
 # 公開用は普通の1枚。PWA ではないので manifest も Service Worker も置かない
@@ -37,6 +41,7 @@ index = f"""<!doctype html>
 
 {body}
 
+<script src="map.data.js"></script>
 <script src="map.js"></script>
 
 </body>
