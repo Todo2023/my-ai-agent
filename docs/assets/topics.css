@@ -81,3 +81,6 @@
 .tp-lockmsg b{color:var(--ink);font-weight:500;}
 .tp-lockmsg a{margin-left:.4em;text-decoration:underline;}
 .tp-q.is-ours{border-left:2px solid var(--hairline-strong);padding-left:14px;}
+.tp-lockcta{margin:12px 0 0;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;font-size:13px;}
+.tp-lockcta a{text-decoration:underline;}
+.tp-lockprime{font-weight:700;color:var(--ink);}
