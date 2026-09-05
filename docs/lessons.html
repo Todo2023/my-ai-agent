@@ -50,6 +50,55 @@
     return gating.length > 0 && gating.every(function (x) { return x.done; });
   }
 
+  /* 表示名。決めておくと、質問やワークが「名前なし」で届かなくなる。
+     決めていない人には、たたんだ状態ではなく**開いた状態**で出す。
+     たたむと誰も決めないまま進む。 */
+  function nameHtml(data) {
+    var has = Boolean(data.name);
+    return '<div class="naming' + (has ? ' is-set' : '') + '">'
+      + '<div class="naming-head">' + (has ? '表示名' : 'はじめに、表示名を決めてください') + '</div>'
+      + '<div class="naming-bar">'
+      + '<input id="name" type="text" maxlength="20" autocomplete="off" spellcheck="false" '
+      + 'aria-label="表示名" placeholder="呼び名（20文字まで）" value="' + esc(data.name || '') + '">'
+      + '<button type="button" class="deck-btn asker-send" id="name-save">'
+      + (has ? '変える' : '決める') + '</button>'
+      + '<span class="naming-state" id="name-state" role="status"></span>'
+      + '</div>'
+      + '<p class="naming-note">質問とワークを出したとき、<b>運営にこの名前で届きます。</b>'
+      + '決めていないと「名前なし」で届き、誰の質問か分からなくなります。<br>'
+      + '<b>本名でなくてかまいません。</b>呼ばれたい名前を入れてください。'
+      + '「みんなの質問」には出ません（<a href="privacy.html" target="_blank" '
+      + 'rel="noopener">個人情報の取り扱い</a>）。</p>'
+      + '</div>';
+  }
+
+  function wireName() {
+    var box = document.getElementById('name');
+    var btn = document.getElementById('name-save');
+    var say = document.getElementById('name-state');
+    if (!box || !btn) return;
+
+    btn.addEventListener('click', function () {
+      var v = box.value.trim();
+      if (!v) { say.textContent = '空です'; box.focus(); return; }
+      btn.disabled = true;
+      say.textContent = '決めています…';
+      Course.api('/name', { name: v }).then(function (res) {
+        btn.disabled = false;
+        if (!res.ok) { say.textContent = res.d.error || '決められませんでした'; return; }
+        say.textContent = res.d.name + 'さん、で届きます';
+        document.querySelector('.naming').classList.add('is-set');
+      }).catch(function () {
+        btn.disabled = false;
+        say.textContent = '通信できませんでした';
+      });
+    });
+
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); btn.click(); }
+    });
+  }
+
   function render(data) {
     var rows = data.lessons.map(function (x) {
       var state = !x.open ? LOCK : (x.done ? '提出済み' : (x.written ? '読めます' : '準備中'));
@@ -74,6 +123,7 @@
       + '<div class="facts"><span><em>いま読める回</em>' + open + ' / ' + data.lessons.length + '</span>'
       + (data.name ? '<span><em>ようこそ</em>' + esc(data.name) + 'さん</span>' : '')
       + '</div></div>'
+      + nameHtml(data)
       + '<div class="lessonlist">' + rows + '</div>'
       + (allDone(data)
           ? '<p class="lafter"><a class="deck-btn" href="done.html">修了の画面を見る</a></p>'
@@ -90,6 +140,8 @@
       + 'ワークのお題として使うこともあります。</p>'
       + '</div>'
       + '<p class="signout"><button type="button" class="deck-btn" id="signout">この端末から合言葉を消す</button></p>';
+
+    wireName();
 
     document.getElementById('signout').addEventListener('click', function () {
       if (!confirm('次に開くとき、もう一度合言葉が要ります。よろしいですか。')) return;

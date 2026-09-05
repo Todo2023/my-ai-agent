@@ -367,3 +367,17 @@ html{overflow-x:clip;}
   letter-spacing:.04em;}
 .writer-count.is-near{color:var(--ink);}
 .writer-count.is-ok{color:var(--red-deep);font-weight:500;}
+
+/* 表示名を決める欄（資料の一覧）。
+   まだ決めていない人には枠線を強く出し、決めたあとは目立たなくする。
+   毎回同じ強さで出ていると、決めた人にとってはただの邪魔になる */
+.naming{margin:0 0 28px;padding:18px 20px;border:1px solid var(--hairline-strong);border-radius:4px;background:#faf8f3;}
+.naming.is-set{border-color:var(--hairline);background:transparent;padding:14px 0;}
+.naming-head{font-size:13px;font-weight:700;margin:0 0 10px;}
+.naming.is-set .naming-head{color:var(--text-soft);font-weight:500;}
+.naming-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.naming-bar input{flex:0 1 260px;min-width:0;padding:9px 12px;font:inherit;font-size:14px;
+  border:1px solid var(--hairline);border-radius:3px;background:#fff;color:inherit;}
+.naming-state{font-size:12px;color:var(--text-soft);}
+.naming-note{margin:12px 0 0;font-size:12px;line-height:1.8;color:var(--text-soft);}
+.naming.is-set .naming-note{display:none;}

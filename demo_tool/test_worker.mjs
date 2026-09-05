@@ -216,18 +216,80 @@ function stubSlack(status = 200) {
   return seen;
 }
 
+function nameReq(body) {
+  return new Request("https://example.workers.dev/name", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 await t("質問はSlackに届き、KVにも残る", async () => {
   const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ name: "やまだ" }));
   const seen = stubSlack();
-  const res = await worker.fetch(ask({ lesson: "問いを立てる", slide: "5", name: "山田", text: "ここが分かりません" }), e);
+  const res = await worker.fetch(
+    ask({ code: "ABC", lesson: "問いを立てる", slide: "5", text: "ここが分かりません" }), e);
   const body = await res.json();
   assert.strictEqual(res.status, 200);
   assert.strictEqual(body.delivered, true, "Slackに届いたと返る");
   assert.ok(seen[0].body.text.includes("ここが分かりません"), "本文が入っている");
   assert.ok(seen[0].body.text.includes("スライド 5"), "どのスライドか分かる");
-  assert.ok(seen[0].body.text.includes("山田"));
+  assert.ok(seen[0].body.text.includes("やまだ"), "**名無しにならない**");
   const keys = [...e.DEMO_KV.store.keys()].filter((k) => k.startsWith("ask:"));
   assert.strictEqual(keys.length, 1, "KVにも残る");
+});
+
+await t("送られてきた名前は信じない。合言葉から引く", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ name: "やまだ" }));
+  const seen = stubSlack();
+  await worker.fetch(ask({ code: "ABC", lesson: "第1回", name: "べつのひと", text: "質問です" }), e);
+  assert.ok(seen[0].body.text.includes("やまだ"), "合言葉の持ち主の名前が出る");
+  assert.ok(!seen[0].body.text.includes("べつのひと"), "**他人を名乗れない**");
+});
+
+await t("表示名を決めていなければ、合言葉が出る", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  const seen = stubSlack();
+  await worker.fetch(ask({ code: "ABC", lesson: "第1回", text: "質問です" }), e);
+  assert.ok(seen[0].body.text.includes("ABC"), "運営には誰か分かる");
+});
+
+await t("表示名を決められる", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ paidThrough: 3 }));
+  const res = await worker.fetch(nameReq({ code: "ABC", name: "やまだ" }), e);
+  const body = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(body.name, "やまだ");
+  const saved = JSON.parse(e.DEMO_KV.store.get("member:ABC"));
+  assert.strictEqual(saved.name, "やまだ", "保存される");
+  assert.strictEqual(saved.paidThrough, 3, "**もとの中身を消さない**");
+});
+
+await t("同じ表示名を入れ直しても、書き込まない", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ name: "やまだ" }));
+  let writes = 0;
+  const orig = e.DEMO_KV.put.bind(e.DEMO_KV);
+  e.DEMO_KV.put = async (...a) => { writes++; return orig(...a); };
+  const res = await worker.fetch(nameReq({ code: "ABC", name: "やまだ" }), e);
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(writes, 0, "**無料枠を無駄に使わない**");
+});
+
+await t("合言葉が違えば、表示名は決められない", async () => {
+  const e = env();
+  const res = await worker.fetch(nameReq({ code: "ZZZ", name: "だれか" }), e);
+  assert.strictEqual(res.status, 403);
+});
+
+await t("空の表示名と、山かっこは断る", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  assert.strictEqual((await worker.fetch(nameReq({ code: "ABC", name: "  " }), e)).status, 400);
+  assert.strictEqual((await worker.fetch(nameReq({ code: "ABC", name: "<b>x" }), e)).status, 400);
 });
 
 await t("Slackが落ちていても、質問は失わない", async () => {
