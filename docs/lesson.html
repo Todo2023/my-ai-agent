@@ -176,7 +176,7 @@
     state.total = d.slides;
     state.i = 1;
 
-    var facts = [['日付', d.date], ['所要', d.dur], ['種別', d.kind]]
+    var facts = [['日付', d.date], ['目安', d.dur], ['種別', d.kind]]
       .filter(function (p) { return p[1]; })
       .map(function (p) { return '<span><em>' + p[0] + '</em>' + esc(p[1]) + '</span>'; }).join('');
     // 用語は種別の下。学生に当たり前でない言葉を、本文を読む前に横に置く
