@@ -53,9 +53,17 @@ a{color:inherit;}
 .tab-cta{margin-left:auto;padding-left:26px;color:var(--ink);}
 .tab:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
 @media (max-width:640px){
-  .tabs{flex-wrap:wrap;overflow-x:visible;gap:4px 18px;}
-  .tab{font-size:12.5px;padding:9px 0;}
+  /* 折り返さない。**4つを1列に並べる。**
+     折り返すと「お問い合わせ」だけが2行目に落ちて、別物のように見える。
+     入りきらないときは、横に流して隠す（scrollbar は出さない）。 */
+  .tabs{flex-wrap:nowrap;overflow-x:auto;gap:14px;}
+  .tab{font-size:12px;padding:9px 0;}
   .tab-cta{margin-left:0;padding-left:0;}
+}
+@media (max-width:430px){
+  /* 手のひらの幅でも4つが収まるところまで詰める */
+  .tabs{gap:11px;}
+  .tab{font-size:11.5px;letter-spacing:0;}
 }
 .nav-inner{max-width:var(--wrap);margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--hairline);}
 .logo{font-family:'Shippori Mincho';font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--ink);text-decoration:none;}
