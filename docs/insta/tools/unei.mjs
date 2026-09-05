@@ -6,6 +6,7 @@
  *   node insta/tools/unei.mjs next       # この先の予定を見る
  *   node insta/tools/unei.mjs set <slug> # 順番に割り込んで、きょうの1件を差し替える
  *   node insta/tools/unei.mjs ok         # 見て確かめた。出してよい（人がやる）
+ *                                        ※ ok は先に機械検品を通す（kensa.mjs）
  *   node insta/tools/unei.mjs post       # OKしたものだけ Instagram に出す（機械がやる）
  *   node insta/tools/unei.mjs done       # 手で出したときに記録する
  *   node insta/tools/unei.mjs stats      # 反応の集計
@@ -31,6 +32,7 @@
  *   書き換えるのは posted.json ひとつだけ。
  */
 import { readFile, writeFile } from "node:fs/promises";
+import { kensa } from "./kensa.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -371,10 +373,29 @@ async function cmdOk(opts) {
     throw new Error(`${slug} は すでに出しています。`);
   }
 
+  /* 機械検品。**だめが1つでもあれば OK を付けない。**
+     AI は呼ばないので費用はゼロ。--force で押し切れるが、理由が無いなら使わない */
+  const found = kensa(p.caption ?? "");
+  const bad = found.filter((i) => i.level === "だめ");
+  if (found.length) {
+    console.log("");
+    console.log("── 機械検品 ──");
+    for (const i of found) console.log(`[${i.level}] ${i.m}\n          → ${i.why}`);
+  }
+  if (bad.length && !opts.force) {
+    console.log("");
+    console.log(`だめ ${bad.length} 件。**OKは付けません。** キャプションを直してください。`);
+    console.log("  直したら:  node insta/tools/build-posts.mjs");
+    console.log("  それでも通す: node insta/tools/unei.mjs ok --force");
+    console.log("");
+    return;
+  }
+
   state.approved = slug;
   await save(state);
 
   console.log("");
+  if (bad.length) console.log("※ --force で機械検品を押し切りました。");
   console.log(`「${p.title}」を出してよい、と記録しました。`);
   console.log("");
   console.log("  出す:  node insta/tools/unei.mjs post");
@@ -618,6 +639,7 @@ function parseArgs(argv) {
     else if (a === "--date") opts.date = argv[++i];
     else if (a === "--start") opts.start = argv[++i];
     else if (a === "--dry-run") opts.dryRun = true;
+    else if (a === "--force") opts.force = true;
     else if (a === "-n") opts.n = Number(argv[++i]);
     else rest.push(a);
   }
