@@ -152,11 +152,15 @@
         + '</ul></div>';
     }
     if (ours) return '';               // 読めているが、この記事には無い
+    /* 行き先を2つ出す。**受講者と、そうでない人の行き先が違う。**
+       合言葉のリンクしか無いと、受講していない人がそこで行き止まりになる */
     return '<div class="tp-q is-locked">'
       + '<p class="tp-label">運営が立てた問い</p>'
       + '<p class="tp-lockmsg"><b>ここは受講者の方だけが読めます。</b>'
-      + 'AIが立てた問いより、一段深いところを聞いています。'
-      + '<a href="lessons.html">合言葉を入れる</a></p></div>';
+      + 'AIが立てた問いより、一段深いところを聞いています。</p>'
+      + '<p class="tp-lockcta">'
+      + '<a class="tp-lockprime" href="apply-demo.html">講座を見る</a>'
+      + '<a href="lessons.html">受講中の方はこちら</a></p></div>';
   }
 
   /* 合言葉を持っている人だけ、運営の問いを取りに行く。
