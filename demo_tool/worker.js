@@ -378,15 +378,158 @@ async function handleName(body, env) {
 
 const TOPICQ_KEY = "topicq";
 
+/* 受講者が立てた問い。**運営が通したものだけ**が並ぶ。
+
+   置き場所は3つに分けてある。
+
+     topicq      … 運営が立てた問い（記事ごとの配列）
+     topicq:peer … 受講者の問いのうち、**通ったもの**
+     topicq:wait … まだ見ていないもの（待ち行列）
+
+   ■ なぜ待ち行列を1つの塊にするのか
+     1件ずつ別のキーにすると、運営が見るたびに list を呼ぶことになる。
+     list は書き込みと同じ枠（1日1,000回）で、いちばん細い。
+     塊にしておけば、読むのも書くのも1回で済む。
+
+   ■ 受講者が1人増えると、何回使うか
+     問いを送る … 読み1 + 書き1（待ち行列）
+     Topicsを開く … 読み2（運営の問い + 通った問い）
+     読み出しは1日100,000回まで。書き込みだけを数えればよい作り。 */
+const TOPICQ_PEER = "topicq:peer";
+const TOPICQ_WAIT = "topicq:wait";
+const MAX_TOPICQ = 400;      // 受講者の問いの長さ
+const MAX_WAIT = 200;        // 待ち行列に溜められる数
+
+async function readJson(env, key, fallback) {
+  if (!env.DEMO_KV) return fallback;
+  const raw = await env.DEMO_KV.get(key);
+  return raw ? JSON.parse(raw) : fallback;
+}
+
 /** 受講者に返す。合言葉が要る */
 async function handleTopicQ(body, env) {
   const code = String(body.code || "").trim().toUpperCase();
   if (!code) return json({ error: "合言葉が要ります", locked: true }, 401);
   const who = await member(env, code);
   if (!who) return json({ error: "合言葉が違います", locked: true }, 403);
-  if (!env.DEMO_KV) return json({ questions: {} });
-  const raw = await env.DEMO_KV.get(TOPICQ_KEY);
-  return json({ questions: raw ? JSON.parse(raw) : {} });
+  if (!env.DEMO_KV) return json({ questions: {}, peers: {} });
+  const [questions, peers] = await Promise.all([
+    readJson(env, TOPICQ_KEY, {}),
+    readJson(env, TOPICQ_PEER, {}),
+  ]);
+  return json({ questions, peers });
+}
+
+/** 受講者が問いを送る。**すぐには並ばない。**運営が通してから並ぶ */
+async function askTopicQ(body, env) {
+  const code = String(body.code || "").trim().toUpperCase();
+  if (!code) return json({ error: "合言葉が要ります", locked: true }, 401);
+  const who = await member(env, code);
+  if (!who) return json({ error: "合言葉が違います", locked: true }, 403);
+
+  // 入力欄を隠して置いてある。人は触らないので、埋まっていれば機械
+  if (String(body.website || "").trim()) return json({ ok: true, waiting: true });
+
+  const topic = String(body.topic || "").trim().slice(0, 80);
+  const text = String(body.text || "").trim();
+  if (!topic) return json({ error: "どの記事についてか分かりません" }, 400);
+  if (!text) return json({ error: "問いが空です" }, 400);
+  if (text.length > MAX_TOPICQ) {
+    return json({ error: `長すぎます。${MAX_TOPICQ}文字以内で入れてください` }, 400);
+  }
+
+  const ip = request_ip(body);
+  const wait = await readJson(env, TOPICQ_WAIT, []);
+  if (wait.length >= MAX_WAIT) {
+    return json({ error: "いま受け付けを止めています。しばらくしてからお願いします" }, 503);
+  }
+  // 同じ人が同じ記事に、同じ問いを何度も送らないようにする
+  if (wait.some((w) => w.code === code && w.topic === topic && w.text === text)) {
+    return json({ ok: true, waiting: true });
+  }
+
+  const item = {
+    id: `tq:${Date.now()}`,
+    topic,
+    text,
+    code,
+    name: who.name || code,
+    at: new Date().toISOString(),
+  };
+  wait.push(item);
+  await env.DEMO_KV.put(TOPICQ_WAIT, JSON.stringify(wait));
+
+  const slack = await toSlack(env, {
+    lesson: `AI Topics ／ ${topic}`,
+    slide: "",
+    name: `${item.name}（Topicsの問い・通すかどうか）`,
+    text,
+  });
+  return json({ ok: true, waiting: true, delivered: slack.sent });
+}
+
+/* IP は本文からは取れない。将来ここで絞るときのための置き場所 */
+function request_ip() {
+  return "";
+}
+
+/** 運営が、まだ見ていない問いを読む。合鍵が要る */
+async function listTopicQWait(body, env) {
+  const key = String(body.key || "");
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const [wait, peers] = await Promise.all([
+    readJson(env, TOPICQ_WAIT, []),
+    readJson(env, TOPICQ_PEER, {}),
+  ]);
+  return json({ waiting: wait, peers });
+}
+
+/** 運営が通す／落とす。合鍵が要る */
+async function judgeTopicQ(body, env) {
+  const key = String(body.key || "");
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const id = String(body.id || "");
+  if (!id) return json({ error: "どれかを指定してください" }, 400);
+  const pass = body.pass === true;
+
+  const wait = await readJson(env, TOPICQ_WAIT, []);
+  const i = wait.findIndex((w) => w.id === id);
+  if (i === -1) return json({ error: "その問いは見つかりません" }, 404);
+  const [item] = wait.splice(i, 1);
+
+  if (pass) {
+    const peers = await readJson(env, TOPICQ_PEER, {});
+    const list = peers[item.topic] || [];
+    // 直したいときのために、運営が書き換えた本文を受け取れるようにしておく
+    const text = String(body.text || item.text).trim().slice(0, MAX_TOPICQ);
+    list.push({ id: item.id, text, name: item.name, at: item.at });
+    peers[item.topic] = list.slice(-10);   // 1記事につき10個まで
+    await env.DEMO_KV.put(TOPICQ_PEER, JSON.stringify(peers));
+  }
+  await env.DEMO_KV.put(TOPICQ_WAIT, JSON.stringify(wait));
+  return json({ ok: true, passed: pass, left: wait.length });
+}
+
+/** 運営が、通したあとで取り下げる。合鍵が要る */
+async function hideTopicQ(body, env) {
+  const key = String(body.key || "");
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const id = String(body.id || "");
+  const topic = String(body.topic || "");
+  if (!id || !topic) return json({ error: "どれかを指定してください" }, 400);
+  const peers = await readJson(env, TOPICQ_PEER, {});
+  const list = peers[topic] || [];
+  const next = list.filter((x) => x.id !== id);
+  if (next.length === list.length) return json({ error: "その問いは見つかりません" }, 404);
+  if (next.length) peers[topic] = next; else delete peers[topic];
+  await env.DEMO_KV.put(TOPICQ_PEER, JSON.stringify(peers));
+  return json({ ok: true });
 }
 
 /** 運営が入れる。合鍵が要る。まるごと置き換える */
@@ -1328,6 +1471,15 @@ export default {
       let b;
       try { b = await request.json(); } catch { return json({ error: "読み取れない要求です" }, 400); }
       return putTopicQ(b, env);
+    }
+    // 受講者が立てた問い。送るのは受講者、通すのは運営
+    if (url.pathname.startsWith("/topicq/") && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch { return json({ error: "読み取れない要求です" }, 400); }
+      if (url.pathname === "/topicq/ask") return askTopicQ(b, env);
+      if (url.pathname === "/topicq/wait") return listTopicQWait(b, env);
+      if (url.pathname === "/topicq/judge") return judgeTopicQ(b, env);
+      if (url.pathname === "/topicq/hide") return hideTopicQ(b, env);
     }
 
     // 表示名を決める。合言葉が要る

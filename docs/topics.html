@@ -144,14 +144,25 @@
      入れてしまうと、ファイルを直接開かれた時点で読めてしまう。
      Worker から、合言葉のある人にだけ返している。 */
   var ours = null;   // まだ読んでいない
+  var peers = null;  // 受講者が立てた問い（運営が通したものだけ）
   function oursHtml(t) {
     var got = ours && ours[t.id];
+    var mine = peers && peers[t.id];
+    var out = '';
     if (got && got.length) {
-      return '<div class="tp-q is-ours"><p class="tp-label">運営が立てた問い</p><ul>'
+      out += '<div class="tp-q is-ours"><p class="tp-label">運営が立てた問い</p><ul>'
         + got.map(function (q) { return '<li>' + rich(q) + '</li>'; }).join('')
         + '</ul></div>';
     }
-    if (ours) return '';               // 読めているが、この記事には無い
+    if (mine && mine.length) {
+      out += '<div class="tp-q is-peer"><p class="tp-label">受講生が立てた問い</p><ul>'
+        + mine.map(function (q) {
+            return '<li>' + rich(q.text)
+              + '<span class="tp-by">' + esc(q.name || '') + '</span></li>';
+          }).join('')
+        + '</ul></div>';
+    }
+    if (ours) return out + askHtml(t);   // 開いている人には、送る欄も出す
     /* 行き先を2つ出す。**受講者と、そうでない人の行き先が違う。**
        合言葉のリンクしか無いと、受講していない人がそこで行き止まりになる */
     return '<div class="tp-q is-locked">'
@@ -170,8 +181,66 @@
     Course.api('/topicq').then(function (res) {
       if (!res.ok) return;             // 合言葉が切れていたら、鍵つきのまま出す
       ours = res.d.questions || {};
+      peers = res.d.peers || {};
       render(items);
+      wireAsk();
     }).catch(function () {});
+  }
+
+  /* 受講者が問いを送る欄。**送ってもすぐには並ばない。**
+     運営が読んで通したものだけが「受講生が立てた問い」に出る。
+     すぐ並ぶ作りにすると、荒れたときに直す手立てが無くなる。 */
+  function askHtml(t) {
+    return '<div class="tp-ask" data-topic="' + esc(t.id) + '">'
+      + '<button type="button" class="tp-ask-open">この記事に、問いを立ててみる</button>'
+      + '<div class="tp-ask-body" hidden>'
+      + '<textarea rows="3" maxlength="400" placeholder="読んで浮かんだ問いを、そのまま書いてください。&#10;'
+      + '答えが1つに決まらない形だと、みんなで考えられます。"></textarea>'
+      + '<input type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="tp-trap">'
+      + '<div class="tp-ask-bar">'
+      + '<button type="button" class="deck-btn asker-send tp-ask-send">送る</button>'
+      + '<span class="tp-ask-state" role="status"></span></div>'
+      + '<p class="tp-ask-note"><b>送ってもすぐには並びません。</b>運営が読んでから並びます。'
+      + '表示名が付きます（<a href="lessons.html">変える</a>）。'
+      + 'お名前や連絡先は書かないでください。</p>'
+      + '</div></div>';
+  }
+
+  function wireAsk() {
+    [].forEach.call(document.querySelectorAll('.tp-ask'), function (box) {
+      if (box.dataset.wired) return;
+      box.dataset.wired = '1';
+      var open = box.querySelector('.tp-ask-open');
+      var body = box.querySelector('.tp-ask-body');
+      var area = box.querySelector('textarea');
+      var send = box.querySelector('.tp-ask-send');
+      var say = box.querySelector('.tp-ask-state');
+
+      open.addEventListener('click', function () {
+        body.hidden = !body.hidden;
+        if (!body.hidden) area.focus();
+      });
+
+      send.addEventListener('click', function () {
+        var text = area.value.trim();
+        if (!text) { say.textContent = '問いが空です'; area.focus(); return; }
+        send.disabled = true;
+        say.textContent = '送っています…';
+        Course.api('/topicq/ask', {
+          topic: box.dataset.topic,
+          text: text,
+          website: box.querySelector('.tp-trap').value
+        }).then(function (res) {
+          send.disabled = false;
+          if (!res.ok) { say.textContent = res.d.error || '送れませんでした'; return; }
+          area.value = '';
+          say.textContent = '送りました。運営が読んでから並びます';
+        }).catch(function () {
+          send.disabled = false;
+          say.textContent = '送れませんでした。通信を確かめてください';
+        });
+      });
+    });
   }
 
   function render(items) {

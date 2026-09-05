@@ -25,3 +25,15 @@
 /* Slackのリンクから開いた質問。どれを開いたのかが一目で分かるようにする */
 .an-item.is-picked{border:1px solid var(--red);box-shadow:0 0 0 3px var(--red-bg);}
 .an-picked-note{font-size:11.5px;color:var(--red-deep);}
+
+/* Topicsの問いを通す画面 */
+.an-sec{margin:0 0 40px;}
+.an-h{font-size:16px;margin:0 0 14px;}
+.an-item{border:1px solid var(--hairline);border-radius:4px;padding:16px 18px;margin:0 0 14px;}
+.an-edit{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.8;
+  padding:10px 12px;margin-top:8px;border:1px solid var(--hairline);border-radius:3px;background:#fff;resize:vertical;}
+.an-bar{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.an-group{margin:0 0 18px;}
+.an-row{display:flex;align-items:flex-start;gap:14px;justify-content:space-between;
+  padding:10px 0;border-top:1px solid var(--hairline);font-size:14px;line-height:1.8;}
+.an-row button{flex:none;}
