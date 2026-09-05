@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 運営用。検索には載せない。 -->
+<meta name="robots" content="noindex, nofollow">
+<title>Topicsの問いを通す｜運営用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPMincho:wght@400;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/lesson.css">
+<link rel="stylesheet" href="assets/answer.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="lessons.html">合同会社To<em>do</em> — 運営用</a>
+    <span class="navlinks">
+      <a class="navlink" href="answer.html">質問に答える →</a>
+      <a class="navlink" href="topics.html">AI Topics →</a>
+    </span>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+  <div class="lesson-head">
+    <div class="kicker">Topics</div>
+    <h1>Topicsの問いを通す</h1>
+    <p class="aim">受講者が立てた問いは、<b>ここで通すまで並びません。</b>
+    通したものだけが「受講生が立てた問い」として Topics に出ます。
+    <b>通すときに書き直せます。</b></p>
+  </div>
+  <div id="gate" class="an-gate">
+    <p class="an-label">合鍵</p>
+    <form class="an-keyform">
+      <input type="password" id="key" autocomplete="off" placeholder="合鍵">
+      <button type="submit" class="deck-btn">開く</button>
+    </form>
+    <p class="an-say" id="gate-say" role="status"></p>
+  </div>
+  <div id="list"></div>
+</main>
+
+<footer>合同会社Todo　思考力×AI統合講座　運営用</footer>
+
+<script src="assets/course.js"></script>
+<script>
+/* 受講者が立てた問いを、通す／落とす。
+   通すまでは誰にも見えない（worker.js の topicq:wait）。 */
+(function () {
+  var esc = Course.esc;
+  var API = 'https://todo-demo-tool.todo-inc-2023-10-13.workers.dev';
+  var key = '';
+
+  var gate = document.getElementById('gate');
+  var list = document.getElementById('list');
+  var gateSay = document.getElementById('gate-say');
+
+  function post(path, body) {
+    return fetch(API + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ key: key }, body || {}))
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    });
+  }
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso || '');
+    var p = function (n) { return ('0' + n).slice(-2); };
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function load() {
+    list.innerHTML = '<p class="an-empty">読み込んでいます…</p>';
+    post('/topicq/wait').then(function (res) {
+      if (!res.ok) { gateSay.textContent = res.d.error || '開けませんでした'; gate.hidden = false; return; }
+      gate.hidden = true;
+      render(res.d);
+    }).catch(function () {
+      list.innerHTML = '<p class="an-empty">通信できませんでした</p>';
+    });
+  }
+
+  function render(d) {
+    var wait = d.waiting || [];
+    var peers = d.peers || {};
+    var html = '';
+
+    html += '<section class="an-sec"><h2 class="an-h">まだ見ていない問い（' + wait.length + '件）</h2>';
+    if (!wait.length) {
+      html += '<p class="an-empty">いまはありません。</p>';
+    } else {
+      html += wait.map(function (w) {
+        return '<article class="an-item" data-id="' + esc(w.id) + '">'
+          + '<div class="an-meta">' + esc(w.topic) + '　' + esc(w.name) + '　' + when(w.at) + '</div>'
+          + '<textarea class="an-edit" rows="3">' + esc(w.text) + '</textarea>'
+          + '<div class="an-bar">'
+          + '<button type="button" class="deck-btn tq-pass">通す</button>'
+          + '<button type="button" class="deck-btn tq-drop">落とす</button>'
+          + '<span class="an-say tq-say" role="status"></span></div>'
+          + '</article>';
+      }).join('');
+    }
+    html += '</section>';
+
+    var topics = Object.keys(peers);
+    html += '<section class="an-sec"><h2 class="an-h">通した問い</h2>';
+    if (!topics.length) {
+      html += '<p class="an-empty">まだありません。</p>';
+    } else {
+      html += topics.map(function (t) {
+        return '<div class="an-group"><div class="an-meta">' + esc(t) + '</div>'
+          + peers[t].map(function (q) {
+              return '<div class="an-row" data-id="' + esc(q.id) + '" data-topic="' + esc(t) + '">'
+                + '<span>' + esc(q.text) + '<span class="tp-by">' + esc(q.name || '') + '</span></span>'
+                + '<button type="button" class="deck-btn tq-hide">取り下げる</button></div>';
+            }).join('')
+          + '</div>';
+      }).join('');
+    }
+    html += '</section>';
+
+    list.innerHTML = html;
+    wire();
+  }
+
+  function wire() {
+    [].forEach.call(list.querySelectorAll('.an-item'), function (box) {
+      var say = box.querySelector('.tq-say');
+      var area = box.querySelector('.an-edit');
+      var go = function (pass) {
+        var btns = box.querySelectorAll('button');
+        [].forEach.call(btns, function (b) { b.disabled = true; });
+        say.textContent = pass ? '通しています…' : '落としています…';
+        post('/topicq/judge', { id: box.dataset.id, pass: pass, text: area.value })
+          .then(function (res) {
+            if (!res.ok) {
+              [].forEach.call(btns, function (b) { b.disabled = false; });
+              say.textContent = res.d.error || 'できませんでした';
+              return;
+            }
+            load();
+          }).catch(function () {
+            [].forEach.call(btns, function (b) { b.disabled = false; });
+            say.textContent = '通信できませんでした';
+          });
+      };
+      box.querySelector('.tq-pass').addEventListener('click', function () { go(true); });
+      box.querySelector('.tq-drop').addEventListener('click', function () {
+        if (!confirm('この問いを落とします。元に戻せません。よろしいですか。')) return;
+        go(false);
+      });
+    });
+
+    [].forEach.call(list.querySelectorAll('.tq-hide'), function (btn) {
+      btn.addEventListener('click', function () {
+        var row = btn.closest('.an-row');
+        if (!confirm('並んでいる問いを取り下げます。よろしいですか。')) return;
+        btn.disabled = true;
+        post('/topicq/hide', { id: row.dataset.id, topic: row.dataset.topic })
+          .then(function (res) {
+            if (!res.ok) { btn.disabled = false; alert(res.d.error || 'できませんでした'); return; }
+            load();
+          }).catch(function () { btn.disabled = false; });
+      });
+    });
+  }
+
+  gate.querySelector('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    key = document.getElementById('key').value.trim();
+    if (!key) return;
+    gateSay.textContent = '確かめています…';
+    load();
+  });
+  document.getElementById('key').focus();
+})();
+</script>
+
+</body>
+</html>

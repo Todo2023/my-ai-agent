@@ -320,7 +320,100 @@ await t("読み出しは、記事が何本あっても1回だけ", async () => {
   const orig = e.DEMO_KV.get.bind(e.DEMO_KV);
   e.DEMO_KV.get = async (...a) => { reads++; return orig(...a); };
   await worker.fetch(topicq({ code: "ABC" }), e);
-  assert.strictEqual(reads, 2, "合言葉の確認と、問いの塊。**記事の数に比例しない**");
+  assert.strictEqual(reads, 3, "合言葉・運営の問い・受講者の問いの3回。**記事の数に比例しない**");
+});
+
+await t("受講者の問いは、送ってもすぐには並ばない", async () => {
+  const e = env({ SLACK_WEBHOOK_URL: "https://hooks.slack.test/x" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ name: "やまだ" }));
+  stubSlack();
+  const res = await worker.fetch(
+    topicq({ code: "ABC", topic: "t1", text: "本当にそうですか" }, "/topicq/ask"), e);
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual((await res.json()).waiting, true, "待ちだと返す");
+  // 受講者から見ると、まだ何も増えていない
+  const seen = await worker.fetch(topicq({ code: "ABC" }), e);
+  assert.deepStrictEqual((await seen.json()).peers, {}, "**通す前は並ばない**");
+  const wait = JSON.parse(e.DEMO_KV.store.get("topicq:wait"));
+  assert.strictEqual(wait.length, 1, "待ち行列に入る");
+  assert.strictEqual(wait[0].name, "やまだ", "誰の問いか分かる");
+});
+
+await t("合言葉がなければ、問いは送れない", async () => {
+  const e = env();
+  const res = await worker.fetch(topicq({ topic: "t1", text: "問い" }, "/topicq/ask"), e);
+  assert.strictEqual(res.status, 401);
+});
+
+await t("同じ問いを二度送っても、増えない", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  const b = { code: "ABC", topic: "t1", text: "同じ問い" };
+  await worker.fetch(topicq(b, "/topicq/ask"), e);
+  await worker.fetch(topicq(b, "/topicq/ask"), e);
+  assert.strictEqual(JSON.parse(e.DEMO_KV.store.get("topicq:wait")).length, 1);
+});
+
+await t("運営が通すと、受講者に見えるようになる", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({ name: "やまだ" }));
+  await worker.fetch(topicq({ code: "ABC", topic: "t1", text: "本当にそうですか" }, "/topicq/ask"), e);
+  const id = JSON.parse(e.DEMO_KV.store.get("topicq:wait"))[0].id;
+
+  const ok = await worker.fetch(topicq({ key: "admin", id, pass: true }, "/topicq/judge"), e);
+  assert.strictEqual(ok.status, 200);
+  assert.strictEqual((await ok.json()).left, 0, "待ち行列から消える");
+
+  const seen = await worker.fetch(topicq({ code: "ABC" }), e);
+  const peers = (await seen.json()).peers;
+  assert.strictEqual(peers.t1.length, 1);
+  assert.strictEqual(peers.t1[0].text, "本当にそうですか");
+  assert.strictEqual(peers.t1[0].name, "やまだ");
+});
+
+await t("落とすと、どこにも残らない", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  await worker.fetch(topicq({ code: "ABC", topic: "t1", text: "落とす問い" }, "/topicq/ask"), e);
+  const id = JSON.parse(e.DEMO_KV.store.get("topicq:wait"))[0].id;
+  await worker.fetch(topicq({ key: "admin", id, pass: false }, "/topicq/judge"), e);
+  assert.strictEqual(JSON.parse(e.DEMO_KV.store.get("topicq:wait")).length, 0);
+  assert.strictEqual(e.DEMO_KV.store.get("topicq:peer"), undefined, "通った側にも入らない");
+});
+
+await t("通すときに、運営が本文を直せる", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  await worker.fetch(topicq({ code: "ABC", topic: "t1", text: "そのままだと荒い問い" }, "/topicq/ask"), e);
+  const id = JSON.parse(e.DEMO_KV.store.get("topicq:wait"))[0].id;
+  await worker.fetch(topicq({ key: "admin", id, pass: true, text: "直した問い" }, "/topicq/judge"), e);
+  const peers = JSON.parse(e.DEMO_KV.store.get("topicq:peer"));
+  assert.strictEqual(peers.t1[0].text, "直した問い");
+});
+
+await t("通したあとでも、取り下げられる", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  await worker.fetch(topicq({ code: "ABC", topic: "t1", text: "あとで消す問い" }, "/topicq/ask"), e);
+  const id = JSON.parse(e.DEMO_KV.store.get("topicq:wait"))[0].id;
+  await worker.fetch(topicq({ key: "admin", id, pass: true }, "/topicq/judge"), e);
+  const res = await worker.fetch(topicq({ key: "admin", id, topic: "t1" }, "/topicq/hide"), e);
+  assert.strictEqual(res.status, 200);
+  assert.deepStrictEqual(JSON.parse(e.DEMO_KV.store.get("topicq:peer")), {});
+});
+
+await t("待ち行列を読めるのは、合鍵がある人だけ", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  assert.strictEqual((await worker.fetch(topicq({}, "/topicq/wait"), e)).status, 403);
+  assert.strictEqual((await worker.fetch(topicq({ key: "admin" }, "/topicq/wait"), e)).status, 200);
+});
+
+await t("長すぎる問いは断る", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  const res = await worker.fetch(
+    topicq({ code: "ABC", topic: "t1", text: "あ".repeat(401) }, "/topicq/ask"), e);
+  assert.strictEqual(res.status, 400);
 });
 
 await t("表示名を決められる", async () => {

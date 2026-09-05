@@ -84,3 +84,22 @@
 .tp-lockcta{margin:12px 0 0;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;font-size:13px;}
 .tp-lockcta a{text-decoration:underline;}
 .tp-lockprime{font-weight:700;color:var(--ink);}
+
+/* 受講生が立てた問い。運営の問いと見分けがつくように、色ではなく形で分ける */
+.tp-q.is-peer{border-left:2px dotted var(--hairline-strong);padding-left:14px;}
+.tp-by{display:block;margin-top:4px;font-size:11px;color:var(--text-soft);}
+.tp-by::before{content:"— ";}
+
+/* 問いを送る欄。たたんでおく。開いている人にだけ出る */
+.tp-ask{margin-top:14px;}
+.tp-ask-open{font:inherit;font-size:12.5px;color:var(--text-soft);background:none;border:0;
+  padding:4px 0;text-decoration:underline;cursor:pointer;}
+.tp-ask-open:hover{color:var(--ink);}
+.tp-ask-body{margin-top:10px;padding:14px 16px;border:1px solid var(--hairline);border-radius:4px;background:#faf8f3;}
+.tp-ask-body textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.8;
+  padding:10px 12px;border:1px solid var(--hairline);border-radius:3px;background:#fff;color:inherit;resize:vertical;}
+.tp-ask-bar{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.tp-ask-state{font-size:12px;color:var(--text-soft);}
+.tp-ask-note{margin:10px 0 0;font-size:11.5px;line-height:1.8;color:var(--text-soft);}
+.tp-ask-note b{color:var(--ink);font-weight:500;}
+.tp-trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
