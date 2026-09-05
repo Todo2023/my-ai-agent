@@ -358,6 +358,59 @@ async function handleName(body, env) {
   return json({ ok: true, name });
 }
 
+/* ─────────────────── AI Topics の「運営が立てた問い」 ────────────────────
+
+   Topics のページ（topics.html）に出す問いは2種類ある。
+
+     ・AIが立てた問い … topics.json に入っている。**誰でも読める**
+     ・運営が立てた問い … ここ（KV）に入っている。**受講者だけが読める**
+
+   ■ なぜ topics.json に入れないのか
+     topics.json は配信されているので、URLを直接開けば誰でも中身が読める。
+     画面で隠しても隠したことにならない。**本当に限るなら、置き場所を
+     Worker 側にするしかない。** 資料の本文と同じ理由。
+
+   ■ 無料枠
+     全部を**1つの塊**にして持つ。記事ごとに分けると、ページを1回開くたび
+     に30回読むことになる。読み出しは1日100,000回までだが、桁が変わる
+     使い方は最初からしない。
+     書き込みは、問いを足したときだけ（1回）。 */
+
+const TOPICQ_KEY = "topicq";
+
+/** 受講者に返す。合言葉が要る */
+async function handleTopicQ(body, env) {
+  const code = String(body.code || "").trim().toUpperCase();
+  if (!code) return json({ error: "合言葉が要ります", locked: true }, 401);
+  const who = await member(env, code);
+  if (!who) return json({ error: "合言葉が違います", locked: true }, 403);
+  if (!env.DEMO_KV) return json({ questions: {} });
+  const raw = await env.DEMO_KV.get(TOPICQ_KEY);
+  return json({ questions: raw ? JSON.parse(raw) : {} });
+}
+
+/** 運営が入れる。合鍵が要る。まるごと置き換える */
+async function putTopicQ(body, env) {
+  const key = String(body.key || "");
+  if (!env.ASK_ADMIN_KEY || key !== env.ASK_ADMIN_KEY) {
+    return json({ error: "鍵が違います" }, 403);
+  }
+  const qs = body.questions;
+  if (!qs || typeof qs !== "object" || Array.isArray(qs)) {
+    return json({ error: "questions がありません" }, 400);
+  }
+  // 記事の数だけ。1記事につき問いは数個。ここが膨らむ作りにはしない
+  const ids = Object.keys(qs);
+  if (ids.length > 200) return json({ error: "多すぎます（200記事まで）" }, 400);
+  for (const id of ids) {
+    if (!Array.isArray(qs[id])) return json({ error: `${id} が配列ではありません` }, 400);
+    if (qs[id].length > 10) return json({ error: `${id} の問いが多すぎます（10個まで）` }, 400);
+  }
+  await env.DEMO_KV.put(TOPICQ_KEY, JSON.stringify(qs));
+  const n = ids.reduce((a, id) => a + qs[id].length, 0);
+  return json({ ok: true, topics: ids.length, questions: n });
+}
+
 /** 運営が溜まった質問を見るための読み出し。合鍵が要る */
 async function listAsks(url, env) {
   const key = url.searchParams.get("key") || "";
@@ -1264,6 +1317,18 @@ export default {
     if (url.pathname === "/oh/book" && request.method === "POST") return handleOhBook(request, env);
     if (url.pathname === "/oh/cancel" && request.method === "POST") return handleOhCancel(request, env);
     if (url.pathname === "/oh/admin" && request.method === "POST") return handleOhAdmin(request, url, env);
+
+    // AI Topics の「運営が立てた問い」。読むのは受講者、入れるのは運営
+    if (url.pathname === "/topicq" && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch { return json({ error: "読み取れない要求です" }, 400); }
+      return handleTopicQ(b, env);
+    }
+    if (url.pathname === "/topicq/put" && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch { return json({ error: "読み取れない要求です" }, 400); }
+      return putTopicQ(b, env);
+    }
 
     // 表示名を決める。合言葉が要る
     if (url.pathname === "/name" && request.method === "POST") {

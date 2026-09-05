@@ -71,3 +71,13 @@
   .tp-filter{gap:10px;}
   .tp-filter-label{border-right:none;padding-right:0;}
 }
+
+/* 運営が立てた問い。
+   鍵つきのときは「無いもの」ではなく「まだ読めないもの」に見せる。
+   薄い枠で残しておくと、受講の理由が伝わる */
+.tp-q.is-locked{border:1px dashed var(--hairline-strong);border-radius:4px;padding:14px 16px;background:transparent;}
+.tp-q.is-locked .tp-label{margin-top:0;}
+.tp-lockmsg{margin:6px 0 0;font-size:13px;line-height:1.9;color:var(--text-soft);}
+.tp-lockmsg b{color:var(--ink);font-weight:500;}
+.tp-lockmsg a{margin-left:.4em;text-decoration:underline;}
+.tp-q.is-ours{border-left:2px solid var(--hairline-strong);padding-left:14px;}
