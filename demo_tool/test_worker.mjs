@@ -256,6 +256,73 @@ await t("表示名を決めていなければ、合言葉が出る", async () =>
   assert.ok(seen[0].body.text.includes("ABC"), "運営には誰か分かる");
 });
 
+function topicq(body, path = "/topicq") {
+  return new Request("https://example.workers.dev" + path, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+await t("運営が立てた問いは、合言葉がないと読めない", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  e.DEMO_KV.store.set("topicq", JSON.stringify({ "t1": ["人間の問い"] }));
+  const res = await worker.fetch(topicq({}), e);
+  assert.strictEqual(res.status, 401);
+  const body = await res.json();
+  assert.strictEqual(body.locked, true, "画面に「鍵つき」と出せる");
+});
+
+await t("合言葉があれば、運営が立てた問いが返る", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  e.DEMO_KV.store.set("topicq", JSON.stringify({ "t1": ["人間の問い"] }));
+  const res = await worker.fetch(topicq({ code: "ABC" }), e);
+  assert.strictEqual(res.status, 200);
+  const body = await res.json();
+  assert.deepStrictEqual(body.questions, { t1: ["人間の問い"] });
+});
+
+await t("問いが1件も無くても落ちない", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  const res = await worker.fetch(topicq({ code: "ABC" }), e);
+  assert.strictEqual(res.status, 200);
+  assert.deepStrictEqual((await res.json()).questions, {});
+});
+
+await t("問いを入れられるのは、合鍵がある人だけ", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  const ng = await worker.fetch(topicq({ key: "ちがう", questions: {} }, "/topicq/put"), e);
+  assert.strictEqual(ng.status, 403);
+  const ok = await worker.fetch(
+    topicq({ key: "admin", questions: { t1: ["問い1", "問い2"] } }, "/topicq/put"), e);
+  assert.strictEqual(ok.status, 200);
+  const body = await ok.json();
+  assert.strictEqual(body.topics, 1);
+  assert.strictEqual(body.questions, 2, "何問入ったかを返す");
+  assert.ok(e.DEMO_KV.store.get("topicq"), "KVに入る");
+});
+
+await t("配列でない問いは断る", async () => {
+  const e = env({ ASK_ADMIN_KEY: "admin" });
+  const res = await worker.fetch(
+    topicq({ key: "admin", questions: { t1: "文字列" } }, "/topicq/put"), e);
+  assert.strictEqual(res.status, 400);
+});
+
+await t("読み出しは、記事が何本あっても1回だけ", async () => {
+  const e = env();
+  e.DEMO_KV.store.set("member:ABC", JSON.stringify({}));
+  const many = {};
+  for (let i = 0; i < 30; i++) many["t" + i] = ["問い"];
+  e.DEMO_KV.store.set("topicq", JSON.stringify(many));
+  let reads = 0;
+  const orig = e.DEMO_KV.get.bind(e.DEMO_KV);
+  e.DEMO_KV.get = async (...a) => { reads++; return orig(...a); };
+  await worker.fetch(topicq({ code: "ABC" }), e);
+  assert.strictEqual(reads, 2, "合言葉の確認と、問いの塊。**記事の数に比例しない**");
+});
+
 await t("表示名を決められる", async () => {
   const e = env();
   e.DEMO_KV.store.set("member:ABC", JSON.stringify({ paidThrough: 3 }));
