@@ -108,3 +108,13 @@ body>footer{max-width:var(--wrap);margin:0 auto;padding-left:28px;padding-right:
 
 /* スクリーンリーダー向け */
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+
+/* 合鍵の欄の「見る」ボタン。押している間だけ中身が出る */
+.keyeye-wrap{position:relative;display:inline-flex;align-items:center;}
+.keyeye-wrap input{padding-right:38px;}
+.keyeye{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;padding:0;border:0;background:none;cursor:pointer;
+  color:var(--text-soft);border-radius:3px;}
+.keyeye:hover{color:var(--ink);}
+.keyeye:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
