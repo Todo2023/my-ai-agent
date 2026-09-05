@@ -123,6 +123,10 @@
       + '<span class="asker-state" id="ask-state" role="status"></span></div>'
       + '<input id="ask-website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="asker-trap">'
       + '<p class="writer-note">運営に直接届きます。<b>質問は1営業日以内に回答します。</b>'
+      + (d.name
+          ? '<b>' + Course.esc(d.name) + 'さんとして届きます。</b>'
+          : '<b>いまは「名前なし」で届きます。</b>'
+            + '<a href="lessons.html">資料の一覧</a>で表示名を決められます。')
       + '答えはSlackでお返しし、<b>お名前を伏せて「みんなの質問」にも並びます。</b>'
       + 'お名前や連絡先は書かないでください（<a href="privacy.html" target="_blank" '
       + 'rel="noopener">個人情報の取り扱い</a>）。</p></div>';

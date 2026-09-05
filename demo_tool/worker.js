@@ -66,6 +66,8 @@ const MAX_INPUT = 400;
 const MAX_ASK = 600;
 /* 提出するワーク。質問より長くなる */
 const MAX_WORK = 4000;
+/* 表示名の長さ。呼び名なので短くてよい。長い自己紹介を入れさせない */
+const MAX_NAME = 20;
 /* 同じ回の受講者に見せる質問の数。多すぎると読まれない */
 const PEER_QUESTIONS = 30;
 /* 同じ人からの連投を止める。1時間に何件まで受けるか */
@@ -287,10 +289,15 @@ async function handleAsk(request, env) {
     return json({ error: "短い時間に送りすぎです。しばらく待ってから送ってください" }, 429);
   }
 
+  /* 名乗りは**合言葉から引く。**画面から送られてきた名前は使わない。
+     使うと、他人の名前で質問を出せてしまう。
+     表示名を決めていない人は、合言葉そのものを出す（運営には誰か分かる）。 */
+  const code = String(body.code || "").trim().toUpperCase();
+  const who = code ? await member(env, code) : null;
   const q = {
     lesson: String(body.lesson || "").slice(0, 40) || "回の指定なし",
     slide: String(body.slide || "").slice(0, 8),
-    name: String(body.name || "").trim().slice(0, 40) || "名前なし",
+    name: (who && who.name) || code || "名前なし",
     text,
     at: new Date().toISOString(),
   };
@@ -300,7 +307,7 @@ async function handleAsk(request, env) {
   const at = Date.now();
   q.id = `ask:${at}`;
   if (env.DEMO_KV) {
-    await env.DEMO_KV.put(q.id, JSON.stringify({ ...q, slug }), {
+    await env.DEMO_KV.put(q.id, JSON.stringify({ ...q, slug, code }), {
       expirationTtl: 60 * 60 * 24 * 180,
     });
     // 同じ回の受講者に見せる分。**名前は入れない**
@@ -320,6 +327,35 @@ async function handleAsk(request, env) {
 
   const slack = await toSlack(env, q);
   return json({ ok: true, delivered: slack.sent });
+}
+
+/** 表示名を決める。**受講者が自分で入れる。**
+
+   ここで入れた名前が、質問・ワーク・オフィスアワーの通知に付く。
+   決めていない人は合言葉のまま流れるので、運営には誰か分かる。
+
+   ■ 無料枠
+     書き込みは**1人1回**（変えたときだけ）。KVの書き込みは
+     1日1,000回までなので、ここは問題にならない。
+
+   ■ 本名を入れさせない
+     長さを絞り、注意書きを画面に出す。ここは呼び名でよい。 */
+async function handleName(body, env) {
+  const code = String(body.code || "").trim().toUpperCase();
+  if (!code) return json({ error: "合言葉が要ります" }, 401);
+  const who = await member(env, code);
+  if (!who) return json({ error: "合言葉が違います" }, 403);
+
+  const name = String(body.name || "").trim().slice(0, MAX_NAME);
+  if (!name) return json({ error: "表示名が空です" }, 400);
+  if (/[<>]/.test(name)) return json({ error: "使えない文字が入っています" }, 400);
+
+  // 同じ名前を入れ直しただけなら、書き込まない（無料枠を無駄に使わない）
+  if (who.name === name) return json({ ok: true, name });
+
+  who.name = name;
+  await env.DEMO_KV.put(`member:${code}`, JSON.stringify(who));
+  return json({ ok: true, name });
 }
 
 /** 運営が溜まった質問を見るための読み出し。合鍵が要る */
@@ -497,6 +533,8 @@ async function handleLesson(request, env) {
     prev: i > 0 ? { slug: me.index[i - 1].slug, label: me.index[i - 1].label } : null,
     next: next ? { slug: next.slug, label: next.label, open: isOpen(me.index, i + 1, me.progress, me.paidThrough) } : null,
     submitted: !!data.gates && i <= me.progress,
+    // 質問がどの名前で届くかを、資料の画面に出すため
+    name: me.who.name || "",
   });
 }
 
@@ -1226,6 +1264,13 @@ export default {
     if (url.pathname === "/oh/book" && request.method === "POST") return handleOhBook(request, env);
     if (url.pathname === "/oh/cancel" && request.method === "POST") return handleOhCancel(request, env);
     if (url.pathname === "/oh/admin" && request.method === "POST") return handleOhAdmin(request, url, env);
+
+    // 表示名を決める。合言葉が要る
+    if (url.pathname === "/name" && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch { return json({ error: "読み取れない要求です" }, 400); }
+      return handleName(b, env);
+    }
 
     // 資料ページからの質問。デモの書き換えとは別の入り口にする
     if (url.pathname === "/ask") {
