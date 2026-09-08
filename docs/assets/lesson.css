@@ -381,3 +381,6 @@ html{overflow-x:clip;}
 .naming-state{font-size:12px;color:var(--text-soft);}
 .naming-note{margin:12px 0 0;font-size:12px;line-height:1.8;color:var(--text-soft);}
 .naming.is-set .naming-note{display:none;}
+
+/* この回を開いていた時間。数字だけ少し強くする */
+.fact-time b{font-weight:500;color:var(--ink);}

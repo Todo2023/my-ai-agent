@@ -178,7 +178,9 @@
 
     var facts = [['日付', d.date], ['目安', d.dur], ['種別', d.kind]]
       .filter(function (p) { return p[1]; })
-      .map(function (p) { return '<span><em>' + p[0] + '</em>' + esc(p[1]) + '</span>'; }).join('');
+      .map(function (p) { return '<span><em>' + p[0] + '</em>' + esc(p[1]) + '</span>'; }).join('')
+      /* 開いていた時間。目安のすぐ下に置く。「60分」と並べて見えるほうが分かりやすい */
+      + '<span class="fact-time"><em>ここまで</em><b id="stay">0分</b></span>';
     // 用語は種別の下。学生に当たり前でない言葉を、本文を読む前に横に置く
     var terms = (d.terms || []).map(function (t) {
       return '<div class="term"><b>' + esc(t.word) + '</b><span>' + t.desc + '</span></div>';
@@ -220,6 +222,7 @@
 
     if (d.slides) wireDeck(d);
     if (d.gates) wireWriter(d);
+    wireStay(d);
     if (d.slides) { wireAsker(d); loadPeers(d); }
   }
 
@@ -353,6 +356,69 @@
         say.textContent = '提出できませんでした。通信を確かめて、もう一度お願いします';
       });
     });
+  }
+
+  /* この回を開いていた時間を数える。
+
+     ■ どこにも送らない
+       この端末のブラウザの中だけに残る。運営にも、ほかの受講者にも見えない。
+       送らないので、無料枠も使わない。
+
+     ■ 何を数えるか
+       **画面を見ている間だけ。**別のタブに移ったり、画面を消したりしている間は
+       止める。開きっぱなしで席を外した時間を「学習時間」と呼ぶのは嘘になる。
+
+     ■ 続きから
+       次に同じ回を開くと、前の続きから足していく。 */
+  function wireStay(d) {
+    var out = document.getElementById('stay');
+    if (!out) return;
+    var KEY = 'todo-stay-' + d.slug;
+
+    function read() {
+      try { return Number(localStorage.getItem(KEY)) || 0; } catch (e) { return 0; }
+    }
+    function write(sec) {
+      try { localStorage.setItem(KEY, String(sec)); } catch (e) {}
+    }
+    function label(sec) {
+      var m = Math.floor(sec / 60);
+      if (m < 60) return m + '分';
+      return Math.floor(m / 60) + '時間' + (m % 60) + '分';
+    }
+
+    var saved = read();          // 前回までの合計（秒）
+    var from = Date.now();       // 今回、数え始めた時刻
+    var running = true;
+
+    function now() {
+      return saved + (running ? Math.floor((Date.now() - from) / 1000) : 0);
+    }
+    function paint() { out.textContent = label(now()); }
+
+    function stop() {
+      if (!running) return;
+      saved = now();
+      running = false;
+      write(saved);
+      paint();
+    }
+    function start() {
+      if (running) return;
+      from = Date.now();
+      running = true;
+      paint();          // 戻った瞬間に描き直す。15秒待たせない
+    }
+
+    paint();
+    setInterval(function () { if (running) { paint(); write(now()); } }, 15000);
+
+    /* タブを離れたら止める。戻ったら再開する */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+    /* ページを閉じるときに、最後の分を書き残す */
+    window.addEventListener('pagehide', stop);
   }
 
   function wireAsker(d) {
