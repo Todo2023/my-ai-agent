@@ -1,0 +1,109 @@
+# Cloudflare Worker を、ボタン1つで配信する。
+#
+# **なぜこれがあるか**
+#   `wrangler deploy` は手元のターミナルでしか打てない。スマホしか無い日に、
+#   直したものが反映できず止まってしまう。ここに置けば、GitHub の画面から
+#   「Run workflow」を押すだけで済む。
+#
+# **お金について**
+#   公開リポジトリの Actions は無料で、時間の上限もない。
+#   Cloudflare Workers の無料枠も、この配信そのものでは減らない。**費用はゼロ。**
+#
+# **置き場所について（大事）**
+#   「Run workflow」のボタンは、**既定ブランチにあるワークフローしか出さない。**
+#   このリポジトリの既定ブランチは claude/ai-agent-curriculum-hqlrk4 なので、
+#   この1枚はそちらに置く。配信する中身（demo_tool/）は配信元のブランチに
+#   あるので、下の checkout でそちらを指している。
+#
+# **秘密は触らない**
+#   `wrangler deploy` は、すでに登録してある secret
+#   （GEMINI_API_KEY / ACCESS_CODES / ASK_ADMIN_KEY / SLACK_WEBHOOK_URL /
+#     CALENDAR_TOKEN など）を消したり上書きしたりしない。そのまま残る。
+#
+# **要るもの（1回だけ登録する）**
+#   CLOUDFLARE_API_TOKEN … Cloudflare で作る。手順は demo_tool/README.md
+#   CLOUDFLARE_ACCOUNT_ID … Cloudflare の画面に出ている ID
+name: Worker を配信する
+
+on:
+  # 押したときだけ動く。**勝手には動かさない**（定期実行を作らない決まり）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "試すだけ（配信しない）"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  # 二重に配信しない
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 配信元のブランチ。ここに demo_tool/ がある
+          ref: claude/hp-implementation-xubnv6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: 出す前に、テストを通す
+        working-directory: demo_tool
+        run: node test_worker.mjs
+
+      - name: 鍵が登録されているか確かめる
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          missing=""
+          [ -z "$TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -z "$ACCOUNT" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::次の secret が登録されていません:$missing"
+            echo "GitHub の Settings → Secrets and variables → Actions で登録してください。"
+            echo "作り方は demo_tool/README.md の「スマホから配信する」を読んでください。"
+            exit 1
+          fi
+          echo "鍵はそろっています。"
+
+      - name: 中身を見るだけ（配信しない）
+        if: ${{ inputs.dry_run }}
+        working-directory: demo_tool
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy --dry-run
+
+      - name: 配信する
+        if: ${{ !inputs.dry_run }}
+        working-directory: demo_tool
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy
+
+      - name: 動いているか、外から確かめる
+        if: ${{ !inputs.dry_run }}
+        run: |
+          url="https://todo-demo-tool.todo-inc-2023-10-13.workers.dev/topicq"
+          # 合言葉なしで呼ぶと 401 が返るのが正しい。**返ってくること自体**が確認になる
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$url" \
+                 -H 'Content-Type: application/json' -d '{}' || echo 000)
+          echo "応答: $code"
+          if [ "$code" = "401" ]; then
+            echo "配信できています（合言葉なしなので 401 が正解）。"
+          elif [ "$code" = "000" ]; then
+            echo "::error::Worker につながりません。配信に失敗している可能性があります。"
+            exit 1
+          else
+            echo "::warning::$code が返りました。想定は 401 です。画面で確かめてください。"
+          fi
