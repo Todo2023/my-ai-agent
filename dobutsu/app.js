@@ -1,0 +1,254 @@
+// えらぶ画面と、おはなしの再生。どちらも canvas に毎コマ描いている。
+// 動画ファイルは持たない（重いうえに、作るのに お金の かかる 道具が いるため）。
+
+(function () {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function fit(canvas, w, h) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    const g = canvas.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return g;
+  }
+
+  /* ------------------------------------------------------- よみあげ（無料） */
+  // 端末が持っている音声を使う。使えない端末では黙って何もしない。
+
+  const speech = {
+    ok: "speechSynthesis" in window,
+    on: localStorage.getItem("dobutsu.voice") !== "off",
+    say(text) {
+      if (!this.ok || !this.on) return;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "ja-JP";
+        u.rate = 0.92;
+        u.pitch = 1.05;
+        speechSynthesis.speak(u);
+      } catch (e) { /* 読み上げが無くても お話は進む */ }
+    },
+    stop() { if (this.ok) { try { speechSynthesis.cancel(); } catch (e) {} } },
+    set(v) {
+      this.on = v;
+      localStorage.setItem("dobutsu.voice", v ? "on" : "off");
+      if (!v) this.stop();
+      $("voice").checked = v;
+      $("voiceHome").checked = v;
+    },
+  };
+
+  /* --------------------------------------------------------------- カード */
+
+  const cards = [];
+
+  function buildGrid() {
+    const grid = $("grid");
+    STORIES.forEach((s, i) => {
+      const b = document.createElement("button");
+      b.className = "card";
+      b.type = "button";
+      b.setAttribute("aria-label", s.name + "。" + s.title + " を みる");
+      const cv = document.createElement("canvas");
+      cv.width = 120; cv.height = 96;
+      b.appendChild(cv);
+      const n = document.createElement("span");
+      n.className = "n"; n.textContent = s.name;
+      const d = document.createElement("span");
+      d.className = "s"; d.textContent = s.title;
+      b.appendChild(n); b.appendChild(d);
+      b.addEventListener("click", () => open(i));
+      grid.appendChild(b);
+      cards.push({ story: s, g: fit(cv, 120, 96) });
+    });
+  }
+
+  function paintCards(t) {
+    cards.forEach((c, i) => {
+      const g = c.g;
+      g.clearRect(0, 0, 120, 96);
+      const gr = g.createLinearGradient(0, 0, 0, 96);
+      gr.addColorStop(0, "#ffffff");
+      gr.addColorStop(1, c.story.color);
+      g.fillStyle = gr;
+      g.beginPath(); g.roundRect(0, 0, 120, 96, 12); g.fill();
+      g.save();
+      g.beginPath(); g.roundRect(0, 0, 120, 96, 12); g.clip();
+      c.story.card(g, reduce ? 0 : t + i * 0.7);
+      g.restore();
+    });
+  }
+
+  /* --------------------------------------------------------- おはなし再生 */
+
+  const stage = $("stage");
+  const gs = fit(stage, W, H);
+
+  const play = {
+    story: null,
+    scene: 0,
+    at: 0,           // その場面が はじまってからの秒
+    running: false,
+    done: false,
+  };
+
+  function open(index) {
+    play.story = STORIES[index];
+    play.scene = 0; play.at = 0; play.running = true; play.done = false;
+    $("title").textContent = play.story.title;
+    $("player").hidden = false;
+    $("player").setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    buildDots();
+    showScene(true);
+    setPlayIcon();
+  }
+
+  function close() {
+    play.running = false;
+    play.story = null;
+    speech.stop();
+    $("player").hidden = true;
+    $("player").setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function buildDots() {
+    const d = $("dots");
+    d.textContent = "";
+    play.story.scenes.forEach(() => d.appendChild(document.createElement("i")));
+  }
+
+  function showScene(speak) {
+    const sc = play.story.scenes[play.scene];
+    $("caption").textContent = sc.text;
+    [].forEach.call($("dots").children, (el, i) => {
+      el.className = i === play.scene ? "on" : "";
+    });
+    if (speak) speech.say(sc.text);
+  }
+
+  function go(delta) {
+    const n = play.scene + delta;
+    if (n < 0 || n >= play.story.scenes.length) return;
+    play.scene = n; play.at = 0; play.done = false;
+    play.running = true;
+    setPlayIcon();
+    showScene(true);
+  }
+
+  function setPlayIcon() {
+    const b = $("play");
+    if (play.done) { b.textContent = "↺"; b.setAttribute("aria-label", "はじめから"); }
+    else if (play.running) { b.textContent = "■"; b.setAttribute("aria-label", "とめる"); }
+    else { b.textContent = "▶"; b.setAttribute("aria-label", "つづき"); }
+  }
+
+  function restart() {
+    play.scene = 0; play.at = 0; play.done = false; play.running = true;
+    showScene(true);
+    setPlayIcon();
+  }
+
+  function drawStage(t, dt) {
+    const st = play.story;
+    if (!st) return;
+    const sc = st.scenes[play.scene];
+
+    if (play.running && !play.done) {
+      play.at += dt;
+      if (play.at >= sc.sec) {
+        if (play.scene < st.scenes.length - 1) {
+          play.scene++; play.at = 0;
+          showScene(true);
+        } else {
+          play.at = sc.sec;
+          play.running = false; play.done = true;
+          setPlayIcon();
+        }
+      }
+    }
+
+    const cur = st.scenes[play.scene];
+    const p = Math.max(0, Math.min(1, play.at / cur.sec));
+    gs.clearRect(0, 0, W, H);
+    gs.save();
+    gs.translate(W / 2, H); gs.scale(1.12, 1.12); gs.translate(-W / 2, -H);  // すこし寄る
+    (BG[cur.bg] || BG.hara)(gs, t);
+    cur.act(gs, p, t);
+    gs.restore();
+
+    // 場面の進み具合を、いちばん下の細い線で出す
+    gs.fillStyle = "rgba(255,255,255,0.45)";
+    gs.fillRect(0, H - 3, W, 3);
+    gs.fillStyle = "rgba(47,122,74,0.85)";
+    gs.fillRect(0, H - 3, W * ((play.scene + p) / st.scenes.length), 3);
+  }
+
+  /* ------------------------------------------------------------- コマ送り */
+
+  let last = performance.now();
+
+  function frame(now) {
+    let dt = (now - last) / 1000;
+    last = now;
+    if (dt > 0.25) dt = 0.25;                 // 裏に回っていた分は進めない
+    const t = now / 1000;
+    if (play.story) drawStage(t, dt);
+    else paintCards(t);
+    requestAnimationFrame(frame);
+  }
+
+  /* ------------------------------------------------------------- つなぎこみ */
+
+  buildGrid();
+
+  $("back").addEventListener("click", close);
+  $("again").addEventListener("click", restart);
+  $("prev").addEventListener("click", () => go(-1));
+  $("next").addEventListener("click", () => go(1));
+  $("play").addEventListener("click", () => {
+    if (play.done) { restart(); return; }
+    play.running = !play.running;
+    if (play.running) speech.say(play.story.scenes[play.scene].text);
+    else speech.stop();
+    setPlayIcon();
+  });
+
+  stage.addEventListener("click", () => $("play").click());
+
+  [$("voice"), $("voiceHome")].forEach((el) => {
+    el.checked = speech.on;
+    el.addEventListener("change", () => speech.set(el.checked));
+  });
+  if (!speech.ok) {
+    document.querySelectorAll(".voice").forEach((el) => { el.hidden = true; });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (!play.story) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowRight") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+    if (e.key === " ") { e.preventDefault(); $("play").click(); }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && play.story) {
+      play.running = false;
+      speech.stop();
+      setPlayIcon();
+    }
+  });
+
+  requestAnimationFrame(frame);
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+  }
+})();
