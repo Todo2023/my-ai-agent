@@ -1132,8 +1132,8 @@ body.book #sheet { display: block; }
 @keyframes drive {
   0%   { transform: translate(-34vw, 0) scaleX(-1); }
   46%  { transform: translate(34vw, 0) scaleX(-1); }
-  50%  { transform: translate(34vw, -7vh) scale(.84) scaleX(1); }
-  96%  { transform: translate(-34vw, -7vh) scale(.84) scaleX(1); }
+  50%  { transform: translate(34vw, -6.5vh) scale(.86) scaleX(1); }
+  96%  { transform: translate(-34vw, -6.5vh) scale(.86) scaleX(1); }
   100% { transform: translate(-34vw, 0) scaleX(-1); }
 }
 
@@ -1153,6 +1153,6 @@ body.book #sheet { display: block; }
 .zoomface.launch.walk { animation-name: liftoff; }
 
 /* 主役は手前の車線。お友達は道路の外（歩道がわ）に停めておく */
-.zoomface { margin-bottom: 2.5vh; }
+.zoomface { margin-bottom: 5.5vh; }  /* タイヤが手前の車線に乗る高さ */
 .friends { bottom: 19.5vh; }  /* 道路の外（歩道がわ）に停める */
 .friend { width: min(30vw, 20vh); }

@@ -9,15 +9,17 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "8"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "10"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
   { name: "しょうぼうしゃ", body: "#e5484d", roof: "#c2373c", win: "#cfe9ff", kind: "truck",
     ladder: true, light: "#ff5a5a", note: [523, 659, 784],
-    cry: "うーうー", sfx: [[560, 980, 0.55, "sawtooth", 0.18], [980, 560, 0.55, "sawtooth", 0.18],
-                          [560, 980, 0.55, "sawtooth", 0.18],
-                          [1900, 1900, 0.1, "square", 0.12], [1900, 1900, 0.1, "square", 0.12]],
+    cry: "うーうー", sfx: [
+      [560, 980, 0.55, "sawtooth", 0.2], { n: [220, 260, 0.55, 1, 0.06], with: true },
+      [980, 560, 0.55, "sawtooth", 0.2],
+      [560, 980, 0.55, "sawtooth", 0.2],
+      [1900, 1900, 0.09, "square", 0.1], [1900, 1900, 0.09, "square", 0.1]],
     tuneName: "はしれ しょうぼうしゃ（自作のマーチ）",
     tune: [["C4",1],["C4",0.5],["C4",0.5],["G4",1.5],["E4",0.5],
       ["F4",1],["E4",1],["D4",1],["C4",2],
@@ -28,9 +30,12 @@ const CHARAS = [
     light: "#e5484d", light2: "#5aa9ff", note: [587, 740, 880],
     // ピーポーピーポー。高さを動かさず、2つの音を交互に鳴らす
     cry: "ぴーぽーぴーぽー",
-    sfx: [[960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2],
-          [960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2],
-          [960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2]],
+    sfx: [
+      [960, 960, 0.5, "triangle", 0.2], { t: [1920, 1920, 0.5, "square", 0.03], with: true },
+      [770, 770, 0.5, "triangle", 0.2], { t: [1540, 1540, 0.5, "square", 0.03], with: true },
+      [960, 960, 0.5, "triangle", 0.2], { t: [1920, 1920, 0.5, "square", 0.03], with: true },
+      [770, 770, 0.5, "triangle", 0.2], { t: [1540, 1540, 0.5, "square", 0.03], with: true },
+      [960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2]],
     tuneName: "まちの みまわり（自作）",
     tune: [["E4",0.5],["G4",0.5],["C5",1],["G4",0.5],["E4",0.5],["C4",1],
       ["D4",0.5],["E4",0.5],["F4",1],["E4",1],["D4",1],["C4",2],
@@ -40,9 +45,11 @@ const CHARAS = [
   { name: "きゅうきゅうしゃ", body: "#fbfbfd", roof: "#e5484d", win: "#cfe9ff", kind: "truck",
     light: "#ff5a5a", note: [494, 622, 740],
     cry: "ぴーぽーぴーぽー",
-    sfx: [[1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2],
-          [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2],
-          [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2]],
+    sfx: [
+      [1050, 1050, 0.42, "sine", 0.2], { t: [2100, 2100, 0.42, "triangle", 0.03], with: true },
+      [840, 840, 0.42, "sine", 0.2],   { t: [1680, 1680, 0.42, "triangle", 0.03], with: true },
+      [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2],
+      [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2]],
     tuneName: "いそげ きゅうきゅうしゃ（自作）",
     tune: [["A4",0.5],["G4",0.5],["A4",0.5],["C5",0.5],["A4",1],["G4",1],
       ["F4",0.5],["E4",0.5],["F4",0.5],["A4",0.5],["G4",2],
@@ -50,9 +57,11 @@ const CHARAS = [
 
   { name: "でんしゃ", body: "#4fae5a", roof: "#3f8f52", win: "#d8f0ff", kind: "train",
     stripe: "#ffe066", note: [440, 554, 659],
-    cry: "がたんごとん", sfx: [[180, 120, 0.12, "square", 0.22], [150, 100, 0.12, "square", 0.2],
-                              [180, 120, 0.12, "square", 0.22], [150, 100, 0.12, "square", 0.2],
-                              [330, 260, 0.5, "sawtooth", 0.14]],
+    cry: "がたんごとん", sfx: [
+      { n: [900, 500, 0.1, 1.5, 0.26] }, { n: [900, 500, 0.1, 1.5, 0.22] },
+      { n: [900, 500, 0.1, 1.5, 0.26] }, { n: [900, 500, 0.1, 1.5, 0.22] },
+      { n: [1200, 400, 0.6, 0.8, 0.18] }, { t: [120, 100, 0.6, "sawtooth", 0.14], with: true },
+      [330, 300, 0.5, "square", 0.1]],
     tuneName: "がたんごとん（自作）",
     tune: [["C4",0.5],["C4",0.5],["E4",0.5],["G4",0.5],["C5",1],["G4",1],
       ["E4",0.5],["C4",0.5],["D4",0.5],["E4",0.5],["F4",1],["E4",1],["D4",1],["C4",2],
@@ -61,7 +70,9 @@ const CHARAS = [
 
   { name: "しんかんせん", body: "#eef2f7", roof: "#3a6ea5", win: "#cfe9ff", kind: "train",
     stripe: "#5aa9ff", fast: true, note: [659, 831, 988],
-    cry: "しゅーん", sfx: [[300, 1400, 0.5, "sawtooth", 0.16], [1400, 500, 0.5, "sawtooth", 0.12]],
+    cry: "しゅーん", sfx: [
+      { n: [300, 3000, 0.6, 0.7, 0.26] }, { t: [200, 900, 0.6, "sawtooth", 0.1], with: true },
+      { n: [3000, 400, 0.7, 0.7, 0.24] }, { t: [900, 300, 0.7, "sawtooth", 0.09], with: true }],
     tuneName: "ひかりの せん（自作）",
     tune: [["C5",0.5],["D5",0.5],["E5",0.5],["G5",0.5],["A5",1],["G5",1],
       ["E5",0.5],["D5",0.5],["C5",0.5],["D5",0.5],["E5",1],["G5",2],
@@ -69,7 +80,10 @@ const CHARAS = [
 
   { name: "バス", body: "#ffb347", roof: "#e39227", win: "#d8f0ff", kind: "bus",
     stripe: "#fff", note: [392, 494, 587],
-    cry: "ぷっぷー", sfx: [[330, 300, 0.28, "square", 0.22], [300, 270, 0.34, "square", 0.22]],
+    cry: "ぷっぷー", sfx: [
+      [330, 300, 0.26, "square", 0.2], { t: [660, 600, 0.26, "square", 0.06], with: true },
+      [300, 270, 0.34, "square", 0.2], { t: [600, 540, 0.34, "square", 0.06], with: true },
+      { n: [140, 120, 0.7, 1.2, 0.1] }, { t: [70, 62, 0.7, "square", 0.08], with: true }],
     tuneName: "のんびり バス（自作）",
     tune: [["F4",1],["A4",1],["C5",1],["A4",1],["G4",1],["F4",1],["G4",2],
       ["A4",1],["G4",1],["F4",1],["E4",1],["F4",2],
@@ -77,8 +91,11 @@ const CHARAS = [
 
   { name: "ショベルカー", body: "#ffd166", roof: "#e0b34a", win: "#d8f0ff", kind: "digger",
     note: [349, 440, 523],
-    cry: "がががが", sfx: [[110, 90, 0.16, "square", 0.22], [110, 90, 0.16, "square", 0.22],
-                          [110, 90, 0.16, "square", 0.22], [130, 80, 0.3, "sawtooth", 0.16]],
+    cry: "がががが", sfx: [
+      { n: [120, 90, 0.14, 1.5, 0.12] }, { t: [70, 58, 0.14, "square", 0.1], with: true },
+      { n: [120, 90, 0.14, 1.5, 0.12] }, { t: [70, 58, 0.14, "square", 0.1], with: true },
+      { n: [120, 90, 0.14, 1.5, 0.12] }, { t: [70, 58, 0.14, "square", 0.1], with: true },
+      { n: [700, 1400, 0.5, 4, 0.08] }, { t: [420, 700, 0.5, "sine", 0.06], with: true }],
     tuneName: "どっこいしょ（自作）",
     tune: [["C4",1],["C4",1],["F4",1],["F4",1],["G4",1],["F4",1],["E4",1],["C4",2],
       ["D4",1],["D4",1],["G4",1],["F4",1],["E4",1],["D4",1],["C4",2],
@@ -86,7 +103,9 @@ const CHARAS = [
 
   { name: "ひこうき", fly: true, body: "#e9f2fb", roof: "#8ec5ff", win: "#cfe9ff", kind: "plane",
     stripe: "#5aa9ff", note: [698, 880, 1046],
-    cry: "ごおおお", sfx: [[200, 900, 0.7, "sawtooth", 0.14], [900, 1200, 0.6, "sawtooth", 0.1]],
+    cry: "ごおおお", sfx: [
+      { n: [400, 2600, 0.8, 0.6, 0.28] }, { t: [180, 700, 0.8, "sawtooth", 0.09], with: true },
+      { n: [2600, 1200, 0.7, 0.6, 0.24] }, { t: [700, 500, 0.7, "sawtooth", 0.08], with: true }],
     tuneName: "そらへ（自作）",
     tune: [["C4",1],["E4",1],["G4",1],["C5",2],["B4",1],["A4",1],["G4",2],
       ["A4",1],["B4",1],["C5",1],["D5",1],["E5",2],
@@ -94,7 +113,9 @@ const CHARAS = [
 
   { name: "ロケット", fly: true, launch: true, encore: undefined, body: "#f4f6fb", roof: "#e5484d", win: "#8ecfff", kind: "rocket",
     encore: 0, note: [523, 784, 1046],
-    cry: "しゅぱーん", sfx: [[120, 60, 0.5, "sawtooth", 0.2], [200, 2000, 0.8, "sawtooth", 0.14]],
+    cry: "しゅぱーん", sfx: [
+      { n: [80, 1800, 0.25, 0.5, 0.22] }, { t: [60, 40, 0.25, "square", 0.14], with: true },
+      { n: [1800, 200, 1.1, 0.5, 0.2] }, { t: [50, 34, 1.1, "sawtooth", 0.14], with: true }],
     tuneName: "うちゅうへ（自作のファンファーレ）",
     tune: [["G4",0.5],["C5",1.5],["C5",0.5],["B4",0.5],["A4",0.5],["B4",1.5],
       ["G4",0.5],["C5",1],["E5",1],["D5",0.5],["C5",0.5],["B4",1],["C5",2],
@@ -311,8 +332,20 @@ function out() {
 function newBus() {
   if (bus) { try { bus.disconnect(); } catch (_) {} }
   bus = ac.createGain();
-  bus.gain.value = 1.8; // 帯域フィルタを通ると痩せるぶん、ここで持ち上げる
+  bus.gain.value = 1.5;
   bus.connect(ac.destination);
+
+  /* 短い山びこ。外で鳴っている音は必ず反射して returns。
+     これが無いと、どんなに波形を作り込んでも「機械の中の音」に聞こえる。 */
+  const delay = ac.createDelay(0.5);
+  const back = ac.createGain();
+  const wet = ac.createGain();
+  delay.delayTime.value = 0.13;
+  back.gain.value = 0.22;
+  wet.gain.value = 0.16;
+  bus.connect(delay);
+  delay.connect(back).connect(delay);
+  delay.connect(wet).connect(ac.destination);
   return bus;
 }
 
@@ -460,12 +493,59 @@ function noteFreq(n) {
 /* のりものの音。サイレン・クラクション・エンジン。
    音の高さを行き来させて作る（[はじめ, おわり, 長さ, 波のかたち, 音量]）。
    音源ファイルは持たないので、圏外でも同じ音が出る。 */
+/* 雑音を帯域フィルタに通して鳴らす。
+   エンジンや噴射は、発振音だけでは電子的に聞こえる。空気の音＝雑音が要る。 */
+function noiseBand(f0, f1, at, dur, q, vol) {
+  if (!noiseBuf) {
+    noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * 2), ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const t = ac.currentTime + at;
+  const src = ac.createBufferSource();
+  const bp = ac.createBiquadFilter();
+  const g = ac.createGain();
+  src.buffer = noiseBuf;
+  src.loop = true;
+  bp.type = "bandpass";
+  bp.Q.value = q;
+  bp.frequency.setValueAtTime(f0, t);
+  bp.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.08, dur * 0.3));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(bp).connect(g).connect(out());
+  src.start(t);
+  src.stop(t + dur + 0.05);
+}
+
+/* のりものの音。
+   [はじめ, おわり, 長さ, 波のかたち, 音量]      … 高さのある音
+   { n: [はじめ, おわり, 長さ, するどさ, 音量] } … 雑音（エンジン・噴射）
+   { with: [...] }                              … 直前の音に重ねる（時間を進めない） */
 function playSfx(sfx) {
   if (!audio() || !sfx) return 0;
   let at = 0;
-  sfx.forEach(([f0, f1, dur, type, vol]) => {
-    glide(f0, f1, at, dur, type, vol);
-    at += dur + 0.04;
+  let last = 0;
+  sfx.forEach((e) => {
+    if (Array.isArray(e)) {
+      const [f0, f1, dur, type, vol] = e;
+      glide(f0, f1, at, dur, type, vol);
+      last = at;
+      at += dur + 0.04;
+      return;
+    }
+    if (e.n) {
+      const [f0, f1, dur, q, vol] = e.n;
+      noiseBand(f0, f1, e.with ? last : at, dur, q, vol);
+      if (!e.with) at += dur + 0.04;
+      return;
+    }
+    if (e.t) { // 重ねて鳴らす高さのある音
+      const [f0, f1, dur, type, vol] = e.t;
+      glide(f0, f1, e.with ? last : at, dur, type, vol);
+      if (!e.with) at += dur + 0.04;
+    }
   });
   return at;
 }
@@ -511,7 +591,11 @@ function tuneLen(c) {
 
 // 音を鳴らさずに長さだけ知る。音が切れていても、絵は同じ長さで見せる
 function voiceLen(c) {
-  return (c.sfx || []).reduce((t, [, , dur]) => t + dur + 0.04, 0);
+  return (c.sfx || []).reduce((t, e) => {
+    if (Array.isArray(e)) return t + e[2] + 0.04;
+    if (e.with) return t;                       // 重ねる音は時間を進めない
+    return t + (e.n || e.t)[2] + 0.04;
+  }, 0);
 }
 
 function cry(c) {
