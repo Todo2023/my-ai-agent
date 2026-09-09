@@ -202,6 +202,7 @@ const modeBtn = document.getElementById("mode");
 const bookBtn = document.getElementById("book");
 const sheet = document.getElementById("sheet");
 const pads = document.getElementById("pads");
+const zoom = document.getElementById("zoom");
 
 let open = false;
 let busy = false;
@@ -307,6 +308,17 @@ const PAD_NOTES = [523, 587, 659, 784, 880, 1046, 392, 440, 494];
 const PAD_COLORS = ["#ff8fab", "#ffd166", "#8ec5ff", "#a8e6a3", "#c9a7ff",
                     "#ffb37a", "#7fd8d8", "#ffa3d1", "#b6e07a"];
 
+let zoomTimer = null;
+
+function showZoom(c) {
+  zoom.innerHTML = `<div class="zoomface">${faceSvg(c)}</div><div class="zoomname">${c.name}</div>`;
+  zoom.className = "";
+  void zoom.offsetWidth; // アニメを最初から流し直す
+  zoom.className = "on";
+  clearTimeout(zoomTimer);
+  zoomTimer = setTimeout(() => { zoom.className = ""; }, 1100);
+}
+
 function buildPads() {
   pads.innerHTML = "";
   PAD_NOTES.forEach((f, i) => {
@@ -315,7 +327,8 @@ function buildPads() {
     b.type = "button";
     b.style.background = PAD_COLORS[i];
     b.setAttribute("aria-label", "おと");
-    b.innerHTML = `<div class="padface">${faceSvg(CHARAS[i % CHARAS.length])}</div>`;
+    const c = CHARAS[i % CHARAS.length];
+    b.innerHTML = `<div class="padface">${faceSvg(c)}</div>`;
     b.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
       if (audio()) {
@@ -325,6 +338,8 @@ function buildPads() {
       b.classList.remove("hit");
       void b.offsetWidth;
       b.classList.add("hit");
+      showZoom(c);
+      say(c.name);
       sparkle(e.clientX, e.clientY, 6);
       if (navigator.vibrate) navigator.vibrate(12);
     });
@@ -334,6 +349,7 @@ function buildPads() {
 
 function setMode(next) {
   mode = next;
+  if (zoom) zoom.className = "";
   hide();
   closeBook();
   document.body.classList.toggle("drum", mode === "drum");

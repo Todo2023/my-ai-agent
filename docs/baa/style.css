@@ -227,3 +227,41 @@ body.book #sheet { display: block; }
 #sheet .cell svg { width: 100%; height: auto; display: block; }
 #sheet .cell.yet { opacity: .5; }
 #sheet .note { margin-top: 18px; font-size: 12px; opacity: .6; }
+
+/* ── おとモード：たたいた子が大きく出る ─────────────────── */
+#zoom {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 8;
+  background: rgba(43, 47, 74, .55);
+}
+
+#zoom.on { animation: zoomin 1100ms ease-out forwards; }
+
+.zoomface { width: min(62vw, 62vh); }
+.zoomface svg { width: 100%; height: auto; display: block; }
+
+.zoomname {
+  font-size: clamp(28px, 9vw, 64px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 5px 0 rgba(0, 0, 0, .18);
+}
+
+@keyframes zoomin {
+  0%   { opacity: 0; transform: scale(.35); }
+  18%  { opacity: 1; transform: scale(1.06); }
+  32%  { transform: scale(1); }
+  78%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #zoom.on { animation: none; opacity: 1; }
+}
