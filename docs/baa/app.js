@@ -10,10 +10,10 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "22"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "23"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
-  { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
+  { name: "いぬ",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
     fluffy: true, eyeR: 9, eyeX: 17, noseR: 8,
     cry: "わんわん", base: 300, voice: [
       { v: "u", to: "a", d: 0.17, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.11, p0: 0.9 }, { gap: 0.06 },
@@ -245,8 +245,9 @@ function bodySvg(c) {
     `<rect class="${cls}" x="${x}" y="96" width="13" height="26" rx="6" fill="${c.earColor || c.fur}"/>`;
   const tail = c.ear === "frog"
     ? ""
-    : `<path d="M92 84 Q106 78 102 64" stroke="${c.earColor || c.fur}" stroke-width="7"
-             fill="none" stroke-linecap="round"/>`;
+    : `<g class="tail${c.wag ? " wag" : ""}"><path d="M92 84 Q106 78 102 64"
+             stroke="${c.earColor || c.fur}" stroke-width="7"
+             fill="none" stroke-linecap="round"/></g>`;
 
   if (c.wing) {
     return `<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

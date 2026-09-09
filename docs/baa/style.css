@@ -869,3 +869,19 @@ body.book #sheet { display: block; }
 }
 
 #toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* いぬのしっぽ。ちょうちょの羽と同じように、いつも振っている */
+.tail.wag {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: wag 320ms ease-in-out infinite;
+}
+
+@keyframes wag {
+  0%, 100% { transform: rotate(-16deg); }
+  50%      { transform: rotate(20deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tail.wag { animation: none; }
+}
