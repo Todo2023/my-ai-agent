@@ -9,7 +9,7 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "1"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "2"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
@@ -106,30 +106,6 @@ const CLOTH = [
 ];
 
 // ── 絵をつくる ─────────────────────────────────────────────
-/* 顔つきの窓。どののりものにも同じ目と口をつける（0〜2歳は顔があると見る）。
-   opt.gray はまだ会っていないもの、opt.laugh は くすぐったいときの顔。 */
-function facePart(c, x, y, r, opt = {}) {
-  const ink = opt.gray ? "#cfcac3" : "#3d3d3d";
-  const eyes = opt.laugh
-    ? `<path d="M${x - r * 0.5} ${y} Q${x - r * 0.25} ${y - r * 0.4} ${x} ${y}"
-             stroke="${ink}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-       <path d="M${x + r * 0.1} ${y} Q${x + r * 0.35} ${y - r * 0.4} ${x + r * 0.6} ${y}"
-             stroke="${ink}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
-    : `<circle cx="${x - r * 0.32}" cy="${y}" r="${r * 0.2}" fill="${ink}"/>
-       <circle cx="${x + r * 0.32}" cy="${y}" r="${r * 0.2}" fill="${ink}"/>
-       ${opt.gray ? "" : `<circle cx="${x - r * 0.26}" cy="${y - r * 0.07}" r="${r * 0.07}" fill="#fff"/>
-       <circle cx="${x + r * 0.38}" cy="${y - r * 0.07}" r="${r * 0.07}" fill="#fff"/>`}`;
-  const mouth = opt.laugh
-    ? `<path d="M${x - r * 0.3} ${y + r * 0.35} Q${x} ${y + r * 0.95} ${x + r * 0.3} ${y + r * 0.35} Z"
-             fill="#8a4a4a"/>`
-    : `<path d="M${x - r * 0.28} ${y + r * 0.38} Q${x} ${y + r * 0.75} ${x + r * 0.28} ${y + r * 0.38}"
-             stroke="${ink}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-  return `${eyes}
-    ${opt.gray ? "" : `<circle cx="${x - r * 0.62}" cy="${y + r * 0.34}" r="${r * 0.2}" fill="#ff9db0" opacity=".5"/>
-    <circle cx="${x + r * 0.62}" cy="${y + r * 0.34}" r="${r * 0.2}" fill="#ff9db0" opacity=".5"/>`}
-    ${mouth}`;
-}
-
 // 9マスのボタンに出す小さな絵（正面ではなく横から見た形）
 function faceSvg(c, opt = {}) {
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -162,9 +138,9 @@ function vehicleInner(c, opt = {}, small = false) {
         <path d="M52 46 L78 18 L88 18 L70 46 Z" fill="${roof}"/>
         <path d="M96 44 L112 26 L118 26 L112 46 Z" fill="${roof}"/>
         <path d="M40 64 L58 82 L68 82 L54 64 Z" fill="${roof}"/>
-        <circle cx="34" cy="54" r="9" fill="${win}"/>
-        ${facePart(c, 34, 53, 9, opt)}
-        <circle cx="60" cy="54" r="5" fill="${win}"/><circle cx="74" cy="54" r="5" fill="${win}"/>`;
+        <path d="M20 54 Q26 48 36 48 L44 48 L44 60 L26 60 Q20 58 20 54 Z" fill="${win}"/>
+        <circle cx="58" cy="54" r="5" fill="${win}"/><circle cx="72" cy="54" r="5" fill="${win}"/>
+        <circle cx="86" cy="54" r="5" fill="${win}"/>`;
 
     case "rocket":
       return `<path d="M60 6 Q84 34 84 62 L36 62 Q36 34 60 6 Z" fill="${body}"/>
@@ -172,7 +148,9 @@ function vehicleInner(c, opt = {}, small = false) {
         <path d="M84 50 L100 76 L84 70 Z" fill="${roof}"/>
         <rect x="46" y="62" width="28" height="12" rx="4" fill="${roof}"/>
         <circle cx="60" cy="36" r="13" fill="${win}"/>
-        ${facePart(c, 60, 35, 13, opt)}
+        <circle cx="60" cy="36" r="13" fill="none" stroke="${roof}" stroke-width="3"/>
+        <path d="M52 31 Q60 26 68 31" stroke="rgba(255,255,255,.7)" stroke-width="3"
+              fill="none" stroke-linecap="round"/>
         ${opt.gray ? "" : `<g class="flame"><path d="M50 74 Q60 96 70 74 Z" fill="#ffb347"/>
           <path d="M55 74 Q60 88 65 74 Z" fill="#ffe066"/></g>`}`;
 
@@ -184,8 +162,8 @@ function vehicleInner(c, opt = {}, small = false) {
         ${c.stripe ? `<rect x="${10 - long}" y="54" width="${96 + long * 2}" height="6" fill="${c.stripe}"/>` : ""}
         <rect x="${64 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
         <rect x="${84 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
-        <circle cx="${34 - long}" cy="46" r="13" fill="${win}"/>
-        ${facePart(c, 34 - long, 45, 13, opt)}
+        <rect x="${20 - long}" y="38" width="26" height="14" rx="3" fill="${win}"/>
+        <rect x="${44 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
         ${wheel(30, 72, 11)}${wheel(84, 72, 11)}`;
     }
 
@@ -194,8 +172,8 @@ function vehicleInner(c, opt = {}, small = false) {
         <rect x="26" y="34" width="60" height="10" rx="5" fill="${roof}"/>
         <path d="M86 44 L112 26 L118 32 L96 52 Z" fill="${roof}"/>
         <path d="M112 30 L124 44 L108 50 Z" fill="${opt.gray ? "#cfcac3" : "#8c8f99"}"/>
-        <circle cx="48" cy="50" r="13" fill="${win}"/>
-        ${facePart(c, 48, 49, 13, opt)}
+        <rect x="34" y="40" width="26" height="18" rx="4" fill="${win}"/>
+        <rect x="64" y="46" width="16" height="12" rx="3" fill="${win}"/>
         ${wheel(40, 70, 14)}${wheel(78, 72, 11)}`;
 
     case "car":
@@ -203,8 +181,8 @@ function vehicleInner(c, opt = {}, small = false) {
                 Q14 68 14 62 Z" fill="${body}"/>
         <path d="M30 40 Q34 26 56 26 L68 26 Q84 28 90 40 Z" fill="${roof}"/>
         ${lamp}
-        <circle cx="40" cy="50" r="12" fill="${win}"/>
-        ${facePart(c, 40, 49, 12, opt)}
+        <path d="M34 38 Q38 28 56 28 L56 40 L34 40 Z" fill="${win}"/>
+        <path d="M60 28 Q78 28 86 40 L60 40 Z" fill="${win}"/>
         ${wheel(34, 68, 11)}${wheel(84, 68, 11)}`;
 
     default: // truck（しょうぼうしゃ・きゅうきゅうしゃ）
@@ -216,15 +194,16 @@ function vehicleInner(c, opt = {}, small = false) {
                 transform="rotate(-6 16 21)"/>` : ""}
         ${lamp}
         <rect x="70" y="48" width="18" height="12" rx="3" fill="${win}"/>
-        <circle cx="36" cy="52" r="13" fill="${win}"/>
-        ${facePart(c, 36, 51, 13, opt)}
+        <rect x="20" y="44" width="18" height="14" rx="3" fill="${win}"/>
+        <rect x="42" y="44" width="16" height="14" rx="3" fill="${win}"/>
         ${wheel(32, 70, 12)}${wheel(88, 70, 11)}`;
   }
 }
 
 /* クローズアップ用。走るところを見せる */
 function bodySvg(c) {
-  return `<svg viewBox="0 0 130 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  // タイヤの下で切って、道路や線路にきちんと着くようにする
+  return `<svg viewBox="0 12 130 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     ${vehicleInner(c)}
   </svg>`;
 }
@@ -636,10 +615,10 @@ function hide() {
   open = false;
 }
 
-// 出ている顔をさわると、くすぐったがる
+// 出ているのりものをさわると、クラクションを鳴らして車体がゆれる
 function tickle() {
   if (!current) return;
-  chara.innerHTML = faceSvg(current, { laugh: true });
+  chara.innerHTML = faceSvg(current);
   chara.className = "";
   void chara.offsetWidth;
   chara.className = "tickle";
