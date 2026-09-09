@@ -247,7 +247,7 @@ body.book #sheet { display: block; }
 .scene {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   background: linear-gradient(#8fd3ff 0%, #cceeff 58%, #eaf8ff 100%);
 }
@@ -301,7 +301,31 @@ body.book #sheet { display: block; }
   box-shadow: inset 0 6px 0 #6bbd67;
 }
 
-.zoomface { width: min(66vw, 58vh); margin-bottom: 13vh; }
+/* うしろのお友達。小さく、左右のはしに立つ */
+.friends {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 14vh;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2vw;
+  z-index: 1;
+}
+
+.friend { width: min(30vw, 26vh); }
+.friend svg { width: 100%; height: auto; display: block; }
+.friend .bob { animation: bob 620ms ease-in-out infinite; }
+.friend.f0 .bob { animation-delay: 120ms; }
+.friend.f1 .bob { animation-duration: 540ms; animation-delay: 300ms; }
+.friend .wingL, .friend .wingR { animation: flap 300ms ease-in-out infinite; }
+
+.zoomface {
+  position: relative;
+  z-index: 2;
+  width: min(66vw, 58vh);
+  margin-bottom: 13vh;
+}
 .zoomface svg { width: 100%; height: auto; display: block; }
 
 /* 曲のあいだ、画面を横切って歩く */
@@ -354,5 +378,6 @@ body.book #sheet { display: block; }
 @media (prefers-reduced-motion: reduce) {
   #zoom.on { animation: none; opacity: 1; }
   .zoomface.walk, .bob, .walk .legA, .walk .legB,
-  .walk .wingL, .walk .wingR { animation: none; }
+  .walk .wingL, .walk .wingR,
+  .friend .bob, .friend .wingL, .friend .wingR { animation: none; }
 }
