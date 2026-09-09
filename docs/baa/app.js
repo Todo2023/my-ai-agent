@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "19"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "20"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -24,7 +24,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["E4",1],["E4",1],["D4",1],["D4",1],["C4",2],
       ["C4",1],["E4",1],["G4",1],["C5",1],["G4",1],["E4",1],["C4",2]] },
 
-  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", note: [587, 740, 880],
+  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", whiskers: true, note: [587, 740, 880],
     cry: "にゃーん", base: 430, voice: [
       { v: "i", to: "a", d: 0.32, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.16, p0: 0.88 }],
     tuneName: "じぶんの うた（自作）",
@@ -224,6 +224,11 @@ function faceInner(c, opt = {}) {
              ry="${noseR * 0.26}" fill="#a8536e"/>
        <ellipse cx="${50 + noseR * 0.38}" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR * 0.16}"
              ry="${noseR * 0.26}" fill="#a8536e"/>` : ""}
+    ${c.whiskers && !opt.gray ? `<g stroke="#7d8bb5" stroke-width="1.6" stroke-linecap="round" fill="none">
+       <path d="M40 ${mouthY - 6} L18 ${mouthY - 11}"/><path d="M40 ${mouthY - 2} L16 ${mouthY - 2}"/>
+       <path d="M40 ${mouthY + 2} L18 ${mouthY + 7}"/>
+       <path d="M60 ${mouthY - 6} L82 ${mouthY - 11}"/><path d="M60 ${mouthY - 2} L84 ${mouthY - 2}"/>
+       <path d="M60 ${mouthY + 2} L82 ${mouthY + 7}"/></g>` : ""}
     ${mouth}`;
 }
 
