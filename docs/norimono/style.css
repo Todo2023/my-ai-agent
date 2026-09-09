@@ -887,8 +887,9 @@ body.book #sheet { display: block; }
 }
 
 /* ── のりもの ─────────────────────────────────────────── */
-.zoomface { width: min(84vw, 56vh); margin-bottom: 9vh; }
+.zoomface { width: min(84vw, 56vh); margin-bottom: 4.5vh; }
 .friend { width: min(38vw, 24vh); }
+.friends { bottom: 5vh; }
 
 /* タイヤは走っているあいだ回る */
 .wheel { transform-box: fill-box; transform-origin: 50% 50%; }
