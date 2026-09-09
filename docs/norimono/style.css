@@ -898,13 +898,29 @@ body.book #sheet { display: block; }
 
 @keyframes roll { to { transform: rotate(360deg); } }
 
-/* 屋根のランプは点滅させない（1秒に3回以上光らせない）。ゆっくり明滅させる */
-.lamp { animation: lampglow 1.6s ease-in-out infinite; }
+/* 屋根のサイレンが光る。2つのランプを交互に。
+   1.6秒でひとまわり（＝1秒に1回強）。1秒に3回以上は光らせない（光過敏をさける）。 */
+.lampA, .glowA { animation: lampA 1.6s ease-in-out infinite; }
+.lampB, .glowB { animation: lampB 1.6s ease-in-out infinite; }
 
-@keyframes lampglow {
-  0%, 100% { opacity: .45; }
-  50%      { opacity: 1; }
+.glow { opacity: 0; }
+
+@keyframes lampA {
+  0%, 44%, 100% { opacity: .35; }
+  16%           { opacity: 1; }
 }
+
+@keyframes lampB {
+  0%, 50%, 94%, 100% { opacity: .35; }
+  66%                { opacity: 1; }
+}
+
+/* 光の輪はうっすらと */
+@keyframes glowA { 0%, 44%, 100% { opacity: 0; } 16% { opacity: .35; } }
+@keyframes glowB { 0%, 50%, 94%, 100% { opacity: 0; } 66% { opacity: .35; } }
+
+.glowA { animation-name: glowA; }
+.glowB { animation-name: glowB; }
 
 /* ロケットの炎 */
 .flame { transform-box: fill-box; transform-origin: 50% 0; }
@@ -938,6 +954,10 @@ body.book #sheet { display: block; }
   background: repeating-linear-gradient(90deg, #fff 0 26px, transparent 26px 52px);
   opacity: .85;
 }
+
+/* 奥の車線。少し上に、少し細く */
+.road.far  { bottom: 13.5%; height: 4px; opacity: .6; }
+.rails.far { bottom: 12.5%; height: 16px; opacity: .75; transform: scaleY(.8); }
 
 /* 線路。まくらぎとレール */
 .rails {
@@ -1101,3 +1121,38 @@ body.book #sheet { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .skyfriends .bob { animation: none; }
 }
+
+/* ── 道路の走り方 ────────────────────────────────────────
+ * のりものの絵は左を向いて描いてある。右へ進むときは scaleX(-1) で向きを変える。
+ * 右へ行くときは手前の車線、左へ行くときは奥の車線（左側通行）。
+ * 奥の車線は少し小さく、少し上に置いて、遠くに見せる。
+ */
+.zoomface.walk { animation-name: drive; }
+
+@keyframes drive {
+  0%   { transform: translate(-34vw, 0) scaleX(-1); }
+  46%  { transform: translate(34vw, 0) scaleX(-1); }
+  50%  { transform: translate(34vw, -7vh) scale(.84) scaleX(1); }
+  96%  { transform: translate(-34vw, -7vh) scale(.84) scaleX(1); }
+  100% { transform: translate(-34vw, 0) scaleX(-1); }
+}
+
+/* 飛ぶものも、向きは進む方へ */
+.zoomface.fly.walk { animation-name: flyacross2; }
+
+@keyframes flyacross2 {
+  0%   { transform: translate(-32vw, 0) scaleX(-1); }
+  24%  { transform: translate(0, -5vh) scaleX(-1); }
+  48%  { transform: translate(32vw, 0) scaleX(-1); }
+  52%  { transform: translate(32vw, 0) scaleX(1); }
+  76%  { transform: translate(0, -5vh) scaleX(1); }
+  100% { transform: translate(-32vw, 0) scaleX(1); }
+}
+
+/* ロケットは向きを変えない */
+.zoomface.launch.walk { animation-name: liftoff; }
+
+/* 主役は手前の車線。お友達は道路の外（歩道がわ）に停めておく */
+.zoomface { margin-bottom: 2.5vh; }
+.friends { bottom: 19.5vh; }  /* 道路の外（歩道がわ）に停める */
+.friend { width: min(30vw, 20vh); }
