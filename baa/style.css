@@ -244,12 +244,27 @@ body.book #sheet { display: block; }
 
 #zoom.on { animation: zoomin 900ms ease-out forwards; }
 
-.zoomface { width: min(56vw, 56vh); }
+.zoomface { width: min(66vw, 58vh); }
 .zoomface svg { width: 100%; height: auto; display: block; }
 
 /* 曲のあいだ、画面を横切って歩く */
 .zoomface.walk { animation: walk 4s linear both; }
 .bob { animation: bob 420ms ease-in-out infinite; }
+
+/* 足。歩いているあいだだけ前後に振る */
+.legA, .legB { transform-box: fill-box; transform-origin: 50% 0; }
+.walk .legA { animation: legA 420ms ease-in-out infinite; }
+.walk .legB { animation: legB 420ms ease-in-out infinite; }
+
+@keyframes legA {
+  0%, 100% { transform: rotate(-16deg); }
+  50%      { transform: rotate(16deg); }
+}
+
+@keyframes legB {
+  0%, 100% { transform: rotate(16deg); }
+  50%      { transform: rotate(-16deg); }
+}
 
 @keyframes walk {
   0%   { transform: translateX(-32vw) scaleX(1); }
@@ -272,5 +287,5 @@ body.book #sheet { display: block; }
 
 @media (prefers-reduced-motion: reduce) {
   #zoom.on { animation: none; opacity: 1; }
-  .zoomface.walk, .bob { animation: none; }
+  .zoomface.walk, .bob, .walk .legA, .walk .legB { animation: none; }
 }
