@@ -9,7 +9,7 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "2"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "4"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
@@ -76,7 +76,7 @@ const CHARAS = [
     tune: [["G4",1],["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2],
       ["E4",1],["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",1],["C4",2]] },
 
-  { name: "ひこうき", body: "#e9f2fb", roof: "#8ec5ff", win: "#cfe9ff", kind: "plane",
+  { name: "ひこうき", fly: true, body: "#e9f2fb", roof: "#8ec5ff", win: "#cfe9ff", kind: "plane",
     stripe: "#5aa9ff", note: [698, 880, 1046],
     cry: "ごおおお", sfx: [[200, 900, 0.7, "sawtooth", 0.14], [900, 1200, 0.6, "sawtooth", 0.1]],
     tuneName: "じぶんの うた（自作）",
@@ -84,7 +84,7 @@ const CHARAS = [
       ["D5",1],["E5",1],["F5",1],["E5",1],["D5",1],["C5",2],
       ["G4",1],["C5",1],["E5",1],["G5",1],["C5",2]] },
 
-  { name: "ロケット", body: "#f4f6fb", roof: "#e5484d", win: "#8ecfff", kind: "rocket",
+  { name: "ロケット", fly: true, launch: true, body: "#f4f6fb", roof: "#e5484d", win: "#8ecfff", kind: "rocket",
     encore: 0, note: [523, 784, 1046],
     cry: "しゅぱーん", sfx: [[120, 60, 0.5, "sawtooth", 0.2], [200, 2000, 0.8, "sawtooth", 0.14]],
     tuneName: "きらきら星（フランス民謡・PD）",
@@ -753,7 +753,15 @@ function scene(c) {
   }
 
   if (sc.planet) html += `<div class="planet"></div>`;
-  if (sc.cloudSea) html += `<div class="cloudsea"></div>`;
+  if (sc.cloudSea) {
+    // 雲の海。白い帯の上に、まるい雲をならべてもこもこにする
+    html += `<div class="cloudsea"></div>`;
+    for (let i = 0; i < 7; i++) {
+      const w = 90 + Math.random() * 90;
+      html += `<div class="puff" style="left:${i * 15 - 4}%;width:${w}px;height:${w * 0.62}px;
+               bottom:${20 + Math.random() * 6}%"></div>`;
+    }
+  }
 
   for (let i = 0; i < (sc.sandpiles || 0); i++) {
     html += `<div class="sandpile" style="left:${12 + i * 46}%"></div>`;
@@ -861,10 +869,13 @@ function friendsOf(c) {
 
 function showZoom(c) {
   // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
+  const friends = friendsOf(c);
   zoom.innerHTML = scene(c) + `
-    <div class="friends">${friendsOf(c).map((f, i) =>
+    <div class="friends">${friends.filter((f) => !f.fly).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
-    <div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
+    <div class="skyfriends">${friends.filter((f) => f.fly).map((f, i) =>
+      `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
+    <div class="zoomface${c.fly ? " fly" : ""}${c.launch ? " launch" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";

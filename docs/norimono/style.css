@@ -1006,17 +1006,20 @@ body.book #sheet { display: block; }
 }
 
 /* 雲の海（ひこうき） */
+/* 雲の海。白い帯と、その上にならぶまるい雲 */
 .cloudsea {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 26%;
-  background:
-    radial-gradient(60% 120% at 15% 0%, #fff 0 60%, transparent 61%),
-    radial-gradient(60% 120% at 45% -10%, #fff 0 60%, transparent 61%),
-    radial-gradient(60% 120% at 80% 0%, #fff 0 60%, transparent 61%),
-    #eaf6ff;
+  height: 22%;
+  background: linear-gradient(#fff, #eaf6ff);
+}
+
+.puff {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
 }
 
 /* 夜の空にうかぶ星（ロケット） */
@@ -1045,4 +1048,51 @@ body.book #sheet { display: block; }
 
 @media (prefers-reduced-motion: reduce) {
   .walk .wheel, .friend .wheel, .lamp, .flame { animation: none; }
+}
+
+/* 空を飛ぶもの（ひこうき・ロケット）は、地面ではなく空にいる */
+.zoomface.fly { margin-bottom: 34vh; }
+.zoomface.fly.walk { animation-name: flyacross; }
+
+@keyframes flyacross {
+  0%   { transform: translate(-32vw, 0) scaleX(1); }
+  24%  { transform: translate(0, -5vh) scaleX(1); }
+  48%  { transform: translate(32vw, 0) scaleX(1); }
+  52%  { transform: translate(32vw, 0) scaleX(-1); }
+  76%  { transform: translate(0, -5vh) scaleX(-1); }
+  100% { transform: translate(-32vw, 0) scaleX(-1); }
+}
+
+/* ロケットは横にではなく、下から上へ飛んでいく */
+.zoomface.launch { margin-bottom: 4vh; }
+.zoomface.launch.walk { animation-name: liftoff; animation-timing-function: ease-in; }
+
+@keyframes liftoff {
+  0%   { transform: translateY(8vh) scale(.92); }
+  14%  { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-74vh) scale(.62); }
+}
+
+/* お友達の飛ぶものも、空に浮かべる */
+.skyfriends {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 16%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4vw;
+  z-index: 1;
+}
+
+.skyfriends .friend { width: min(32vw, 20vh); }
+.skyfriends .bob { animation: hover 3.2s ease-in-out infinite; }
+
+@keyframes hover {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(2vw, -3vh); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyfriends .bob { animation: none; }
 }
