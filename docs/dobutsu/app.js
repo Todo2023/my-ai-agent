@@ -317,6 +317,15 @@
   requestAnimationFrame(frame);
 
   if ("serviceWorker" in navigator) {
+    // 新しいものが届いたら、その場で入れかえる。
+    // （前は「次に開いたとき」だったので、直したのに変わらないように見えた）
+    const hadOne = !!navigator.serviceWorker.controller;
+    let swapping = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadOne || swapping) return;      // はじめて開いた人は そのまま
+      swapping = true;
+      location.reload();
+    });
     window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   }
 })();

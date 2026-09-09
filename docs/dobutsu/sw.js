@@ -1,5 +1,5 @@
 // けんがい でも 見られるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "dobutsu-v4";
+const CACHE = "dobutsu-v5";
 const ASSETS = [
   "./",
   "./index.html",
