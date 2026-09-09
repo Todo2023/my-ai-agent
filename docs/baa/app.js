@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "11"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "13"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -633,6 +633,98 @@ let noteTimer = null;
 
 /* 押した子を大きく出す → 鳴く → そのまま短いおはなし（曲＋歩く）。
    もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
+/* 景色。子ごとに変える。画像は1枚も持たず、色と丸と三角で描く。 */
+const SCENES = {
+  いぬ:     { sky: "#8fd3ff,#cceeff,#eaf8ff", ground: "#7ec97a", edge: "#6bbd67",
+              hills: ["#8fd08a", "#a8e6a3"], sun: "#ffe066", clouds: 3, flowers: 7 },
+  ねこ:     { sky: "#161d44,#2b3566,#4a4f86", ground: "#3a4470", edge: "#2f3860",
+              hills: ["#2b3560", "#333d6b"], moon: true, stars: 22, clouds: 1, flowers: 3 },
+  ぶた:     { sky: "#ffd9a8,#ffeccd,#fff6e6", ground: "#c8925f", edge: "#ab7a4c",
+              hills: ["#9fbf76", "#b9d38f"], sun: "#ffcf5c", clouds: 2, fence: true, flowers: 3 },
+  くま:     { sky: "#bfe4ff,#d8f0ff,#eaf8ff", ground: "#5faa5c", edge: "#4e9450",
+              trees: 6, sun: "#ffe066", clouds: 2, flowers: 3 },
+  ねずみ:   { sky: "#ff8f6b,#ffb87a,#ffe3b0", ground: "#8c5a44", edge: "#714735",
+              hills: ["#a9654c", "#c07a5c"], sun: "#ff9d5c", clouds: 3, flowers: 4 },
+  ちょうちょ: { sky: "#cdf0ff,#e4f8ff,#f4fcff", ground: "#8fd88a", edge: "#7cc877",
+              hills: ["#a8e6a3", "#c4f0c0"], sun: "#ffe066", clouds: 2, flowers: 16 },
+  さる:     { sky: "#a8ecc8,#cdf6de,#e8fcf0", ground: "#4fa85a", edge: "#3f9049",
+              trees: 7, jungle: true, clouds: 1, flowers: 2 },
+  ひつじ:   { sky: "#cdeaff,#e2f4ff,#f2fbff", ground: "#93d68c", edge: "#7cc877",
+              hills: ["#b6e5a0", "#d5f0bd"], sun: "#ffe066", clouds: 4, fence: true, flowers: 6 },
+  かえる:   { sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
+              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true, flowers: 2 },
+};
+
+function scene(c) {
+  const sc = SCENES[c.name] || SCENES["いぬ"];
+  const bg = `linear-gradient(${sc.sky.split(",").map((v, i) => `${v} ${[0, 58, 100][i]}%`).join(",")})`;
+  let html = `<div class="scene" style="background:${bg}">`;
+
+  if (sc.sun)  html += `<div class="sun" style="background:${sc.sun};box-shadow:0 0 0 14px ${sc.sun}59"></div>`;
+  if (sc.moon) html += `<div class="sun moon"></div>`;
+
+  for (let i = 0; i < (sc.stars || 0); i++) {
+    html += `<div class="star" style="left:${(Math.random() * 96).toFixed(1)}%;
+             top:${(Math.random() * 55).toFixed(1)}%;
+             animation-delay:${(Math.random() * 2).toFixed(1)}s"></div>`;
+  }
+
+  for (let i = 0; i < (sc.clouds || 0); i++) {
+    html += `<div class="cloud${sc.gray ? " gray" : ""}" style="top:${4 + i * 9}%;
+             left:${-30 - i * 22}%;width:${96 - i * 12}px;
+             animation-duration:${16 + i * 6}s"></div>`;
+  }
+
+  (sc.hills || []).forEach((color, i) => {
+    html += `<div class="hill" style="background:${color};${i === 0
+      ? "left:-12%;width:78%;height:26%"
+      : "right:-14%;width:66%;height:20%"}"></div>`;
+  });
+
+  for (let i = 0; i < (sc.trees || 0); i++) {
+    const left = 2 + i * 14 + Math.random() * 5;
+    const h = 22 + Math.random() * 12;
+    html += `<div class="tree${sc.jungle ? " jungle" : ""}"
+             style="left:${left}%;height:${h}%;--leaf:${sc.jungle ? "#2f8f4a" : "#3f8f52"}"></div>`;
+  }
+
+  html += `<div class="ground" style="background:${sc.ground};box-shadow:inset 0 6px 0 ${sc.edge}"></div>`;
+
+  if (sc.fence) html += `<div class="fence"></div>`;
+  if (sc.lily) {
+    for (let i = 0; i < 3; i++) {
+      html += `<div class="lily" style="left:${8 + i * 34}%;bottom:${2 + i * 4}%"></div>`;
+    }
+  }
+  if (sc.rain) {
+    for (let i = 0; i < 26; i++) {
+      html += `<div class="rain" style="left:${(Math.random() * 100).toFixed(1)}%;
+               animation-delay:${(Math.random() * 0.9).toFixed(2)}s;
+               animation-duration:${(0.6 + Math.random() * 0.4).toFixed(2)}s"></div>`;
+    }
+  }
+
+  html += flowers(sc.flowers || 0);
+  return html + `</div>`;
+}
+
+/* 草に咲く花。位置と色と大きさを毎回ちらす。
+   画像は持たず、円を5枚ならべて花びらにする。 */
+const PETALS = ["#ff8fab", "#ffd166", "#fff", "#c9a7ff", "#ff9ec7"];
+
+function flowers(n) {
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const left = (4 + i * (92 / Math.max(1, n)) + Math.random() * 6) % 96;
+    const bottom = 1 + Math.random() * 13;
+    const size = 16 + Math.random() * 12;
+    const color = PETALS[Math.floor(Math.random() * PETALS.length)];
+    out += `<div class="flower" style="left:${left}%;bottom:${bottom}%;width:${size}px;
+             height:${size}px;--petal:${color};animation-delay:${(i * 0.3).toFixed(1)}s"></div>`;
+  }
+  return out;
+}
+
 // うしろに出てくるお友達。毎回ちがう2人
 function friendsOf(c) {
   const rest = CHARAS.filter((x) => x !== c);
@@ -645,12 +737,7 @@ function friendsOf(c) {
 
 function showZoom(c) {
   // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
-  zoom.innerHTML = `<div class="scene">
-      <div class="sun"></div>
-      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
-      <div class="hill h1"></div><div class="hill h2"></div>
-      <div class="ground"></div>
-    </div>
+  zoom.innerHTML = scene(c) + `
     <div class="friends">${friendsOf(c).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
     <div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
