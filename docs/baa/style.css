@@ -834,3 +834,38 @@ body.book #sheet { display: block; }
 /* 音の入切ボタン。長押ししているあいだ、色が縮んで分かるようにする */
 #snd.off { background: rgba(255, 190, 190, .8); color: #a33; }
 #snd.holding { transform: scale(.86); transition: transform 700ms linear; }
+
+/* 音いろを変えるボタン */
+#inst {
+  position: fixed;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  left: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+/* 音いろの名前を、少しのあいだ出す */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 14%;
+  transform: translateX(-50%) translateY(8px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+  z-index: 30;
+}
+
+#toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
