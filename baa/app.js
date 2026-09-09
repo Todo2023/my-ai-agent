@@ -13,27 +13,62 @@
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
     fluffy: true, eyeR: 9, eyeX: 17, noseR: 8,
-    cry: "わんわん", crySeq: [[340, 210, 0.18, "square"], [340, 190, 0.2, "square"]] },
+    cry: "わんわん", base: 300, voice: [
+      { v: "u", to: "a", d: 0.17, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.11, p0: 0.9 }, { gap: 0.06 },
+      { v: "u", to: "a", d: 0.17, p0: 1.1, p1: 0.9 },   { v: "n", d: 0.13, p0: 0.85 }],
+    tuneName: "じぶんの うた（自作）",
+    tune: [["C4",1],["E4",1],["G4",1],["E4",1],["C4",1],["G4",1],["C5",2]] },
+
   { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", note: [587, 740, 880],
-    cry: "にゃーん", crySeq: [[760, 430, 0.5, "sawtooth"]] },
+    cry: "にゃーん", base: 430, voice: [
+      { v: "i", to: "a", d: 0.32, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.16, p0: 0.88 }],
+    tuneName: "じぶんの うた（自作）",
+    tune: [["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
+
   { name: "ぶた",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
     noseR: 11, snout: true,
-    cry: "ぶーぶー", crySeq: [[160, 120, 0.22, "square"], [160, 110, 0.24, "square"]] },
+    cry: "ぶーぶー", base: 190, voice: [
+      { burst: "b" }, { v: "u", d: 0.24, p0: 1.0, p1: 0.9 }, { gap: 0.07 },
+      { burst: "b" }, { v: "u", d: 0.26, p0: 0.98, p1: 0.86 }],
+    tuneName: "むすんでひらいて（ルソー・PD）",
+    tune: [["G4",1],["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
+
   { name: "くま",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
     muzzle: "#e8cdb4",
-    cry: "がおー",   crySeq: [[150, 85, 0.6, "sawtooth"]] },
+    cry: "がおー", base: 150, voice: [
+      { burst: "b" }, { v: "a", d: 0.22, p0: 1.05, p1: 0.98 }, { v: "o", d: 0.4, p0: 0.98, p1: 0.8 }],
+    tuneName: "森のくまさん（アメリカ民謡・PD）",
+    tune: [["C4",1],["E4",1],["G4",1],["G4",1],["A4",1],["G4",1],["E4",1],["C4",2]] },
+
   { name: "ねずみ", fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
-    earR: 16, earX: 21, earY: 20,
-    note: [494, 622, 740],
-    cry: "ちゅーちゅー", crySeq: [[1500, 1900, 0.13, "sine"], [1500, 2000, 0.13, "sine"]] },
+    earR: 16, earX: 21, earY: 20, note: [494, 622, 740],
+    cry: "ちゅーちゅー", base: 620, voice: [
+      { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.2 }, { gap: 0.06 },
+      { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.25 }],
+    tuneName: "きらきら星（フランス民謡・PD）",
+    tune: [["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2]] },
+
   { name: "ひよこ", fur: "#ffe066", ear: "none",  earColor: "#f0c419", note: [698, 880, 1046],
-    cry: "ぴよぴよ", crySeq: [[1700, 2100, 0.12, "sine"], [1700, 2200, 0.12, "sine"]] },
+    cry: "ぴよぴよ", base: 700, voice: [
+      { burst: "p" }, { v: "i", d: 0.07, p0: 1.1 }, { v: "o", d: 0.13, p0: 1.0, p1: 0.92 }, { gap: 0.05 },
+      { burst: "p" }, { v: "i", d: 0.07, p0: 1.12 }, { v: "o", d: 0.14, p0: 1.0, p1: 0.9 }],
+    tuneName: "ちょうちょう（ドイツ民謡・PD）",
+    tune: [["G5",1],["E5",1],["E5",2],["F5",1],["D5",1],["D5",2],["C5",1],["D5",1],["E5",1],["F5",1],["G5",2]] },
+
   { name: "さる",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
-    earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2",
-    note: [349, 440, 523],
-    cry: "うっきー", crySeq: [[820, 1500, 0.18, "square"], [900, 1600, 0.16, "square"]] },
+    earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2", note: [349, 440, 523],
+    cry: "うっきー", base: 540, voice: [
+      { v: "u", d: 0.11, p0: 0.9 }, { gap: 0.07 },
+      { burst: "k" }, { v: "i", d: 0.3, p0: 1.0, p1: 1.28 }],
+    tuneName: "大きな栗の木の下で（イギリス民謡・PD）",
+    tune: [["C5",1],["F4",1],["F4",1],["F4",1],["G4",1],["A4",1],["A4",1],["G4",1],["F4",2]] },
+
   { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
-    cry: "けろけろ", crySeq: [[280, 230, 0.16, "square"], [280, 220, 0.16, "square"]] },
+    cry: "けろけろ", base: 270, voice: [
+      { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.13, p0: 0.9 }, { gap: 0.05 },
+      { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.14, p0: 0.88 }],
+    tuneName: "かえるの合唱（ドイツ民謡・PD）",
+    tune: [["C4",1],["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",2]] },
 ];
 
 const BG = ["#ffe9c7", "#d9f2ff", "#ffe3ef", "#e6f7d9", "#efe6ff", "#fff3cf"];
@@ -147,6 +182,7 @@ function faceSvg(c, opt = {}) {
 
 // ── 音 ────────────────────────────────────────────────────
 let ac = null;
+let bus = null; // 声と曲の出口。押し直したら、ここごと切って止める
 let soundOn = localStorage.getItem("baa-sound") !== "off";
 
 function tone(freq, at, dur, type = "triangle", vol = 0.22) {
@@ -158,9 +194,21 @@ function tone(freq, at, dur, type = "triangle", vol = 0.22) {
   gain.gain.setValueAtTime(0.0001, t);
   gain.gain.exponentialRampToValueAtTime(vol, t + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.connect(gain).connect(ac.destination);
+  osc.connect(gain).connect(out());
   osc.start(t);
   osc.stop(t + dur + 0.02);
+}
+
+function out() {
+  return bus || ac.destination;
+}
+
+// 前の音を止めて、新しい出口を作る
+function newBus() {
+  if (bus) { try { bus.disconnect(); } catch (_) {} }
+  bus = ac.createGain();
+  bus.connect(ac.destination);
+  return bus;
 }
 
 function audio() {
@@ -199,20 +247,147 @@ function glide(f0, f1, at, dur, type = "square", vol = 0.2) {
   gain.gain.setValueAtTime(0.0001, t);
   gain.gain.exponentialRampToValueAtTime(vol, t + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.connect(gain).connect(ac.destination);
+  osc.connect(gain).connect(out());
   osc.start(t);
   osc.stop(t + dur + 0.02);
 }
 
-function cry(c) {
-  if (audio() && c.crySeq) {
-    let at = 0;
-    c.crySeq.forEach(([f0, f1, dur, type]) => {
-      glide(f0, f1, at, dur, type);
-      at += dur + 0.07;
-    });
+/* ── 声を作る ──────────────────────────────────────────
+ * 音の高さを変えるだけでは言葉にならない。母音は「フォルマント」という
+ * 山が2〜3本あることで あ・い・う に聞こえる。のこぎり波を帯域フィルタに
+ * 通して山を立て、山の位置を動かして「わ」（う→あ）のような音にする。
+ * 音源ファイルは持たないので、圏外でも同じ声が出る。
+ */
+const VOWELS = {
+  a: [800, 1250, 2800],
+  i: [320, 2300, 3000],
+  u: [350, 900, 2300],
+  e: [520, 1850, 2500],
+  o: [460, 880, 2500],
+  n: [260, 1000, 2200], // ん。こもらせる
+};
+
+let noiseBuf = null;
+
+// 子音のはじけ。か行・ぱ行は雑音、ば行・が行は低い音
+function burst(kind, at) {
+  const t = ac.currentTime + at;
+  if (kind === "b") {
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(80, t + 0.05);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    osc.connect(g).connect(out());
+    osc.start(t);
+    osc.stop(t + 0.06);
+    return 0.05;
   }
-  say(c.cry || c.name);
+  if (!noiseBuf) {
+    noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.2), ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = ac.createBufferSource();
+  const bp = ac.createBiquadFilter();
+  const g = ac.createGain();
+  src.buffer = noiseBuf;
+  bp.type = "bandpass";
+  bp.frequency.value = kind === "ch" ? 3200 : 2200;
+  bp.Q.value = 2;
+  const dur = kind === "ch" ? 0.05 : 0.03;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(kind === "ch" ? 0.16 : 0.2, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(bp).connect(g).connect(out());
+  src.start(t);
+  src.stop(t + dur + 0.02);
+  return dur;
+}
+
+// 母音ひとつ。seg.to があると、その母音へ滑る（「わ」＝う→あ）
+function vowel(seg, at, base) {
+  const t = ac.currentTime + at;
+  const from = VOWELS[seg.v];
+  const to = VOWELS[seg.to || seg.v];
+  const dur = seg.d;
+  const p0 = base * (seg.p0 || 1);
+  const p1 = base * (seg.p1 || seg.p0 || 1);
+
+  const osc = ac.createOscillator();
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(p0, t);
+  osc.frequency.linearRampToValueAtTime(p1, t + dur);
+
+  const out = ac.createGain();
+  // 声が高いほど、基本の音が第1フォルマントより上に出て痩せる。高い子は持ち上げる
+  const lift = Math.min(3, Math.max(1, (base / 300) ** 1.4));
+  const level = (seg.v === "n" ? 0.16 : 0.3) * lift;
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(level, t + 0.03);
+  out.gain.setValueAtTime(level, t + Math.max(0.04, dur - 0.04));
+  out.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.02);
+  out.connect(bus || ac.destination);
+
+  from.forEach((f, i) => {
+    const bp = ac.createBiquadFilter();
+    const g = ac.createGain();
+    bp.type = "bandpass";
+    bp.Q.value = 9;
+    bp.frequency.setValueAtTime(f, t);
+    bp.frequency.linearRampToValueAtTime(to[i], t + dur);
+    g.gain.value = [1, 0.55, 0.22][i];
+    osc.connect(bp).connect(g).connect(out);
+  });
+
+  osc.start(t);
+  osc.stop(t + dur + 0.05);
+  return dur;
+}
+
+// 音の名前（C4 など）を周波数に直す
+const SCALE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+function noteFreq(n) {
+  const step = SCALE[n[0]] + (parseInt(n.slice(1), 10) - 4) * 12;
+  return 440 * Math.pow(2, (step - 9) / 12);
+}
+
+/* 曲を鳴らす。使うのは著作権の切れた民謡か、自作のものだけ。
+   音源ファイルは持たないので、圏外でも鳴る。 */
+function playTune(c, at = 0) {
+  if (!c.tune) return 0;
+  const beat = 0.34;
+  let t = at;
+  c.tune.forEach(([n, len]) => {
+    const dur = beat * len;
+    const f = noteFreq(n);
+    tone(f, t, dur * 0.92, "triangle", 0.2);
+    tone(f * 2, t, dur * 0.5, "sine", 0.05);
+    t += dur;
+  });
+  return t - at;
+}
+
+function speak(c) {
+  if (!c.voice) return 0;
+  let at = 0;
+  c.voice.forEach((seg) => {
+    if (seg.gap) { at += seg.gap; return; }
+    if (seg.burst) { at += burst(seg.burst, at); return; }
+    at += vowel(seg, at, c.base || 300);
+  });
+  return at;
+}
+
+// 端末の読み上げは、日本語の声が入っていないと何も鳴らない。
+// どの端末でも同じ声になるよう、自分で作った声だけを使う。
+function cry(c) {
+  if (!audio()) return 0;
+  return speak(c);
 }
 
 function say(text) {
@@ -360,14 +535,42 @@ const PAD_COLORS = ["#ff8fab", "#ffd166", "#8ec5ff", "#a8e6a3", "#c9a7ff",
                     "#ffb37a", "#7fd8d8", "#ffa3d1", "#b6e07a"];
 
 let zoomTimer = null;
+let walkTimer = null;
+let noteTimer = null;
 
+/* 押した子を大きく出す → 鳴く → そのまま短いおはなし（曲＋歩く）。
+   もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
 function showZoom(c) {
-  zoom.innerHTML = `<div class="zoomface">${faceSvg(c)}</div>`;
+  zoom.innerHTML = `<div class="zoomface"><div class="bob">${faceSvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
   clearTimeout(zoomTimer);
-  zoomTimer = setTimeout(() => { zoom.className = ""; }, 1100);
+  clearTimeout(walkTimer);
+  clearInterval(noteTimer);
+
+  if (!audio()) {
+    zoomTimer = setTimeout(() => { zoom.className = ""; }, 1100);
+    return;
+  }
+
+  newBus();                       // 前に鳴っていた音を切る
+  const cryLen = speak(c);        // 鳴き声
+  const tuneLen = playTune(c, cryLen + 0.25);  // そのあとに曲
+
+  const face = zoom.querySelector(".zoomface");
+  walkTimer = setTimeout(() => {
+    if (!face.isConnected) return;
+    face.style.animationDuration = `${tuneLen}s`;
+    face.classList.add("walk");
+    // 曲に合わせて、音符のかわりの玉を飛ばす
+    noteTimer = setInterval(() => sparkle(null, window.innerHeight * 0.62, 3), 340);
+  }, (cryLen + 0.25) * 1000);
+
+  zoomTimer = setTimeout(() => {
+    zoom.className = "";
+    clearInterval(noteTimer);
+  }, (cryLen + 0.35 + tuneLen) * 1000);
 }
 
 function buildPads() {
@@ -401,6 +604,10 @@ function buildPads() {
 function setMode(next) {
   mode = next;
   if (zoom) zoom.className = "";
+  clearTimeout(zoomTimer);
+  clearTimeout(walkTimer);
+  clearInterval(noteTimer);
+  if (ac) newBus();
   hide();
   closeBook();
   document.body.classList.toggle("drum", mode === "drum");

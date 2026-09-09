@@ -242,19 +242,35 @@ body.book #sheet { display: block; }
   background: rgba(43, 47, 74, .55);
 }
 
-#zoom.on { animation: zoomin 1100ms ease-out forwards; }
+#zoom.on { animation: zoomin 900ms ease-out forwards; }
 
-.zoomface { width: min(62vw, 62vh); }
+.zoomface { width: min(56vw, 56vh); }
 .zoomface svg { width: 100%; height: auto; display: block; }
+
+/* 曲のあいだ、画面を横切って歩く */
+.zoomface.walk { animation: walk 4s linear both; }
+.bob { animation: bob 420ms ease-in-out infinite; }
+
+@keyframes walk {
+  0%   { transform: translateX(-32vw) scaleX(1); }
+  48%  { transform: translateX(32vw) scaleX(1); }
+  52%  { transform: translateX(32vw) scaleX(-1); }
+  100% { transform: translateX(-32vw) scaleX(-1); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-6%) rotate(3deg); }
+}
 
 @keyframes zoomin {
   0%   { opacity: 0; transform: scale(.35); }
-  18%  { opacity: 1; transform: scale(1.06); }
-  32%  { transform: scale(1); }
-  78%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.04); }
+  22%  { opacity: 1; transform: scale(1.06); }
+  40%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #zoom.on { animation: none; opacity: 1; }
+  .zoomface.walk, .bob { animation: none; }
 }
