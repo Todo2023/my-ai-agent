@@ -732,3 +732,101 @@ body.book #sheet { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .bird, .flyer, .firefly, .shooting, .ripple { animation: none; }
 }
+
+/* 大きな木（大きな栗の木の下で） */
+.bigtree {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  margin-left: -34vw;
+  width: 68vw;
+  height: 46%;
+}
+
+.bigtree::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 46%;
+  width: 9%;
+  height: 46%;
+  background: #7a5230;
+  border-radius: 3px;
+}
+
+.bigtree::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62%;
+  background: #4fae5a;
+  border-radius: 50%;
+  box-shadow: -14% 12% 0 -6% #45a151, 14% 12% 0 -6% #5cbb66;
+}
+
+/* 木の実 */
+.nut {
+  position: absolute;
+  width: 16px;
+  height: 14px;
+  background: #8a5a33;
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: inset -3px -2px 0 rgba(0, 0, 0, .15);
+}
+
+/* ── おとモードの画面を、待っているあいだも動かす ─────────── */
+#pads {
+  background:
+    radial-gradient(120% 80% at 20% 0%, #3b4272 0%, transparent 60%),
+    radial-gradient(120% 80% at 80% 100%, #46325e 0%, transparent 60%),
+    #2b2f4a;
+  background-size: 140% 140%, 140% 140%, auto;
+  animation: sky 18s ease-in-out infinite alternate;
+}
+
+@keyframes sky {
+  0%   { background-position: 0% 0%, 100% 100%, 0 0; }
+  100% { background-position: 30% 20%, 70% 80%, 0 0; }
+}
+
+/* ボタンの顔が、ゆっくり息をする */
+.pad .padface { animation: breathe 2.8s ease-in-out infinite; }
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-4%) scale(1.05); }
+}
+
+/* ときどき1枚だけ跳ねる */
+.pad.peek { animation: peek 700ms ease-out; }
+
+@keyframes peek {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-8px) scale(1.04); }
+  60%  { transform: translateY(0) scale(.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* たたいたところに広がる輪 */
+.ring {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255, 255, 255, .85);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9;
+  animation: ringout 600ms ease-out forwards;
+}
+
+@keyframes ringout {
+  0%   { transform: scale(.4); opacity: .9; }
+  100% { transform: scale(4.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pads, .pad .padface, .pad.peek, .ring { animation: none; }
+}

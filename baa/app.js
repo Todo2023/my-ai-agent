@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "15"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "17"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -626,8 +626,18 @@ function hitFace(e) {
 // ── おとモード（たたくと音が鳴る）──────────────────────────────
 // 5音だけ使うので、どこを押しても外れて聞こえない
 const PAD_NOTES = [523, 587, 659, 784, 880, 1046, 392, 440, 494];
-const PAD_COLORS = ["#ff8fab", "#ffd166", "#8ec5ff", "#a8e6a3", "#c9a7ff",
-                    "#ffb37a", "#7fd8d8", "#ffa3d1", "#b6e07a"];
+// 色みが重ならないよう、色の輪を9等分するように選ぶ。上下の濃淡もつける
+const PAD_COLORS = [
+  ["#ff8fab", "#ff6f92"], // もも
+  ["#ffb347", "#ff9a2e"], // だいだい
+  ["#ffe066", "#ffd12e"], // きいろ
+  ["#b6e07a", "#9ed05c"], // きみどり
+  ["#6fd08c", "#4fbd73"], // みどり
+  ["#7fd8d8", "#59c6c6"], // みずいろ
+  ["#8ec5ff", "#6aaeff"], // あお
+  ["#b7a3ff", "#9b83ff"], // むらさき
+  ["#d9a06b", "#c2884f"], // ちゃいろ
+];
 
 let zoomTimer = null;
 let walkTimer = null;
@@ -637,25 +647,52 @@ let noteTimer = null;
    もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
 /* 景色。子ごとに変える。画像は1枚も持たず、色と丸と三角で描く。 */
 const SCENES = {
+  // いぬ／自作の行進曲 → 昼の草原
   いぬ:     { sky: "#8fd3ff,#cceeff,#eaf8ff", ground: "#7ec97a", edge: "#6bbd67",
-              hills: ["#8fd08a", "#a8e6a3"], sun: "#ffe066", clouds: 3, flowers: 7 , birds: 3, mountains: true, bushes: 3, stones: 2 },
-  ねこ:     { sky: "#161d44,#2b3566,#4a4f86", ground: "#3a4470", edge: "#2f3860",
-              hills: ["#2b3560", "#333d6b"], moon: true, stars: 22, clouds: 1, flowers: 3 , fireflies: 9, house: "#2f3860", shooting: true, bushes: 2 },
+              hills: ["#8fd08a", "#a8e6a3"], sun: "#ffe066", clouds: 3, flowers: 7,
+              birds: 3, mountains: true, bushes: 3, stones: 2 },
+
+  // ねこ／自作のしずかな曲 → 夕方
+  ねこ:     { sky: "#ff8f6b,#ffb87a,#ffe3b0", ground: "#8c5a44", edge: "#714735",
+              hills: ["#a9654c", "#c07a5c"], sun: "#ff9d5c", clouds: 3, flowers: 4,
+              birds: 4, mountains: true, house: "#8a5a4a", bushes: 2 },
+
+  // ぶた／むすんでひらいて → のうじょう
   ぶた:     { sky: "#ffd9a8,#ffeccd,#fff6e6", ground: "#c8925f", edge: "#ab7a4c",
-              hills: ["#9fbf76", "#b9d38f"], sun: "#ffcf5c", clouds: 2, fence: true, flowers: 3 , house: "#c9705a", birds: 2, bushes: 2, stones: 3 },
+              hills: ["#9fbf76", "#b9d38f"], sun: "#ffcf5c", clouds: 2, fence: true, flowers: 3,
+              house: "#c9705a", birds: 2, bushes: 2, stones: 3 },
+
+  // くま／森のくまさん → 森
   くま:     { sky: "#bfe4ff,#d8f0ff,#eaf8ff", ground: "#5faa5c", edge: "#4e9450",
-              trees: 6, sun: "#ffe066", clouds: 2, flowers: 3 , mushrooms: 4, birds: 2, mountains: true, bushes: 3 },
-  ねずみ:   { sky: "#ff8f6b,#ffb87a,#ffe3b0", ground: "#8c5a44", edge: "#714735",
-              hills: ["#a9654c", "#c07a5c"], sun: "#ff9d5c", clouds: 3, flowers: 4 , birds: 4, mountains: true, bushes: 2, stones: 2 },
+              trees: 6, sun: "#ffe066", clouds: 2, flowers: 3,
+              mushrooms: 4, birds: 2, bushes: 3 },
+
+  // ねずみ／きらきら星 → 夜。星がまたたく
+  ねずみ:   { sky: "#161d44,#2b3566,#4a4f86", ground: "#3a4470", edge: "#2f3860",
+              hills: ["#2b3560", "#333d6b"], moon: true, stars: 26, clouds: 1, flowers: 3,
+              fireflies: 9, shooting: true, house: "#2f3860", bushes: 2 },
+
+  // ちょうちょ／ちょうちょう → お花ばたけ
   ちょうちょ: { sky: "#cdf0ff,#e4f8ff,#f4fcff", ground: "#8fd88a", edge: "#7cc877",
-              hills: ["#a8e6a3", "#c4f0c0"], sun: "#ffe066", clouds: 2, flowers: 16 , flyers: 4, birds: 2, bushes: 2 },
-  さる:     { sky: "#a8ecc8,#cdf6de,#e8fcf0", ground: "#4fa85a", edge: "#3f9049",
-              trees: 7, jungle: true, clouds: 1, flowers: 2 , vines: 3, birds: 2, bushes: 3 },
+              hills: ["#a8e6a3", "#c4f0c0"], sun: "#ffe066", clouds: 2, flowers: 18,
+              flyers: 4, birds: 2, bushes: 2 },
+
+  // さる／大きな栗の木の下で → 大きな木の下。木の実が落ちている
+  さる:     { sky: "#bfe9ff,#dcf4ff,#eefaff", ground: "#6fbf68", edge: "#5aa957",
+              hills: ["#8fd08a", "#a8e6a3"], bigTree: true, sun: "#ffe066", clouds: 2,
+              nuts: 5, birds: 2, bushes: 2, flowers: 3 },
+
+  // ひつじ／メリーさんのひつじ → まきば
   ひつじ:   { sky: "#cdeaff,#e2f4ff,#f2fbff", ground: "#93d68c", edge: "#7cc877",
-              hills: ["#b6e5a0", "#d5f0bd"], sun: "#ffe066", clouds: 4, fence: true, flowers: 6 , house: "#e8b06a", mountains: true, birds: 3, bushes: 3, stones: 2 },
+              hills: ["#b6e5a0", "#d5f0bd"], sun: "#ffe066", clouds: 4, fence: true, flowers: 6,
+              house: "#e8b06a", mountains: true, birds: 3, bushes: 3, stones: 2 },
+
+  // かえる／かえるの合唱 → 雨のいけ
   かえる:   { sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
-              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true, flowers: 2 , rainbow: true, ripples: 3, bushes: 2 },
+              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true,
+              flowers: 2, rainbow: true, ripples: 3, bushes: 2 },
 };
+
 
 function scene(c) {
   const sc = SCENES[c.name] || SCENES["いぬ"];
@@ -706,6 +743,8 @@ function scene(c) {
     html += `<div class="house" style="--wall:${sc.house}"></div>`;
   }
 
+  if (sc.bigTree) html += `<div class="bigtree"></div>`;
+
   for (let i = 0; i < (sc.vines || 0); i++) {
     html += `<div class="vine" style="left:${12 + i * 33}%;height:${18 + Math.random() * 16}%"></div>`;
   }
@@ -720,6 +759,11 @@ function scene(c) {
   for (let i = 0; i < (sc.stones || 0); i++) {
     html += `<div class="stone" style="left:${12 + i * 29 + Math.random() * 10}%;
              bottom:${2 + Math.random() * 8}%"></div>`;
+  }
+
+  for (let i = 0; i < (sc.nuts || 0); i++) {
+    html += `<div class="nut" style="left:${10 + i * 18 + Math.random() * 8}%;
+             bottom:${2 + Math.random() * 9}%"></div>`;
   }
 
   for (let i = 0; i < (sc.mushrooms || 0); i++) {
@@ -825,13 +869,42 @@ function showZoom(c) {
   }, (cryLen + 0.35 + tuneLen) * 1000);
 }
 
+// たたいたところから広がる輪
+function ring(x, y) {
+  const r = document.createElement("div");
+  r.className = "ring";
+  r.style.left = `${x}px`;
+  r.style.top = `${y}px`;
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 620);
+}
+
+/* だれも押していないとき、ときどき1枚だけ跳ねて「押して」と誘う。
+   ぜんぶ動くとうるさいので、1枚ずつ。 */
+let peekTimer = null;
+
+function startPeek() {
+  clearInterval(peekTimer);
+  peekTimer = setInterval(() => {
+    if (mode !== "drum" || document.body.classList.contains("book")) return;
+    const list = pads.children;
+    if (!list.length) return;
+    const b = list[Math.floor(Math.random() * list.length)];
+    b.classList.remove("peek");
+    void b.offsetWidth;
+    b.classList.add("peek");
+  }, 2600);
+}
+
 function buildPads() {
   pads.innerHTML = "";
   PAD_NOTES.forEach((f, i) => {
     const b = document.createElement("button");
     b.className = "pad";
     b.type = "button";
-    b.style.background = PAD_COLORS[i];
+    const [c1, c2] = PAD_COLORS[i];
+    b.style.background = `linear-gradient(160deg, ${c1}, ${c2})`;
+    b.style.animationDelay = `${(i * 0.18).toFixed(2)}s`;
     b.setAttribute("aria-label", "おと");
     const c = CHARAS[i % CHARAS.length];
     b.innerHTML = `<div class="padface">${faceSvg(c)}</div>`;
@@ -847,6 +920,7 @@ function buildPads() {
       b.classList.remove("hit");
       void b.offsetWidth;
       b.classList.add("hit");
+      ring(e.clientX, e.clientY);
       sparkle(e.clientX, e.clientY, 6);
       if (navigator.vibrate) navigator.vibrate(12);
     });
@@ -867,6 +941,8 @@ function setMode(next) {
   modeBtn.textContent = mode === "drum" ? "🙈" : "🥁";
   paint(mode === "drum" ? "#2b2f4a" : pick(BG), null);
   if (mode === "drum" && !pads.children.length) buildPads();
+  if (mode === "drum") startPeek();
+  else clearInterval(peekTimer);
 }
 
 // ── みつけた（図鑑）─────────────────────────────────────────
