@@ -508,3 +508,257 @@ P.ase = function (g, x, y, t) {                                 // あせ
     el(g, x + i * 7 - 7, y + p * 14, 2.4, 3.2, "rgba(90,170,220," + (1 - p) + ")");
   }
 };
+
+/* ------------------------------------------------- ここから 2回目に足した分 */
+
+A.neko = function (g, o) {                                     // ねこ
+  const m = begin(g, o), fur = "#b9a894", dark = "#8c7c68";
+  shadow(g, 0, 0, 20);
+  g.translate(0, -(o.hop || 0));
+  curve(g, 16, -18, 30, -22, 26, -42, fur, 4.5);               // しっぽ
+  el(g, 0, -20, 17, 13, fur);
+  for (let i = -1; i <= 1; i++) el(g, i * 8, -26, 4.5, 2.4, dark);
+  legs(g, [-9, 8], -8, 8, 5.5, fur, m.walk, m.t);
+  el(g, -15, -33, 11.5, 10.5, fur);                            // あたま
+  tri(g, -23, -40, -22, -51, -13, -41, fur);                   // 耳
+  tri(g, -12, -41, -6, -50, -4, -39, fur);
+  el(g, -21, -29, 6, 4, "#f0e6d8");                            // 口もと
+  el(g, -24, -31, 2, 1.6, "#e58a9c");
+  ln(g, [-24, -30, -33, -33], "#a89880", 1); ln(g, [-24, -29, -33, -26], "#a89880", 1);
+  eye(g, -18, -34, 2.4, m.mood, m.blink);
+  g.restore();
+};
+
+A.saru = function (g, o) {                                     // さる
+  const m = begin(g, o), fur = "#8b6244", skin = "#f0c9a8";
+  shadow(g, 0, 0, 20);
+  g.translate(0, -(o.hop || 0));
+  curve(g, 15, -26, 36, -34, 30, -12, fur, 3.4);               // しっぽ
+  el(g, 0, -24, 15, 13, fur);
+  el(g, -2, -20, 10, 8, skin);
+  legs(g, [-8, 8], -12, 12, 5, fur, m.walk, m.t);
+  el(g, -21, -38, 4.5, 5, fur); el(g, -7, -38, 4.5, 5, fur);   // 耳
+  el(g, -14, -38, 12, 11, fur);                                // あたま
+  el(g, -15, -36, 8.5, 8.5, skin);
+  eye(g, -18, -38, 2.1, m.mood, m.blink);
+  eye(g, -11, -38, 2.1, m.mood, m.blink);
+  curve(g, -19, -31, -15, -28, -11, -31, "#a5744f", 1.5);
+  g.restore();
+};
+
+A.tanuki = function (g, o) {                                   // たぬき
+  const m = begin(g, o), fur = "#7d6a58", pale = "#dccbb4", dark = "#4a4038";
+  shadow(g, 0, 0, 22);
+  g.translate(0, -(o.hop || 0));
+  el(g, 19, -22, 10, 6, fur, -0.2);                            // しっぽ
+  el(g, 24, -24, 5, 4.5, dark);
+  el(g, 0, -22, 18, 14, fur);
+  el(g, -3, -17, 12, 8, pale);
+  legs(g, [-9, 9], -9, 9, 6, dark, m.walk, m.t);
+  el(g, -22, -43, 4.5, 4.5, fur); el(g, -9, -44, 4.5, 4.5, fur); // 耳
+  el(g, -15, -35, 12.5, 11.5, fur);                            // あたま
+  el(g, -19, -36, 5.5, 4.5, dark);                             // 目のまわりの もよう
+  el(g, -21, -30, 6, 4.5, pale);
+  el(g, -25, -31, 2, 1.6, "#3a2a22");
+  eye(g, -19, -36, 2.1, m.mood, m.blink);
+  g.restore();
+};
+
+A.kaeru = function (g, o) {                                    // かえる
+  const m = begin(g, o), gr = "#6bb36a", pale = "#cfe6a8";
+  const s2 = 1 + (o.puff || 0) * 0.5;                          // ふくらむ
+  shadow(g, 0, 0, 16 * s2);
+  g.translate(0, -(o.hop || 0));
+  g.save(); g.scale(s2, s2);
+  ln(g, [10, -6, 16, -2], gr, 4); ln(g, [-10, -6, -16, -2], gr, 4);
+  el(g, 0, -12, 15, 12, gr);                                   // からだ
+  el(g, 0, -8, 10, 7, pale);
+  el(g, -8, -22, 6, 5.5, gr); el(g, 4, -23, 6, 5.5, gr);       // めだま
+  eye(g, -8, -22, 2.6, m.mood, m.blink);
+  eye(g, 4, -23, 2.6, m.mood, m.blink);
+  curve(g, -13, -14, -6, -9, 4, -13, "#4e8f52", 1.6);
+  g.restore();
+  g.restore();
+};
+
+A.kuma = function (g, o) {                                     // くま
+  const m = begin(g, o), fur = "#8a6146", pale = "#d9bfa2";
+  shadow(g, 0, 0, 26);
+  g.translate(0, -(o.hop || 0));
+  el(g, 0, -28, 20, 17, fur);
+  legs(g, [-11, 11], -12, 12, 8, fur, m.walk, m.t);
+  el(g, -24, -53, 5.5, 5.5, fur); el(g, -9, -54, 5.5, 5.5, fur); // 耳
+  el(g, -16, -43, 13.5, 12.5, fur);                            // あたま
+  el(g, -23, -38, 7, 5, pale);
+  el(g, -27, -40, 2.4, 1.9, "#3a2a22");
+  eye(g, -19, -45, 2.4, m.mood, m.blink);
+  g.restore();
+};
+
+A.hitsuji = function (g, o) {                                  // ひつじ
+  const m = begin(g, o), wool = "#f7f3ea", dark = "#5a5560";
+  shadow(g, 0, 0, 22);
+  g.translate(0, -(o.hop || 0));
+  legs(g, [-9, 9], -10, 10, 4.5, dark, m.walk, m.t);
+  el(g, 0, -24, 17, 13, wool);                                 // もこもこ
+  for (let i = 0; i < 7; i++) {
+    const a = i / 7 * Math.PI * 2;
+    el(g, Math.cos(a) * 15, -24 + Math.sin(a) * 11, 7, 6.5, wool);
+  }
+  el(g, -19, -34, 8, 9, dark);                                 // かお
+  el(g, -25, -38, 5, 3.2, dark, 0.3); el(g, -13, -39, 5, 3.2, dark, -0.3);
+  el(g, -20, -42, 7, 5, wool);
+  eye(g, -22, -34, 2.1, m.mood === "happy" ? "happy" : m.mood, m.blink);
+  g.restore();
+};
+
+A.ookami = function (g, o) {                                   // おおかみ
+  const m = begin(g, o), fur = "#7c8494", pale = "#dfe3ea";
+  shadow(g, 0, 0, 24);
+  g.translate(0, -(o.hop || 0));
+  curve(g, 17, -24, 30, -22, 27, -6, fur, 6);                  // しっぽ
+  el(g, 0, -24, 19, 14, fur);
+  el(g, -2, -18, 14, 7, pale);
+  legs(g, [-11, 9], -11, 11, 5.5, fur, m.walk, m.t);
+  el(g, -13, -32, 9, 8, fur);
+  el(g, -18, -39, 12, 11, fur);                                // あたま
+  tri(g, -26, -47, -23, -59, -15, -46, fur);                   // 耳
+  tri(g, -14, -47, -9, -58, -6, -45, fur);
+  el(g, -28, -35, 7, 4.5, pale, 0.15);                         // 口もと
+  el(g, -33, -36, 2, 1.7, "#2f3340");
+  eye(g, -22, -41, 2.3, m.mood, m.blink);
+  g.restore();
+};
+
+A.hato = function (g, o) {                                     // はと
+  const m = begin(g, o), b = "#dfe4ec", b2 = "#c3cbd8";
+  if (!o.fly) shadow(g, 0, 0, 15);
+  g.translate(0, -(o.hop || 0) - (o.fly || 0));
+  const wing = o.fly ? Math.sin(m.t * 10) * 14 : 0;
+  el(g, 12, -22, 11, 5, b2, -0.35 + wing * 0.03);              // しっぽ
+  el(g, 0, -22, 15, 11, b);
+  el(g, 1, -25, 11, 5.5, b2, -0.2 - wing * 0.04);              // つばさ
+  if (!o.fly) { ln(g, [-4, -11, -4, -2], "#e08a9a", 2.2); ln(g, [5, -11, 5, -2], "#e08a9a", 2.2); }
+  el(g, -13, -33, 8, 7.5, b);                                  // あたま
+  tri(g, -19, -34, -27, -32, -19, -30, "#e0a35a");             // くちばし
+  eye(g, -15, -35, 2, m.mood, m.blink);
+  g.restore();
+};
+
+A.kirin = function (g, o) {                                    // きりん
+  const m = begin(g, o), fur = "#e8c46a", spot = "#b98b3f";
+  shadow(g, 0, 0, 22);
+  g.translate(0, -(o.hop || 0));
+  legs(g, [-11, 11], -30, 30, 7, fur, m.walk, m.t);
+  el(g, 0, -42, 19, 14, fur);                                  // からだ
+  for (let i = 0; i < 5; i++) el(g, -12 + i * 7, -44 + (i % 2) * 8, 3.6, 3.2, spot);
+  const bend = o.neck || 0;                                    // マイナスで くびを のばす
+  ln(g, [-12, -46, -20 + bend * 0.4, -84 + bend], fur, 12);    // くび
+  el(g, -22 + bend * 0.5, -70 + bend * 0.5, 3.4, 3, spot);
+  el(g, -25 + bend * 0.5, -89 + bend, 9, 7, fur);              // あたま
+  ln(g, [-27 + bend * 0.5, -95 + bend, -28 + bend * 0.5, -101 + bend], spot, 2.6);
+  ln(g, [-21 + bend * 0.5, -95 + bend, -20 + bend * 0.5, -101 + bend], spot, 2.6);
+  el(g, -32 + bend * 0.5, -87 + bend, 4, 3, fur);
+  eye(g, -26 + bend * 0.5, -91 + bend, 2.1, m.mood, m.blink);
+  g.restore();
+};
+
+A.kani = function (g, o) {                                     // かに（わき役）
+  const m = begin(g, o), r = "#d1543f";
+  shadow(g, 0, 0, 14);
+  g.translate(0, -(o.hop || 0));
+  legs(g, [-7, 0, 7], -8, 8, 2.4, r, m.walk, m.t);
+  el(g, 0, -12, 14, 9, r);                                     // こうら
+  el(g, -17, -14, 6, 5, r, -0.3); el(g, 17, -14, 6, 5, r, 0.3); // はさみ
+  ln(g, [-11, -16, -13, -14], "#a63f2e", 2); ln(g, [11, -16, 13, -14], "#a63f2e", 2);
+  ln(g, [-4, -19, -4, -24], r, 1.8); ln(g, [4, -19, 4, -24], r, 1.8);
+  eye(g, -4, -25, 1.8, m.mood, m.blink);
+  eye(g, 4, -25, 1.8, m.mood, m.blink);
+  g.restore();
+};
+
+A.tsuru = function (g, o) {                                    // つる（わき役）
+  const m = begin(g, o), w = "#fbfbf7";
+  shadow(g, 0, 0, 16);
+  g.translate(0, -(o.hop || 0));
+  legs(g, [-4, 5], -26, 26, 3, "#4a4a52", m.walk, m.t);
+  el(g, 0, -34, 16, 10, w);                                    // からだ
+  el(g, 15, -33, 8, 4.5, "#3a3f52", 0.15);                     // しっぽ
+  const bend = o.neck || 0;
+  ln(g, [-10, -38, -20 + bend, -64], w, 6);                    // ながい くび
+  el(g, -22 + bend, -67, 6.5, 5.5, w);                         // あたま
+  el(g, -22 + bend, -71, 3.4, 2.2, "#d1544a");
+  tri(g, -27 + bend, -68, -39 + bend, -66, -27 + bend, -65, "#3a3f52"); // くちばし
+  eye(g, -23 + bend, -68, 1.7, m.mood, m.blink);
+  g.restore();
+};
+
+/* ---------------------------------------------- 2回目に足した 小道具 */
+
+P.suzu = function (g, x, y, s) {                                // すず
+  s = s || 1;
+  el(g, x, y, 6 * s, 6 * s, "#e8c04a");
+  el(g, x, y + 2 * s, 6 * s, 3 * s, "#c9a02f");
+  el(g, x, y + 5 * s, 1.6 * s, 1.6 * s, "#8a6a1f");
+  el(g, x, y - 6 * s, 2 * s, 2 * s, "#c9a02f");
+};
+
+P.onigiri = function (g, x, y, s) {                             // おにぎり
+  s = s || 1;
+  g.beginPath();
+  g.moveTo(x, y - 11 * s); g.lineTo(x + 10 * s, y + 7 * s); g.lineTo(x - 10 * s, y + 7 * s);
+  g.closePath(); g.fillStyle = "#fbf6e8"; g.fill();
+  rr(g, x, y + 3 * s, 12 * s, 7 * s, 1.5 * s, "#3f4a3f");
+};
+
+P.kinomi = function (g, x, y, t, n) {                           // 木の実（えだにつく）
+  ln(g, [x - 70, y + 6, x + 70, y - 4], "#7a5a3c", 6);
+  for (let i = 0; i < (n || 5); i++) {
+    const bx = x - 52 + i * 26, by = y + 6 + Math.sin(t * 1.4 + i) * 1.5;
+    el(g, bx, by, 6, 6, "#e07a3f");
+    el(g, bx - 1.6, by - 2, 1.8, 1.6, "rgba(255,255,255,0.5)");
+  }
+};
+
+P.hone = function (g, x, y, s, rot) {                           // ほね
+  g.save(); g.translate(x, y); g.rotate(rot || 0); g.scale(s || 1, s || 1);
+  rr(g, 0, 0, 18, 5, 2.5, "#f2ece0");
+  el(g, -9, -3, 3.4, 3.4, "#f2ece0"); el(g, -9, 3, 3.4, 3.4, "#f2ece0");
+  el(g, 9, -3, 3.4, 3.4, "#f2ece0"); el(g, 9, 3, 3.4, 3.4, "#f2ece0");
+  g.restore();
+};
+
+P.hachinosu = function (g, x, y, t, bees) {                     // はちの す と はち
+  ln(g, [x, y - 26, x, y - 14], "#7a5a3c", 3);
+  el(g, x, y, 15, 17, "#d8a44a");
+  for (let i = 0; i < 3; i++) el(g, x, y - 8 + i * 8, 15 - i, 3, "#b9862f");
+  el(g, x, y + 14, 4, 3, "#6b4b1f");
+  for (let i = 0; i < (bees || 0); i++) {
+    const a = t * 2 + i * 2.1;
+    const bx = x + Math.cos(a) * (26 + i * 5), by = y - 6 + Math.sin(a * 1.3) * 16;
+    el(g, bx, by, 3.2, 2.6, "#e8c04a");
+    ln(g, [bx - 1, by, bx + 2, by], "#4a3a1f", 1.2);
+    el(g, bx, by - 3, 2.6, 1.4, "rgba(255,255,255,0.75)");
+  }
+};
+
+P.mafura = function (g, x, y, s, col) {                         // マフラー
+  s = s || 1;
+  g.save(); g.translate(x, y); g.scale(s, s);
+  rr(g, 0, 0, 30, 8, 4, col || "#d1544a");
+  rr(g, 10, 9, 8, 14, 3, col || "#d1544a");
+  g.restore();
+};
+
+P.keito = function (g, x, y, s) {                               // けいと玉
+  s = s || 1;
+  el(g, x, y, 10 * s, 10 * s, "#e0a0b0");
+  for (let i = -2; i <= 2; i++) curve(g, x - 9 * s, y + i * 3.4 * s, x, y + i * 5 * s, x + 9 * s, y + i * 3.4 * s, "#c9808f", 1.2 * s);
+};
+
+P.konoha = function (g, x, y, rot) {                            // 木の葉
+  g.save(); g.translate(x, y); g.rotate(rot || 0);
+  el(g, 0, 0, 11, 5, "#6ba85e");
+  ln(g, [-10, 0, 10, 0], "#4e8a4a", 1.2);
+  g.restore();
+};

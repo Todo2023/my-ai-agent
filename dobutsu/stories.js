@@ -477,4 +477,429 @@ const STORIES = [
   ],
 },
 
+
+/* ============================================================ ここから9話 */
+
+/* 10 ------------------------------------------------------------- ねこ */
+{
+  id: "neko", name: "ねこ", yomi: "ねこ", title: "ねこに すず",
+  color: "#e9e0d2",
+  card: (g, t) => A.neko(g, { x: 66, y: 84, s: 1.0, t, walk: 1 }),
+  scenes: [
+    { sec: 7, bg: "ie", text: "ねずみたちは こまって いました。ねこは しずかに やって くるからです。",
+      act: (g, p, t) => {
+        A.neko(g, { x: mix(340, 250, ease(p)), y: GROUND, s: 1.1, t, walk: 1 });
+        A.nezumi(g, { x: 110, y: GROUND, s: 1.2, t, mood: "sad" });
+        A.nezumi(g, { x: 150, y: GROUND, s: 1.1, t, mood: "sad" });
+      } },
+    { sec: 6, bg: "ie", text: "そこで、みんなで あつまって そうだんしました。",
+      act: (g, p, t) => {
+        A.nezumi(g, { x: 120, y: GROUND, s: 1.3, t, flip: true });
+        A.nezumi(g, { x: 175, y: GROUND, s: 1.3, t });
+        A.nezumi(g, { x: 225, y: GROUND, s: 1.2, t });
+      } },
+    { sec: 7, bg: "ie", text: "わかい ねずみが いいました。「ねこの くびに すずを つけよう」",
+      act: (g, p, t) => {
+        A.nezumi(g, { x: 130, y: GROUND, s: 1.4, t, mood: "happy", flip: true, hop: bounce(t, 4, 6) });
+        A.nezumi(g, { x: 210, y: GROUND, s: 1.2, t });
+        P.suzu(g, 175, 120 + wiggle(t, 3, 4), 1.4);
+      } },
+    { sec: 7, bg: "ie", text: "「それは いい かんがえだ」。みんな 手を たたきました。",
+      act: (g, p, t) => {
+        A.nezumi(g, { x: 120, y: GROUND, s: 1.3, t, mood: "happy", flip: true, hop: bounce(t, 5, 7) });
+        A.nezumi(g, { x: 175, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t + 0.3, 5, 7) });
+        A.nezumi(g, { x: 225, y: GROUND, s: 1.2, t, mood: "happy", hop: bounce(t + 0.6, 5, 7) });
+        P.mark(g, 175, 108, "♪", 0.9, 0.6 + 0.4 * Math.sin(t * 5));
+      } },
+    { sec: 8, bg: "ie", text: "そこへ、としよりの ねずみが ききました。「だれが つけに いくの」",
+      act: (g, p, t) => {
+        A.nezumi(g, { x: 230, y: GROUND, s: 1.4, t });
+        A.nezumi(g, { x: 130, y: GROUND, s: 1.3, t, flip: true });
+        A.nezumi(g, { x: 175, y: GROUND, s: 1.2, t, flip: true });
+        P.fukidashi(g, 240, 100, 130, 42, 226);
+        P.mark(g, 240, 82, "だれが？", 0.5);
+      } },
+    { sec: 7, bg: "ie", text: "しんと しました。だれも 手を あげません。",
+      act: (g, p, t) => {
+        A.nezumi(g, { x: 130, y: GROUND, s: 1.3, t, mood: "sad" });
+        A.nezumi(g, { x: 175, y: GROUND, s: 1.3, t, mood: "sad" });
+        A.nezumi(g, { x: 225, y: GROUND, s: 1.2, t, mood: "sad" });
+        P.mark(g, 175, 110, "…", 1);
+      } },
+    { sec: 7, bg: "ie", text: "よい かんがえも、できなければ おなじ。おしまい。",
+      act: (g, p, t) => {
+        A.neko(g, { x: 250, y: GROUND, s: 1.1, t, mood: "happy" });
+        A.nezumi(g, { x: 120, y: GROUND, s: 1.2, t, mood: "sad" });
+        P.suzu(g, 175, 150, 1.2);
+      } },
+  ],
+},
+
+/* 11 -------------------------------------------------------------- さる */
+{
+  id: "saru", name: "さる", yomi: "さる", title: "さると かに",
+  color: "#efdcc8",
+  card: (g, t) => A.saru(g, { x: 66, y: 84, s: 1.0, t, walk: 1 }),
+  scenes: [
+    { sec: 8, bg: "hara", text: "かには おにぎりを、さるは かきの たねを もって いました。",
+      act: (g, p, t) => {
+        A.kani(g, { x: 110, y: GROUND, s: 1.3, t, flip: true });
+        P.onigiri(g, 145, GROUND - 40, 1);
+        A.saru(g, { x: 240, y: GROUND, s: 1.1, t });
+        el(g, 208, GROUND - 40, 5, 7, "#8a6a4a");
+      } },
+    { sec: 7, bg: "hara", text: "さるが いいました。「たねの ほうが とくだよ」。ふたりは とりかえました。",
+      act: (g, p, t) => {
+        A.kani(g, { x: 130, y: GROUND, s: 1.3, t, flip: true, mood: "happy" });
+        A.saru(g, { x: 230, y: GROUND, s: 1.1, t, mood: "happy" });
+        el(g, mix(208, 165, ease(p)), GROUND - 44, 5, 7, "#8a6a4a");
+        P.onigiri(g, mix(150, 200, ease(p)), GROUND - 42, 0.9);
+      } },
+    { sec: 7, bg: "hara", text: "かには たねを うえて、まいにち 水を やりました。",
+      act: (g, p, t) => {
+        A.kani(g, { x: 140, y: GROUND, s: 1.4, t, flip: true, walk: 1 });
+        ln(g, [200, GROUND, 200, GROUND - 14 - p * 20], "#6b8f3a", 3);
+        el(g, 196, GROUND - 18 - p * 20, 8, 4, "#7fb84a", -0.3);
+        el(g, 206, GROUND - 16 - p * 18, 8, 4, "#7fb84a", 0.3);
+      } },
+    { sec: 7, bg: "hara", text: "木は そだって、あまい かきが なりました。",
+      act: (g, p, t) => {
+        tree(g, 230, GROUND, 1.3, "#4e8a52", "#5f9c60");
+        P.kinomi(g, 230, 96, t, 5);
+        A.kani(g, { x: 110, y: GROUND, s: 1.4, t, flip: true, mood: "happy" });
+      } },
+    { sec: 8, bg: "hara", text: "さるは 木に のぼって、じぶんだけ たべました。かには おこりました。",
+      act: (g, p, t) => {
+        tree(g, 250, GROUND, 1.3, "#4e8a52", "#5f9c60");
+        P.kinomi(g, 250, 96, t, 3);
+        A.saru(g, { x: 250, y: 130, s: 0.9, t, mood: "happy" });
+        A.kani(g, { x: 110, y: GROUND, s: 1.4, t, flip: true, mood: "angry" });
+        P.mark(g, 140, 150, "！", 0.9, 0.5 + 0.5 * Math.sin(t * 7));
+      } },
+    { sec: 8, bg: "hara", text: "さるは はっと しました。「ごめんね」。かきを おろして、わけました。",
+      act: (g, p, t) => {
+        tree(g, 250, GROUND, 1.3, "#4e8a52", "#5f9c60");
+        A.saru(g, { x: 210, y: GROUND, s: 1.1, t, mood: "sad" });
+        A.kani(g, { x: 120, y: GROUND, s: 1.4, t, flip: true });
+        el(g, mix(190, 150, ease(p)), GROUND - 30, 6, 6, "#e07a3f");
+      } },
+    { sec: 6, bg: "hara", text: "ふたりで たべると、もっと おいしい。おしまい。",
+      act: (g, p, t) => {
+        A.saru(g, { x: 210, y: GROUND, s: 1.1, t, mood: "happy" });
+        A.kani(g, { x: 130, y: GROUND, s: 1.4, t, flip: true, mood: "happy" });
+        el(g, 170, GROUND - 26, 6, 6, "#e07a3f");
+        P.mark(g, 170, 110, "♪", 0.8, 0.6 + 0.4 * Math.sin(t * 4));
+      } },
+  ],
+},
+
+/* 12 ------------------------------------------------------------ たぬき */
+{
+  id: "tanuki", name: "たぬき", yomi: "たぬき", title: "たぬきの はらつづみ",
+  color: "#ded3c2",
+  card: (g, t) => A.tanuki(g, { x: 66, y: 84, s: 1.0, t, hop: bounce(t, 3, 5) }),
+  scenes: [
+    { sec: 6, bg: "yoru", text: "まんまるの お月さま。たぬきが やまから でて きました。",
+      act: (g, p, t) => A.tanuki(g, { x: mix(340, 220, ease(p)), y: GROUND, s: 1.2, t, walk: 1 }) },
+    { sec: 7, bg: "yoru", text: "たぬきは おなかを たたきました。ぽん、ぽこぽん。",
+      act: (g, p, t) => {
+        A.tanuki(g, { x: 190, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t, 4, 6) });
+        P.mark(g, 240, 120, "ぽんぽこ", 0.5, 0.4 + 0.6 * Math.abs(Math.sin(t * 4)));
+      } },
+    { sec: 7, bg: "yoru", text: "おとを きいて、うさぎが やって きました。",
+      act: (g, p, t) => {
+        A.tanuki(g, { x: 210, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t, 4, 6) });
+        A.usagi(g, { x: mix(20, 120, ease(p)), y: GROUND, s: 1.1, t, flip: true, hop: bounce(t, 7, 16) });
+      } },
+    { sec: 7, bg: "yoru", text: "きつねも、ねずみも やって きました。",
+      act: (g, p, t) => {
+        A.tanuki(g, { x: 230, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t, 4, 6) });
+        A.usagi(g, { x: 120, y: GROUND, s: 1.1, t, flip: true, hop: bounce(t, 7, 14) });
+        A.kitsune(g, { x: mix(-20, 70, ease(p)), y: GROUND, s: 1.0, t, flip: true, walk: 1 });
+        A.nezumi(g, { x: mix(380, 300, ease(p)), y: GROUND, s: 1.1, t, walk: 1 });
+      } },
+    { sec: 8, bg: "yoru", text: "みんなで ぽんぽこ、ぴょんぴょん。のはらは にぎやかです。",
+      act: (g, p, t) => {
+        A.tanuki(g, { x: 190, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t, 5, 8) });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true, mood: "happy", hop: bounce(t + 0.3, 6, 16) });
+        A.kitsune(g, { x: 60, y: GROUND, s: 1.0, t, flip: true, mood: "happy", hop: bounce(t + 0.6, 5, 10) });
+        A.nezumi(g, { x: 280, y: GROUND, s: 1.1, t, mood: "happy", hop: bounce(t + 0.9, 6, 12) });
+        P.mark(g, 150, 100, "♪", 0.9, 0.6 + 0.4 * Math.sin(t * 5));
+        P.mark(g, 250, 88, "♪", 0.7, 0.6 + 0.4 * Math.sin(t * 4));
+      } },
+    { sec: 7, bg: "yoru", text: "月が しずむまで、おどりは つづきました。おしまい。",
+      act: (g, p, t) => {
+        A.tanuki(g, { x: 180, y: GROUND, s: 1.3, t, mood: "happy", hop: bounce(t, 3, 5) });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true, mood: "happy" });
+        A.nezumi(g, { x: 250, y: GROUND, s: 1.1, t, mood: "happy" });
+      } },
+  ],
+},
+
+/* 13 ------------------------------------------------------------ かえる */
+{
+  id: "kaeru", name: "かえる", yomi: "かえる", title: "おおきく なりたい かえる",
+  color: "#d6e8c6",
+  card: (g, t) => A.kaeru(g, { x: 60, y: 82, s: 1.5, t, hop: bounce(t, 3, 6) }),
+  scenes: [
+    { sec: 7, bg: "mizube", text: "かえるが ぞうを 見て おどろきました。「なんて 大きいんだ」",
+      act: (g, p, t) => {
+        A.zou(g, { x: 270, y: GROUND, s: 1.0, t });
+        A.kaeru(g, { x: 110, y: GROUND, s: 1.5, t, flip: true });
+        P.mark(g, 140, 150, "！", 0.9, 0.5 + 0.5 * Math.sin(t * 6));
+      } },
+    { sec: 7, bg: "mizube", text: "かえるは いきを すって、おなかを ふくらませました。",
+      act: (g, p, t) => {
+        A.zou(g, { x: 280, y: GROUND, s: 1.0, t });
+        A.kaeru(g, { x: 120, y: GROUND, s: 1.5, t, flip: true, puff: 0.3 * ease(p) });
+      } },
+    { sec: 7, bg: "mizube", text: "もっと、もっと。ぷうっと ふくらみます。",
+      act: (g, p, t) => {
+        A.zou(g, { x: 280, y: GROUND, s: 1.0, t });
+        A.kaeru(g, { x: 120, y: GROUND, s: 1.5, t, flip: true, puff: 0.3 + 0.7 * ease(p) });
+        P.ase(g, 150, 130, t);
+      } },
+    { sec: 7, bg: "mizube", text: "それでも ぞうには ほど とおい。ぷしゅーっと しぼみました。",
+      act: (g, p, t) => {
+        A.zou(g, { x: 280, y: GROUND, s: 1.0, t });
+        A.kaeru(g, { x: 120, y: GROUND, s: 1.5, t, flip: true, mood: "sad", puff: 1 - ease(p) });
+        P.mark(g, 160, 140, "ぷしゅー", 0.42, 1 - p);
+      } },
+    { sec: 7, bg: "mizube", text: "「ぼくは ぼくの 大きさで いい」。かえるは そう おもいました。",
+      act: (g, p, t) => {
+        A.kaeru(g, { x: 150, y: GROUND, s: 1.5, t, mood: "happy", hop: bounce(t, 3, 6) });
+        A.zou(g, { x: 290, y: GROUND, s: 1.0, t, mood: "happy" });
+      } },
+    { sec: 6, bg: "mizube", text: "水べで げんきに ないて いました。けろ、けろ。おしまい。",
+      act: (g, p, t) => {
+        A.kaeru(g, { x: 160, y: GROUND, s: 1.6, t, mood: "happy", hop: bounce(t, 5, 12) });
+        P.mark(g, 210, 130, "けろ", 0.5, 0.5 + 0.5 * Math.sin(t * 4));
+      } },
+  ],
+},
+
+/* 14 -------------------------------------------------------------- くま */
+{
+  id: "kuma", name: "くま", yomi: "くま", title: "くまと はちみつ",
+  color: "#e8d6c0",
+  card: (g, t) => A.kuma(g, { x: 70, y: 86, s: 0.85, t, walk: 1 }),
+  scenes: [
+    { sec: 7, bg: "mori", text: "くまは はちみつが 大すき。木の うえに すを 見つけました。",
+      act: (g, p, t) => {
+        P.hachinosu(g, 250, 90, t, 2);
+        A.kuma(g, { x: mix(60, 170, ease(p)), y: GROUND, s: 1.1, t, walk: 1, flip: true });
+      } },
+    { sec: 7, bg: "mori", text: "手を のばすと、はちたちが とんで きました。",
+      act: (g, p, t) => {
+        P.hachinosu(g, 250, 90, t, 5);
+        A.kuma(g, { x: 190, y: GROUND, s: 1.1, t, flip: true, mood: "sad", hop: bounce(t, 3, 8) });
+      } },
+    { sec: 8, bg: "mori", text: "くまは そっと たずねました。「すこし わけて くれない?」",
+      act: (g, p, t) => {
+        P.hachinosu(g, 250, 90, t, 4);
+        A.kuma(g, { x: 160, y: GROUND, s: 1.1, t, flip: true });
+        P.fukidashi(g, 130, 110, 140, 42, 152);
+        P.mark(g, 130, 92, "わけて ください", 0.42);
+      } },
+    { sec: 7, bg: "mori", text: "はちたちは、すこしだけ わけて くれました。",
+      act: (g, p, t) => {
+        P.hachinosu(g, 250, 90, t, 3);
+        A.kuma(g, { x: 170, y: GROUND, s: 1.1, t, flip: true, mood: "happy" });
+        el(g, 210, mix(120, GROUND - 44, ease(p)), 5, 6, "#e8b44a");
+      } },
+    { sec: 8, bg: "hara", text: "くまは おれいに、はなの さく はらっぱへ あんない しました。",
+      act: (g, p, t) => {
+        A.kuma(g, { x: mix(80, 200, ease(p)), y: GROUND, s: 1.1, t, walk: 1, flip: true, mood: "happy" });
+        for (let i = 0; i < 6; i++) {
+          const x = 40 + i * 52;
+          ln(g, [x, GROUND + 16, x, GROUND + 4], "#6b8f3a", 2);
+          el(g, x, GROUND + 2, 4.5, 4.5, ["#e8a0b8", "#f0d06a"][i % 2]);
+        }
+        P.hachinosu(g, 320, 90, t, 4);
+      } },
+    { sec: 6, bg: "hara", text: "それから ふたりは ともだちです。おしまい。",
+      act: (g, p, t) => {
+        A.kuma(g, { x: 170, y: GROUND, s: 1.1, t, flip: true, mood: "happy" });
+        P.hachinosu(g, 290, 96, t, 3);
+        P.mark(g, 230, 110, "♪", 0.8, 0.6 + 0.4 * Math.sin(t * 4));
+      } },
+  ],
+},
+
+/* 15 ------------------------------------------------------------ ひつじ */
+{
+  id: "hitsuji", name: "ひつじ", yomi: "ひつじ", title: "ひつじの けいと",
+  color: "#e4e6ea",
+  card: (g, t) => A.hitsuji(g, { x: 64, y: 84, s: 1.0, t, walk: 1 }),
+  scenes: [
+    { sec: 6, bg: "fuyu", text: "さむい ふゆ。ひつじの けは ふわふわ です。",
+      act: (g, p, t) => A.hitsuji(g, { x: 180, y: GROUND, s: 1.3, t, mood: "happy" }) },
+    { sec: 7, bg: "fuyu", text: "ともだちの うさぎが、さむさに ふるえて いました。",
+      act: (g, p, t) => {
+        A.hitsuji(g, { x: 230, y: GROUND, s: 1.3, t });
+        A.usagi(g, { x: 110 + wiggle(t, 12, 1.5), y: GROUND, s: 1.1, t, mood: "sad" });
+      } },
+    { sec: 7, bg: "fuyu", text: "ひつじは じぶんの けを、すこし わけました。",
+      act: (g, p, t) => {
+        A.hitsuji(g, { x: 230, y: GROUND, s: 1.3, t, mood: "happy" });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true });
+        P.keito(g, mix(200, 150, ease(p)), GROUND - 34, 1.1);
+      } },
+    { sec: 7, bg: "ie", text: "けいとに して、あんで、マフラーが できました。",
+      act: (g, p, t) => {
+        A.hitsuji(g, { x: 220, y: GROUND, s: 1.3, t, mood: "happy" });
+        P.keito(g, 120, GROUND - 12, 1.2);
+        P.mafura(g, 175, GROUND - 60 + wiggle(t, 2, 3), 1.2);
+      } },
+    { sec: 7, bg: "fuyu", text: "みんなの くびが、あたたかく なりました。",
+      act: (g, p, t) => {
+        A.usagi(g, { x: 100, y: GROUND, s: 1.1, t, mood: "happy", hop: bounce(t, 4, 8) });
+        P.mafura(g, 100, GROUND - 40, 0.8);
+        A.nezumi(g, { x: 165, y: GROUND, s: 1.2, t, mood: "happy" });
+        P.mafura(g, 158, GROUND - 22, 0.6);
+        A.hitsuji(g, { x: 250, y: GROUND, s: 1.3, t, mood: "happy" });
+      } },
+    { sec: 7, bg: "hara", text: "はるが きたら、けは また ふえます。おしまい。",
+      act: (g, p, t) => {
+        A.hitsuji(g, { x: 190, y: GROUND, s: 1.3, t, mood: "happy", walk: 1, flip: true });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, mood: "happy", hop: bounce(t, 5, 10) });
+      } },
+  ],
+},
+
+/* 16 ---------------------------------------------------------- おおかみ */
+{
+  id: "ookami", name: "おおかみ", yomi: "おおかみ", title: "おおかみと つる",
+  color: "#dde1e8",
+  card: (g, t) => A.ookami(g, { x: 68, y: 84, s: 0.95, t, walk: 1 }),
+  scenes: [
+    { sec: 6, bg: "mori", text: "おおかみが、ごちそうを いそいで 食べました。",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 190, y: GROUND, s: 1.2, t, mood: "happy" });
+        P.hone(g, 150, GROUND - 30, 1, wiggle(t, 6, 0.3));
+      } },
+    { sec: 7, bg: "mori", text: "のどに ほねが つまって、くるしくて たまりません。",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 190, y: GROUND, s: 1.2, t, mood: "sad", hop: Math.abs(wiggle(t, 8, 3)) });
+        P.hone(g, 168, GROUND - 42, 0.7, 0.8);
+        P.ase(g, 220, 120, t);
+      } },
+    { sec: 8, bg: "mizube", text: "くびの ながい つるに たのみました。「とって ください」",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 130, y: GROUND, s: 1.2, t, flip: true, mood: "sad" });
+        A.tsuru(g, { x: 260, y: GROUND, s: 1.1, t });
+        P.fukidashi(g, 150, 96, 150, 42, 158);
+        P.mark(g, 150, 78, "たすけて ください", 0.42);
+      } },
+    { sec: 8, bg: "mizube", text: "つるは ながい くちばしを いれて、ほねを ぬきました。",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 130, y: GROUND, s: 1.2, t, flip: true, mood: "sad" });
+        A.tsuru(g, { x: 240, y: GROUND, s: 1.1, t, neck: -mix(0, 32, ease(p)) });
+        if (p > 0.7) P.hone(g, mix(170, 220, (p - 0.7) / 0.3), 120, 0.7, 0.5);
+      } },
+    { sec: 8, bg: "mizube", text: "「おれいは?」と つる。おおかみは いいました。「食べずに おいて あげた」",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 130, y: GROUND, s: 1.2, t, flip: true, mood: "happy" });
+        A.tsuru(g, { x: 250, y: GROUND, s: 1.1, t, mood: "sad" });
+        P.mark(g, 250, 90, "？", 0.9);
+      } },
+    { sec: 7, bg: "mizube", text: "つるは あきれて 空へ。やくそくは さきに きめて おく こと。おしまい。",
+      act: (g, p, t) => {
+        A.ookami(g, { x: 130, y: GROUND, s: 1.2, t, flip: true });
+        A.tsuru(g, { x: 250, y: mix(GROUND, 120, ease(p)), s: 1.1, t });
+      } },
+  ],
+},
+
+/* 17 -------------------------------------------------------------- はと */
+{
+  id: "hato", name: "はと", yomi: "はと", title: "ありと はと",
+  color: "#dfe6ee",
+  card: (g, t) => A.hato(g, { x: 64, y: 86, s: 1.15, t, hop: bounce(t, 3, 4) }),
+  scenes: [
+    { sec: 7, bg: "mizube", text: "ありが 川に おちて、ながされて いました。",
+      act: (g, p, t) => {
+        A.ari(g, { x: mix(80, 170, p), y: GROUND + 40, s: 1.3, t });
+        P.mark(g, 200, 200, "！", 0.8, 0.5 + 0.5 * Math.sin(t * 7));
+      } },
+    { sec: 7, bg: "mizube", text: "それを 見た はとが、木の葉を 一まい おとしました。",
+      act: (g, p, t) => {
+        A.hato(g, { x: 250, y: 130, s: 1.1, t, fly: 6 + wiggle(t, 3, 4) });
+        P.konoha(g, mix(240, 180, ease(p)), mix(130, GROUND + 36, ease(p)), t);
+        A.ari(g, { x: 170, y: GROUND + 40, s: 1.3, t });
+      } },
+    { sec: 7, bg: "mizube", text: "ありは 葉に つかまって、きしへ もどれました。",
+      act: (g, p, t) => {
+        P.konoha(g, mix(180, 110, ease(p)), GROUND + 36, 0);
+        A.ari(g, { x: mix(180, 110, ease(p)), y: GROUND + 32, s: 1.3, t, mood: "happy" });
+        A.hato(g, { x: 260, y: 120, s: 1.1, t, fly: 6 + wiggle(t, 3, 4) });
+      } },
+    { sec: 8, bg: "mori", text: "あるひ、はとを ねらう あみが しずかに ちかづきました。",
+      act: (g, p, t) => {
+        A.hato(g, { x: 200, y: GROUND, s: 1.2, t });
+        P.ami(g, mix(400, 250, ease(p)), GROUND - 34, 40, 40);
+        A.ari(g, { x: 90, y: GROUND, s: 1.4, t, flip: true });
+        P.mark(g, 110, 140, "！", 0.8, 0.5 + 0.5 * Math.sin(t * 8));
+      } },
+    { sec: 8, bg: "mori", text: "ありが ちくりと して しらせると、はとは とびたちました。",
+      act: (g, p, t) => {
+        A.hato(g, { x: 210, y: mix(GROUND, 110, ease(p)), s: 1.2, t, fly: p > 0.2 ? 8 : 0 });
+        P.ami(g, 250, GROUND - 34, 40, 40);
+        A.ari(g, { x: 150, y: GROUND, s: 1.4, t, flip: true, mood: "happy" });
+      } },
+    { sec: 7, bg: "mori", text: "たすけあいは、めぐって かえって きます。おしまい。",
+      act: (g, p, t) => {
+        A.hato(g, { x: 220, y: 130, s: 1.2, t, fly: 6 + wiggle(t, 3, 5), mood: "happy" });
+        A.ari(g, { x: 130, y: GROUND, s: 1.4, t, mood: "happy", walk: 1, flip: true });
+      } },
+  ],
+},
+
+/* 18 ------------------------------------------------------------ きりん */
+{
+  id: "kirin", name: "きりん", yomi: "きりん", title: "きりんの ながい くび",
+  color: "#f4e3b8",
+  card: (g, t) => A.kirin(g, { x: 62, y: 92, s: 0.62, t, walk: 1 }),
+  scenes: [
+    { sec: 7, bg: "hara", text: "きりんは、じぶんの くびが ながすぎると おもって いました。",
+      act: (g, p, t) => A.kirin(g, { x: 190, y: GROUND, s: 1.0, t, mood: "sad" }) },
+    { sec: 7, bg: "mori", text: "のはらの みんなは、たかい 木の実に とどきません。",
+      act: (g, p, t) => {
+        P.kinomi(g, 200, 70, t, 5);
+        A.usagi(g, { x: 120, y: GROUND, s: 1.1, t, mood: "sad", hop: bounce(t, 6, 14) });
+        A.nezumi(g, { x: 180, y: GROUND, s: 1.2, t, mood: "sad", hop: bounce(t + 0.4, 6, 10) });
+        A.saru(g, { x: 250, y: GROUND, s: 1.0, t, mood: "sad" });
+      } },
+    { sec: 7, bg: "mori", text: "きりんが くびを のばすと、するりと とどきました。",
+      act: (g, p, t) => {
+        P.kinomi(g, 200, 70, t, 5);
+        A.kirin(g, { x: 260, y: GROUND, s: 1.0, t, neck: -mix(0, 18, ease(p)), mood: "happy" });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true });
+      } },
+    { sec: 7, bg: "mori", text: "木の実が つぎつぎ ふって きます。",
+      act: (g, p, t) => {
+        P.kinomi(g, 200, 70, t, 3);
+        A.kirin(g, { x: 260, y: GROUND, s: 1.0, t, neck: -18, mood: "happy" });
+        for (let i = 0; i < 4; i++) {
+          const q = ((t * 0.7 + i * 0.25) % 1);
+          el(g, 170 + i * 22, 84 + q * q * 120, 6, 6, "#e07a3f");
+        }
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true, mood: "happy", hop: bounce(t, 5, 10) });
+      } },
+    { sec: 7, bg: "mori", text: "みんな おおよろこび。「きりんさん、ありがとう」",
+      act: (g, p, t) => {
+        A.kirin(g, { x: 270, y: GROUND, s: 1.0, t, mood: "happy" });
+        A.usagi(g, { x: 90, y: GROUND, s: 1.1, t, flip: true, mood: "happy", hop: bounce(t, 5, 10) });
+        A.nezumi(g, { x: 150, y: GROUND, s: 1.2, t, flip: true, mood: "happy", hop: bounce(t + 0.3, 5, 8) });
+        A.saru(g, { x: 200, y: GROUND, s: 1.0, t, flip: true, mood: "happy" });
+        P.mark(g, 150, 100, "♪", 0.9, 0.6 + 0.4 * Math.sin(t * 4));
+      } },
+    { sec: 7, bg: "mori", text: "ながい くびは、みんなの ための くびでした。おしまい。",
+      act: (g, p, t) => {
+        A.kirin(g, { x: 230, y: GROUND, s: 1.0, t, mood: "happy" });
+        A.usagi(g, { x: 110, y: GROUND, s: 1.1, t, flip: true, mood: "happy" });
+      } },
+  ],
+},
+
 ];

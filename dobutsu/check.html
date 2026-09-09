@@ -27,7 +27,7 @@
 <main>
   <h1 style="font-size:18px;margin:0">じこ点検</h1>
   <p class="lead">
-    9つのお話の場面を、ぜんぶ 1回ずつ 裏で描いてみて、
+    ぜんぶの お話の場面を、1回ずつ 裏で描いてみて、
     とちゅうで こわれないかを 確かめます。<br />
     お話や 絵を 足したあと、ここが ぜんぶ みどりなら 出して よいという 目じるし。
   </p>
@@ -58,7 +58,7 @@
   };
 
   // ---- ぜんたい
-  li("env", "お話の数", STORIES.length + " 話", STORIES.length === 9);
+  li("env", "お話の数", STORIES.length + " 話", STORIES.length >= 9);
   const ids = STORIES.map((s) => s.id);
   li("env", "id の重なり", new Set(ids).size + " 種類", new Set(ids).size === ids.length);
   li("env", "よみあげ", "speechSynthesis " + ("speechSynthesis" in window ? "つかえる" : "この端末には無い"), "speechSynthesis" in window);
