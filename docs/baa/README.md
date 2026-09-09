@@ -146,3 +146,4 @@ python3 _make_icons.py
 | `style.css` | 手のひらき方、出てくるときの動き |
 | `sw.js` | 圏外用のキャッシュ |
 | `_make_icons.py` | アイコンPNGの生成。ふだんは動かさない |
+| `qr.png` `qr.html` | 配布用のQR。読み取ると公開URLがひらく。印刷して渡せる |
