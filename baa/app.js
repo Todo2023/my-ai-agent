@@ -10,10 +10,10 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "23"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "24"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
-  { name: "いぬ",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
+  { name: "いぬ", file: "inu",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
     fluffy: true, eyeR: 9, eyeX: 17, noseR: 8,
     cry: "わんわん", base: 300, voice: [
       { v: "u", to: "a", d: 0.17, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.11, p0: 0.9 }, { gap: 0.06 },
@@ -24,7 +24,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["E4",1],["E4",1],["D4",1],["D4",1],["C4",2],
       ["C4",1],["E4",1],["G4",1],["C5",1],["G4",1],["E4",1],["C4",2]] },
 
-  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", whiskers: "#7d8bb5", note: [587, 740, 880],
+  { name: "ねこ", file: "neko",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", whiskers: "#7d8bb5", note: [587, 740, 880],
     cry: "にゃーん", base: 430, voice: [
       { v: "i", to: "a", d: 0.32, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.16, p0: 0.88 }],
     tuneName: "じぶんの うた（自作）",
@@ -33,7 +33,7 @@ const CHARAS = [
       ["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["E4",1],["C4",2],
       ["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "ぶた",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
+  { name: "ぶた", file: "buta",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
     noseR: 11, snout: true,
     cry: "ぶーぶー", base: 190, voice: [
       { burst: "b" }, { v: "u", d: 0.24, p0: 1.0, p1: 0.9 }, { gap: 0.07 },
@@ -44,7 +44,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["A4",1],["A4",1],["G4",1],["G4",1],["E4",2],
       ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["C4",2]] },
 
-  { name: "くま",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
+  { name: "くま", file: "kuma",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
     muzzle: "#e8cdb4",
     cry: "がおー", base: 150, voice: [
       { burst: "b" }, { v: "a", d: 0.22, p0: 1.05, p1: 0.98 }, { v: "o", d: 0.4, p0: 0.98, p1: 0.8 }],
@@ -54,7 +54,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["A4",1],["A4",1],["G4",1],["G4",1],["E4",2],
       ["C4",1],["E4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "ねずみ", encore: 0, fur: "#dcdce6", whiskers: "#a9a5b3", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
+  { name: "ねずみ", file: "nezumi", encore: 0, fur: "#dcdce6", whiskers: "#a9a5b3", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
     earR: 16, earX: 21, earY: 20, note: [494, 622, 740],
     cry: "ちゅーちゅー", base: 620, voice: [
       { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.2 }, { gap: 0.06 },
@@ -67,7 +67,7 @@ const CHARAS = [
       ["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2],
       ["F5",1],["F5",1],["E5",1],["E5",1],["D5",1],["D5",1],["C5",2]] },
 
-  { name: "ちょうちょ", fur: "#f7b6d2", ear: "antenna", earColor: "#5b4033",
+  { name: "ちょうちょ", file: "chou", fur: "#f7b6d2", ear: "antenna", earColor: "#5b4033",
     wing: "#ffe066", wing2: "#ff9ec7", note: [698, 880, 1046],
     cry: "ひらひら", base: 700, voice: [
       { burst: "air" }, { gap: 0.09 }, { burst: "air" }, { gap: 0.09 }, { burst: "air" }],
@@ -77,7 +77,7 @@ const CHARAS = [
       ["G5",1],["E5",1],["E5",1],["E5",1],["F5",1],["D5",1],["D5",2],
       ["C5",1],["E5",1],["G5",1],["G5",1],["E5",2]] },
 
-  { name: "さる",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
+  { name: "さる", file: "saru",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
     earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2", note: [349, 440, 523],
     cry: "うっきー", base: 540, voice: [
       { v: "u", d: 0.11, p0: 0.9 }, { gap: 0.07 },
@@ -87,7 +87,7 @@ const CHARAS = [
       ["A4",1],["A4",1],["A4",1],["A4",1],["G4",1],["F4",1],["G4",1],["A4",1],["F4",2],
       ["C5",1],["C5",1],["A4",1],["A4",1],["F4",1],["F4",1],["G4",1],["A4",1],["F4",2]] },
 
-  { name: "ひつじ", fur: "#5b5148", ear: "drop",  earColor: "#4a4238", wool: "#faf5e9",
+  { name: "ひつじ", file: "hitsuji", fur: "#5b5148", ear: "drop",  earColor: "#4a4238", wool: "#faf5e9",
     note: [330, 415, 494],
     cry: "めえめえ", base: 320, voice: [
       { v: "n", d: 0.05 }, { v: "e", d: 0.3, p0: 1.05, p1: 0.92 }, { gap: 0.07 },
@@ -98,7 +98,7 @@ const CHARAS = [
       ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",1],["E4",1],
       ["D4",1],["D4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
+  { name: "かえる", file: "kaeru", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
     cry: "けろけろ", base: 270, voice: [
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.13, p0: 0.9 }, { gap: 0.05 },
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.14, p0: 0.88 }],
@@ -279,29 +279,16 @@ let ac = null;
 let bus = null; // 声と曲の出口。押し直したら、ここごと切って止める
 let soundOn = localStorage.getItem("baa-sound") !== "off";
 
-/* ── 音いろ ────────────────────────────────────────────
- * のこぎり波1本だと電子音になる。倍音を何本か重ね、減衰のしかたを
- * 楽器ごとに変えると、それらしく聞こえる。音源ファイルは持たない。
- *   partials: [周波数の倍率, 音量の割合, 減衰の速さ]
- */
-const INSTRUMENTS = [
-  { name: "オルゴール", type: "sine", attack: 0.004, decay: 2.4,
-    partials: [[1, 1, 1], [2.76, 0.34, 1.4], [5.4, 0.12, 1.8], [8.9, 0.05, 2.2]] },
-  { name: "もっきん",   type: "sine", attack: 0.003, decay: 0.5,
-    partials: [[1, 1, 1], [3.99, 0.4, 1.6], [9.2, 0.12, 2.4]] },
-  { name: "ピアノ",     type: "triangle", attack: 0.006, decay: 1.4,
-    partials: [[1, 1, 1], [2, 0.42, 1.3], [3, 0.2, 1.6], [4, 0.09, 2]] },
-  { name: "ふえ",       type: "sine", attack: 0.08, decay: 0.5, hold: true, vibrato: 5,
-    partials: [[1, 1, 1], [2, 0.16, 1], [3, 0.06, 1]] },
-  { name: "ギター",     type: "sawtooth", attack: 0.004, decay: 1.0, filter: true,
-    partials: [[1, 1, 1], [2, 0.3, 1.2], [3, 0.12, 1.5]] },
-];
-
-let instIdx = Number(localStorage.getItem("baa-inst") || 0) % INSTRUMENTS.length;
+/* 曲の音いろ。選べるようにしていたが、選ぶ必要はないので1つに決めた。
+   倍音を重ね、減衰を作ってオルゴールに寄せてある。 */
+const INSTRUMENT = {
+  type: "sine", attack: 0.004, decay: 2.4,
+  partials: [[1, 1, 1], [2.76, 0.34, 1.4], [5.4, 0.12, 1.8], [8.9, 0.05, 2.2]],
+};
 
 function playNote(f, at, dur, vol = 0.2) {
   if (!ac) return;
-  const ins = INSTRUMENTS[instIdx];
+  const ins = INSTRUMENT;
   const t = ac.currentTime + at;
   const dest = out();
 
@@ -548,6 +535,8 @@ const BURST_LEN = { b: 0.05, ch: 0.05, air: 0.14, k: 0.03, p: 0.03 };
 
 // 鳴き声の長さ。音が出せない端末でも、絵は同じ長さで見せる
 function voiceLen(c) {
+  const buf = sfxCache.get(c.file);
+  if (buf) return buf.duration;
   let at = 0;
   (c.voice || []).forEach((seg) => {
     at += seg.gap ? seg.gap : seg.burst ? (BURST_LEN[seg.burst] || 0.03) : seg.d;
@@ -570,10 +559,62 @@ function speak(c) {
   return at;
 }
 
+/* 音源ファイルの置き場。`sfx/list.json` に載っているものだけを読みに行く。
+   一覧を1回見るだけなので、ファイルを置いていないときの無駄な通信がない。
+   一覧は `_make_sfx_list.py` で作る（置いたファイルを並べるだけ）。
+   ファイルは端末に読み込んでから使うので、圏外でも鳴る。 */
+const SFX_DIR = "./sfx/";
+const sfxCache = new Map();
+let sfxList = null; // なまえ → ファイル名
+
+async function loadSfxList() {
+  if (sfxList) return sfxList;
+  sfxList = {};
+  try {
+    const res = await fetch(`${SFX_DIR}list.json`, { cache: "force-cache" });
+    if (res.ok) sfxList = await res.json();
+  } catch (_) { /* 置いていなければ合成音のまま */ }
+  return sfxList;
+}
+
+async function loadSfx(name) {
+  if (!name || sfxCache.has(name)) return sfxCache.get(name) || null;
+  const list = await loadSfxList();
+  const fileName = list[name];
+  if (!fileName) { sfxCache.set(name, null); return null; }
+  sfxCache.set(name, null); // 二重に取りに行かない
+  try {
+    const res = await fetch(SFX_DIR + fileName, { cache: "force-cache" });
+    if (!res.ok) return null;
+    const buf = await ac.decodeAudioData(await res.arrayBuffer());
+    sfxCache.set(name, buf);
+    return buf;
+  } catch (_) {
+    return null;
+  }
+}
+
+function playFile(name, vol = 0.9) {
+  const buf = sfxCache.get(name);
+  if (!buf) {
+    loadSfx(name); // 次に押したときには間に合う
+    return false;
+  }
+  const src = ac.createBufferSource();
+  const g = ac.createGain();
+  src.buffer = buf;
+  g.gain.value = vol;
+  src.connect(g).connect(out());
+  src.start(ac.currentTime);
+  return true;
+}
+
 // 端末の読み上げは、日本語の声が入っていないと何も鳴らない。
 // どの端末でも同じ声になるよう、自分で作った声だけを使う。
 function cry(c) {
   if (!audio()) return 0;
+  // 音源ファイルが置いてあればそれを、無ければ合成した鳴き声を鳴らす
+  if (playFile(c.file)) return sfxCache.get(c.file).duration;
   return speak(c);
 }
 
@@ -613,7 +654,6 @@ const sndBtn = document.getElementById("snd");
 const modeBtn = document.getElementById("mode");
 const bookBtn = document.getElementById("book");
 const sheet = document.getElementById("sheet");
-const instBtn = document.getElementById("inst");
 const pads = document.getElementById("pads");
 const zoom = document.getElementById("zoom");
 
@@ -1133,23 +1173,19 @@ modeBtn.addEventListener("pointerdown", (e) => {
   setMode(mode === "baa" ? "drum" : "baa");
 });
 
-// 音いろを変える。押すたびに次の楽器へ
-instBtn.addEventListener("pointerdown", (e) => {
-  e.stopPropagation();
-  instIdx = (instIdx + 1) % INSTRUMENTS.length;
-  localStorage.setItem("baa-inst", String(instIdx));
-  toast(INSTRUMENTS[instIdx].name);
-  if (audio()) {
-    newBus();
-    [523, 659, 784].forEach((f, i) => playNote(f, i * 0.12, 0.5, 0.22));
-  }
-});
-
 bookBtn.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
   if (document.body.classList.contains("book")) closeBook();
   else openBook();
 });
+
+// 置いてあるファイルを、音が使えるようになった時点で読み込んでおく
+function preloadSfx() {
+  if (!audio()) return;
+  CHARAS.forEach((c) => loadSfx(c.file));
+}
+
+document.addEventListener("pointerdown", preloadSfx, { once: true });
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
