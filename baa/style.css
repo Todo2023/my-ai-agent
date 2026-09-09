@@ -830,3 +830,7 @@ body.book #sheet { display: block; }
 @media (prefers-reduced-motion: reduce) {
   #pads, .pad .padface, .pad.peek, .ring { animation: none; }
 }
+
+/* 音の入切ボタン。長押ししているあいだ、色が縮んで分かるようにする */
+#snd.off { background: rgba(255, 190, 190, .8); color: #a33; }
+#snd.holding { transform: scale(.86); transition: transform 700ms linear; }
