@@ -346,6 +346,14 @@ function playCurrent() {
   const video = state.slots[state.index];
   if (!video) return goHome();
 
+  // 圏外のときは、黒い画面で待たせずにすぐ伝える（動画の再生だけは通信が要る）
+  if (navigator.onLine === false) {
+    stopProgressWatch();
+    els.loading.classList.remove('is-hidden');
+    els.loading.textContent = 'いまは どうがが みられません';
+    return;
+  }
+
   startProgressWatch();
 
   if (!state.apiReady || !state.player) {
