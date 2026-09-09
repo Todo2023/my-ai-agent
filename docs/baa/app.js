@@ -163,7 +163,7 @@ function fluffPath(cx, cy, r, bumps) {
 
 /* opt.laugh: くすぐったいときの顔（目を閉じて口をあける）
    opt.gray:  まだ会っていない子（「みつけた」で影にする） */
-function faceSvg(c, opt = {}) {
+function faceInner(c, opt = {}) {
   const eyeY = c.ear === "frog" ? 26 : 52;
   const eyeX = c.ear === "frog" ? 20 : (c.eyeX || 14);
   const eyeR = c.eyeR || 5.5;
@@ -197,8 +197,7 @@ function faceSvg(c, opt = {}) {
     : `<path d="M38 ${mouthY} Q50 ${mouthY + 12} 62 ${mouthY}" stroke="${ink}" stroke-width="3.5"
              fill="none" stroke-linecap="round"/>`;
 
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    ${ears({ ...c, earColor, fur })}
+  return `${ears({ ...c, earColor, fur })}
     ${face}
     ${c.patch && !opt.gray ? `<ellipse cx="${50 + (c.eyeX || 14) + 3}" cy="52" rx="13" ry="12" fill="${c.patch}"/>` : ""}
     ${c.muzzle && !opt.gray ? `<ellipse cx="50" cy="70" rx="21" ry="15" fill="${c.muzzle}"/>` : ""}
@@ -213,7 +212,34 @@ function faceSvg(c, opt = {}) {
              ry="${noseR * 0.26}" fill="#a8536e"/>
        <ellipse cx="${50 + noseR * 0.38}" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR * 0.16}"
              ry="${noseR * 0.26}" fill="#a8536e"/>` : ""}
-    ${mouth}
+    ${mouth}`;
+}
+
+function faceSvg(c, opt = {}) {
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${faceInner(c, opt)}
+  </svg>`;
+}
+
+/* 全身。クローズアップのときだけ使う。
+   体と足を描いて、その上に顔を載せる。足は歩くときに前後に振る。 */
+function bodySvg(c) {
+  const leg = (x, cls) =>
+    `<rect class="${cls}" x="${x}" y="96" width="13" height="26" rx="6" fill="${c.earColor || c.fur}"/>`;
+  const tail = c.ear === "frog"
+    ? ""
+    : `<path d="M92 84 Q106 78 102 64" stroke="${c.earColor || c.fur}" stroke-width="7"
+             fill="none" stroke-linecap="round"/>`;
+
+  return `<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${leg(28, "legB")}
+    ${leg(79, "legA")}
+    ${tail}
+    <ellipse cx="60" cy="88" rx="33" ry="27" fill="${c.fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>
+    <ellipse cx="60" cy="95" rx="19" ry="16" fill="${c.muzzle || "rgba(255,255,255,.35)"}"/>
+    ${leg(38, "legA")}
+    ${leg(69, "legB")}
+    <g transform="translate(20,-4) scale(0.8)">${faceInner(c)}</g>
   </svg>`;
 }
 
@@ -585,7 +611,7 @@ let noteTimer = null;
 /* 押した子を大きく出す → 鳴く → そのまま短いおはなし（曲＋歩く）。
    もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
 function showZoom(c) {
-  zoom.innerHTML = `<div class="zoomface"><div class="bob">${faceSvg(c)}</div></div>`;
+  zoom.innerHTML = `<div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
