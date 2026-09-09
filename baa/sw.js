@@ -1,10 +1,10 @@
 // 圏外でも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "baa-v11";
+const CACHE = "baa-v13";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=11",
-  "./app.js?v=11",
+  "./style.css?v=13",
+  "./app.js?v=13",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
