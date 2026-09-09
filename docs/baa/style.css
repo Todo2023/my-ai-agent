@@ -491,3 +491,244 @@ body.book #sheet { display: block; }
   .friend .bob, .friend .wingL, .friend .wingR,
   .star, .rain, .flower { animation: none; }
 }
+
+/* ── 背景の足しもの。どれも画像なし ─────────────────────── */
+
+/* 山。三角に雪をのせる */
+.mount {
+  position: absolute;
+  bottom: 16%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent transparent #9fb3c8 transparent;
+}
+
+.m1 { left: 4%;  border-width: 0 70px 120px 70px; }
+.m2 { left: 32%; border-width: 0 54px 92px 54px; border-bottom-color: #b3c4d6; }
+
+.mount::after {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: 22px;
+  width: 44px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50% 50% 30% 30%;
+}
+
+/* とり。への字が空を横切る */
+.bird {
+  position: absolute;
+  width: 22px;
+  height: 10px;
+  animation: drift linear infinite;
+}
+
+.bird::before,
+.bird::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 10px;
+  border-top: 2.5px solid rgba(70, 80, 95, .6);
+  border-radius: 50%;
+}
+
+.bird::before { left: 0; transform: rotate(18deg); }
+.bird::after  { right: 0; transform: rotate(-18deg); }
+
+/* ちょうちょが飛ぶ（お花ばたけ用） */
+.flyer {
+  position: absolute;
+  width: 16px;
+  height: 12px;
+  animation: flyby linear infinite;
+}
+
+.flyer::before,
+.flyer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff9ec7;
+  animation: flap 260ms ease-in-out infinite;
+}
+
+.flyer::before { left: 0; }
+.flyer::after  { right: 0; background: #ffe066; }
+
+@keyframes flyby {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(70vw, -8vh); }
+  100% { transform: translate(140vw, 0); }
+}
+
+/* おうち */
+.house {
+  position: absolute;
+  bottom: 16%;
+  right: 8%;
+  width: 84px;
+  height: 62px;
+  background: var(--wall);
+  border-radius: 4px;
+}
+
+.house::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: -30px;
+  border-style: solid;
+  border-width: 0 50px 32px 50px;
+  border-color: transparent transparent #8a5a4a transparent;
+}
+
+.house::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 22px;
+  width: 24px;
+  height: 22px;
+  background: #ffe9a8;
+  border-radius: 3px;
+}
+
+/* くさむら・石・きのこ */
+.bush {
+  position: absolute;
+  height: 22px;
+  border-radius: 50% 50% 0 0;
+  background: rgba(0, 0, 0, .12);
+}
+
+.stone {
+  position: absolute;
+  width: 26px;
+  height: 15px;
+  border-radius: 50% 50% 40% 40%;
+  background: #b9b3aa;
+}
+
+.mush {
+  position: absolute;
+  width: 18px;
+  height: 20px;
+}
+
+.mush::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  width: 6px;
+  height: 11px;
+  background: #f3e6cf;
+  border-radius: 2px;
+}
+
+.mush::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 12px;
+  background: #e2564f;
+  border-radius: 50% 50% 20% 20%;
+  box-shadow: inset -4px 3px 0 -1px rgba(255, 255, 255, .7);
+}
+
+/* ほたる */
+.firefly {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff2a8;
+  box-shadow: 0 0 10px 3px rgba(255, 242, 168, .8);
+  animation: float 4.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); opacity: .25; }
+  50%      { transform: translate(14px, -18px); opacity: 1; }
+}
+
+/* 流れ星 */
+.shooting {
+  position: absolute;
+  top: 14%;
+  left: 12%;
+  width: 70px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff);
+  animation: shoot 6s ease-in infinite;
+}
+
+@keyframes shoot {
+  0%, 70%  { transform: translate(0, 0) rotate(18deg); opacity: 0; }
+  76%      { opacity: 1; }
+  92%, 100% { transform: translate(46vw, 22vh) rotate(18deg); opacity: 0; }
+}
+
+/* にじ */
+.rainbow {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  width: 90vw;
+  height: 45vw;
+  margin-left: -45vw;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border: 12px solid #ff8fab;
+  border-bottom: 0;
+  box-shadow: 0 0 0 12px #ffd166, 0 0 0 24px #a8e6a3, 0 0 0 36px #8ec5ff;
+  opacity: .5;
+}
+
+/* つる（ジャングル） */
+.vine {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  background: #3f8f52;
+  border-radius: 0 0 8px 8px;
+}
+
+.vine::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: -8px;
+  width: 24px;
+  height: 16px;
+  background: #4fae5a;
+  border-radius: 50%;
+}
+
+/* 水のさざ波 */
+.ripple {
+  position: absolute;
+  width: 46px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, .55);
+  border-radius: 50%;
+  animation: spread 3s ease-out infinite;
+}
+
+@keyframes spread {
+  0%   { transform: scale(.4); opacity: .9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bird, .flyer, .firefly, .shooting, .ripple { animation: none; }
+}

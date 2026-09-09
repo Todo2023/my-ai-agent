@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "14"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "15"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -638,29 +638,33 @@ let noteTimer = null;
 /* 景色。子ごとに変える。画像は1枚も持たず、色と丸と三角で描く。 */
 const SCENES = {
   いぬ:     { sky: "#8fd3ff,#cceeff,#eaf8ff", ground: "#7ec97a", edge: "#6bbd67",
-              hills: ["#8fd08a", "#a8e6a3"], sun: "#ffe066", clouds: 3, flowers: 7 },
+              hills: ["#8fd08a", "#a8e6a3"], sun: "#ffe066", clouds: 3, flowers: 7 , birds: 3, mountains: true, bushes: 3, stones: 2 },
   ねこ:     { sky: "#161d44,#2b3566,#4a4f86", ground: "#3a4470", edge: "#2f3860",
-              hills: ["#2b3560", "#333d6b"], moon: true, stars: 22, clouds: 1, flowers: 3 },
+              hills: ["#2b3560", "#333d6b"], moon: true, stars: 22, clouds: 1, flowers: 3 , fireflies: 9, house: "#2f3860", shooting: true, bushes: 2 },
   ぶた:     { sky: "#ffd9a8,#ffeccd,#fff6e6", ground: "#c8925f", edge: "#ab7a4c",
-              hills: ["#9fbf76", "#b9d38f"], sun: "#ffcf5c", clouds: 2, fence: true, flowers: 3 },
+              hills: ["#9fbf76", "#b9d38f"], sun: "#ffcf5c", clouds: 2, fence: true, flowers: 3 , house: "#c9705a", birds: 2, bushes: 2, stones: 3 },
   くま:     { sky: "#bfe4ff,#d8f0ff,#eaf8ff", ground: "#5faa5c", edge: "#4e9450",
-              trees: 6, sun: "#ffe066", clouds: 2, flowers: 3 },
+              trees: 6, sun: "#ffe066", clouds: 2, flowers: 3 , mushrooms: 4, birds: 2, mountains: true, bushes: 3 },
   ねずみ:   { sky: "#ff8f6b,#ffb87a,#ffe3b0", ground: "#8c5a44", edge: "#714735",
-              hills: ["#a9654c", "#c07a5c"], sun: "#ff9d5c", clouds: 3, flowers: 4 },
+              hills: ["#a9654c", "#c07a5c"], sun: "#ff9d5c", clouds: 3, flowers: 4 , birds: 4, mountains: true, bushes: 2, stones: 2 },
   ちょうちょ: { sky: "#cdf0ff,#e4f8ff,#f4fcff", ground: "#8fd88a", edge: "#7cc877",
-              hills: ["#a8e6a3", "#c4f0c0"], sun: "#ffe066", clouds: 2, flowers: 16 },
+              hills: ["#a8e6a3", "#c4f0c0"], sun: "#ffe066", clouds: 2, flowers: 16 , flyers: 4, birds: 2, bushes: 2 },
   さる:     { sky: "#a8ecc8,#cdf6de,#e8fcf0", ground: "#4fa85a", edge: "#3f9049",
-              trees: 7, jungle: true, clouds: 1, flowers: 2 },
+              trees: 7, jungle: true, clouds: 1, flowers: 2 , vines: 3, birds: 2, bushes: 3 },
   ひつじ:   { sky: "#cdeaff,#e2f4ff,#f2fbff", ground: "#93d68c", edge: "#7cc877",
-              hills: ["#b6e5a0", "#d5f0bd"], sun: "#ffe066", clouds: 4, fence: true, flowers: 6 },
+              hills: ["#b6e5a0", "#d5f0bd"], sun: "#ffe066", clouds: 4, fence: true, flowers: 6 , house: "#e8b06a", mountains: true, birds: 3, bushes: 3, stones: 2 },
   かえる:   { sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
-              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true, flowers: 2 },
+              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true, flowers: 2 , rainbow: true, ripples: 3, bushes: 2 },
 };
 
 function scene(c) {
   const sc = SCENES[c.name] || SCENES["いぬ"];
   const bg = `linear-gradient(${sc.sky.split(",").map((v, i) => `${v} ${[0, 58, 100][i]}%`).join(",")})`;
   let html = `<div class="scene" style="background:${bg}">`;
+
+  if (sc.mountains) {
+    html += `<div class="mount m1"></div><div class="mount m2"></div>`;
+  }
 
   if (sc.sun)  html += `<div class="sun" style="background:${sc.sun};box-shadow:0 0 0 14px ${sc.sun}59"></div>`;
   if (sc.moon) html += `<div class="sun moon"></div>`;
@@ -677,6 +681,14 @@ function scene(c) {
              animation-duration:${16 + i * 6}s"></div>`;
   }
 
+  for (let i = 0; i < (sc.birds || 0); i++) {
+    html += `<div class="bird" style="top:${8 + Math.random() * 26}%;left:${-20 - i * 18}%;
+             animation-duration:${18 + i * 5}s;animation-delay:${i * 2}s"></div>`;
+  }
+
+  if (sc.shooting) html += `<div class="shooting"></div>`;
+  if (sc.rainbow)  html += `<div class="rainbow"></div>`;
+
   (sc.hills || []).forEach((color, i) => {
     html += `<div class="hill" style="background:${color};${i === 0
       ? "left:-12%;width:78%;height:26%"
@@ -690,7 +702,45 @@ function scene(c) {
              style="left:${left}%;height:${h}%;--leaf:${sc.jungle ? "#2f8f4a" : "#3f8f52"}"></div>`;
   }
 
+  if (sc.house) {
+    html += `<div class="house" style="--wall:${sc.house}"></div>`;
+  }
+
+  for (let i = 0; i < (sc.vines || 0); i++) {
+    html += `<div class="vine" style="left:${12 + i * 33}%;height:${18 + Math.random() * 16}%"></div>`;
+  }
+
   html += `<div class="ground" style="background:${sc.ground};box-shadow:inset 0 6px 0 ${sc.edge}"></div>`;
+
+  for (let i = 0; i < (sc.bushes || 0); i++) {
+    html += `<div class="bush" style="left:${5 + i * 31 + Math.random() * 8}%;
+             bottom:${2 + Math.random() * 9}%;width:${44 + Math.random() * 26}px"></div>`;
+  }
+
+  for (let i = 0; i < (sc.stones || 0); i++) {
+    html += `<div class="stone" style="left:${12 + i * 29 + Math.random() * 10}%;
+             bottom:${2 + Math.random() * 8}%"></div>`;
+  }
+
+  for (let i = 0; i < (sc.mushrooms || 0); i++) {
+    html += `<div class="mush" style="left:${8 + i * 23 + Math.random() * 8}%;
+             bottom:${2 + Math.random() * 8}%"></div>`;
+  }
+
+  for (let i = 0; i < (sc.fireflies || 0); i++) {
+    html += `<div class="firefly" style="left:${5 + Math.random() * 90}%;
+             bottom:${4 + Math.random() * 34}%;animation-delay:${(Math.random() * 3).toFixed(1)}s"></div>`;
+  }
+
+  for (let i = 0; i < (sc.flyers || 0); i++) {
+    html += `<div class="flyer" style="top:${30 + Math.random() * 40}%;left:${-15 - i * 25}%;
+             animation-duration:${12 + i * 4}s;animation-delay:${i}s"></div>`;
+  }
+
+  for (let i = 0; i < (sc.ripples || 0); i++) {
+    html += `<div class="ripple" style="left:${14 + i * 30}%;bottom:${3 + i * 4}%;
+             animation-delay:${(i * 0.7).toFixed(1)}s"></div>`;
+  }
 
   if (sc.fence) html += `<div class="fence"></div>`;
   if (sc.lily) {
