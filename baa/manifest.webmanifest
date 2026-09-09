@@ -1,0 +1,19 @@
+{
+  "name": "いないいないばあ",
+  "short_name": "ばあ",
+  "description": "さわると手がひらいて、いろんな子が出てくる。0〜2歳向け。通信なしで遊べる。",
+  "lang": "ja",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#ffe9c7",
+  "theme_color": "#ffe9c7",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

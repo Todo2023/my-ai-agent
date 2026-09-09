@@ -1,0 +1,229 @@
+:root {
+  --bg: #ffe9c7;
+  --cloth-a: #ff9aa2;
+  --cloth-b: #ffb7b2;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+/* 画面ぜんぶが当たり判定。指1本しか使えない前提 */
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+#chara {
+  width: min(78vw, 78vh);
+  height: min(78vw, 78vh);
+  transform: scale(0.2);
+  opacity: 0;
+}
+
+#chara.pop {
+  animation: pop 620ms cubic-bezier(.22, 1.4, .36, 1) forwards;
+}
+
+@keyframes pop {
+  0%   { transform: scale(.2) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+#chara svg { width: 100%; height: 100%; display: block; }
+
+#chara.wobble {
+  opacity: 1;
+  animation: wobble 1.6s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-2.5%) rotate(2deg); }
+}
+
+/* 手（布）。左右にひらく */
+.cloth {
+  position: fixed;
+  top: -2%;
+  width: 52%;
+  height: 104%;
+  background: linear-gradient(160deg, var(--cloth-a), var(--cloth-b));
+  transition: transform 520ms cubic-bezier(.5, 0, .1, 1);
+  will-change: transform;
+  box-shadow: 0 0 40px rgba(0, 0, 0, .18);
+}
+
+.cloth.left  { left: -1%;  border-radius: 0 46% 46% 0 / 0 50% 50% 0; }
+.cloth.right { right: -1%; border-radius: 46% 0 0 46% / 50% 0 0 50%; }
+
+.open .cloth.left  { transform: translateX(-104%) rotate(-6deg); }
+.open .cloth.right { transform: translateX(104%) rotate(6deg); }
+
+/* 「ばあ！」の文字 */
+#word {
+  position: fixed;
+  bottom: 8%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(40px, 13vw, 110px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 6px 0 rgba(0, 0, 0, .14);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#word.show { animation: word 900ms ease-out forwards; }
+
+@keyframes word {
+  0%   { opacity: 0; transform: scale(.5) translateY(20px); }
+  30%  { opacity: 1; transform: scale(1.1) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* きらきら */
+.spark {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: spark 900ms ease-out forwards;
+}
+
+@keyframes spark {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* 音の入切。子供が押しにくいよう小さく端に置く */
+#snd {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  color: #7a5c3e;
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #chara.wobble { animation: none; transform: none; }
+  .cloth { transition-duration: 1ms; }
+}
+
+/* ── くすぐったいときの ぷるぷる ───────────────────────── */
+#chara.tickle {
+  opacity: 1;
+  animation: tickle 1100ms ease-in-out forwards;
+}
+
+@keyframes tickle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  12% { transform: rotate(-5deg) scale(1.05); }
+  28% { transform: rotate(5deg) scale(1.05); }
+  44% { transform: rotate(-4deg) scale(1.04); }
+  60% { transform: rotate(4deg) scale(1.04); }
+  78% { transform: rotate(-2deg) scale(1.02); }
+}
+
+/* ── ボタン（どれも小さく端に置く。子供が当てにくい大きさ）──── */
+#mode, #book {
+  position: fixed;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+#mode { top: max(8px, env(safe-area-inset-top)); left: 8px; }
+#book { bottom: max(8px, env(safe-area-inset-bottom)); right: 8px; }
+
+/* ── おとモード ───────────────────────────────────────── */
+#pads {
+  position: fixed;
+  inset: 0;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
+  padding-top: max(48px, env(safe-area-inset-top));
+  padding-bottom: max(48px, env(safe-area-inset-bottom));
+  background: #2b2f4a;
+  z-index: 5;
+}
+
+body.drum #pads { display: grid; }
+body.drum .cloth, body.drum #word, body.drum #book { display: none; }
+
+.pad {
+  border: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  padding: 0;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .18);
+  transition: transform 90ms ease-out;
+}
+
+.padface { width: 62%; pointer-events: none; }
+.padface svg { width: 100%; height: auto; display: block; }
+
+.pad.hit { animation: hit 260ms ease-out; }
+
+@keyframes hit {
+  0%   { transform: scale(.9); filter: brightness(1.5); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* ── みつけた（図鑑）─────────────────────────────────── */
+#sheet {
+  position: fixed;
+  inset: 0;
+  display: none;
+  overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+  background: #fffcf4;
+  z-index: 20;
+  text-align: center;
+  color: #7a5c3e;
+}
+
+body.book #sheet { display: block; }
+
+#sheet h1 { font-size: 22px; margin: 6px 0 14px; }
+#sheet .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+#sheet .cell { font-size: 13px; }
+#sheet .cell svg { width: 100%; height: auto; display: block; }
+#sheet .cell.yet { opacity: .5; }
+#sheet .note { margin-top: 18px; font-size: 12px; opacity: .6; }
