@@ -9,14 +9,15 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "6"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "8"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
   { name: "しょうぼうしゃ", body: "#e5484d", roof: "#c2373c", win: "#cfe9ff", kind: "truck",
     ladder: true, light: "#ff5a5a", note: [523, 659, 784],
-    cry: "うーうー", sfx: [[700, 1050, 0.42, "square", 0.2], [1050, 700, 0.42, "square", 0.2],
-                          [700, 1050, 0.42, "square", 0.2]],
+    cry: "うーうー", sfx: [[560, 980, 0.55, "sawtooth", 0.18], [980, 560, 0.55, "sawtooth", 0.18],
+                          [560, 980, 0.55, "sawtooth", 0.18],
+                          [1900, 1900, 0.1, "square", 0.12], [1900, 1900, 0.1, "square", 0.12]],
     tuneName: "はしれ しょうぼうしゃ（自作のマーチ）",
     tune: [["C4",1],["C4",0.5],["C4",0.5],["G4",1.5],["E4",0.5],
       ["F4",1],["E4",1],["D4",1],["C4",2],
@@ -24,9 +25,12 @@ const CHARAS = [
       ["F4",1],["G4",1],["C5",2]] },
 
   { name: "パトカー", body: "#f4f4f6", roof: "#2b2f4a", win: "#cfe9ff", kind: "car",
-    light: "#5aa9ff", note: [587, 740, 880],
-    cry: "ぴーぽー", sfx: [[880, 660, 0.5, "triangle", 0.2], [660, 880, 0.5, "triangle", 0.2],
-                           [880, 660, 0.5, "triangle", 0.2]],
+    light: "#e5484d", light2: "#5aa9ff", note: [587, 740, 880],
+    // ピーポーピーポー。高さを動かさず、2つの音を交互に鳴らす
+    cry: "ぴーぽーぴーぽー",
+    sfx: [[960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2],
+          [960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2],
+          [960, 960, 0.5, "triangle", 0.2], [770, 770, 0.5, "triangle", 0.2]],
     tuneName: "まちの みまわり（自作）",
     tune: [["E4",0.5],["G4",0.5],["C5",1],["G4",0.5],["E4",0.5],["C4",1],
       ["D4",0.5],["E4",0.5],["F4",1],["E4",1],["D4",1],["C4",2],
@@ -35,8 +39,10 @@ const CHARAS = [
 
   { name: "きゅうきゅうしゃ", body: "#fbfbfd", roof: "#e5484d", win: "#cfe9ff", kind: "truck",
     light: "#ff5a5a", note: [494, 622, 740],
-    cry: "ぴーぽーぴーぽー", sfx: [[960, 720, 0.4, "sine", 0.2], [720, 960, 0.4, "sine", 0.2],
-                                   [960, 720, 0.4, "sine", 0.2], [720, 960, 0.4, "sine", 0.2]],
+    cry: "ぴーぽーぴーぽー",
+    sfx: [[1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2],
+          [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2],
+          [1050, 1050, 0.42, "sine", 0.2], [840, 840, 0.42, "sine", 0.2]],
     tuneName: "いそげ きゅうきゅうしゃ（自作）",
     tune: [["A4",0.5],["G4",0.5],["A4",0.5],["C5",0.5],["A4",1],["G4",1],
       ["F4",0.5],["E4",0.5],["F4",0.5],["A4",0.5],["G4",2],
@@ -129,7 +135,13 @@ function vehicleInner(c, opt = {}, small = false) {
             rx="${r * 0.12}" fill="${rim}" opacity=".8"/></g>`;
 
   const lamp = c.light && !opt.gray
-    ? `<g class="lamp"><rect x="44" y="24" width="18" height="9" rx="4" fill="${c.light}"/></g>`
+    ? `<g class="lamp">
+        <circle class="glow glowA" cx="48" cy="27" r="13" fill="${c.light}"/>
+        <circle class="glow glowB" cx="58" cy="27" r="13" fill="${c.light2 || c.light}"/>
+        <rect class="lampA" x="40" y="22" width="12" height="10" rx="4" fill="${c.light}"/>
+        <rect class="lampB" x="54" y="22" width="12" height="10" rx="4" fill="${c.light2 || c.light}"/>
+        <rect x="38" y="31" width="30" height="4" rx="2" fill="#6b7080"/>
+      </g>`
     : "";
 
   switch (c.kind) {
@@ -814,8 +826,8 @@ function scene(c) {
              animation-delay:${(i * 0.7).toFixed(1)}s"></div>`;
   }
 
-  if (sc.road)  html += `<div class="road"></div>`;
-  if (sc.rails) html += `<div class="rails"></div>`;
+  if (sc.road)  html += `<div class="road"></div><div class="road far"></div>`;
+  if (sc.rails) html += `<div class="rails"></div><div class="rails far"></div>`;
   if (sc.signal) html += `<div class="signal"></div>`;
 
   for (let i = 0; i < (sc.cones || 0); i++) {
