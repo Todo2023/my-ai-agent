@@ -9,7 +9,7 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "4"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "5"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
@@ -894,6 +894,7 @@ function showZoom(c) {
   }
 
   const face = zoom.querySelector(".zoomface");
+  const startAt = c.launch ? 0 : (cryLen + 0.25) * 1000; // ロケットは待たずにすぐ上がる
   walkTimer = setTimeout(() => {
     if (!face.isConnected) return;
     face.style.animationDuration = "4s";
@@ -901,7 +902,7 @@ function showZoom(c) {
     face.classList.add("walk");
     // 曲に合わせて、音符のかわりの玉を飛ばす
     noteTimer = setInterval(() => sparkle(null, window.innerHeight * 0.62, 3), 340);
-  }, (cryLen + 0.25) * 1000);
+  }, startAt);
 
   zoomTimer = setTimeout(() => {
     zoom.className = "";
