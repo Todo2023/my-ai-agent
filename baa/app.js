@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "9"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "10"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -65,10 +65,10 @@ const CHARAS = [
       ["G5",1],["G5",1],["F5",1],["F5",1],["E5",1],["E5",1],["D5",2],
       ["G5",1],["G5",1],["F5",1],["F5",1],["E5",1],["E5",1],["D5",2]] },
 
-  { name: "ひよこ", fur: "#ffe066", ear: "none",  earColor: "#f0c419", note: [698, 880, 1046],
-    cry: "ぴよぴよ", base: 700, voice: [
-      { burst: "p" }, { v: "i", d: 0.07, p0: 1.1 }, { v: "o", d: 0.13, p0: 1.0, p1: 0.92 }, { gap: 0.05 },
-      { burst: "p" }, { v: "i", d: 0.07, p0: 1.12 }, { v: "o", d: 0.14, p0: 1.0, p1: 0.9 }],
+  { name: "ちょうちょ", fur: "#f7b6d2", ear: "antenna", earColor: "#5b4033",
+    wing: "#ffe066", wing2: "#ff9ec7", note: [698, 880, 1046],
+    cry: "ひらひら", base: 700, voice: [
+      { burst: "air" }, { gap: 0.09 }, { burst: "air" }, { gap: 0.09 }, { burst: "air" }],
     tuneName: "ちょうちょう（ドイツ民謡・PD）",
     tune: [["G5",1],["E5",1],["E5",2],["F5",1],["D5",1],["D5",2],
       ["C5",1],["D5",1],["E5",1],["F5",1],["G5",1],["G5",1],["G5",2],
@@ -85,16 +85,17 @@ const CHARAS = [
       ["A4",1],["A4",1],["A4",1],["A4",1],["G4",1],["F4",1],["G4",1],["A4",1],["F4",2],
       ["C5",1],["C5",1],["A4",1],["A4",1],["F4",1],["F4",1],["G4",1],["A4",1],["F4",2]] },
 
-  { name: "うし",   fur: "#f6f2ea", ear: "drop",  earColor: "#cfc6b8", note: [330, 415, 494],
-    noseR: 11, snout: true, patch: "#4a4238", horn: true,
-    cry: "もーもー", base: 170, voice: [
-      { v: "o", d: 0.42, p0: 1.0, p1: 0.86 }, { gap: 0.08 },
-      { v: "o", d: 0.46, p0: 0.96, p1: 0.8 }],
+  { name: "ひつじ", fur: "#5b5148", ear: "drop",  earColor: "#4a4238", wool: "#faf5e9",
+    note: [330, 415, 494],
+    cry: "めえめえ", base: 320, voice: [
+      { v: "n", d: 0.05 }, { v: "e", d: 0.3, p0: 1.05, p1: 0.92 }, { gap: 0.07 },
+      { v: "n", d: 0.05 }, { v: "e", d: 0.34, p0: 1.02, p1: 0.88 }],
     tuneName: "メリーさんのひつじ（アメリカ民謡・PD）",
     tune: [["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",2],
       ["D4",1],["D4",1],["D4",2],["E4",1],["G4",1],["G4",2],
       ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",1],["E4",1],
       ["D4",1],["D4",1],["E4",1],["D4",1],["C4",2]] },
+
   { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
     cry: "けろけろ", base: 270, voice: [
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.13, p0: 0.9 }, { gap: 0.05 },
@@ -138,6 +139,10 @@ function ears(c) {
              (c.innerEar ? `<circle cx="${x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>
               <circle cx="${100 - x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>` : "");
     }
+    case "antenna": // ちょうちょの触角
+      return `<path d="M40 26 Q32 8 22 4" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M60 26 Q68 8 78 4" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <circle cx="22" cy="4" r="4" fill="${e}"/><circle cx="78" cy="4" r="4" fill="${e}"/>`;
     case "frog":  // 目が上に出ている
       return `<circle cx="30" cy="26" r="14" fill="${c.fur}"/>
               <circle cx="70" cy="26" r="14" fill="${c.fur}"/>`;
@@ -175,6 +180,9 @@ function faceInner(c, opt = {}) {
   const ink = opt.gray ? "#cfcac3" : "#5b4033";
   const mouthY = 76 + (noseR - 5);
 
+  const wool = c.wool && !opt.gray
+    ? `<path d="${fluffPath(50, 54, 40, 15)}" fill="${c.wool}" stroke="rgba(0,0,0,.08)" stroke-width="1.5"/>`
+    : "";
   const face = c.fluffy
     ? `<path d="${fluffPath(50, 54, 35, 13)}" fill="${fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>`
     : `<circle cx="50" cy="54" r="38" fill="${fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>`;
@@ -199,8 +207,8 @@ function faceInner(c, opt = {}) {
     : `<path d="M38 ${mouthY} Q50 ${mouthY + 12} 62 ${mouthY}" stroke="${ink}" stroke-width="3.5"
              fill="none" stroke-linecap="round"/>`;
 
-  return `${ears({ ...c, earColor, fur })}
-    ${face}
+  return `${wool}${ears({ ...c, earColor, fur })}
+    ${c.wool && !opt.gray ? `<circle cx="50" cy="58" r="26" fill="${c.fur}"/>` : face}
     ${c.patch && !opt.gray ? `<ellipse cx="${50 + (c.eyeX || 14) + 3}" cy="52" rx="13" ry="12" fill="${c.patch}"/>` : ""}
     ${c.muzzle && !opt.gray ? `<ellipse cx="50" cy="70" rx="21" ry="15" fill="${c.muzzle}"/>` : ""}
     ${eyes}
@@ -233,12 +241,25 @@ function bodySvg(c) {
     : `<path d="M92 84 Q106 78 102 64" stroke="${c.earColor || c.fur}" stroke-width="7"
              fill="none" stroke-linecap="round"/>`;
 
+  if (c.wing) {
+    return `<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g class="wingL"><ellipse cx="26" cy="80" rx="26" ry="30" fill="${c.wing}"/>
+        <ellipse cx="24" cy="104" rx="18" ry="18" fill="${c.wing2}"/></g>
+      <g class="wingR"><ellipse cx="94" cy="80" rx="26" ry="30" fill="${c.wing}"/>
+        <ellipse cx="96" cy="104" rx="18" ry="18" fill="${c.wing2}"/></g>
+      <ellipse cx="60" cy="92" rx="13" ry="30" fill="${c.fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>
+      <g transform="translate(20,-6) scale(0.8)">${faceInner(c)}</g>
+    </svg>`;
+  }
+
   return `<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     ${leg(28, "legB")}
     ${leg(79, "legA")}
     ${tail}
-    <ellipse cx="60" cy="88" rx="33" ry="27" fill="${c.fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>
-    <ellipse cx="60" cy="95" rx="19" ry="16" fill="${c.muzzle || "rgba(255,255,255,.35)"}"/>
+    ${c.wool
+      ? `<path d="${fluffPath(60, 88, 30, 14)}" fill="${c.wool}" stroke="rgba(0,0,0,.08)" stroke-width="1.5"/>`
+      : `<ellipse cx="60" cy="88" rx="33" ry="27" fill="${c.fur}" stroke="rgba(0,0,0,.10)" stroke-width="1.5"/>`}
+    ${c.wool ? "" : `<ellipse cx="60" cy="95" rx="19" ry="16" fill="${c.muzzle || "rgba(255,255,255,.35)"}"/>`}
     ${leg(38, "legA")}
     ${leg(69, "legB")}
     <g transform="translate(20,-4) scale(0.8)">${faceInner(c)}</g>
@@ -362,11 +383,11 @@ function burst(kind, at) {
   const g = ac.createGain();
   src.buffer = noiseBuf;
   bp.type = "bandpass";
-  bp.frequency.value = kind === "ch" ? 3200 : 2200;
-  bp.Q.value = 2;
-  const dur = kind === "ch" ? 0.05 : 0.03;
+  bp.frequency.value = kind === "ch" ? 3200 : kind === "air" ? 1100 : 2200;
+  bp.Q.value = kind === "air" ? 1 : 2;
+  const dur = kind === "ch" ? 0.05 : kind === "air" ? 0.14 : 0.03;
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(kind === "ch" ? 0.16 : 0.2, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(kind === "ch" ? 0.16 : kind === "air" ? 0.1 : 0.2, t + 0.03);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   src.connect(bp).connect(g).connect(out());
   src.start(t);
@@ -613,7 +634,14 @@ let noteTimer = null;
 /* 押した子を大きく出す → 鳴く → そのまま短いおはなし（曲＋歩く）。
    もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
 function showZoom(c) {
-  zoom.innerHTML = `<div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
+  // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
+  zoom.innerHTML = `<div class="scene">
+      <div class="sun"></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div>
+      <div class="ground"></div>
+    </div>
+    <div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
