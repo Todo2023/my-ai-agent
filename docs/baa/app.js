@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "17"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "18"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -466,6 +466,22 @@ function playTune(c, at = 0) {
   return t - at;
 }
 
+// 子音のはじけの長さ。鳴らす前に長さだけ知りたいので表にしておく
+const BURST_LEN = { b: 0.05, ch: 0.05, air: 0.14, k: 0.03, p: 0.03 };
+
+// 鳴き声の長さ。音が出せない端末でも、絵は同じ長さで見せる
+function voiceLen(c) {
+  let at = 0;
+  (c.voice || []).forEach((seg) => {
+    at += seg.gap ? seg.gap : seg.burst ? (BURST_LEN[seg.burst] || 0.03) : seg.d;
+  });
+  return at;
+}
+
+function tuneLen(c) {
+  return (c.tune || []).reduce((t, [, len]) => t + 0.34 * len, 0);
+}
+
 function speak(c) {
   if (!c.voice) return 0;
   let at = 0;
@@ -844,20 +860,21 @@ function showZoom(c) {
   clearTimeout(walkTimer);
   clearInterval(noteTimer);
 
-  if (!audio()) {
-    zoomTimer = setTimeout(() => { zoom.className = ""; }, 1100);
-    return;
-  }
+  // 長さは音の有無によらず同じ。音が出せない端末でも、歩く姿は最後まで見せる
+  const cryLen = voiceLen(c);
+  const songLen = tuneLen(c);
 
-  newBus();                       // 前に鳴っていた音を切る
-  const cryLen = speak(c);        // 鳴き声
-  const tuneLen = playTune(c, cryLen + 0.25);  // そのあとに曲
+  if (audio()) {
+    newBus();                     // 前に鳴っていた音を切る
+    speak(c);                     // 鳴き声
+    playTune(c, cryLen + 0.25);   // そのあとに曲
+  }
 
   const face = zoom.querySelector(".zoomface");
   walkTimer = setTimeout(() => {
     if (!face.isConnected) return;
     face.style.animationDuration = "4s";
-    face.style.animationIterationCount = String(Math.max(1, Math.round(tuneLen / 4)));
+    face.style.animationIterationCount = String(Math.max(1, Math.round(songLen / 4)));
     face.classList.add("walk");
     // 曲に合わせて、音符のかわりの玉を飛ばす
     noteTimer = setInterval(() => sparkle(null, window.innerHeight * 0.62, 3), 340);
@@ -866,7 +883,7 @@ function showZoom(c) {
   zoomTimer = setTimeout(() => {
     zoom.className = "";
     clearInterval(noteTimer);
-  }, (cryLen + 0.35 + tuneLen) * 1000);
+  }, (cryLen + 0.35 + songLen) * 1000);
 }
 
 // たたいたところから広がる輪
@@ -984,14 +1001,41 @@ document.addEventListener("pointerdown", tap);
 document.addEventListener("contextmenu", (e) => e.preventDefault());
 document.addEventListener("dblclick", (e) => e.preventDefault());
 
-sndBtn.textContent = soundOn ? "♪" : "×";
+/* 音の入切は「長押し」にしてある。
+   軽く触っただけでは変わらない。子供が当てて音が消えたことがあったため。 */
+function paintSnd() {
+  sndBtn.textContent = soundOn ? "♪" : "×";
+  sndBtn.classList.toggle("off", !soundOn);
+  sndBtn.title = soundOn ? "長押しで音を切る" : "長押しで音を出す";
+}
+
+let sndHold = null;
+
 sndBtn.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
-  soundOn = !soundOn;
-  localStorage.setItem("baa-sound", soundOn ? "on" : "off");
-  sndBtn.textContent = soundOn ? "♪" : "×";
-  if (soundOn) beep([523, 784]);
+  sndBtn.classList.add("holding");
+  sndHold = setTimeout(() => {
+    soundOn = !soundOn;
+    localStorage.setItem("baa-sound", soundOn ? "on" : "off");
+    paintSnd();
+    if (soundOn) { newBusIfPossible(); beep([523, 784]); }
+    if (navigator.vibrate) navigator.vibrate(30);
+  }, 700);
 });
+
+["pointerup", "pointerleave", "pointercancel"].forEach((ev) =>
+  sndBtn.addEventListener(ev, (e) => {
+    e.stopPropagation();
+    clearTimeout(sndHold);
+    sndBtn.classList.remove("holding");
+  })
+);
+
+function newBusIfPossible() {
+  if (audio()) newBus();
+}
+
+paintSnd();
 
 modeBtn.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
