@@ -1,10 +1,10 @@
 // 圏外でも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "norimono-v2";
+const CACHE = "norimono-v4";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=2",
-  "./app.js?v=2",
+  "./style.css?v=4",
+  "./app.js?v=4",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
