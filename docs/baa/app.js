@@ -17,13 +17,15 @@ const CHARAS = [
       { v: "u", to: "a", d: 0.17, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.11, p0: 0.9 }, { gap: 0.06 },
       { v: "u", to: "a", d: 0.17, p0: 1.1, p1: 0.9 },   { v: "n", d: 0.13, p0: 0.85 }],
     tuneName: "じぶんの うた（自作）",
-    tune: [["C4",1],["E4",1],["G4",1],["E4",1],["C4",1],["G4",1],["C5",2]] },
+    tune: [["C4",1],["E4",1],["G4",1],["E4",1],["C4",1],["G4",1],["C5",2],
+      ["A4",1],["G4",1],["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["C4",2]] },
 
   { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", note: [587, 740, 880],
     cry: "にゃーん", base: 430, voice: [
       { v: "i", to: "a", d: 0.32, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.16, p0: 0.88 }],
     tuneName: "じぶんの うた（自作）",
-    tune: [["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
+    tune: [["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2],
+      ["D4",1],["E4",1],["G4",1],["E4",1],["D4",1],["C4",1],["D4",1],["C4",2]] },
 
   { name: "ぶた",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
     noseR: 11, snout: true,
@@ -31,14 +33,16 @@ const CHARAS = [
       { burst: "b" }, { v: "u", d: 0.24, p0: 1.0, p1: 0.9 }, { gap: 0.07 },
       { burst: "b" }, { v: "u", d: 0.26, p0: 0.98, p1: 0.86 }],
     tuneName: "むすんでひらいて（ルソー・PD）",
-    tune: [["G4",1],["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
+    tune: [["G4",1],["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2],
+      ["E4",1],["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",1],["C4",2]] },
 
   { name: "くま",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
     muzzle: "#e8cdb4",
     cry: "がおー", base: 150, voice: [
       { burst: "b" }, { v: "a", d: 0.22, p0: 1.05, p1: 0.98 }, { v: "o", d: 0.4, p0: 0.98, p1: 0.8 }],
     tuneName: "森のくまさん（アメリカ民謡・PD）",
-    tune: [["C4",1],["E4",1],["G4",1],["G4",1],["A4",1],["G4",1],["E4",1],["C4",2]] },
+    tune: [["C4",1],["E4",1],["G4",1],["G4",1],["A4",1],["G4",1],["E4",1],["C4",2],
+      ["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",1],["D4",1],["C4",2]] },
 
   { name: "ねずみ", fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
     earR: 16, earX: 21, earY: 20, note: [494, 622, 740],
@@ -46,14 +50,18 @@ const CHARAS = [
       { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.2 }, { gap: 0.06 },
       { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.25 }],
     tuneName: "きらきら星（フランス民謡・PD）",
-    tune: [["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2]] },
+    tune: [["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2],
+      ["F5",1],["F5",1],["E5",1],["E5",1],["D5",1],["D5",1],["C5",2]] },
 
   { name: "ひよこ", fur: "#ffe066", ear: "none",  earColor: "#f0c419", note: [698, 880, 1046],
     cry: "ぴよぴよ", base: 700, voice: [
       { burst: "p" }, { v: "i", d: 0.07, p0: 1.1 }, { v: "o", d: 0.13, p0: 1.0, p1: 0.92 }, { gap: 0.05 },
       { burst: "p" }, { v: "i", d: 0.07, p0: 1.12 }, { v: "o", d: 0.14, p0: 1.0, p1: 0.9 }],
     tuneName: "ちょうちょう（ドイツ民謡・PD）",
-    tune: [["G5",1],["E5",1],["E5",2],["F5",1],["D5",1],["D5",2],["C5",1],["D5",1],["E5",1],["F5",1],["G5",2]] },
+    tune: [["G5",1],["E5",1],["E5",2],["F5",1],["D5",1],["D5",2],
+      ["C5",1],["D5",1],["E5",1],["F5",1],["G5",1],["G5",1],["G5",2],
+      ["G5",1],["E5",1],["E5",1],["E5",1],["F5",1],["D5",1],["D5",2],
+      ["C5",1],["E5",1],["G5",1],["G5",1],["E5",2]] },
 
   { name: "さる",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
     earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2", note: [349, 440, 523],
@@ -61,14 +69,29 @@ const CHARAS = [
       { v: "u", d: 0.11, p0: 0.9 }, { gap: 0.07 },
       { burst: "k" }, { v: "i", d: 0.3, p0: 1.0, p1: 1.28 }],
     tuneName: "大きな栗の木の下で（イギリス民謡・PD）",
-    tune: [["C5",1],["F4",1],["F4",1],["F4",1],["G4",1],["A4",1],["A4",1],["G4",1],["F4",2]] },
+    tune: [["C5",1],["F4",1],["F4",1],["F4",1],["G4",1],["A4",1],["A4",1],["G4",1],["F4",2],
+      ["A4",1],["A4",1],["A4",1],["A4",1],["G4",1],["F4",1],["G4",1],["A4",1],["F4",2]] },
 
+  { name: "うし",   fur: "#f6f2ea", ear: "drop",  earColor: "#cfc6b8", note: [330, 415, 494],
+    noseR: 11, snout: true, patch: "#4a4238", horn: true,
+    cry: "もーもー", base: 170, voice: [
+      { v: "o", d: 0.42, p0: 1.0, p1: 0.86 }, { gap: 0.08 },
+      { v: "o", d: 0.46, p0: 0.96, p1: 0.8 }],
+    tuneName: "メリーさんのひつじ（アメリカ民謡・PD）",
+    tune: [["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",2],
+      ["D4",1],["D4",1],["D4",2],["E4",1],["G4",1],["G4",2],
+      ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",1],["E4",1],
+      ["D4",1],["D4",1],["E4",1],["D4",1],["C4",2]] },
   { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
     cry: "けろけろ", base: 270, voice: [
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.13, p0: 0.9 }, { gap: 0.05 },
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.14, p0: 0.88 }],
     tuneName: "かえるの合唱（ドイツ民謡・PD）",
-    tune: [["C4",1],["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",2]] },
+    tune: [["C4",1],["D4",1],["E4",1],["F4",1],["E4",1],["D4",1],["C4",2],
+      ["E4",1],["F4",1],["G4",1],["A4",1],["G4",1],["F4",1],["E4",2],
+      ["C4",1],["C4",1],["C4",1],["C4",1],
+      ["C4",1],["C4",1],["D4",1],["D4",1],["E4",1],["E4",1],["F4",1],["F4",1],
+      ["E4",1],["D4",1],["C4",2]] },
 ];
 
 const BG = ["#ffe9c7", "#d9f2ff", "#ffe3ef", "#e6f7d9", "#efe6ff", "#fff3cf"];
@@ -85,7 +108,9 @@ function ears(c) {
   const e = c.earColor;
   switch (c.ear) {
     case "drop":  // 垂れ耳
-      return `<ellipse cx="14" cy="54" rx="12" ry="21" fill="${e}"/>
+      return (c.horn ? `<path d="M22 28 Q12 14 22 10 Q26 18 34 24 Z" fill="#e8dcc8"/>
+              <path d="M78 28 Q88 14 78 10 Q74 18 66 24 Z" fill="#e8dcc8"/>` : "") +
+             `<ellipse cx="14" cy="54" rx="12" ry="21" fill="${e}"/>
               <ellipse cx="86" cy="54" rx="12" ry="21" fill="${e}"/>`;
     case "up":    // とんがり耳
       return `<path d="M23 30 L30 6 L46 22 Z" fill="${e}"/>
@@ -150,7 +175,7 @@ function faceSvg(c, opt = {}) {
     : `${c.eyeR ? `<circle cx="${50 - eyeX}" cy="${eyeY}" r="${eyeR + 1.5}" fill="#fff"/>
        <circle cx="${50 + eyeX}" cy="${eyeY}" r="${eyeR + 1.5}" fill="#fff"/>` : ""}
        <circle cx="${50 - eyeX}" cy="${eyeY}" r="${eyeR}" fill="${opt.gray ? "#cfcac3" : "#3d3d3d"}"/>
-       <circle cx="${50 + eyeX}" cy="${eyeY}" r="${eyeR}" fill="${opt.gray ? "#cfcac3" : "#3d3d3d"}"/>
+       <circle cx="${50 + eyeX}" cy="${eyeY}" r="${eyeR}" fill="${opt.gray ? "#cfcac3" : c.patch ? "#fff" : "#3d3d3d"}"/>
        ${opt.gray ? "" : `<circle cx="${50 - eyeX + eyeR * 0.35}" cy="${eyeY - eyeR * 0.35}" r="${eyeR * 0.34}" fill="#fff"/>
        <circle cx="${50 + eyeX + eyeR * 0.35}" cy="${eyeY - eyeR * 0.35}" r="${eyeR * 0.34}" fill="#fff"/>`}`;
 
@@ -164,6 +189,7 @@ function faceSvg(c, opt = {}) {
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     ${ears({ ...c, earColor, fur })}
     ${face}
+    ${c.patch && !opt.gray ? `<ellipse cx="${50 + (c.eyeX || 14) + 3}" cy="52" rx="13" ry="12" fill="${c.patch}"/>` : ""}
     ${c.muzzle && !opt.gray ? `<ellipse cx="50" cy="70" rx="21" ry="15" fill="${c.muzzle}"/>` : ""}
     ${eyes}
     <circle cx="26" cy="68" r="7" fill="#ff9db0" opacity="${opt.gray ? 0 : opt.laugh ? 0.7 : 0.45}"/>
@@ -207,6 +233,7 @@ function out() {
 function newBus() {
   if (bus) { try { bus.disconnect(); } catch (_) {} }
   bus = ac.createGain();
+  bus.gain.value = 1.8; // 帯域フィルタを通ると痩せるぶん、ここで持ち上げる
   bus.connect(ac.destination);
   return bus;
 }
@@ -325,7 +352,7 @@ function vowel(seg, at, base) {
   const out = ac.createGain();
   // 声が高いほど、基本の音が第1フォルマントより上に出て痩せる。高い子は持ち上げる
   const lift = Math.min(3, Math.max(1, (base / 300) ** 1.4));
-  const level = (seg.v === "n" ? 0.16 : 0.3) * lift;
+  const level = (seg.v === "n" ? 0.2 : 0.38) * lift;
   out.gain.setValueAtTime(0.0001, t);
   out.gain.exponentialRampToValueAtTime(level, t + 0.03);
   out.gain.setValueAtTime(level, t + Math.max(0.04, dur - 0.04));
@@ -342,6 +369,11 @@ function vowel(seg, at, base) {
     g.gain.value = [1, 0.55, 0.22][i];
     osc.connect(bp).connect(g).connect(out);
   });
+
+  // 素の音も少しだけ混ぜて、声に芯を持たせる
+  const direct = ac.createGain();
+  direct.gain.value = 0.09;
+  osc.connect(direct).connect(out);
 
   osc.start(t);
   osc.stop(t + dur + 0.05);
@@ -390,16 +422,15 @@ function cry(c) {
   return speak(c);
 }
 
-function say(text) {
-  if (!soundOn || !("speechSynthesis" in window)) return;
-  try {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP";
-    u.rate = 0.95;
-    u.pitch = 1.5;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  } catch (_) { /* 読み上げが無い端末は音だけ */ }
+// 「ばあ」と笑い声も、端末の読み上げに頼らず自分で作る
+const VOICE_BAA    = { base: 330, voice: [{ burst: "b" }, { v: "a", d: 0.45, p0: 1.3, p1: 0.95 }] };
+const VOICE_GIGGLE = { base: 540, voice: [
+  { burst: "k" }, { v: "i", to: "a", d: 0.1, p0: 1.15 }, { gap: 0.04 },
+  { v: "a", d: 0.1, p0: 1.05 }, { gap: 0.04 }, { v: "a", d: 0.12, p0: 1.1, p1: 0.95 }] };
+
+function say(v) {
+  if (!audio()) return 0;
+  return speak(v);
 }
 
 // ── みつけた（会った子を端末の中だけに残す）────────────────────────
@@ -487,8 +518,9 @@ function show() {
   word.className = "show";
 
   document.body.classList.add("open");
+  if (audio()) newBus(); // 続けて押されたとき、前の音を残さない
   beep(current.note);
-  say(first ? "はじめまして" : "ばあ");
+  say(VOICE_BAA);
   sparkle(null, null, first ? 18 : 10);
   if (navigator.vibrate) navigator.vibrate(20);
   open = true;
@@ -512,8 +544,9 @@ function tickle() {
   word.className = "";
   void word.offsetWidth;
   word.className = "show";
+  if (audio()) newBus();
   giggle();
-  say("きゃはは");
+  say(VOICE_GIGGLE);
   sparkle(null, null, 8);
   if (navigator.vibrate) navigator.vibrate([12, 40, 12]);
   chara.addEventListener("animationend", () => {
@@ -561,7 +594,8 @@ function showZoom(c) {
   const face = zoom.querySelector(".zoomface");
   walkTimer = setTimeout(() => {
     if (!face.isConnected) return;
-    face.style.animationDuration = `${tuneLen}s`;
+    face.style.animationDuration = "4s";
+    face.style.animationIterationCount = String(Math.max(1, Math.round(tuneLen / 4)));
     face.classList.add("walk");
     // 曲に合わせて、音符のかわりの玉を飛ばす
     noteTimer = setInterval(() => sparkle(null, window.innerHeight * 0.62, 3), 340);
@@ -585,6 +619,9 @@ function buildPads() {
     b.innerHTML = `<div class="padface">${faceSvg(c)}</div>`;
     b.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
+      // 先に showZoom。ここで音の出口を作り直すので、太鼓の音はそのあとに出す
+      // （逆にすると、出したそばから自分で切ってしまう）
+      showZoom(c);
       if (audio()) {
         tone(f, 0, 0.5, "triangle", 0.26);
         tone(f * 2, 0, 0.22, "sine", 0.08);
@@ -592,8 +629,6 @@ function buildPads() {
       b.classList.remove("hit");
       void b.offsetWidth;
       b.classList.add("hit");
-      showZoom(c);
-      cry(c);
       sparkle(e.clientX, e.clientY, 6);
       if (navigator.vibrate) navigator.vibrate(12);
     });
