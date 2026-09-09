@@ -1,0 +1,137 @@
+:root {
+  --bg: #ffe9c7;
+  --cloth-a: #ff9aa2;
+  --cloth-b: #ffb7b2;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+/* 画面ぜんぶが当たり判定。指1本しか使えない前提 */
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+#chara {
+  width: min(78vw, 78vh);
+  height: min(78vw, 78vh);
+  transform: scale(0.2);
+  opacity: 0;
+}
+
+#chara.pop {
+  animation: pop 620ms cubic-bezier(.22, 1.4, .36, 1) forwards;
+}
+
+@keyframes pop {
+  0%   { transform: scale(.2) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+#chara svg { width: 100%; height: 100%; display: block; }
+
+#chara.wobble {
+  opacity: 1;
+  animation: wobble 1.6s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-2.5%) rotate(2deg); }
+}
+
+/* 手（布）。左右にひらく */
+.cloth {
+  position: fixed;
+  top: -2%;
+  width: 52%;
+  height: 104%;
+  background: linear-gradient(160deg, var(--cloth-a), var(--cloth-b));
+  transition: transform 520ms cubic-bezier(.5, 0, .1, 1);
+  will-change: transform;
+  box-shadow: 0 0 40px rgba(0, 0, 0, .18);
+}
+
+.cloth.left  { left: -1%;  border-radius: 0 46% 46% 0 / 0 50% 50% 0; }
+.cloth.right { right: -1%; border-radius: 46% 0 0 46% / 50% 0 0 50%; }
+
+.open .cloth.left  { transform: translateX(-104%) rotate(-6deg); }
+.open .cloth.right { transform: translateX(104%) rotate(6deg); }
+
+/* 「ばあ！」の文字 */
+#word {
+  position: fixed;
+  bottom: 8%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(40px, 13vw, 110px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 6px 0 rgba(0, 0, 0, .14);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#word.show { animation: word 900ms ease-out forwards; }
+
+@keyframes word {
+  0%   { opacity: 0; transform: scale(.5) translateY(20px); }
+  30%  { opacity: 1; transform: scale(1.1) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* きらきら */
+.spark {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: spark 900ms ease-out forwards;
+}
+
+@keyframes spark {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* 音の入切。子供が押しにくいよう小さく端に置く */
+#snd {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  color: #7a5c3e;
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #chara.wobble { animation: none; transform: none; }
+  .cloth { transition-duration: 1ms; }
+}
