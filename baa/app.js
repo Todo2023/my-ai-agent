@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "10"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "11"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -633,6 +633,16 @@ let noteTimer = null;
 
 /* 押した子を大きく出す → 鳴く → そのまま短いおはなし（曲＋歩く）。
    もう一度どこかを押すと、前の音を切って新しい子に替わる。 */
+// うしろに出てくるお友達。毎回ちがう2人
+function friendsOf(c) {
+  const rest = CHARAS.filter((x) => x !== c);
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j], rest[i]];
+  }
+  return rest.slice(0, 2);
+}
+
 function showZoom(c) {
   // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
   zoom.innerHTML = `<div class="scene">
@@ -641,6 +651,8 @@ function showZoom(c) {
       <div class="hill h1"></div><div class="hill h2"></div>
       <div class="ground"></div>
     </div>
+    <div class="friends">${friendsOf(c).map((f, i) =>
+      `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
     <div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
