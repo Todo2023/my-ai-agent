@@ -54,48 +54,79 @@ h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: 0.08em; }
 footer { font-size: 11px; line-height: 1.9; color: rgba(123,129,113,0.85); text-align: center; }
 
 /* ---------------------------------------------------------- おはなし画面 */
+/* 絵は画面いっぱい。文もボタンも、その上に のせる。 */
 .player {
   position: fixed; inset: 0; z-index: 10;
   background: var(--bg);
-  padding: max(8px, env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .player[hidden] { display: none; }
-.bar { width: 100%; max-width: 1280px; flex: 0 0 auto; display: flex; align-items: center; gap: 10px; }
-.title { flex: 1; font-size: clamp(15px, 1.6vw, 20px); font-weight: 700; text-align: center; }
+
+canvas#stage {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; display: block;
+  background: #cfe6ef;
+}
+
+/* 上の帯：もどる・だいめい・よみあげ */
+.bar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+  display: flex; align-items: center; gap: 10px;
+  padding: max(10px, env(safe-area-inset-top)) 12px 0;
+  pointer-events: none;
+}
+.bar > * { pointer-events: auto; }
+.title {
+  flex: 1; text-align: center; font-size: clamp(14px, 1.4vw, 19px); font-weight: 700;
+  padding: 7px 16px; border-radius: 999px;
+  background: rgba(255,255,255,0.82); color: var(--ink);
+  box-shadow: 0 2px 10px rgba(30,36,26,0.12);
+  max-width: max-content; margin: 0 auto;
+}
 .icon {
-  appearance: none; border: 1px solid var(--line); background: var(--card);
-  width: 38px; height: 38px; border-radius: 12px; font-size: 17px; color: var(--ink); cursor: pointer;
+  appearance: none; border: none; background: rgba(255,255,255,0.9);
+  width: 42px; height: 42px; border-radius: 14px; font-size: 18px; color: var(--ink); cursor: pointer;
+  box-shadow: 0 2px 10px rgba(30,36,26,0.14);
 }
 .icon:active { background: #ece8da; }
 
-/* 絵は のこりの場所を ぜんぶ つかう。大きさは app.js が はかって決める */
-.stagewrap {
-  flex: 1 1 auto; min-height: 0; width: 100%;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+/* 下の帯：文・場面のしるし・ボタン */
+.hud {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 0 12px calc(14px + env(safe-area-inset-bottom));
+  pointer-events: none;
 }
-canvas#stage {
-  display: block;
-  border-radius: 16px; border: 1px solid var(--line); background: #cfe6ef;
-}
+.hud > * { pointer-events: auto; }
 .caption {
-  flex: 0 0 auto; margin: 0; width: 100%; max-width: 1280px;
-  min-height: 2.6em; text-align: center;
-  font-size: clamp(15px, 0.8vw + 1.5vh, 27px); line-height: 1.7; letter-spacing: 0.02em;
+  margin: 0; max-width: min(94%, 1040px); text-align: center;
+  padding: 12px 22px; border-radius: 20px;
+  background: rgba(255,255,255,0.88); color: var(--ink);
+  box-shadow: 0 2px 14px rgba(30,36,26,0.14);
+  font-size: clamp(16px, 0.7vw + 1.5vh, 30px); line-height: 1.65; letter-spacing: 0.02em;
+  pointer-events: none;
 }
-
-.dots { flex: 0 0 auto; display: flex; gap: 6px; }
-.dots i { width: 8px; height: 8px; border-radius: 999px; background: rgba(47,52,40,0.18); }
+.dots { display: flex; gap: 7px; pointer-events: none; }
+.dots i {
+  width: 9px; height: 9px; border-radius: 999px;
+  background: rgba(255,255,255,0.75); box-shadow: 0 1px 4px rgba(30,36,26,0.25);
+}
 .dots i.on { background: var(--accent); }
 
-.controls { flex: 0 0 auto; display: flex; gap: 10px; align-items: center; }
+.controls { display: flex; gap: 10px; align-items: center; }
 .ctrl {
-  appearance: none; border: 1px solid var(--line); background: var(--card);
-  min-width: 52px; height: 46px; border-radius: 14px;
-  font-size: 16px; color: var(--ink); cursor: pointer;
+  appearance: none; border: none; background: rgba(255,255,255,0.92);
+  min-width: 58px; height: 50px; border-radius: 16px;
+  font-size: 17px; color: var(--ink); cursor: pointer;
+  box-shadow: 0 2px 12px rgba(30,36,26,0.16);
 }
 .ctrl:active { background: #ece8da; }
-.ctrl.big { min-width: 72px; font-size: 18px; background: var(--accent); color: #fff; border-color: transparent; }
+.ctrl.big { min-width: 78px; font-size: 19px; background: var(--accent); color: #fff; }
+
+.player .voice.small {
+  padding: 7px 12px; font-size: 12px; border: none;
+  background: rgba(255,255,255,0.85); color: var(--ink);
+  box-shadow: 0 2px 10px rgba(30,36,26,0.12);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .card { transition: none; }

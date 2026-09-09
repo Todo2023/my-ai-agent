@@ -111,19 +111,27 @@
   const stage = $("stage");
   const gs = stage.getContext("2d");
 
-  // 絵は、あいている場所いっぱいに 広げる（たてよこの ひはそのまま）。
-  // 大きく出しても ぼやけないように、画面の細かさに あわせて 点の数も ふやす。
+  // 絵は画面ぜんぶを つかう。お話は 360x270 の箱で書いてあるので、
+  // 箱を まんなかに置き、あまった ところには 背景を のばして うめる（setView）。
+  // たてには すこしだけ 切ってよい（空と草の はしだけ）。切りすぎないよう
+  // KEEP_H より せまくはしない。
+  const KEEP_H = 200;
+
   function layoutStage() {
-    const wrap = stage.parentElement;
-    const w = wrap.clientWidth, h = wrap.clientHeight;
+    const box = stage.parentElement;
+    const w = box.clientWidth, h = box.clientHeight;
     if (!w || !h) return;
-    const k = Math.min(w / W, h / H);
-    const cw = Math.max(1, Math.floor(W * k)), ch = Math.max(1, Math.floor(H * k));
-    stage.style.width = cw + "px";
-    stage.style.height = ch + "px";
-    stage.width = Math.round(cw * dpr);
-    stage.height = Math.round(ch * dpr);
-    gs.setTransform((cw / W) * dpr, 0, 0, (ch / H) * dpr, 0, 0);
+    const k = Math.min(w / W, h / KEEP_H);          // 絵の 大きさ
+    stage.style.width = w + "px";
+    stage.style.height = h + "px";
+    stage.width = Math.round(w * dpr);
+    stage.height = Math.round(h * dpr);
+    // よこは まんなか。たては、あまりを 空のほうに 多く回す（草だけの
+    // 広い場所が できないように）。
+    const ox = (w / k - W) / 2, extra = h / k - H;
+    const oy = extra > 0 ? extra * 0.62 : extra / 2;
+    gs.setTransform(k * dpr, 0, 0, k * dpr, ox * k * dpr, oy * k * dpr);
+    setView(-ox, -oy, w / k, h / k);
   }
 
   let opener = null;               // どのカードから 開いたか（もどったとき ここに かえす）
@@ -230,18 +238,19 @@
 
     const cur = st.scenes[play.scene];
     const p = Math.max(0, Math.min(1, play.at / cur.sec));
-    gs.clearRect(0, 0, W, H);
+    gs.clearRect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
     gs.save();
     gs.translate(W / 2, H); gs.scale(1.12, 1.12); gs.translate(-W / 2, -H);  // すこし寄る
     (BG[cur.bg] || BG.hara)(gs, t);
     cur.act(gs, p, t);
     gs.restore();
 
-    // 場面の進み具合を、いちばん下の細い線で出す
+    // 場面の進み具合を、画面のいちばん下の 細い線で出す
+    const by = VIEW.y + VIEW.h - 3;
     gs.fillStyle = "rgba(255,255,255,0.45)";
-    gs.fillRect(0, H - 3, W, 3);
+    gs.fillRect(VIEW.x, by, VIEW.w, 3);
     gs.fillStyle = "rgba(47,122,74,0.85)";
-    gs.fillRect(0, H - 3, W * ((play.scene + p) / st.scenes.length), 3);
+    gs.fillRect(VIEW.x, by, VIEW.w * ((play.scene + p) / st.scenes.length), 3);
   }
 
   /* ------------------------------------------------------------- コマ送り */
