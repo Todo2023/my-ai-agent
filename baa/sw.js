@@ -1,5 +1,5 @@
 // 圏外でも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "baa-v5";
+const CACHE = "baa-v6";
 const ASSETS = [
   "./",
   "./index.html",
