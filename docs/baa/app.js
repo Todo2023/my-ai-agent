@@ -12,14 +12,28 @@
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
-    fluffy: true, eyeR: 9, eyeX: 17, noseR: 8 },
-  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", note: [587, 740, 880] },
-  { name: "うさぎ", fur: "#fff1f6", ear: "long",  earColor: "#ffc7db", note: [659, 831, 988] },
-  { name: "くま",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659] },
-  { name: "ぱんだ", fur: "#ffffff", ear: "round", earColor: "#3d3d3d", note: [494, 622, 740] },
-  { name: "ひよこ", fur: "#ffe066", ear: "none",  earColor: "#f0c419", note: [698, 880, 1046] },
-  { name: "まるくん", fur: "#ffcf8f", ear: "none", earColor: "#e0a95f", note: [392, 494, 587] },
-  { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [349, 440, 523] },
+    fluffy: true, eyeR: 9, eyeX: 17, noseR: 8,
+    cry: "わんわん", crySeq: [[340, 210, 0.18, "square"], [340, 190, 0.2, "square"]] },
+  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", note: [587, 740, 880],
+    cry: "にゃーん", crySeq: [[760, 430, 0.5, "sawtooth"]] },
+  { name: "ぶた",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
+    noseR: 11, snout: true,
+    cry: "ぶーぶー", crySeq: [[160, 120, 0.22, "square"], [160, 110, 0.24, "square"]] },
+  { name: "くま",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
+    muzzle: "#e8cdb4",
+    cry: "がおー",   crySeq: [[150, 85, 0.6, "sawtooth"]] },
+  { name: "ねずみ", fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
+    earR: 16, earX: 21, earY: 20,
+    note: [494, 622, 740],
+    cry: "ちゅーちゅー", crySeq: [[1500, 1900, 0.13, "sine"], [1500, 2000, 0.13, "sine"]] },
+  { name: "ひよこ", fur: "#ffe066", ear: "none",  earColor: "#f0c419", note: [698, 880, 1046],
+    cry: "ぴよぴよ", crySeq: [[1700, 2100, 0.12, "sine"], [1700, 2200, 0.12, "sine"]] },
+  { name: "さる",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
+    earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2",
+    note: [349, 440, 523],
+    cry: "うっきー", crySeq: [[820, 1500, 0.18, "square"], [900, 1600, 0.16, "square"]] },
+  { name: "かえる", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
+    cry: "けろけろ", crySeq: [[280, 230, 0.16, "square"], [280, 220, 0.16, "square"]] },
 ];
 
 const BG = ["#ffe9c7", "#d9f2ff", "#ffe3ef", "#e6f7d9", "#efe6ff", "#fff3cf"];
@@ -44,9 +58,13 @@ function ears(c) {
     case "long":  // ながい耳
       return `<ellipse cx="36" cy="16" rx="8" ry="20" fill="${e}"/>
               <ellipse cx="64" cy="16" rx="8" ry="20" fill="${e}"/>`;
-    case "round": // まるい耳
-      return `<circle cx="24" cy="26" r="13" fill="${e}"/>
-              <circle cx="76" cy="26" r="13" fill="${e}"/>`;
+    case "round": { // まるい耳
+      const r = c.earR || 13, x = c.earX || 24, y = c.earY || 26;
+      return `<circle cx="${x}" cy="${y}" r="${r}" fill="${e}"/>
+              <circle cx="${100 - x}" cy="${y}" r="${r}" fill="${e}"/>` +
+             (c.innerEar ? `<circle cx="${x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>
+              <circle cx="${100 - x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>` : "");
+    }
     case "frog":  // 目が上に出ている
       return `<circle cx="30" cy="26" r="14" fill="${c.fur}"/>
               <circle cx="70" cy="26" r="14" fill="${c.fur}"/>`;
@@ -111,12 +129,18 @@ function faceSvg(c, opt = {}) {
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     ${ears({ ...c, earColor, fur })}
     ${face}
+    ${c.muzzle && !opt.gray ? `<ellipse cx="50" cy="70" rx="21" ry="15" fill="${c.muzzle}"/>` : ""}
     ${eyes}
     <circle cx="26" cy="68" r="7" fill="#ff9db0" opacity="${opt.gray ? 0 : opt.laugh ? 0.7 : 0.45}"/>
     <circle cx="74" cy="68" r="7" fill="#ff9db0" opacity="${opt.gray ? 0 : opt.laugh ? 0.7 : 0.45}"/>
-    <ellipse cx="50" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR}" ry="${noseR * 0.82}" fill="${ink}"/>
+    <ellipse cx="50" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR}" ry="${noseR * 0.82}"
+             fill="${c.snout && !opt.gray ? "#f2a2b8" : ink}"/>
     ${opt.gray ? "" : `<ellipse cx="${50 - noseR * 0.3}" cy="${62 + (noseR - 5) * 0.6}" rx="${noseR * 0.22}"
              ry="${noseR * 0.16}" fill="#fff" opacity=".6"/>`}
+    ${c.snout && !opt.gray ? `<ellipse cx="${50 - noseR * 0.38}" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR * 0.16}"
+             ry="${noseR * 0.26}" fill="#a8536e"/>
+       <ellipse cx="${50 + noseR * 0.38}" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR * 0.16}"
+             ry="${noseR * 0.26}" fill="#a8536e"/>` : ""}
     ${mouth}
   </svg>`;
 }
@@ -162,6 +186,33 @@ function giggle() {
   for (let i = 0; i < 6; i++) {
     tone(base * (i % 2 ? 1.18 : 1), i * 0.075, 0.1, "sine", 0.18);
   }
+}
+
+// 高さを滑らせる音。鳴き声はこれを並べて作る
+function glide(f0, f1, at, dur, type = "square", vol = 0.2) {
+  const t = ac.currentTime + at;
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f0, t);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain).connect(ac.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+function cry(c) {
+  if (audio() && c.crySeq) {
+    let at = 0;
+    c.crySeq.forEach(([f0, f1, dur, type]) => {
+      glide(f0, f1, at, dur, type);
+      at += dur + 0.07;
+    });
+  }
+  say(c.cry || c.name);
 }
 
 function say(text) {
@@ -311,7 +362,7 @@ const PAD_COLORS = ["#ff8fab", "#ffd166", "#8ec5ff", "#a8e6a3", "#c9a7ff",
 let zoomTimer = null;
 
 function showZoom(c) {
-  zoom.innerHTML = `<div class="zoomface">${faceSvg(c)}</div><div class="zoomname">${c.name}</div>`;
+  zoom.innerHTML = `<div class="zoomface">${faceSvg(c)}</div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
@@ -339,7 +390,7 @@ function buildPads() {
       void b.offsetWidth;
       b.classList.add("hit");
       showZoom(c);
-      say(c.name);
+      cry(c);
       sparkle(e.clientX, e.clientY, 6);
       if (navigator.vibrate) navigator.vibrate(12);
     });
