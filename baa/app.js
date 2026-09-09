@@ -10,6 +10,8 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
+const VERSION = "9"; // みつけたの下に出す。どの版が動いているかを確かめるため
+
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
     fluffy: true, eyeR: 9, eyeX: 17, noseR: 8,
@@ -697,7 +699,7 @@ function openBook() {
       return `<div class="cell${has ? "" : " yet"}">${faceSvg(c, { gray: !has })}
               <span>${has ? c.name : "？"}</span></div>`;
     }).join("") +
-    `</div><p class="note">さわると とじます</p>`;
+    `</div><p class="note">さわると とじます ・ ばん ${VERSION}</p>`;
   document.body.classList.add("book");
   if (got.length === CHARAS.length) sparkle(null, null, 20);
 }
