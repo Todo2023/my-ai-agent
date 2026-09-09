@@ -22,7 +22,9 @@
   const speech = {
     ok: "speechSynthesis" in window,
     on: localStorage.getItem("dobutsu.voice") !== "off",
+    busy: false,                        // いま しゃべっている さいちゅうか
     say(text) {
+      this.busy = false;
       if (!this.ok || !this.on) return;
       try {
         speechSynthesis.cancel();
@@ -30,10 +32,17 @@
         u.lang = "ja-JP";
         u.rate = 0.92;
         u.pitch = 1.05;
+        u.onend = u.onerror = () => { this.busy = false; };
+        this.busy = true;
         speechSynthesis.speak(u);
-      } catch (e) { /* 読み上げが無くても お話は進む */ }
+      } catch (e) { this.busy = false; /* 読み上げが無くても お話は進む */ }
     },
-    stop() { if (this.ok) { try { speechSynthesis.cancel(); } catch (e) {} } },
+    // ほんとうに いま しゃべっているか（声が入っていない端末で 止まらないように）
+    isSpeaking() {
+      if (!this.ok || !this.on || !this.busy) return false;
+      try { return speechSynthesis.speaking || speechSynthesis.pending; } catch (e) { return false; }
+    },
+    stop() { this.busy = false; if (this.ok) { try { speechSynthesis.cancel(); } catch (e) {} } },
     set(v) {
       this.on = v;
       localStorage.setItem("dobutsu.voice", v ? "on" : "off");
@@ -42,6 +51,19 @@
       $("voiceHome").checked = v;
     },
   };
+
+  // 見ているあいだ 画面が 暗くならないように。対応していない端末では 何もしない。
+  let wake = null;
+  function keepAwake(on) {
+    try {
+      if (on && !wake && "wakeLock" in navigator) {
+        navigator.wakeLock.request("screen").then((w) => { wake = w; w.addEventListener("release", () => { wake = null; }); }).catch(() => {});
+      } else if (!on && wake) {
+        wake.release().catch(() => {});
+        wake = null;
+      }
+    } catch (e) { /* 使えなくても お話は見られる */ }
+  }
 
   /* --------------------------------------------------------------- カード */
 
@@ -89,17 +111,21 @@
   const stage = $("stage");
   const gs = fit(stage, W, H);
 
+  let opener = null;               // どのカードから 開いたか（もどったとき ここに かえす）
+
   const play = {
     story: null,
     scene: 0,
     at: 0,           // その場面が はじまってからの秒
+    wait: 0,         // 読み上げの終わりを まっている秒
     running: false,
     done: false,
   };
 
   function open(index) {
+    opener = document.activeElement;
     play.story = STORIES[index];
-    play.scene = 0; play.at = 0; play.running = true; play.done = false;
+    play.scene = 0; play.at = 0; play.wait = 0; play.running = true; play.done = false;
     $("title").textContent = play.story.title;
     $("player").hidden = false;
     $("player").setAttribute("aria-hidden", "false");
@@ -107,15 +133,19 @@
     buildDots();
     showScene(true);
     setPlayIcon();
+    keepAwake(true);
+    $("back").focus();
   }
 
   function close() {
     play.running = false;
     play.story = null;
     speech.stop();
+    keepAwake(false);
     $("player").hidden = true;
     $("player").setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+    if (opener && opener.focus) opener.focus();
   }
 
   function buildDots() {
@@ -136,8 +166,9 @@
   function go(delta) {
     const n = play.scene + delta;
     if (n < 0 || n >= play.story.scenes.length) return;
-    play.scene = n; play.at = 0; play.done = false;
+    play.scene = n; play.at = 0; play.wait = 0; play.done = false;
     play.running = true;
+    keepAwake(true);
     setPlayIcon();
     showScene(true);
   }
@@ -150,9 +181,10 @@
   }
 
   function restart() {
-    play.scene = 0; play.at = 0; play.done = false; play.running = true;
+    play.scene = 0; play.at = 0; play.wait = 0; play.done = false; play.running = true;
     showScene(true);
     setPlayIcon();
+    keepAwake(true);
   }
 
   function drawStage(t, dt) {
@@ -163,12 +195,17 @@
     if (play.running && !play.done) {
       play.at += dt;
       if (play.at >= sc.sec) {
-        if (play.scene < st.scenes.length - 1) {
-          play.scene++; play.at = 0;
+        // まだ しゃべっている とちゅうなら、言い終わるまで まつ
+        if (speech.isSpeaking() && play.wait < 8) {
+          play.at = sc.sec;
+          play.wait += dt;
+        } else if (play.scene < st.scenes.length - 1) {
+          play.scene++; play.at = 0; play.wait = 0;
           showScene(true);
         } else {
-          play.at = sc.sec;
+          play.at = sc.sec; play.wait = 0;
           play.running = false; play.done = true;
+          keepAwake(false);
           setPlayIcon();
         }
       }
@@ -215,6 +252,7 @@
   $("play").addEventListener("click", () => {
     if (play.done) { restart(); return; }
     play.running = !play.running;
+    keepAwake(play.running);
     if (play.running) speech.say(play.story.scenes[play.scene].text);
     else speech.stop();
     setPlayIcon();
@@ -242,6 +280,7 @@
     if (document.hidden && play.story) {
       play.running = false;
       speech.stop();
+      keepAwake(false);
       setPlayIcon();
     }
   });
