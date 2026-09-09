@@ -1065,12 +1065,17 @@ body.book #sheet { display: block; }
 
 /* ロケットは横にではなく、下から上へ飛んでいく */
 .zoomface.launch { margin-bottom: 4vh; }
-.zoomface.launch.walk { animation-name: liftoff; animation-timing-function: ease-in; }
+.zoomface.launch.walk { animation-name: liftoff; animation-timing-function: linear; }
 
+/* しゃがんで、はじけて、一気に上がって消える */
 @keyframes liftoff {
-  0%   { transform: translateY(8vh) scale(.92); }
-  14%  { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-74vh) scale(.62); }
+  0%   { transform: translateY(10vh) scale(.9); opacity: 1; }
+  10%  { transform: translateY(14vh) scale(.86); opacity: 1; }   /* ためる */
+  16%  { transform: translateY(6vh) scale(1.06); }               /* はじける */
+  34%  { transform: translateY(-30vh) scale(.92); }
+  52%  { transform: translateY(-78vh) scale(.62); opacity: 1; }
+  62%  { transform: translateY(-98vh) scale(.5); opacity: 0; }
+  100% { transform: translateY(-98vh) scale(.5); opacity: 0; }
 }
 
 /* お友達の飛ぶものも、空に浮かべる */
