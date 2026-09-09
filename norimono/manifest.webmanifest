@@ -1,0 +1,19 @@
+{
+  "name": "のりもの ぶーん",
+  "short_name": "ぶーん",
+  "description": "さわると扉がひらいて、のりものが出てくる。0〜2歳向け。通信なしで遊べる。",
+  "lang": "ja",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#d9f2ff",
+  "theme_color": "#d9f2ff",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

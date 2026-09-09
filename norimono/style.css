@@ -1,0 +1,1047 @@
+:root {
+  --bg: #ffe9c7;
+  --cloth-a: #ff9aa2;
+  --cloth-b: #ffb7b2;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+/* 画面ぜんぶが当たり判定。指1本しか使えない前提 */
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+#chara {
+  width: min(78vw, 78vh);
+  height: min(78vw, 78vh);
+  transform: scale(0.2);
+  opacity: 0;
+}
+
+#chara.pop {
+  animation: pop 620ms cubic-bezier(.22, 1.4, .36, 1) forwards;
+}
+
+@keyframes pop {
+  0%   { transform: scale(.2) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+#chara svg { width: 100%; height: 100%; display: block; }
+
+#chara.wobble {
+  opacity: 1;
+  animation: wobble 1.6s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-2.5%) rotate(2deg); }
+}
+
+/* 手（布）。左右にひらく */
+.cloth {
+  position: fixed;
+  top: -2%;
+  width: 52%;
+  height: 104%;
+  background: linear-gradient(160deg, var(--cloth-a), var(--cloth-b));
+  transition: transform 520ms cubic-bezier(.5, 0, .1, 1);
+  will-change: transform;
+  box-shadow: 0 0 40px rgba(0, 0, 0, .18);
+}
+
+.cloth.left  { left: -1%;  border-radius: 0 46% 46% 0 / 0 50% 50% 0; }
+.cloth.right { right: -1%; border-radius: 46% 0 0 46% / 50% 0 0 50%; }
+
+.open .cloth.left  { transform: translateX(-104%) rotate(-6deg); }
+.open .cloth.right { transform: translateX(104%) rotate(6deg); }
+
+/* 「ばあ！」の文字 */
+#word {
+  position: fixed;
+  bottom: 8%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(40px, 13vw, 110px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 6px 0 rgba(0, 0, 0, .14);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#word.show { animation: word 900ms ease-out forwards; }
+
+@keyframes word {
+  0%   { opacity: 0; transform: scale(.5) translateY(20px); }
+  30%  { opacity: 1; transform: scale(1.1) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* きらきら */
+.spark {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: spark 900ms ease-out forwards;
+}
+
+@keyframes spark {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* 音の入切。子供が押しにくいよう小さく端に置く */
+#snd {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  color: #7a5c3e;
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #chara.wobble { animation: none; transform: none; }
+  .cloth { transition-duration: 1ms; }
+}
+
+/* ── くすぐったいときの ぷるぷる ───────────────────────── */
+#chara.tickle {
+  opacity: 1;
+  animation: tickle 1100ms ease-in-out forwards;
+}
+
+@keyframes tickle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  12% { transform: rotate(-5deg) scale(1.05); }
+  28% { transform: rotate(5deg) scale(1.05); }
+  44% { transform: rotate(-4deg) scale(1.04); }
+  60% { transform: rotate(4deg) scale(1.04); }
+  78% { transform: rotate(-2deg) scale(1.02); }
+}
+
+/* ── ボタン（どれも小さく端に置く。子供が当てにくい大きさ）──── */
+#mode, #book {
+  position: fixed;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+#mode { top: max(8px, env(safe-area-inset-top)); left: 8px; }
+#book { bottom: max(8px, env(safe-area-inset-bottom)); right: 8px; }
+
+/* ── おとモード ───────────────────────────────────────── */
+#pads {
+  position: fixed;
+  inset: 0;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
+  padding-top: max(48px, env(safe-area-inset-top));
+  padding-bottom: max(48px, env(safe-area-inset-bottom));
+  background: #2b2f4a;
+  z-index: 5;
+}
+
+body.drum #pads { display: grid; }
+body.drum .cloth, body.drum #word, body.drum #book { display: none; }
+
+.pad {
+  border: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  padding: 0;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .18);
+  transition: transform 90ms ease-out;
+}
+
+.padface { width: 62%; pointer-events: none; }
+.padface svg { width: 100%; height: auto; display: block; }
+
+.pad.hit { animation: hit 260ms ease-out; }
+
+@keyframes hit {
+  0%   { transform: scale(.9); filter: brightness(1.5); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* ── みつけた（図鑑）─────────────────────────────────── */
+#sheet {
+  position: fixed;
+  inset: 0;
+  display: none;
+  overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+  background: #fffcf4;
+  z-index: 20;
+  text-align: center;
+  color: #7a5c3e;
+}
+
+body.book #sheet { display: block; }
+
+#sheet h1 { font-size: 22px; margin: 6px 0 14px; }
+#sheet .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+#sheet .cell { font-size: 13px; }
+#sheet .cell svg { width: 100%; height: auto; display: block; }
+#sheet .cell.yet { opacity: .5; }
+#sheet .note { margin-top: 18px; font-size: 12px; opacity: .6; }
+
+/* ── おとモード：たたいた子が大きく出る ─────────────────── */
+#zoom {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: end center;   /* 草の上に立たせる */
+  gap: 8px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 8;
+  background: transparent;
+}
+
+#zoom.on { animation: zoomin 900ms ease-out forwards; }
+
+/* クローズアップの背景 */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+}
+
+/* お月さま。右上をくり抜いて三日月にする */
+.moon {
+  background: #fff6cf;
+  box-shadow: inset -18px 6px 0 -2px rgba(0, 0, 0, 0), 0 0 0 14px rgba(255, 246, 207, .18);
+}
+
+.star {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: .35; }
+  50%      { opacity: 1; }
+}
+
+/* 木。三角の葉と幹 */
+.tree {
+  position: absolute;
+  bottom: 16%;
+  width: 16%;
+}
+
+.tree::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 44%;
+  width: 12%;
+  height: 40%;
+  background: #7a5230;
+  border-radius: 2px;
+}
+
+.tree::after {
+  content: "";
+  position: absolute;
+  bottom: 28%;
+  left: 0;
+  right: 0;
+  height: 78%;
+  background: var(--leaf);
+  border-radius: 50% 50% 44% 44%;
+}
+
+.tree.jungle::after { border-radius: 46% 46% 50% 50%; }
+
+/* さく */
+.fence {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 9%;
+  background:
+    repeating-linear-gradient(90deg, #f2e6d2 0 10px, transparent 10px 34px),
+    linear-gradient(#f2e6d2, #f2e6d2) 0 40% / 100% 5px no-repeat;
+}
+
+/* はすの葉 */
+.lily {
+  position: absolute;
+  width: 58px;
+  height: 22px;
+  border-radius: 50%;
+  background: #63ab60;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .08);
+}
+
+/* あめ */
+.rain {
+  position: absolute;
+  top: -8%;
+  width: 2px;
+  height: 16px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .7);
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translateY(120vh); opacity: 1; }
+}
+
+.cloud.gray { background: rgba(226, 232, 236, .95); }
+
+.cloud {
+  position: absolute;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 26px -12px 0 -4px rgba(255, 255, 255, .92),
+              -26px -8px 0 -8px rgba(255, 255, 255, .92);
+  animation: drift 18s linear infinite;
+}
+
+@keyframes drift {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(160vw); }
+}
+
+.hill {
+  position: absolute;
+  bottom: 16%;
+  border-radius: 50% 50% 0 0;
+}
+
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 18%;
+}
+
+/* うしろのお友達。小さく、左右のはしに立つ */
+.friends {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 14vh;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2vw;
+  z-index: 1;
+}
+
+.friend { width: min(30vw, 26vh); }
+.friend svg { width: 100%; height: auto; display: block; }
+.friend .bob { animation: bob 620ms ease-in-out infinite; }
+.friend.f0 .bob { animation-delay: 120ms; }
+.friend.f1 .bob { animation-duration: 540ms; animation-delay: 300ms; }
+.friend .wingL, .friend .wingR { animation: flap 300ms ease-in-out infinite; }
+
+/* 花。円を5枚ならべて花びらにする */
+.flower {
+  position: absolute;
+  animation: sway 2.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.flower::before,
+.flower::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--petal);
+  box-shadow: 0 -70% 0 -12% var(--petal), 0 70% 0 -12% var(--petal),
+              -70% 0 0 -12% var(--petal), 70% 0 0 -12% var(--petal);
+}
+
+.flower::after {
+  inset: 34%;
+  background: #ffe066;
+  box-shadow: none;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50%      { transform: rotate(6deg); }
+}
+
+.zoomface {
+  position: relative;
+  z-index: 2;
+  width: min(66vw, 58vh);
+  margin-bottom: 13vh;
+}
+.zoomface svg { width: 100%; height: auto; display: block; }
+
+/* 曲のあいだ、画面を横切って歩く */
+.zoomface.walk { animation: walk 4s linear both; }
+.bob { animation: bob 420ms ease-in-out infinite; }
+
+/* 足。歩いているあいだだけ前後に振る */
+.legA, .legB { transform-box: fill-box; transform-origin: 50% 0; }
+.walk .legA { animation: legA 420ms ease-in-out infinite; }
+.walk .legB { animation: legB 420ms ease-in-out infinite; }
+
+.wingL, .wingR { transform-box: fill-box; transform-origin: 100% 50%; }
+.wingR { transform-origin: 0% 50%; }
+.walk .wingL, .walk .wingR { animation: flap 260ms ease-in-out infinite; }
+
+@keyframes flap {
+  0%, 100% { transform: scaleX(1); }
+  50%      { transform: scaleX(.35); }
+}
+
+@keyframes legA {
+  0%, 100% { transform: rotate(-16deg); }
+  50%      { transform: rotate(16deg); }
+}
+
+@keyframes legB {
+  0%, 100% { transform: rotate(16deg); }
+  50%      { transform: rotate(-16deg); }
+}
+
+@keyframes walk {
+  0%   { transform: translateX(-32vw) scaleX(1); }
+  48%  { transform: translateX(32vw) scaleX(1); }
+  52%  { transform: translateX(32vw) scaleX(-1); }
+  100% { transform: translateX(-32vw) scaleX(-1); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-6%) rotate(3deg); }
+}
+
+@keyframes zoomin {
+  0%   { opacity: 0; transform: scale(.35); }
+  22%  { opacity: 1; transform: scale(1.06); }
+  40%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #zoom.on { animation: none; opacity: 1; }
+  .zoomface.walk, .bob, .walk .legA, .walk .legB,
+  .walk .wingL, .walk .wingR,
+  .friend .bob, .friend .wingL, .friend .wingR,
+  .star, .rain, .flower { animation: none; }
+}
+
+/* ── 背景の足しもの。どれも画像なし ─────────────────────── */
+
+/* 山。三角に雪をのせる */
+.mount {
+  position: absolute;
+  bottom: 16%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent transparent #9fb3c8 transparent;
+}
+
+.m1 { left: 4%;  border-width: 0 70px 120px 70px; }
+.m2 { left: 32%; border-width: 0 54px 92px 54px; border-bottom-color: #b3c4d6; }
+
+.mount::after {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: 22px;
+  width: 44px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50% 50% 30% 30%;
+}
+
+/* とり。への字が空を横切る */
+.bird {
+  position: absolute;
+  width: 22px;
+  height: 10px;
+  animation: drift linear infinite;
+}
+
+.bird::before,
+.bird::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 10px;
+  border-top: 2.5px solid rgba(70, 80, 95, .6);
+  border-radius: 50%;
+}
+
+.bird::before { left: 0; transform: rotate(18deg); }
+.bird::after  { right: 0; transform: rotate(-18deg); }
+
+/* ちょうちょが飛ぶ（お花ばたけ用） */
+.flyer {
+  position: absolute;
+  width: 16px;
+  height: 12px;
+  animation: flyby linear infinite;
+}
+
+.flyer::before,
+.flyer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff9ec7;
+  animation: flap 260ms ease-in-out infinite;
+}
+
+.flyer::before { left: 0; }
+.flyer::after  { right: 0; background: #ffe066; }
+
+@keyframes flyby {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(70vw, -8vh); }
+  100% { transform: translate(140vw, 0); }
+}
+
+/* おうち */
+.house {
+  position: absolute;
+  bottom: 16%;
+  right: 8%;
+  width: 84px;
+  height: 62px;
+  background: var(--wall);
+  border-radius: 4px;
+}
+
+.house::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: -30px;
+  border-style: solid;
+  border-width: 0 50px 32px 50px;
+  border-color: transparent transparent #8a5a4a transparent;
+}
+
+.house::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 22px;
+  width: 24px;
+  height: 22px;
+  background: #ffe9a8;
+  border-radius: 3px;
+}
+
+/* くさむら・石・きのこ */
+.bush {
+  position: absolute;
+  height: 22px;
+  border-radius: 50% 50% 0 0;
+  background: rgba(0, 0, 0, .12);
+}
+
+.stone {
+  position: absolute;
+  width: 26px;
+  height: 15px;
+  border-radius: 50% 50% 40% 40%;
+  background: #b9b3aa;
+}
+
+.mush {
+  position: absolute;
+  width: 18px;
+  height: 20px;
+}
+
+.mush::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  width: 6px;
+  height: 11px;
+  background: #f3e6cf;
+  border-radius: 2px;
+}
+
+.mush::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 12px;
+  background: #e2564f;
+  border-radius: 50% 50% 20% 20%;
+  box-shadow: inset -4px 3px 0 -1px rgba(255, 255, 255, .7);
+}
+
+/* ほたる */
+.firefly {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff2a8;
+  box-shadow: 0 0 10px 3px rgba(255, 242, 168, .8);
+  animation: float 4.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); opacity: .25; }
+  50%      { transform: translate(14px, -18px); opacity: 1; }
+}
+
+/* 流れ星 */
+.shooting {
+  position: absolute;
+  top: 14%;
+  left: 12%;
+  width: 70px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff);
+  animation: shoot 6s ease-in infinite;
+}
+
+@keyframes shoot {
+  0%, 70%  { transform: translate(0, 0) rotate(18deg); opacity: 0; }
+  76%      { opacity: 1; }
+  92%, 100% { transform: translate(46vw, 22vh) rotate(18deg); opacity: 0; }
+}
+
+/* にじ */
+.rainbow {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  width: 90vw;
+  height: 45vw;
+  margin-left: -45vw;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border: 12px solid #ff8fab;
+  border-bottom: 0;
+  box-shadow: 0 0 0 12px #ffd166, 0 0 0 24px #a8e6a3, 0 0 0 36px #8ec5ff;
+  opacity: .5;
+}
+
+/* つる（ジャングル） */
+.vine {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  background: #3f8f52;
+  border-radius: 0 0 8px 8px;
+}
+
+.vine::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: -8px;
+  width: 24px;
+  height: 16px;
+  background: #4fae5a;
+  border-radius: 50%;
+}
+
+/* 水のさざ波 */
+.ripple {
+  position: absolute;
+  width: 46px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, .55);
+  border-radius: 50%;
+  animation: spread 3s ease-out infinite;
+}
+
+@keyframes spread {
+  0%   { transform: scale(.4); opacity: .9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bird, .flyer, .firefly, .shooting, .ripple { animation: none; }
+}
+
+/* 大きな木（大きな栗の木の下で） */
+.bigtree {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  margin-left: -34vw;
+  width: 68vw;
+  height: 46%;
+}
+
+.bigtree::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 46%;
+  width: 9%;
+  height: 46%;
+  background: #7a5230;
+  border-radius: 3px;
+}
+
+.bigtree::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62%;
+  background: #4fae5a;
+  border-radius: 50%;
+  box-shadow: -14% 12% 0 -6% #45a151, 14% 12% 0 -6% #5cbb66;
+}
+
+/* 木の実 */
+.nut {
+  position: absolute;
+  width: 16px;
+  height: 14px;
+  background: #8a5a33;
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: inset -3px -2px 0 rgba(0, 0, 0, .15);
+}
+
+/* ── おとモードの画面を、待っているあいだも動かす ─────────── */
+#pads {
+  background:
+    radial-gradient(120% 80% at 20% 0%, #3b4272 0%, transparent 60%),
+    radial-gradient(120% 80% at 80% 100%, #46325e 0%, transparent 60%),
+    #2b2f4a;
+  background-size: 140% 140%, 140% 140%, auto;
+  animation: sky 18s ease-in-out infinite alternate;
+}
+
+@keyframes sky {
+  0%   { background-position: 0% 0%, 100% 100%, 0 0; }
+  100% { background-position: 30% 20%, 70% 80%, 0 0; }
+}
+
+/* ボタンの顔が、ゆっくり息をする */
+.pad .padface { animation: breathe 2.8s ease-in-out infinite; }
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-4%) scale(1.05); }
+}
+
+/* ときどき1枚だけ跳ねる */
+.pad.peek { animation: peek 700ms ease-out; }
+
+@keyframes peek {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-8px) scale(1.04); }
+  60%  { transform: translateY(0) scale(.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* たたいたところに広がる輪 */
+.ring {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255, 255, 255, .85);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9;
+  animation: ringout 600ms ease-out forwards;
+}
+
+@keyframes ringout {
+  0%   { transform: scale(.4); opacity: .9; }
+  100% { transform: scale(4.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pads, .pad .padface, .pad.peek, .ring { animation: none; }
+}
+
+/* 音の入切ボタン。長押ししているあいだ、色が縮んで分かるようにする */
+#snd.off { background: rgba(255, 190, 190, .8); color: #a33; }
+#snd.holding { transform: scale(.86); transition: transform 700ms linear; }
+
+/* 音いろを変えるボタン */
+#inst {
+  position: fixed;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  left: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  font-size: 15px;
+  line-height: 34px;
+  padding: 0;
+  z-index: 10;
+}
+
+/* 音いろの名前を、少しのあいだ出す */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 14%;
+  transform: translateX(-50%) translateY(8px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+  z-index: 30;
+}
+
+#toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* いぬのしっぽ。ちょうちょの羽と同じように、いつも振っている */
+.tail.wag {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: wag 320ms ease-in-out infinite;
+}
+
+@keyframes wag {
+  0%, 100% { transform: rotate(-16deg); }
+  50%      { transform: rotate(20deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tail.wag { animation: none; }
+}
+
+/* ── のりもの ─────────────────────────────────────────── */
+.zoomface { width: min(84vw, 56vh); margin-bottom: 9vh; }
+.friend { width: min(38vw, 24vh); }
+
+/* タイヤは走っているあいだ回る */
+.wheel { transform-box: fill-box; transform-origin: 50% 50%; }
+.walk .wheel { animation: roll 620ms linear infinite; }
+.friend .wheel { animation: roll 1.4s linear infinite; }
+
+@keyframes roll { to { transform: rotate(360deg); } }
+
+/* 屋根のランプは点滅させない（1秒に3回以上光らせない）。ゆっくり明滅させる */
+.lamp { animation: lampglow 1.6s ease-in-out infinite; }
+
+@keyframes lampglow {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
+
+/* ロケットの炎 */
+.flame { transform-box: fill-box; transform-origin: 50% 0; }
+.walk .flame, .friend .flame { animation: burn 220ms ease-in-out infinite alternate; }
+
+@keyframes burn {
+  0%   { transform: scaleY(.8); }
+  100% { transform: scaleY(1.25); }
+}
+
+/* まちのビル */
+.bldg {
+  position: absolute;
+  bottom: 16%;
+  width: 13%;
+  background: var(--wall);
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .05);
+  background-image: radial-gradient(circle at 30% 20%, rgba(255, 233, 168, .95) 3px, transparent 4px),
+                    radial-gradient(circle at 70% 45%, rgba(255, 233, 168, .8) 3px, transparent 4px),
+                    radial-gradient(circle at 35% 70%, rgba(255, 233, 168, .7) 3px, transparent 4px);
+}
+
+/* 道路。まん中の白い線 */
+.road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7%;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, #fff 0 26px, transparent 26px 52px);
+  opacity: .85;
+}
+
+/* 線路。まくらぎとレール */
+.rails {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6%;
+  height: 22px;
+  background:
+    repeating-linear-gradient(90deg, #8a6a44 0 12px, transparent 12px 30px),
+    linear-gradient(#b8bcc6, #b8bcc6) 0 4px / 100% 4px repeat-x,
+    linear-gradient(#b8bcc6, #b8bcc6) 0 16px / 100% 4px repeat-x;
+}
+
+/* 信号 */
+.signal {
+  position: absolute;
+  right: 14%;
+  bottom: 16%;
+  width: 14px;
+  height: 34%;
+  background: #6b7080;
+  border-radius: 3px;
+}
+
+.signal::after {
+  content: "";
+  position: absolute;
+  top: -26px;
+  left: -8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: #3a3f4d;
+  box-shadow: inset 0 -9px 0 -3px #6fd08c, inset 0 9px 0 -3px #ff6f61;
+}
+
+/* こうじげんばのコーンと砂山 */
+.cone {
+  position: absolute;
+  bottom: 3%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 12px 26px 12px;
+  border-color: transparent transparent #ff7a3d transparent;
+}
+
+.cone::after {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 12px;
+  width: 18px;
+  height: 5px;
+  background: #fff;
+}
+
+.sandpile {
+  position: absolute;
+  bottom: 16%;
+  width: 30%;
+  height: 12%;
+  background: #d8b483;
+  border-radius: 50% 50% 0 0;
+}
+
+/* 雲の海（ひこうき） */
+.cloudsea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26%;
+  background:
+    radial-gradient(60% 120% at 15% 0%, #fff 0 60%, transparent 61%),
+    radial-gradient(60% 120% at 45% -10%, #fff 0 60%, transparent 61%),
+    radial-gradient(60% 120% at 80% 0%, #fff 0 60%, transparent 61%),
+    #eaf6ff;
+}
+
+/* 夜の空にうかぶ星（ロケット） */
+.planet {
+  position: absolute;
+  top: 26%;
+  left: 10%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #d9a06b;
+  box-shadow: inset -10px -6px 0 rgba(0, 0, 0, .12);
+}
+
+.planet::after {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 22px;
+  width: 88px;
+  height: 12px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 224, 102, .7);
+  transform: rotate(-14deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walk .wheel, .friend .wheel, .lamp, .flame { animation: none; }
+}
