@@ -9,11 +9,11 @@
  * 会ったのりものは「みつけた」に残る（端末の中だけ。どこにも送らない）。
  */
 
-const VERSION = "10"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "12"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 // ── 出てくるのりもの（どれも自作の絵）───────────────────────────
 const CHARAS = [
-  { name: "しょうぼうしゃ", body: "#e5484d", roof: "#c2373c", win: "#cfe9ff", kind: "truck",
+  { name: "しょうぼうしゃ", file: "shoubousha", body: "#e5484d", roof: "#c2373c", win: "#cfe9ff", kind: "truck", label: "しょうぼうしゃ",
     ladder: true, light: "#ff5a5a", note: [523, 659, 784],
     cry: "うーうー", sfx: [
       [560, 980, 0.55, "sawtooth", 0.2], { n: [220, 260, 0.55, 1, 0.06], with: true },
@@ -26,7 +26,7 @@ const CHARAS = [
       ["G4",1],["G4",0.5],["A4",0.5],["G4",1],["E4",1],
       ["F4",1],["G4",1],["C5",2]] },
 
-  { name: "パトカー", body: "#f4f4f6", roof: "#2b2f4a", win: "#cfe9ff", kind: "car",
+  { name: "パトカー", file: "patocar", body: "#f4f4f6", roof: "#2b2f4a", win: "#cfe9ff", kind: "sedan", label: "ぱとかー",
     light: "#e5484d", light2: "#5aa9ff", note: [587, 740, 880],
     // ピーポーピーポー。高さを動かさず、2つの音を交互に鳴らす
     cry: "ぴーぽーぴーぽー",
@@ -42,7 +42,7 @@ const CHARAS = [
       ["G4",0.5],["A4",0.5],["G4",1],["E4",0.5],["D4",0.5],["C4",1],
       ["D4",1],["E4",1],["C4",2]] },
 
-  { name: "きゅうきゅうしゃ", body: "#fbfbfd", roof: "#e5484d", win: "#cfe9ff", kind: "truck",
+  { name: "きゅうきゅうしゃ", file: "kyukyusha", body: "#fbfbfd", roof: "#e5484d", win: "#cfe9ff", kind: "van", label: "きゅうきゅうしゃ",
     light: "#ff5a5a", note: [494, 622, 740],
     cry: "ぴーぽーぴーぽー",
     sfx: [
@@ -55,7 +55,7 @@ const CHARAS = [
       ["F4",0.5],["E4",0.5],["F4",0.5],["A4",0.5],["G4",2],
       ["C5",0.5],["A4",0.5],["G4",0.5],["F4",0.5],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "でんしゃ", body: "#4fae5a", roof: "#3f8f52", win: "#d8f0ff", kind: "train",
+  { name: "でんしゃ", file: "densha", body: "#4fae5a", roof: "#3f8f52", win: "#d8f0ff", kind: "train", label: "でんしゃ",
     stripe: "#ffe066", note: [440, 554, 659],
     cry: "がたんごとん", sfx: [
       { n: [900, 500, 0.1, 1.5, 0.26] }, { n: [900, 500, 0.1, 1.5, 0.22] },
@@ -68,7 +68,7 @@ const CHARAS = [
       ["G4",0.5],["G4",0.5],["A4",0.5],["G4",0.5],["E4",1],["C4",1],
       ["D4",1],["E4",1],["C4",2]] },
 
-  { name: "しんかんせん", body: "#eef2f7", roof: "#3a6ea5", win: "#cfe9ff", kind: "train",
+  { name: "しんかんせん", file: "shinkansen", body: "#eef2f7", roof: "#3a6ea5", win: "#cfe9ff", kind: "shinkansen", label: "しんかんせん",
     stripe: "#5aa9ff", fast: true, note: [659, 831, 988],
     cry: "しゅーん", sfx: [
       { n: [300, 3000, 0.6, 0.7, 0.26] }, { t: [200, 900, 0.6, "sawtooth", 0.1], with: true },
@@ -78,7 +78,7 @@ const CHARAS = [
       ["E5",0.5],["D5",0.5],["C5",0.5],["D5",0.5],["E5",1],["G5",2],
       ["A5",0.5],["G5",0.5],["E5",0.5],["D5",0.5],["C5",1],["D5",1],["C5",2]] },
 
-  { name: "バス", body: "#ffb347", roof: "#e39227", win: "#d8f0ff", kind: "bus",
+  { name: "バス", file: "bus", body: "#ffb347", roof: "#e39227", win: "#d8f0ff", kind: "bus", label: "ばす",
     stripe: "#fff", note: [392, 494, 587],
     cry: "ぷっぷー", sfx: [
       [330, 300, 0.26, "square", 0.2], { t: [660, 600, 0.26, "square", 0.06], with: true },
@@ -89,7 +89,7 @@ const CHARAS = [
       ["A4",1],["G4",1],["F4",1],["E4",1],["F4",2],
       ["C5",1],["A4",1],["G4",1],["F4",1],["G4",1],["F4",2]] },
 
-  { name: "ショベルカー", body: "#ffd166", roof: "#e0b34a", win: "#d8f0ff", kind: "digger",
+  { name: "ショベルカー", file: "shovel", body: "#ffd166", roof: "#e0b34a", win: "#d8f0ff", kind: "digger", label: "しょべるかー",
     note: [349, 440, 523],
     cry: "がががが", sfx: [
       { n: [120, 90, 0.14, 1.5, 0.12] }, { t: [70, 58, 0.14, "square", 0.1], with: true },
@@ -101,7 +101,7 @@ const CHARAS = [
       ["D4",1],["D4",1],["G4",1],["F4",1],["E4",1],["D4",1],["C4",2],
       ["C4",0.5],["C4",0.5],["F4",1],["G4",1],["C4",2]] },
 
-  { name: "ひこうき", fly: true, body: "#e9f2fb", roof: "#8ec5ff", win: "#cfe9ff", kind: "plane",
+  { name: "ひこうき", file: "hikouki", fly: true, body: "#e9f2fb", roof: "#8ec5ff", win: "#cfe9ff", kind: "plane", label: "ひこうき",
     stripe: "#5aa9ff", note: [698, 880, 1046],
     cry: "ごおおお", sfx: [
       { n: [400, 2600, 0.8, 0.6, 0.28] }, { t: [180, 700, 0.8, "sawtooth", 0.09], with: true },
@@ -111,7 +111,7 @@ const CHARAS = [
       ["A4",1],["B4",1],["C5",1],["D5",1],["E5",2],
       ["D5",1],["C5",1],["B4",1],["A4",1],["G4",2]] },
 
-  { name: "ロケット", fly: true, launch: true, encore: undefined, body: "#f4f6fb", roof: "#e5484d", win: "#8ecfff", kind: "rocket",
+  { name: "ロケット", file: "rocket", fly: true, launch: true, encore: undefined, body: "#f4f6fb", roof: "#e5484d", win: "#8ecfff", kind: "rocket", label: "ろけっと",
     encore: 0, note: [523, 784, 1046],
     cry: "しゅぱーん", sfx: [
       { n: [80, 1800, 0.25, 0.5, 0.22] }, { t: [60, 40, 0.25, "square", 0.14], with: true },
@@ -187,18 +187,39 @@ function vehicleInner(c, opt = {}, small = false) {
         ${opt.gray ? "" : `<g class="flame"><path d="M50 74 Q60 96 70 74 Z" fill="#ffb347"/>
           <path d="M55 74 Q60 88 65 74 Z" fill="#ffe066"/></g>`}`;
 
-    case "train":
-    case "bus": {
-      const long = c.kind === "bus" ? 0 : 6;
-      return `<rect x="${10 - long}" y="30" width="${96 + long * 2}" height="40" rx="10" fill="${body}"/>
-        <rect x="${10 - long}" y="30" width="${96 + long * 2}" height="12" rx="6" fill="${roof}"/>
-        ${c.stripe ? `<rect x="${10 - long}" y="54" width="${96 + long * 2}" height="6" fill="${c.stripe}"/>` : ""}
-        <rect x="${64 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
-        <rect x="${84 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
-        <rect x="${20 - long}" y="38" width="26" height="14" rx="3" fill="${win}"/>
-        <rect x="${44 - long}" y="38" width="16" height="14" rx="3" fill="${win}"/>
-        ${wheel(30, 72, 11)}${wheel(84, 72, 11)}`;
-    }
+    case "shinkansen": // 先のとがった顔。でんしゃと見分ける
+      return `<path d="M4 66 Q22 36 62 34 L112 34 Q120 34 120 42 L120 66 Z" fill="${body}"/>
+        <path d="M4 66 Q22 36 62 34 L62 44 Q30 46 18 66 Z" fill="${roof}" opacity=".5"/>
+        <rect x="30" y="52" width="90" height="6" fill="${c.stripe}"/>
+        <path d="M22 56 Q30 46 44 45 L44 56 Z" fill="${win}"/>
+        <rect x="58" y="42" width="14" height="9" rx="2" fill="${win}"/>
+        <rect x="78" y="42" width="14" height="9" rx="2" fill="${win}"/>
+        <rect x="98" y="42" width="14" height="9" rx="2" fill="${win}"/>
+        ${wheel(34, 70, 8)}${wheel(56, 70, 8)}${wheel(100, 70, 8)}`;
+
+    case "train": // 四角い顔。屋根にパンタグラフ
+      return `<path d="M28 20 L40 12 M40 12 L52 20" stroke="${opt.gray ? "#cfcac3" : "#8c8f99"}"
+              stroke-width="3" fill="none"/>
+        <rect x="10" y="26" width="108" height="44" rx="8" fill="${body}"/>
+        <rect x="10" y="26" width="108" height="10" rx="5" fill="${roof}"/>
+        <rect x="10" y="50" width="108" height="6" fill="${c.stripe}"/>
+        <rect x="18" y="36" width="24" height="12" rx="3" fill="${win}"/>
+        <rect x="50" y="36" width="18" height="12" rx="3" fill="${win}"/>
+        <rect x="76" y="36" width="18" height="12" rx="3" fill="${win}"/>
+        <rect x="98" y="36" width="14" height="12" rx="3" fill="${win}"/>
+        ${wheel(32, 72, 9)}${wheel(56, 72, 9)}${wheel(94, 72, 9)}`;
+
+    case "bus": // 背が高く、まるい顔。ドアの線がある
+      return `<path d="M10 30 Q10 24 18 24 L106 24 Q114 24 114 32 L114 68 Q114 72 108 72
+                L16 72 Q10 72 10 66 Z" fill="${body}"/>
+        <rect x="10" y="24" width="104" height="9" rx="4" fill="${roof}"/>
+        <rect x="10" y="56" width="104" height="5" fill="${c.stripe}"/>
+        <path d="M14 34 Q14 32 18 32 L38 32 L38 50 L14 50 Z" fill="${win}"/>
+        <rect x="44" y="32" width="16" height="18" rx="2" fill="${win}"/>
+        <rect x="66" y="32" width="16" height="18" rx="2" fill="${win}"/>
+        <rect x="88" y="32" width="16" height="18" rx="2" fill="${win}"/>
+        <rect x="60" y="50" width="3" height="22" fill="${roof}" opacity=".6"/>
+        ${wheel(34, 72, 11)}${wheel(94, 72, 11)}`;
 
     case "digger":
       return `<rect x="26" y="34" width="60" height="34" rx="8" fill="${body}"/>
@@ -209,7 +230,19 @@ function vehicleInner(c, opt = {}, small = false) {
         <rect x="64" y="46" width="16" height="12" rx="3" fill="${win}"/>
         ${wheel(40, 70, 14)}${wheel(78, 72, 11)}`;
 
-    case "car":
+    case "van": // 背の高い箱。きゅうきゅうしゃ
+      return `<path d="M12 30 Q12 26 18 26 L74 26 Q80 26 82 32 L96 44 Q104 46 104 54
+                L104 68 Q104 72 98 72 L18 72 Q12 72 12 66 Z" fill="${body}"/>
+        <rect x="12" y="26" width="70" height="9" rx="4" fill="${roof}"/>
+        ${lamp}
+        <path d="M84 46 L98 46 Q100 48 100 54 L84 54 Z" fill="${win}"/>
+        <rect x="20" y="36" width="22" height="14" rx="3" fill="${win}"/>
+        <rect x="48" y="36" width="22" height="14" rx="3" fill="${win}"/>
+        ${opt.gray ? "" : `<rect x="46" y="54" width="16" height="5" rx="1" fill="${c.roof}"/>
+          <rect x="51.5" y="48.5" width="5" height="16" rx="1" fill="${c.roof}"/>`}
+        ${wheel(34, 72, 11)}${wheel(88, 72, 10)}`;
+
+    case "sedan": // 低くてまるい。パトカー
       return `<path d="M14 52 Q20 34 44 32 L74 32 Q92 34 100 52 L100 62 Q100 68 92 68 L22 68
                 Q14 68 14 62 Z" fill="${body}"/>
         <path d="M30 40 Q34 26 56 26 L68 26 Q84 28 90 40 Z" fill="${roof}"/>
@@ -218,7 +251,7 @@ function vehicleInner(c, opt = {}, small = false) {
         <path d="M60 28 Q78 28 86 40 L60 40 Z" fill="${win}"/>
         ${wheel(34, 68, 11)}${wheel(84, 68, 11)}`;
 
-    default: // truck（しょうぼうしゃ・きゅうきゅうしゃ）
+    default: // はしご車（しょうぼうしゃ）
       return `<rect x="12" y="30" width="52" height="40" rx="8" fill="${body}"/>
         <path d="M64 42 L92 42 Q102 42 104 52 L104 70 L64 70 Z" fill="${body}"/>
         <rect x="12" y="30" width="52" height="10" rx="5" fill="${roof}"/>
@@ -246,29 +279,16 @@ let ac = null;
 let bus = null; // 声と曲の出口。押し直したら、ここごと切って止める
 let soundOn = localStorage.getItem("norimono-sound") !== "off";
 
-/* ── 音いろ ────────────────────────────────────────────
- * のこぎり波1本だと電子音になる。倍音を何本か重ね、減衰のしかたを
- * 楽器ごとに変えると、それらしく聞こえる。音源ファイルは持たない。
- *   partials: [周波数の倍率, 音量の割合, 減衰の速さ]
- */
-const INSTRUMENTS = [
-  { name: "オルゴール", type: "sine", attack: 0.004, decay: 2.4,
-    partials: [[1, 1, 1], [2.76, 0.34, 1.4], [5.4, 0.12, 1.8], [8.9, 0.05, 2.2]] },
-  { name: "もっきん",   type: "sine", attack: 0.003, decay: 0.5,
-    partials: [[1, 1, 1], [3.99, 0.4, 1.6], [9.2, 0.12, 2.4]] },
-  { name: "ピアノ",     type: "triangle", attack: 0.006, decay: 1.4,
-    partials: [[1, 1, 1], [2, 0.42, 1.3], [3, 0.2, 1.6], [4, 0.09, 2]] },
-  { name: "ふえ",       type: "sine", attack: 0.08, decay: 0.5, hold: true, vibrato: 5,
-    partials: [[1, 1, 1], [2, 0.16, 1], [3, 0.06, 1]] },
-  { name: "ギター",     type: "sawtooth", attack: 0.004, decay: 1.0, filter: true,
-    partials: [[1, 1, 1], [2, 0.3, 1.2], [3, 0.12, 1.5]] },
-];
-
-let instIdx = Number(localStorage.getItem("norimono-inst") || 0) % INSTRUMENTS.length;
+/* 曲の音いろ。選べるようにしていたが、選ぶ必要はないので1つに決めた。
+   倍音を重ね、減衰を作ってピアノに寄せてある。 */
+const INSTRUMENT = {
+  type: "triangle", attack: 0.006, decay: 1.4,
+  partials: [[1, 1, 1], [2, 0.42, 1.3], [3, 0.2, 1.6], [4, 0.09, 2]],
+};
 
 function playNote(f, at, dur, vol = 0.2) {
   if (!ac) return;
-  const ins = INSTRUMENTS[instIdx];
+  const ins = INSTRUMENT;
   const t = ac.currentTime + at;
   const dest = out();
 
@@ -519,6 +539,56 @@ function noiseBand(f0, f1, at, dur, q, vol) {
   src.stop(t + dur + 0.05);
 }
 
+/* 音源ファイルの置き場。`sfx/list.json` に載っているものだけを読みに行く。
+   一覧を1回見るだけなので、ファイルを置いていないときの無駄な通信がない。
+   一覧は `_make_sfx_list.py` で作る（置いたファイルを並べるだけ）。
+   ファイルは端末に読み込んでから使うので、圏外でも鳴る。 */
+const SFX_DIR = "./sfx/";
+const sfxCache = new Map();
+let sfxList = null; // なまえ → ファイル名
+
+async function loadSfxList() {
+  if (sfxList) return sfxList;
+  sfxList = {};
+  try {
+    const res = await fetch(`${SFX_DIR}list.json`, { cache: "force-cache" });
+    if (res.ok) sfxList = await res.json();
+  } catch (_) { /* 置いていなければ合成音のまま */ }
+  return sfxList;
+}
+
+async function loadSfx(name) {
+  if (!name || sfxCache.has(name)) return sfxCache.get(name) || null;
+  const list = await loadSfxList();
+  const fileName = list[name];
+  if (!fileName) { sfxCache.set(name, null); return null; }
+  sfxCache.set(name, null); // 二重に取りに行かない
+  try {
+    const res = await fetch(SFX_DIR + fileName, { cache: "force-cache" });
+    if (!res.ok) return null;
+    const buf = await ac.decodeAudioData(await res.arrayBuffer());
+    sfxCache.set(name, buf);
+    return buf;
+  } catch (_) {
+    return null;
+  }
+}
+
+function playFile(name, vol = 0.9) {
+  const buf = sfxCache.get(name);
+  if (!buf) {
+    loadSfx(name); // 次に押したときには間に合う
+    return false;
+  }
+  const src = ac.createBufferSource();
+  const g = ac.createGain();
+  src.buffer = buf;
+  g.gain.value = vol;
+  src.connect(g).connect(out());
+  src.start(ac.currentTime);
+  return true;
+}
+
 /* のりものの音。
    [はじめ, おわり, 長さ, 波のかたち, 音量]      … 高さのある音
    { n: [はじめ, おわり, 長さ, するどさ, 音量] } … 雑音（エンジン・噴射）
@@ -591,6 +661,8 @@ function tuneLen(c) {
 
 // 音を鳴らさずに長さだけ知る。音が切れていても、絵は同じ長さで見せる
 function voiceLen(c) {
+  const buf = sfxCache.get(c.file);
+  if (buf) return buf.duration;
   return (c.sfx || []).reduce((t, e) => {
     if (Array.isArray(e)) return t + e[2] + 0.04;
     if (e.with) return t;                       // 重ねる音は時間を進めない
@@ -599,6 +671,9 @@ function voiceLen(c) {
 }
 
 function cry(c) {
+  if (!audio()) return 0;
+  // 音源ファイルが置いてあればそれを、無ければ合成音を鳴らす
+  if (playFile(c.file)) return sfxCache.get(c.file).duration;
   return playSfx(c.sfx);
 }
 
@@ -635,7 +710,6 @@ const sndBtn = document.getElementById("snd");
 const modeBtn = document.getElementById("mode");
 const bookBtn = document.getElementById("book");
 const sheet = document.getElementById("sheet");
-const instBtn = document.getElementById("inst");
 const pads = document.getElementById("pads");
 const zoom = document.getElementById("zoom");
 
@@ -955,7 +1029,8 @@ function flowers(n) {
 
 // うしろに出てくるお友達。毎回ちがう2人
 function friendsOf(c) {
-  const rest = CHARAS.filter((x) => x !== c);
+  // ロケットは、自分の場面のとき以外は出さない。まちの空にいると変
+  const rest = CHARAS.filter((x) => x !== c && !x.launch);
   for (let i = rest.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rest[i], rest[j]] = [rest[j], rest[i]];
@@ -971,6 +1046,7 @@ function showZoom(c) {
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
     <div class="skyfriends">${friends.filter((f) => f.fly).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
+    <div class="vname">${c.label || c.name}</div>
     <div class="zoomface${c.fly ? " fly" : ""}${c.launch ? " launch" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
@@ -1089,7 +1165,7 @@ function setMode(next) {
   hide();
   closeBook();
   document.body.classList.toggle("drum", mode === "drum");
-  modeBtn.textContent = mode === "drum" ? "🙈" : "🥁";
+  modeBtn.textContent = mode === "drum" ? "🚙" : "🎵";
   paint(mode === "drum" ? "#2b2f4a" : pick(BG), null);
   if (mode === "drum" && !pads.children.length) buildPads();
   if (mode === "drum") startPeek();
@@ -1176,23 +1252,19 @@ modeBtn.addEventListener("pointerdown", (e) => {
   setMode(mode === "baa" ? "drum" : "baa");
 });
 
-// 音いろを変える。押すたびに次の楽器へ
-instBtn.addEventListener("pointerdown", (e) => {
-  e.stopPropagation();
-  instIdx = (instIdx + 1) % INSTRUMENTS.length;
-  localStorage.setItem("norimono-inst", String(instIdx));
-  toast(INSTRUMENTS[instIdx].name);
-  if (audio()) {
-    newBus();
-    [523, 659, 784].forEach((f, i) => playNote(f, i * 0.12, 0.5, 0.22));
-  }
-});
-
 bookBtn.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
   if (document.body.classList.contains("book")) closeBook();
   else openBook();
 });
+
+// 置いてあるファイルを、音が使えるようになった時点で読み込んでおく
+function preloadSfx() {
+  if (!audio()) return;
+  CHARAS.forEach((c) => loadSfx(c.file));
+}
+
+document.addEventListener("pointerdown", preloadSfx, { once: true });
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
