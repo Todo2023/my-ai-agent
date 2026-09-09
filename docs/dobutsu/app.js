@@ -109,7 +109,22 @@
   /* --------------------------------------------------------- おはなし再生 */
 
   const stage = $("stage");
-  const gs = fit(stage, W, H);
+  const gs = stage.getContext("2d");
+
+  // 絵は、あいている場所いっぱいに 広げる（たてよこの ひはそのまま）。
+  // 大きく出しても ぼやけないように、画面の細かさに あわせて 点の数も ふやす。
+  function layoutStage() {
+    const wrap = stage.parentElement;
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    if (!w || !h) return;
+    const k = Math.min(w / W, h / H);
+    const cw = Math.max(1, Math.floor(W * k)), ch = Math.max(1, Math.floor(H * k));
+    stage.style.width = cw + "px";
+    stage.style.height = ch + "px";
+    stage.width = Math.round(cw * dpr);
+    stage.height = Math.round(ch * dpr);
+    gs.setTransform((cw / W) * dpr, 0, 0, (ch / H) * dpr, 0, 0);
+  }
 
   let opener = null;               // どのカードから 開いたか（もどったとき ここに かえす）
 
@@ -131,6 +146,7 @@
     $("player").setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     buildDots();
+    layoutStage();
     showScene(true);
     setPlayIcon();
     keepAwake(true);
@@ -157,6 +173,7 @@
   function showScene(speak) {
     const sc = play.story.scenes[play.scene];
     $("caption").textContent = sc.text;
+    layoutStage();
     [].forEach.call($("dots").children, (el, i) => {
       el.className = i === play.scene ? "on" : "";
     });
@@ -275,6 +292,9 @@
     if (e.key === "ArrowLeft") go(-1);
     if (e.key === " ") { e.preventDefault(); $("play").click(); }
   });
+
+  window.addEventListener("resize", layoutStage);
+  window.addEventListener("orientationchange", () => setTimeout(layoutStage, 250));
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && play.story) {

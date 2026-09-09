@@ -4,6 +4,13 @@
 
 **https://todo2023.github.io/my-ai-agent/dobutsu/**
 
+サインインなしで、だれでも開ける。スマホのホーム画面にも入る。
+
+> 配信元ブランチ（`claude/hp-implementation-xubnv6`）では、このフォルダは
+> **`docs/dobutsu/`** に置いてある。配信されるのが `docs/` の中だけのため。
+> 直したら、そちらにも同じものを入れないとサイトは変わらない。くわしくは
+> [`sekkei/haishin.md`](../sekkei/haishin.md)。
+
 ## あそびかた
 
 1. 9つのカードから、見たい動物を触る
