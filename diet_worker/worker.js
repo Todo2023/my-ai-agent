@@ -146,19 +146,27 @@ async function saveRecord(env, data, body) {
   const person = personIndex(body.person);
   const date = String(body.date || "");
   const weight = number(body.weight);
+  const note = body.note ? String(body.note).slice(0, 40) : null;
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("日付の形式が違います");
-  if (weight === null || weight < W_MIN || weight > W_MAX) {
-    throw new Error("体重が入力できる範囲（" + W_MIN + "〜" + W_MAX + "kg）の外です");
-  }
 
-  const record = {
-    person: person,
-    date: date,
-    weight: Math.round(weight * 10) / 10,
-    source: body.source === "ocr" ? "ocr" : "manual",
-    note: body.note ? String(body.note).slice(0, 40) : null
-  };
+  // 「その日は測らなかった」も記録として残す。空白のままだと、測り忘れなのか
+  // 入力し忘れなのかが後から分からなくなるため。
+  let record;
+  if (body.skipped) {
+    record = { person: person, date: date, weight: null, skipped: true, source: "skipped", note: note };
+  } else {
+    if (weight === null || weight < W_MIN || weight > W_MAX) {
+      throw new Error("体重が入力できる範囲（" + W_MIN + "〜" + W_MAX + "kg）の外です");
+    }
+    record = {
+      person: person,
+      date: date,
+      weight: Math.round(weight * 10) / 10,
+      source: body.source === "ocr" ? "ocr" : "manual",
+      note: note
+    };
+  }
 
   const index = data.records.findIndex((r) => r.person === person && r.date === date);
   const overwritten = index >= 0;
@@ -196,7 +204,9 @@ async function setPerson(env, data, body) {
  */
 async function readScale(env, data, body) {
   const person = personIndex(body.person);
-  const rows = data.records.filter((r) => r.person === person).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const rows = data.records
+    .filter((r) => r.person === person && typeof r.weight === "number")
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
   const previous = rows.length ? rows[rows.length - 1].weight : null;
 
   let reading;
@@ -487,6 +497,7 @@ const PAGE = `<!DOCTYPE html>
 
       <div id="notice"></div>
       <button class="primary" id="save">この内容で記録する</button>
+      <button class="ghost" id="skip">この日は測っていない</button>
     </section>
 
     <section>
@@ -611,10 +622,11 @@ function normalizeState(next) {
       person: Number(r.person) === 1 ? 1 : 0,
       date: String(r.date || ""),
       weight: num(r.weight),
+      skipped: !!r.skipped,
       source: String(r.source || "manual"),
       note: r.note ? String(r.note) : null
     };
-  }).filter(function (r) { return r.date && r.weight !== null; });
+  }).filter(function (r) { return r.date && (r.weight !== null || r.skipped); });
 
   return { people: people, records: records, today: String(next.today || "") };
 }
@@ -632,14 +644,20 @@ function refresh() {
 
 /* ---------- 集計 ---------- */
 
+/** 一覧に出す全部の記録（未測定の日を含む）。 */
 function recordsOf(person) {
   return state.records.filter(function (r) { return r.person === person; })
     .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
 }
 
+/** 集計とグラフに使う、実際に測った日だけ。 */
+function measuredOf(person) {
+  return recordsOf(person).filter(function (r) { return r.weight !== null; });
+}
+
 /** 直近7日平均と、その前の7日平均。体重は日々1kgほど動くので平均同士で比べる。 */
 function weekly(person) {
-  var rows = recordsOf(person);
+  var rows = measuredOf(person);
   if (!rows.length) return { avg: null, change: null };
   var end = new Date(rows[rows.length - 1].date + "T00:00");
   var avg = function (from, to) {
@@ -663,7 +681,7 @@ function renderPair() {
       line.className = "divider";
       $("pair").appendChild(line);
     }
-    var rows = recordsOf(i);
+    var rows = measuredOf(i);
     var latest = rows.length ? rows[rows.length - 1] : null;
     var w = weekly(i);
     var total = rows.length ? latest.weight - rows[0].weight : null;
@@ -731,7 +749,7 @@ function renderChart() {
   from.setDate(from.getDate() - rangeDays + 1);
   var fromKey = from.toISOString().slice(0, 10);
   var series = state.people.map(function (_, i) {
-    return recordsOf(i).filter(function (r) { return r.date >= fromKey; })
+    return measuredOf(i).filter(function (r) { return r.date >= fromKey; })
       .map(function (r) { return { x: new Date(r.date + "T00:00").getTime(), y: r.weight }; });
   });
   var points = series.reduce(function (a, b) { return a.concat(b); }, []);
@@ -793,12 +811,16 @@ function renderHistory() {
   }
   $("history").innerHTML = "<table><thead><tr><th>ひづけ</th><th class='r'>たいじゅう</th><th class='r'>まえの日から</th><th></th></tr></thead><tbody>" +
     rows.map(function (r, i) {
-      var prev = rows[i + 1];
-      var diff = prev ? r.weight - prev.weight : null;
+      // 前日差は、直近の「測った日」どうしで出す（未測定の日はまたぐ）
+      var prev = null;
+      for (var j = i + 1; j < rows.length; j++) {
+        if (rows[j].weight !== null) { prev = rows[j]; break; }
+      }
+      var diff = prev && r.weight !== null ? r.weight - prev.weight : null;
       return "<tr><td>" + r.date.slice(5).replace("-", "/") +
         (r.source === "ocr" ? ' <span class="tag" style="background:' + wash(current) + ";color:" + color(current) + '">写真</span>' : "") +
         (r.note ? '<br><span class="note">' + esc(r.note) + "</span>" : "") + "</td>" +
-        "<td class='r'>" + r.weight.toFixed(1) + "</td>" +
+        "<td class='r'>" + (r.weight === null ? '<span class="note">未測定</span>' : r.weight.toFixed(1)) + "</td>" +
         "<td class='r' style='color:" + (diff === null ? "var(--ink-faint)" : diff <= 0 ? "var(--down)" : "var(--up)") + "'>" +
         (diff === null ? "—" : one(diff)) + "</td>" +
         "<td class='r'><button class='del' data-date='" + r.date + "' aria-label='" + r.date + " の記録を消す'>✕</button></td></tr>";
@@ -887,6 +909,25 @@ $("photo").onchange = function (event) {
 };
 
 /* ---------- 記録する ---------- */
+
+$("skip").onclick = function () {
+  var day = $("date").value;
+  if (!day) { notice("err", "日付を入れてください。"); return; }
+  var name = state.people[current].name;
+  if (!confirm(name + " の " + day.slice(5).replace("-", "/") + " を「未測定」として残しますか。")) return;
+
+  $("skip").disabled = true;
+  notice("", "");
+  api("record", { person: current, date: day, skipped: true, note: $("note").value.trim() })
+    .then(function (result) {
+      state = normalizeState(result && result.state);
+      clearForm();
+      renderAll();
+      notice("ok", esc(name) + " の " + day.slice(5).replace("-", "/") + " を未測定として残しました。");
+    })
+    .catch(function (error) { notice("err", esc(error.message || error)); })
+    .then(function () { $("skip").disabled = false; });
+};
 
 $("save").onclick = function () {
   var weight = Number($("weight").value);

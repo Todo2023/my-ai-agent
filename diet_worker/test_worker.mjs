@@ -36,6 +36,18 @@ ok('range rejected', res.status === 400 && (await res.json()).error.includes('�
 res = await post('/api/record', {person:1, date:'8/16', weight:52});
 ok('bad date rejected', res.status === 400);
 
+// 未測定の日
+res = await post('/api/record', {person:0, date:'2026-08-17', skipped:true, note:'旅行中'});
+r = await res.json();
+let skipped = r.state.records.find(x => x.date === '2026-08-17');
+ok('未測定を残せる', skipped && skipped.weight === null && skipped.skipped === true && skipped.source === 'skipped', JSON.stringify(skipped));
+res = await post('/api/record', {person:0, date:'2026-08-17', weight:62.0});
+r = await res.json();
+skipped = r.state.records.find(x => x.date === '2026-08-17');
+ok('未測定を後から実測で上書きできる', skipped.weight === 62 && !skipped.skipped, JSON.stringify(skipped));
+res = await post('/api/delete', {person:0, date:'2026-08-17'});
+await res.json();
+
 res = await post('/api/person', {index:1, name:'はなこ', goal:52.5});
 s = await res.json(); ok('person set', s.people[1].name === 'はなこ' && s.people[1].goal === 52.5, JSON.stringify(s.people[1]));
 res = await post('/api/person', {index:1, name:'はなこ', goal:''});
@@ -51,12 +63,17 @@ ok('pin required', res.status === 401 && (await res.json()).error.includes('合�
 res = await worker.fetch(new Request('https://x.dev/api/state', {method:'POST', body: JSON.stringify({pin:'abc123'})}), env2);
 ok('pin accepted', res.status === 200);
 
+// 未測定の日があっても、前回体重は「測った日」から取る
+await (await post('/api/record', {person:0, date:'2026-08-20', weight:62.0})).json();
+await (await post('/api/record', {person:0, date:'2026-08-21', skipped:true})).json();
+
 // 写真の読み取り（Geminiの応答を差し替えて検証だけ確かめる）
 const realFetch = globalThis.fetch;
 globalThis.fetch = async () => new Response(JSON.stringify({candidates:[{content:{parts:[{text:'{"weight_kg":624,"raw_text":"624","confidence":0.8}'}]}}]}), {status:200});
 res = await post('/api/read', {image:'AAAA', mimeType:'image/jpeg', person:0});
 let reading = await res.json();
 ok('decimal repaired', reading.weight === 62.4 && reading.warnings.some(w => w.includes('小数点')) && reading.needsCheck === true, JSON.stringify(reading));
+ok('未測定の日を前回体重に使わない', reading.warnings.every(w => !w.includes('前回')), JSON.stringify(reading.warnings));
 globalThis.fetch = async () => new Response('{"error":{"code":404}}', {status:404});
 res = await post('/api/read', {image:'AAAA', person:0});
 reading = await res.json();
