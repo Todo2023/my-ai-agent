@@ -4,6 +4,12 @@
 
 const W = 360, H = 270, GROUND = 214;
 
+// 画面いっぱいに出すときは、絵の箱（360x270）より外にも 背景を のばす。
+// いま見えている ひろさを app.js が ここに入れる。動物や小道具の場所は
+// 箱の座標のままなので、お話を書くときに 気にしなくてよい。
+let VIEW = { x: 0, y: 0, w: W, h: H };
+function setView(x, y, w, h) { VIEW = { x: x, y: y, w: w, h: h }; }
+
 /* ------------------------------------------------------------------ 部品 */
 
 function el(g, x, y, rx, ry, c, rot) {
@@ -260,29 +266,34 @@ const BG = {};
 function sky(g, top, bottom) {
   const gr = g.createLinearGradient(0, 0, 0, H);
   gr.addColorStop(0, top); gr.addColorStop(1, bottom);
-  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = gr;
+  g.fillRect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
 }
 
 function hills(g, y, c) {
+  const x0 = Math.floor(VIEW.x / 60) * 60 - 60, x1 = VIEW.x + VIEW.w + 60;
+  const bottom = VIEW.y + VIEW.h;
   g.beginPath();
-  g.moveTo(0, H);
-  g.lineTo(0, y);
-  for (let x = 0; x <= W; x += 60) g.quadraticCurveTo(x + 30, y - 26, x + 60, y);
-  g.lineTo(W, H);
+  g.moveTo(x0, bottom);
+  g.lineTo(x0, y);
+  for (let x = x0; x <= x1; x += 60) g.quadraticCurveTo(x + 30, y - 26, x + 60, y);
+  g.lineTo(x1 + 60, bottom);
   g.fillStyle = c; g.fill();
 }
 
 function ground(g, c) {
+  const x0 = VIEW.x, x1 = VIEW.x + VIEW.w, bottom = VIEW.y + VIEW.h;
   g.fillStyle = c;
   g.beginPath();
-  g.moveTo(0, GROUND + 4);
-  g.quadraticCurveTo(W / 2, GROUND - 6, W, GROUND + 4);
-  g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill();
+  g.moveTo(x0, GROUND + 4);
+  g.quadraticCurveTo((x0 + x1) / 2, GROUND - 6, x1, GROUND + 4);
+  g.lineTo(x1, bottom); g.lineTo(x0, bottom); g.closePath(); g.fill();
 }
 
 function grass(g, c, seed) {
-  for (let i = 0; i < 26; i++) {
-    const x = ((i * 97 + (seed || 0) * 31) % W);
+  const n = Math.ceil(VIEW.w / 14);
+  for (let i = 0; i < n; i++) {
+    const x = VIEW.x + ((i * 97 + (seed || 0) * 31) % VIEW.w);
     const y = GROUND + 6 + ((i * 53) % 40);
     ln(g, [x, y, x - 2, y - 7], c, 1.6);
     ln(g, [x, y, x + 3, y - 6], c, 1.6);
@@ -304,8 +315,8 @@ function cloud(g, x, y, s, c) {
 
 BG.hara = function (g, t) {                                     // はらっぱ
   sky(g, "#bfe6f5", "#e9f7ea");
-  cloud(g, (t * 6) % (W + 90) - 45, 42, 1, "rgba(255,255,255,0.92)");
-  cloud(g, (t * 4 + 200) % (W + 90) - 45, 70, 0.7, "rgba(255,255,255,0.75)");
+  cloud(g, VIEW.x + (t * 6) % (VIEW.w + 90) - 45, VIEW.y + 42, 1, "rgba(255,255,255,0.92)");
+  cloud(g, VIEW.x + (t * 4 + 200) % (VIEW.w + 90) - 45, VIEW.y + 70, 0.7, "rgba(255,255,255,0.75)");
   hills(g, 168, "#a8d59a");
   ground(g, "#8fc97f");
   grass(g, "#77b76a", 1);
@@ -323,10 +334,10 @@ BG.mori = function (g, t) {                                     // もり
 
 BG.michi = function (g, t) {                                    // みち（ゴールの旗つき）
   sky(g, "#bfe6f5", "#f2f6dd");
-  cloud(g, (t * 5 + 120) % (W + 90) - 45, 46, 0.9, "rgba(255,255,255,0.9)");
+  cloud(g, VIEW.x + (t * 5 + 120) % (VIEW.w + 90) - 45, VIEW.y + 46, 0.9, "rgba(255,255,255,0.9)");
   hills(g, 172, "#a2d296");
   ground(g, "#d8c88f");
-  el(g, W * 0.5, GROUND + 30, 200, 16, "#cbb87b");
+  el(g, W * 0.5, GROUND + 30, Math.max(200, VIEW.w * 0.55), 16, "#cbb87b");
   grass(g, "#8fbf72", 5);
 };
 
@@ -334,23 +345,25 @@ BG.mizube = function (g, t) {                                   // みずべ
   sky(g, "#c3e8f7", "#e6f6f0");
   hills(g, 150, "#93cb9c");
   ground(g, "#8ec888");
+  const x0 = VIEW.x, x1 = VIEW.x + VIEW.w, bottom = VIEW.y + VIEW.h;
   g.fillStyle = "#63b6d8";
   g.beginPath();
-  g.moveTo(0, GROUND + 22);
-  g.quadraticCurveTo(W / 2, GROUND + 10, W, GROUND + 24);
-  g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill();
+  g.moveTo(x0, GROUND + 22);
+  g.quadraticCurveTo((x0 + x1) / 2, GROUND + 10, x1, GROUND + 24);
+  g.lineTo(x1, bottom); g.lineTo(x0, bottom); g.closePath(); g.fill();
   for (let i = 0; i < 5; i++) {
     const y = GROUND + 34 + i * 9;
-    curve(g, 20 + i * 12, y, W / 2 + Math.sin(t * 1.5 + i) * 14, y - 5, W - 20 - i * 8, y, "rgba(255,255,255,0.4)", 2);
+    curve(g, x0 + 20 + i * 12, y, (x0 + x1) / 2 + Math.sin(t * 1.5 + i) * 14, y - 5, x1 - 20 - i * 8, y, "rgba(255,255,255,0.4)", 2);
   }
 };
 
 BG.natsu = function (g, t) {                                    // なつ（あつい日）
   sky(g, "#ffe6a8", "#fdf3d8");
-  el(g, 300, 44, 26, 26, "#ffd166");
+  const sx = 300, sy = VIEW.y + 44;
+  el(g, sx, sy, 26, 26, "#ffd166");
   for (let i = 0; i < 8; i++) {
     const a = i / 8 * Math.PI * 2 + t * 0.3;
-    ln(g, [300 + Math.cos(a) * 32, 44 + Math.sin(a) * 32, 300 + Math.cos(a) * 42, 44 + Math.sin(a) * 42], "#ffd166", 3);
+    ln(g, [sx + Math.cos(a) * 32, sy + Math.sin(a) * 32, sx + Math.cos(a) * 42, sy + Math.sin(a) * 42], "#ffd166", 3);
   }
   hills(g, 172, "#c9d78a");
   ground(g, "#d5cf85");
@@ -361,31 +374,35 @@ BG.fuyu = function (g, t) {                                     // ふゆ
   sky(g, "#c9d8ea", "#eef4fa");
   hills(g, 166, "#dde8f2");
   ground(g, "#f2f7fb");
-  for (let i = 0; i < 30; i++) {
-    const x = (i * 71 + t * 12) % W;
-    const y = ((i * 37 + t * 26) % (H + 20)) - 10;
+  const n = Math.ceil(VIEW.w * VIEW.h / 3200);
+  for (let i = 0; i < n; i++) {
+    const x = VIEW.x + (i * 71 + t * 12) % VIEW.w;
+    const y = VIEW.y + ((i * 37 + t * 26) % (VIEW.h + 20)) - 10;
     el(g, x, y, 2.2, 2.2, "rgba(255,255,255,0.9)");
   }
 };
 
 BG.yoru = function (g, t) {                                     // よる
   sky(g, "#1e2647", "#3a4570");
-  for (let i = 0; i < 34; i++) {
-    const x = (i * 83) % W, y = (i * 47) % 150;
+  const sh = Math.max(60, 150 - VIEW.y);
+  const n = Math.ceil(VIEW.w * sh / 950);
+  for (let i = 0; i < n; i++) {
+    const x = VIEW.x + (i * 83) % VIEW.w, y = VIEW.y + (i * 47) % sh;
     el(g, x, y, 1.4, 1.4, "rgba(255,255,255," + (0.4 + 0.5 * Math.abs(Math.sin(t * 2 + i))) + ")");
   }
-  el(g, 300, 46, 20, 20, "#f6e9b0");
-  el(g, 292, 42, 17, 17, "#2b3358");
+  el(g, 300, VIEW.y + 46, 20, 20, "#f6e9b0");
+  el(g, 292, VIEW.y + 42, 17, 17, "#2b3358");
   hills(g, 172, "#2c3556");
   ground(g, "#39426a");
 };
 
 BG.ie = function (g, t) {                                       // うちの中（板の間）
   sky(g, "#f3e6cf", "#e8d6b6");
+  const x0 = VIEW.x, x1 = VIEW.x + VIEW.w, bottom = VIEW.y + VIEW.h;
   g.fillStyle = "#d9c39b";
-  g.fillRect(0, GROUND, W, H - GROUND);
-  for (let x = 0; x < W; x += 45) ln(g, [x, GROUND, x, H], "#c9b088", 2);
-  ln(g, [0, GROUND, W, GROUND], "#b99f75", 3);
+  g.fillRect(x0, GROUND, VIEW.w, bottom - GROUND);
+  for (let x = Math.floor(x0 / 45) * 45; x < x1; x += 45) ln(g, [x, GROUND, x, bottom], "#c9b088", 2);
+  ln(g, [x0, GROUND, x1, GROUND], "#b99f75", 3);
   rr(g, 70, 96, 74, 60, 6, "#c9a06b");                          // まど
   rr(g, 70, 96, 64, 50, 4, "#a8d8ee");
   ln(g, [70, 71, 70, 121], "#c9a06b", 4);

@@ -34,6 +34,8 @@
 
 <!-- おはなしの画面 -->
 <section id="player" class="player" hidden aria-hidden="true">
+  <canvas id="stage" width="360" height="270" role="img" aria-label="おはなしの えいぞう"></canvas>
+
   <div class="bar">
     <button id="back" class="icon" aria-label="もどる">←</button>
     <span id="title" class="title"></span>
@@ -43,18 +45,15 @@
     </label>
   </div>
 
-  <div class="stagewrap">
-    <canvas id="stage" width="360" height="270" role="img" aria-label="おはなしの えいぞう"></canvas>
-  </div>
-  <p id="caption" class="caption" aria-live="polite"></p>
-
-  <div id="dots" class="dots"></div>
-
-  <div class="controls">
-    <button id="prev" class="ctrl" aria-label="まえの ばめん">◀</button>
-    <button id="play" class="ctrl big" aria-label="とめる">■</button>
-    <button id="next" class="ctrl" aria-label="つぎの ばめん">▶</button>
-    <button id="again" class="ctrl" aria-label="はじめから">↺</button>
+  <div class="hud">
+    <p id="caption" class="caption" aria-live="polite"></p>
+    <div id="dots" class="dots"></div>
+    <div class="controls">
+      <button id="prev" class="ctrl" aria-label="まえの ばめん">◀</button>
+      <button id="play" class="ctrl big" aria-label="とめる">■</button>
+      <button id="next" class="ctrl" aria-label="つぎの ばめん">▶</button>
+      <button id="again" class="ctrl" aria-label="はじめから">↺</button>
+    </div>
   </div>
 </section>
 
