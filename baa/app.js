@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "20"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "22"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -24,7 +24,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["E4",1],["E4",1],["D4",1],["D4",1],["C4",2],
       ["C4",1],["E4",1],["G4",1],["C5",1],["G4",1],["E4",1],["C4",2]] },
 
-  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", whiskers: true, note: [587, 740, 880],
+  { name: "ねこ",   fur: "#b9c9ff", ear: "up",    earColor: "#8fa4e8", whiskers: "#7d8bb5", note: [587, 740, 880],
     cry: "にゃーん", base: 430, voice: [
       { v: "i", to: "a", d: 0.32, p0: 1.15, p1: 0.95 }, { v: "n", d: 0.16, p0: 0.88 }],
     tuneName: "じぶんの うた（自作）",
@@ -54,7 +54,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["A4",1],["A4",1],["G4",1],["G4",1],["E4",2],
       ["C4",1],["E4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "ねずみ", encore: 0, fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
+  { name: "ねずみ", encore: 0, fur: "#dcdce6", whiskers: "#a9a5b3", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
     earR: 16, earX: 21, earY: 20, note: [494, 622, 740],
     cry: "ちゅーちゅー", base: 620, voice: [
       { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.2 }, { gap: 0.06 },
@@ -224,7 +224,7 @@ function faceInner(c, opt = {}) {
              ry="${noseR * 0.26}" fill="#a8536e"/>
        <ellipse cx="${50 + noseR * 0.38}" cy="${64 + (noseR - 5) * 0.6}" rx="${noseR * 0.16}"
              ry="${noseR * 0.26}" fill="#a8536e"/>` : ""}
-    ${c.whiskers && !opt.gray ? `<g stroke="#7d8bb5" stroke-width="1.6" stroke-linecap="round" fill="none">
+    ${c.whiskers && !opt.gray ? `<g stroke="${c.whiskers}" stroke-width="1.6" stroke-linecap="round" fill="none">
        <path d="M40 ${mouthY - 6} L18 ${mouthY - 11}"/><path d="M40 ${mouthY - 2} L16 ${mouthY - 2}"/>
        <path d="M40 ${mouthY + 2} L18 ${mouthY + 7}"/>
        <path d="M60 ${mouthY - 6} L82 ${mouthY - 11}"/><path d="M60 ${mouthY - 2} L84 ${mouthY - 2}"/>
@@ -278,6 +278,70 @@ let ac = null;
 let bus = null; // 声と曲の出口。押し直したら、ここごと切って止める
 let soundOn = localStorage.getItem("baa-sound") !== "off";
 
+/* ── 音いろ ────────────────────────────────────────────
+ * のこぎり波1本だと電子音になる。倍音を何本か重ね、減衰のしかたを
+ * 楽器ごとに変えると、それらしく聞こえる。音源ファイルは持たない。
+ *   partials: [周波数の倍率, 音量の割合, 減衰の速さ]
+ */
+const INSTRUMENTS = [
+  { name: "オルゴール", type: "sine", attack: 0.004, decay: 2.4,
+    partials: [[1, 1, 1], [2.76, 0.34, 1.4], [5.4, 0.12, 1.8], [8.9, 0.05, 2.2]] },
+  { name: "もっきん",   type: "sine", attack: 0.003, decay: 0.5,
+    partials: [[1, 1, 1], [3.99, 0.4, 1.6], [9.2, 0.12, 2.4]] },
+  { name: "ピアノ",     type: "triangle", attack: 0.006, decay: 1.4,
+    partials: [[1, 1, 1], [2, 0.42, 1.3], [3, 0.2, 1.6], [4, 0.09, 2]] },
+  { name: "ふえ",       type: "sine", attack: 0.08, decay: 0.5, hold: true, vibrato: 5,
+    partials: [[1, 1, 1], [2, 0.16, 1], [3, 0.06, 1]] },
+  { name: "ギター",     type: "sawtooth", attack: 0.004, decay: 1.0, filter: true,
+    partials: [[1, 1, 1], [2, 0.3, 1.2], [3, 0.12, 1.5]] },
+];
+
+let instIdx = Number(localStorage.getItem("baa-inst") || 0) % INSTRUMENTS.length;
+
+function playNote(f, at, dur, vol = 0.2) {
+  if (!ac) return;
+  const ins = INSTRUMENTS[instIdx];
+  const t = ac.currentTime + at;
+  const dest = out();
+
+  ins.partials.forEach(([ratio, level, decay]) => {
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = ins.type;
+    osc.frequency.setValueAtTime(f * ratio, t);
+
+    if (ins.vibrato) { // ふえ。息の揺れ
+      const lfo = ac.createOscillator();
+      const amt = ac.createGain();
+      lfo.frequency.value = ins.vibrato;
+      amt.gain.value = f * ratio * 0.008;
+      lfo.connect(amt).connect(osc.frequency);
+      lfo.start(t);
+      lfo.stop(t + dur + 0.4);
+    }
+
+    const peak = Math.max(0.0002, vol * level);
+    const life = ins.hold ? dur : Math.min(dur + ins.decay, ins.decay / decay + 0.1);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + ins.attack);
+    if (ins.hold) g.gain.setValueAtTime(peak, t + Math.max(ins.attack, dur - 0.08));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + life);
+
+    let node = osc;
+    if (ins.filter) { // ギター。はじいた直後だけ明るく
+      const lp = ac.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.setValueAtTime(3400, t);
+      lp.frequency.exponentialRampToValueAtTime(600, t + life);
+      osc.connect(lp);
+      node = lp;
+    }
+    node.connect(g).connect(dest);
+    osc.start(t);
+    osc.stop(t + life + 0.05);
+  });
+}
+
 function tone(freq, at, dur, type = "triangle", vol = 0.22) {
   const t = ac.currentTime + at;
   const osc = ac.createOscillator();
@@ -318,7 +382,7 @@ function audio() {
 
 function beep(freqs) {
   if (!audio()) return;
-  freqs.forEach((f, i) => tone(f, i * 0.09, 0.34));
+  freqs.forEach((f, i) => playNote(f, i * 0.09, 0.34, 0.2));
 }
 
 // くすぐったい笑い声のかわり。短い音を跳ねさせる
@@ -472,8 +536,7 @@ function playTune(c, at = 0) {
   tuneSeq(c).forEach(([n, len]) => {
     const dur = beat * len;
     const f = noteFreq(n);
-    tone(f, t, dur * 0.92, "triangle", 0.2);
-    tone(f * 2, t, dur * 0.5, "sine", 0.05);
+    playNote(f, t, dur * 0.92, 0.22);
     t += dur;
   });
   return t - at;
@@ -549,6 +612,7 @@ const sndBtn = document.getElementById("snd");
 const modeBtn = document.getElementById("mode");
 const bookBtn = document.getElementById("book");
 const sheet = document.getElementById("sheet");
+const instBtn = document.getElementById("inst");
 const pads = document.getElementById("pads");
 const zoom = document.getElementById("zoom");
 
@@ -899,6 +963,22 @@ function showZoom(c) {
   }, (cryLen + 0.35 + songLen) * 1000);
 }
 
+// 画面の下に、少しのあいだ出す文字（音いろの名前）
+let toastTimer = null;
+
+function toast(text) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("on"), 1400);
+}
+
 // たたいたところから広がる輪
 function ring(x, y) {
   const r = document.createElement("div");
@@ -943,10 +1023,7 @@ function buildPads() {
       // 先に showZoom。ここで音の出口を作り直すので、太鼓の音はそのあとに出す
       // （逆にすると、出したそばから自分で切ってしまう）
       showZoom(c);
-      if (audio()) {
-        tone(f, 0, 0.5, "triangle", 0.26);
-        tone(f * 2, 0, 0.22, "sine", 0.08);
-      }
+      if (audio()) playNote(f, 0, 0.6, 0.26);
       b.classList.remove("hit");
       void b.offsetWidth;
       b.classList.add("hit");
@@ -1053,6 +1130,18 @@ paintSnd();
 modeBtn.addEventListener("pointerdown", (e) => {
   e.stopPropagation();
   setMode(mode === "baa" ? "drum" : "baa");
+});
+
+// 音いろを変える。押すたびに次の楽器へ
+instBtn.addEventListener("pointerdown", (e) => {
+  e.stopPropagation();
+  instIdx = (instIdx + 1) % INSTRUMENTS.length;
+  localStorage.setItem("baa-inst", String(instIdx));
+  toast(INSTRUMENTS[instIdx].name);
+  if (audio()) {
+    newBus();
+    [523, 659, 784].forEach((f, i) => playNote(f, i * 0.12, 0.5, 0.22));
+  }
 });
 
 bookBtn.addEventListener("pointerdown", (e) => {
