@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "18"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "19"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ",   fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -54,7 +54,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["A4",1],["A4",1],["G4",1],["G4",1],["E4",2],
       ["C4",1],["E4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "ねずみ", fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
+  { name: "ねずみ", encore: 0, fur: "#dcdce6", ear: "round", earColor: "#c6c6d4", innerEar: "#ffc7db",
     earR: 16, earX: 21, earY: 20, note: [494, 622, 740],
     cry: "ちゅーちゅー", base: 620, voice: [
       { burst: "ch" }, { v: "u", d: 0.16, p0: 1.05, p1: 1.2 }, { gap: 0.06 },
@@ -450,13 +450,21 @@ function noteFreq(n) {
   return 440 * Math.pow(2, (step - 9) / 12);
 }
 
+/* 実際に鳴らす並び。前半をもう一度くり返して長くする。
+   きらきら星（ねずみ）は6行フルで元から長いので、くり返さない（encore: 0）。 */
+function tuneSeq(c) {
+  if (!c.tune) return [];
+  if (c.encore === 0) return c.tune;
+  return c.tune.concat(c.tune.slice(0, Math.floor(c.tune.length / 2)));
+}
+
 /* 曲を鳴らす。使うのは著作権の切れた民謡か、自作のものだけ。
    音源ファイルは持たないので、圏外でも鳴る。 */
 function playTune(c, at = 0) {
   if (!c.tune) return 0;
   const beat = 0.34;
   let t = at;
-  c.tune.forEach(([n, len]) => {
+  tuneSeq(c).forEach(([n, len]) => {
     const dur = beat * len;
     const f = noteFreq(n);
     tone(f, t, dur * 0.92, "triangle", 0.2);
@@ -479,7 +487,7 @@ function voiceLen(c) {
 }
 
 function tuneLen(c) {
-  return (c.tune || []).reduce((t, [, len]) => t + 0.34 * len, 0);
+  return tuneSeq(c).reduce((t, [, len]) => t + 0.34 * len, 0);
 }
 
 function speak(c) {
