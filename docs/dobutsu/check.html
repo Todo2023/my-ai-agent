@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>じこ点検 — どうぶつ めくり</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#12331f" />
+<meta name="color-scheme" content="light" />
+<link rel="stylesheet" href="./style.css" />
+<style>
+  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  li { display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px solid var(--line); font-size: 12.5px; line-height: 1.7; }
+  li .k { flex: 0 0 9.5em; color: var(--dim); }
+  li .v { flex: 1; word-break: break-word; }
+  li.ok { border-color: rgba(47,122,74,0.45); }
+  li.ng { border-color: rgba(200,70,60,0.5); }
+  li.ok .v { color: #2f7a4a; }
+  li.ng .v { color: #b8412f; }
+  h2 { margin: 6px 0 0; font-size: 14px; }
+  .lead { margin: 0; font-size: 12.5px; line-height: 1.9; color: var(--dim); }
+  a { color: var(--accent); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 style="font-size:18px;margin:0">じこ点検</h1>
+  <p class="lead">
+    ぜんぶの お話の場面を、1回ずつ 裏で描いてみて、
+    とちゅうで こわれないかを 確かめます。<br />
+    お話や 絵を 足したあと、ここが ぜんぶ みどりなら 出して よいという 目じるし。
+  </p>
+
+  <h2>ぜんたい</h2>
+  <ul id="env"></ul>
+
+  <h2>お話ごと</h2>
+  <ul id="tales"></ul>
+
+  <p><a href="./">← どうぶつ めくり へ</a></p>
+</main>
+
+<canvas id="sandbox" width="360" height="270" hidden></canvas>
+
+<script src="./draw.js"></script>
+<script src="./stories.js"></script>
+<script>
+(function () {
+  "use strict";
+  const li = (list, key, value, ok) => {
+    const el = document.createElement("li");
+    el.className = ok ? "ok" : "ng";
+    el.innerHTML = '<span class="k"></span><span class="v"></span>';
+    el.children[0].textContent = key;
+    el.children[1].textContent = (ok ? "OK " : "NG ") + value;
+    document.getElementById(list).appendChild(el);
+  };
+
+  // ---- ぜんたい
+  li("env", "お話の数", STORIES.length + " 話", STORIES.length >= 9);
+  const ids = STORIES.map((s) => s.id);
+  li("env", "id の重なり", new Set(ids).size + " 種類", new Set(ids).size === ids.length);
+  li("env", "よみあげ", "speechSynthesis " + ("speechSynthesis" in window ? "つかえる" : "この端末には無い"), "speechSynthesis" in window);
+  li("env", "オフライン", "Service Worker " + ("serviceWorker" in navigator ? "つかえる" : "つかえない"), "serviceWorker" in navigator);
+  li("env", "画面の消灯", "wakeLock " + ("wakeLock" in navigator ? "とめられる" : "とめられない（見るのに支障なし）"), true);
+
+  fetch("./manifest.webmanifest").then((r) => r.json())
+    .then((m) => li("env", "manifest", m.name + " / アイコン " + m.icons.length + "枚", m.icons.length >= 3))
+    .catch((e) => li("env", "manifest", String(e), false));
+
+  // ---- お話ごと（場面を 頭・まん中・おわり の 3回ぶん 描いてみる）
+  const g = document.getElementById("sandbox").getContext("2d");
+  let bad = 0;
+
+  STORIES.forEach((st) => {
+    const notes = [];
+    if (!st.name || !st.title) notes.push("名前かだいめいが無い");
+    if (!st.scenes || !st.scenes.length) notes.push("場面が無い");
+
+    try { g.clearRect(0, 0, W, H); st.card(g, 1.2); }
+    catch (e) { notes.push("カードの絵: " + e.message); }
+
+    let sec = 0;
+    (st.scenes || []).forEach((sc, i) => {
+      sec += sc.sec;
+      if (!sc.text) notes.push((i + 1) + "場面目の文が無い");
+      if (!BG[sc.bg]) notes.push((i + 1) + "場面目の背景 " + sc.bg + " が無い");
+      [0, 0.5, 1].forEach((p) => {
+        try {
+          g.clearRect(0, 0, W, H);
+          (BG[sc.bg] || BG.hara)(g, p * 10);
+          sc.act(g, p, p * 10);
+        } catch (e) {
+          notes.push((i + 1) + "場面目 (" + p + "): " + e.message);
+        }
+      });
+    });
+
+    const ok = notes.length === 0;
+    if (!ok) bad++;
+    li("tales", st.name, ok
+      ? st.scenes.length + "場面 / " + sec + "秒 いじょうなし"
+      : notes.join(" ／ "), ok);
+  });
+
+  li("env", "まとめ", bad === 0 ? "ぜんぶ ふつうに 描けた" : bad + "話に 問題あり", bad === 0);
+})();
+</script>
+</body>
+</html>
