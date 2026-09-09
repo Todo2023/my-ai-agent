@@ -1,10 +1,10 @@
 // 圏外でも遊べるように、必要なファイルを丸ごと抱えておく。
-const CACHE = "baa-v8";
+const CACHE = "baa-v9";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css",
-  "./app.js",
+  "./style.css?v=9",
+  "./app.js?v=9",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
@@ -12,8 +12,18 @@ const ASSETS = [
   "./apple-touch-icon.png",
 ];
 
+/* 取り込むときは必ず網から取る。
+   addAll のままだと、ブラウザが持っている古い写し（GitHub Pages は
+   Cache-Control: max-age で10分ほど持たせる）をそのまま抱え込んでしまい、
+   新しくしたのに古い画面が出続ける。実際そうなった。 */
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => Promise.all(ASSETS.map((u) =>
+        fetch(new Request(u, { cache: "reload" })).then((res) => c.put(u, res))
+      )))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (e) => {
