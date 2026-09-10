@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "28"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "32"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ", file: "inu",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -33,7 +33,7 @@ const CHARAS = [
       ["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["E4",1],["C4",2],
       ["E4",1],["G4",1],["A4",1],["G4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "ぶた", file: "buta",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
+  { name: "ぶた", file: "buta", tail: "nub",   fur: "#ffc2d4", ear: "up",    earColor: "#f299b4", note: [392, 494, 587],
     noseR: 11, snout: true,
     cry: "ぶーぶー", base: 190, voice: [
       { burst: "b" }, { v: "u", d: 0.24, p0: 1.0, p1: 0.9 }, { gap: 0.07 },
@@ -44,7 +44,7 @@ const CHARAS = [
       ["G4",1],["G4",1],["A4",1],["A4",1],["G4",1],["G4",1],["E4",2],
       ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["C4",2]] },
 
-  { name: "くま", file: "kuma",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
+  { name: "くま", file: "kuma", tail: "nub",   fur: "#c69c7b", ear: "round", earColor: "#a67e5f", note: [440, 554, 659],
     muzzle: "#e8cdb4",
     cry: "がおー", base: 150, voice: [
       { burst: "b" }, { v: "a", d: 0.22, p0: 1.05, p1: 0.98 }, { v: "o", d: 0.4, p0: 0.98, p1: 0.8 }],
@@ -77,7 +77,7 @@ const CHARAS = [
       ["G5",1],["E5",1],["E5",1],["E5",1],["F5",1],["D5",1],["D5",2],
       ["C5",1],["E5",1],["G5",1],["G5",1],["E5",2]] },
 
-  { name: "さる", file: "saru",   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
+  { name: "さる", file: "saru", climb: true,   fur: "#e0b083", ear: "round", earColor: "#d3a173", innerEar: "#f4d3b4",
     earR: 15, earX: 14, earY: 52, muzzle: "#ffe8d2", note: [349, 440, 523],
     cry: "うっきー", base: 540, voice: [
       { v: "u", d: 0.11, p0: 0.9 }, { gap: 0.07 },
@@ -141,10 +141,10 @@ function ears(c) {
              (c.innerEar ? `<circle cx="${x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>
               <circle cx="${100 - x}" cy="${y}" r="${r * 0.55}" fill="${c.innerEar}"/>` : "");
     }
-    case "antenna": // ちょうちょの触角
-      return `<path d="M40 26 Q32 8 22 4" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
-              <path d="M60 26 Q68 8 78 4" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
-              <circle cx="22" cy="4" r="4" fill="${e}"/><circle cx="78" cy="4" r="4" fill="${e}"/>`;
+    case "antenna": // ちょうちょの触角。外にはみ出すと切れるので、絵の中に収める
+      return `<path d="M42 28 Q34 16 28 12" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M58 28 Q66 16 72 12" stroke="${e}" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <circle cx="28" cy="12" r="4" fill="${e}"/><circle cx="72" cy="12" r="4" fill="${e}"/>`;
     case "frog":  // 目が上に出ている
       return `<circle cx="30" cy="26" r="14" fill="${c.fur}"/>
               <circle cx="70" cy="26" r="14" fill="${c.fur}"/>`;
@@ -240,12 +240,21 @@ function faceSvg(c, opt = {}) {
 
 /* 全身。クローズアップのときだけ使う。
    体と足を描いて、その上に顔を載せる。足は歩くときに前後に振る。 */
+/* 水の中にいる子（かえる）は、まわりだけ丸い池にする。
+   池をいっしょに動かすので、歩いても池から出ない。 */
+function pondWrap(inner) {
+  return `<div class="pondback"></div>${inner}<div class="pondfront"></div>`;
+}
+
 function bodySvg(c) {
   const leg = (x, cls) =>
     `<rect class="${cls}" x="${x}" y="96" width="13" height="26" rx="6" fill="${c.earColor || c.fur}"/>`;
-  const tail = c.ear === "frog"
+  // しっぽ。かえるは無し、ぶた・くまは短い丸、ほかは細長い
+  const tail = c.ear === "frog" || c.tail === "none"
     ? ""
-    : `<g class="tail${c.wag ? " wag" : ""}"><path d="M92 84 Q106 78 102 64"
+    : c.tail === "nub"
+      ? `<circle cx="93" cy="86" r="7" fill="${c.earColor || c.fur}"/>`
+      : `<g class="tail${c.wag ? " wag" : ""}"><path d="M92 84 Q106 78 102 64"
              stroke="${c.earColor || c.fur}" stroke-width="7"
              fill="none" stroke-linecap="round"/></g>`;
 
@@ -813,7 +822,7 @@ const SCENES = {
 
   // さる／大きな栗の木の下で → 大きな木の下。木の実が落ちている
   さる:     { sky: "#bfe9ff,#dcf4ff,#eefaff", ground: "#6fbf68", edge: "#5aa957",
-              hills: ["#8fd08a", "#a8e6a3"], bigTree: true, sun: "#ffe066", clouds: 2,
+              hills: ["#8fd08a", "#a8e6a3"], bigTree: true, rock: true, sun: "#ffe066", clouds: 2,
               nuts: 5, birds: 2, bushes: 2, flowers: 3 },
 
   // ひつじ／メリーさんのひつじ → まきば
@@ -822,9 +831,9 @@ const SCENES = {
               house: "#e8b06a", mountains: true, birds: 3, bushes: 3, stones: 2 },
 
   // かえる／かえるの合唱 → 雨のいけ
-  かえる:   { water: true, sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
-              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true,
-              flowers: 2, rainbow: true, ripples: 3, bushes: 2 },
+  かえる:   { sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#7ec97a", edge: "#6bbd67",
+              hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true,
+              flowers: 3, rainbow: true, bushes: 2 },
 };
 
 
@@ -878,6 +887,7 @@ function scene(c) {
   }
 
   if (sc.bigTree) html += `<div class="bigtree"></div>`;
+  if (sc.rock) html += `<div class="rockhill"></div>`;
 
   for (let i = 0; i < (sc.vines || 0); i++) {
     html += `<div class="vine" style="left:${12 + i * 33}%;height:${18 + Math.random() * 16}%"></div>`;
@@ -937,9 +947,6 @@ function scene(c) {
   html += flowers(sc.flowers || 0);
   html += `</div>`;
 
-  /* 手前の水面は、景色の外に出す。景色の中に入れると、その中でしか前に出られず、
-     かえるの足の上に来てくれない（重なりの土台が景色ごとに分かれるため）。 */
-  if (sc.water) html += `<div class="waterfront"></div>`;
   return html;
 }
 
@@ -962,7 +969,12 @@ function flowers(n) {
 
 // うしろに出てくるお友達。毎回ちがう2人
 function friendsOf(c) {
-  const rest = CHARAS.filter((x) => x !== c);
+  // さる山では、お友達もさる
+  if (c.climb) return [c, c];
+  /* かえるは自分の場面のときだけ出す。ほかの景色は草の緑なので、
+     みどりのかえるが背景に溶けて見えなくなる（ひつじの牧場で特に）。
+     池も、草の上にあると変。 */
+  const rest = CHARAS.filter((x) => x !== c && !x.water);
   for (let i = rest.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rest[i], rest[j]] = [rest[j], rest[i]];
@@ -978,11 +990,16 @@ function showZoom(c) {
   // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
   const friends = friendsOf(c);
   zoom.innerHTML = scene(c) + `
-    <div class="friends">${friends.filter((f) => !f.fly).map((f, i) =>
-      `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
+    <div class="friends">${friends.filter((f) => !f.fly).map((f, i) => {
+      const inner = `<div class="bob">${bodySvg(f)}</div>`;
+      return `<div class="friend f${i}${f.water ? " inwater" : ""}">${
+        f.water ? pondWrap(inner) : inner}</div>`;
+    }).join("")}</div>
     <div class="skyfriends">${friends.filter((f) => f.fly).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
-    <div class="zoomface${c.fly ? " fly" : ""}${c.water ? " inwater" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
+    <div class="zoomface${c.fly ? " fly" : ""}${c.water ? " inwater" : ""}${c.climb ? " climb" : ""}">${
+      c.water ? pondWrap(`<div class="bob">${bodySvg(c)}</div>`)
+              : `<div class="bob">${bodySvg(c)}</div>`}</div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";

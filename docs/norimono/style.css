@@ -407,20 +407,21 @@ body.book #sheet { display: block; }
   transform-origin: 50% 100%;
 }
 
+/* 花びらは4枚。まん中は空けて、まわりに4つ置く */
 .flower::before,
 .flower::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--petal);
-  box-shadow: 0 -70% 0 -12% var(--petal), 0 70% 0 -12% var(--petal),
-              -70% 0 0 -12% var(--petal), 70% 0 0 -12% var(--petal);
+  background: transparent;
+  box-shadow: 0 -62% 0 -14% var(--petal), 0 62% 0 -14% var(--petal),
+              -62% 0 0 -14% var(--petal), 62% 0 0 -14% var(--petal);
 }
 
 .flower::after {
-  inset: 34%;
-  background: #ffe066;
+  inset: 32%;
+  background: #ffe066;   /* まん中 */
   box-shadow: none;
 }
 
