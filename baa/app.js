@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "26"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "28"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ", file: "inu",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -98,7 +98,7 @@ const CHARAS = [
       ["E4",1],["D4",1],["C4",1],["D4",1],["E4",1],["E4",1],["E4",1],["E4",1],
       ["D4",1],["D4",1],["E4",1],["D4",1],["C4",2]] },
 
-  { name: "かえる", file: "kaeru", fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
+  { name: "かえる", file: "kaeru", water: true, fur: "#a8e6a3", ear: "frog",  earColor: "#7fcf7a", note: [294, 370, 440],
     cry: "けろけろ", base: 270, voice: [
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.13, p0: 0.9 }, { gap: 0.05 },
       { burst: "k" }, { v: "e", d: 0.11, p0: 1.0 }, { v: "o", d: 0.14, p0: 0.88 }],
@@ -822,7 +822,7 @@ const SCENES = {
               house: "#e8b06a", mountains: true, birds: 3, bushes: 3, stones: 2 },
 
   // かえる／かえるの合唱 → 雨のいけ
-  かえる:   { sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
+  かえる:   { water: true, sky: "#93b6c7,#b5d2dd,#d7e9ef", ground: "#6fb7c9", edge: "#589eb0",
               hills: ["#6fa06a", "#87b47f"], clouds: 3, gray: true, rain: true, lily: true,
               flowers: 2, rainbow: true, ripples: 3, bushes: 2 },
 };
@@ -935,7 +935,12 @@ function scene(c) {
   }
 
   html += flowers(sc.flowers || 0);
-  return html + `</div>`;
+  html += `</div>`;
+
+  /* 手前の水面は、景色の外に出す。景色の中に入れると、その中でしか前に出られず、
+     かえるの足の上に来てくれない（重なりの土台が景色ごとに分かれるため）。 */
+  if (sc.water) html += `<div class="waterfront"></div>`;
+  return html;
 }
 
 /* 草に咲く花。位置と色と大きさを毎回ちらす。
@@ -977,7 +982,7 @@ function showZoom(c) {
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
     <div class="skyfriends">${friends.filter((f) => f.fly).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
-    <div class="zoomface${c.fly ? " fly" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
+    <div class="zoomface${c.fly ? " fly" : ""}${c.water ? " inwater" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
