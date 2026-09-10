@@ -408,20 +408,21 @@ body.book #sheet { display: block; }
   transform-origin: 50% 100%;
 }
 
+/* 花びらは4枚。まん中は空けて、まわりに4つ置く */
 .flower::before,
 .flower::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--petal);
-  box-shadow: 0 -70% 0 -12% var(--petal), 0 70% 0 -12% var(--petal),
-              -70% 0 0 -12% var(--petal), 70% 0 0 -12% var(--petal);
+  background: transparent;
+  box-shadow: 0 -62% 0 -14% var(--petal), 0 62% 0 -14% var(--petal),
+              -62% 0 0 -14% var(--petal), 62% 0 0 -14% var(--petal);
 }
 
 .flower::after {
-  inset: 34%;
-  background: #ffe066;
+  inset: 32%;
+  background: #ffe066;   /* まん中 */
   box-shadow: none;
 }
 
@@ -689,10 +690,12 @@ body.book #sheet { display: block; }
   height: 45vw;
   margin-left: -45vw;
   border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  border: 12px solid #ff8fab;
+  /* 赤・橙・黄・緑・青・藍・紫の7色 */
+  border: 8px solid #ff5a5a;
   border-bottom: 0;
-  box-shadow: 0 0 0 12px #ffd166, 0 0 0 24px #a8e6a3, 0 0 0 36px #8ec5ff;
-  opacity: .5;
+  box-shadow: 0 0 0 8px #ff9f43, 0 0 0 16px #ffe066, 0 0 0 24px #7ed957,
+              0 0 0 32px #4aa8ff, 0 0 0 40px #3f5bd6, 0 0 0 48px #a55ad6;
+  opacity: .55;
 }
 
 /* つる（ジャングル） */
@@ -925,39 +928,108 @@ body.book #sheet { display: block; }
   .skyfriends .bob, .skyfriends .wingL, .skyfriends .wingR { animation: none; }
 }
 
-/* 池の手前の水面。ここより下は水の中に見える */
-.waterfront {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 13%;
-  z-index: 3;
-  background: linear-gradient(rgba(111, 183, 201, .88), #6fb7c9 40%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .45);
+/* ── 丸い池 ────────────────────────────────────────────
+ * 画面いっぱいの水面ではなく、かえるのまわりだけを池にする。
+ * うしろ（pondback）と手前（pondfront）で体をはさみ、下半分を水に沈める。
+ */
+.inwater { position: relative; }
+
+.pondback,
+.pondfront {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-/* 水面のゆらぎ */
-.waterfront::after {
+.pondback {
+  bottom: -3%;
+  height: 38%;
+  background: #6fb7c9;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .35);
+  z-index: 0;
+}
+
+.pondfront {
+  bottom: -3%;
+  height: 21%;
+  background: linear-gradient(rgba(111, 183, 201, .92), #6fb7c9 55%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .5);
+  z-index: 2;
+}
+
+.inwater .bob { position: relative; z-index: 1; }
+
+/* 水のゆらぎ */
+.pondfront::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 6px;
-  height: 10px;
+  left: 12%;
+  right: 12%;
+  top: 22%;
+  height: 6px;
+  border-radius: 999px;
   background: repeating-linear-gradient(90deg,
-    rgba(255, 255, 255, .35) 0 22px, transparent 22px 54px);
+    rgba(255, 255, 255, .45) 0 14px, transparent 14px 34px);
   animation: ripplerun 5s linear infinite;
 }
 
 @keyframes ripplerun {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(54px); }
+  100% { transform: translateX(34px); }
 }
 
-/* かえるは水の中。下半分が水に隠れる高さに置く */
-.zoomface.inwater { margin-bottom: 1vh; }
+/* かえるは池の中にとどまる。歩かずに、その場でゆれる */
+.zoomface.inwater { margin-bottom: 9vh; }
+.zoomface.inwater.walk { animation-name: swim; }
+
+@keyframes swim {
+  0%, 100% { transform: translate(-6vw, 0); }
+  50%      { transform: translate(6vw, -1vh); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .waterfront::after { animation: none; }
+  .pondfront::after { animation: none; }
+}
+
+/* ── さる山 ────────────────────────────────────────────
+ * 岩を積んだ山。さるはここを登り降りする。 */
+.rockhill {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  margin-left: -33vw;
+  width: 66vw;
+  height: 30%;
+  background: #9c9184;
+  border-radius: 50% 50% 12% 12% / 62% 62% 12% 12%;
+  box-shadow: inset -8px -10px 0 rgba(0, 0, 0, .1),
+              inset 10px 8px 0 rgba(255, 255, 255, .18);
+}
+
+.rockhill::before,
+.rockhill::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 40%;
+  height: 62%;
+  background: #8d8377;
+  border-radius: 50% 50% 10% 10% / 70% 70% 10% 10%;
+}
+
+.rockhill::before { left: -12%; }
+.rockhill::after  { right: -12%; height: 48%; background: #a89d8f; }
+
+/* さるは山を登って、降りてくる */
+.zoomface.climb { margin-bottom: 17vh; }
+.zoomface.climb.walk { animation-name: climb; }
+
+@keyframes climb {
+  0%   { transform: translate(-26vw, 2vh) scale(.9) scaleX(1); }
+  46%  { transform: translate(0, -12vh) scale(1) scaleX(1); }
+  50%  { transform: translate(0, -12vh) scale(1) scaleX(-1); }
+  96%  { transform: translate(26vw, 2vh) scale(.9) scaleX(-1); }
+  100% { transform: translate(-26vw, 2vh) scale(.9) scaleX(1); }
 }
