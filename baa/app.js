@@ -10,7 +10,7 @@
  */
 
 // ── 出てくる子たち（どれも自作。実在のキャラクターは使わない）───────────
-const VERSION = "24"; // みつけたの下に出す。どの版が動いているかを確かめるため
+const VERSION = "26"; // みつけたの下に出す。どの版が動いているかを確かめるため
 
 const CHARAS = [
   { name: "いぬ", file: "inu",   wag: true, fur: "#fbf8f2", ear: "drop",  earColor: "#d8c6a8", note: [523, 659, 784],
@@ -67,7 +67,7 @@ const CHARAS = [
       ["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2],
       ["F5",1],["F5",1],["E5",1],["E5",1],["D5",1],["D5",1],["C5",2]] },
 
-  { name: "ちょうちょ", file: "chou", fur: "#f7b6d2", ear: "antenna", earColor: "#5b4033",
+  { name: "ちょうちょ", file: "chou", fly: true, fur: "#f7b6d2", ear: "antenna", earColor: "#5b4033",
     wing: "#ffe066", wing2: "#ff9ec7", note: [698, 880, 1046],
     cry: "ひらひら", base: 700, voice: [
       { burst: "air" }, { gap: 0.09 }, { burst: "air" }, { gap: 0.09 }, { burst: "air" }],
@@ -965,44 +965,69 @@ function friendsOf(c) {
   return rest.slice(0, 2);
 }
 
+/* 押した子を大きく出して、鳴き声 → 曲 → 歩く をくり返す。
+   **止めるまで終わらない。** 画面をさわると止まって、9マスに戻る。 */
 function showZoom(c) {
+  stopZoom(true);                 // 前のくり返しを止めてから始める
+
   // 外の景色。空・お日さま・雲・丘・草。絵はCSSだけで、画像は持たない
+  const friends = friendsOf(c);
   zoom.innerHTML = scene(c) + `
-    <div class="friends">${friendsOf(c).map((f, i) =>
+    <div class="friends">${friends.filter((f) => !f.fly).map((f, i) =>
       `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
-    <div class="zoomface"><div class="bob">${bodySvg(c)}</div></div>`;
+    <div class="skyfriends">${friends.filter((f) => f.fly).map((f, i) =>
+      `<div class="friend f${i}"><div class="bob">${bodySvg(f)}</div></div>`).join("")}</div>
+    <div class="zoomface${c.fly ? " fly" : ""}"><div class="bob">${bodySvg(c)}</div></div>`;
   zoom.className = "";
   void zoom.offsetWidth; // アニメを最初から流し直す
   zoom.className = "on";
-  clearTimeout(zoomTimer);
-  clearTimeout(walkTimer);
-  clearInterval(noteTimer);
-
-  // 長さは音の有無によらず同じ。音が出せない端末でも、歩く姿は最後まで見せる
-  const cryLen = voiceLen(c);
-  const songLen = tuneLen(c);
-
-  if (audio()) {
-    newBus();                     // 前に鳴っていた音を切る
-    speak(c);                     // 鳴き声
-    playTune(c, cryLen + 0.25);   // そのあとに曲
-  }
 
   const face = zoom.querySelector(".zoomface");
+  // 歩きはずっと続ける。曲がくり返しても、足はそのまま動いていてよい
+  face.style.animationDuration = "4s";
+  face.style.animationIterationCount = "infinite";
+
+  playRound(c, face);
+}
+
+// ひとまわり。終わったら、また同じ子で始める
+function playRound(c, face) {
+  const cryLen = voiceLen(c);      // 長さは音の有無によらず同じ。
+  const songLen = tuneLen(c);      // 音が切れていても、絵は同じ長さで動く
+
+  if (audio()) {
+    newBus();                      // 前に鳴っていた音を切る
+    speak(c);                      // 鳴き声
+    playTune(c, cryLen + 0.25);    // そのあとに曲
+  }
+
+  clearTimeout(walkTimer);
   walkTimer = setTimeout(() => {
     if (!face.isConnected) return;
-    face.style.animationDuration = "4s";
-    face.style.animationIterationCount = String(Math.max(1, Math.round(songLen / 4)));
     face.classList.add("walk");
+    clearInterval(noteTimer);
     // 曲に合わせて、音符のかわりの玉を飛ばす
     noteTimer = setInterval(() => sparkle(null, window.innerHeight * 0.62, 3), 340);
   }, (cryLen + 0.25) * 1000);
 
+  clearTimeout(zoomTimer);
   zoomTimer = setTimeout(() => {
-    zoom.className = "";
-    clearInterval(noteTimer);
-  }, (cryLen + 0.35 + songLen) * 1000);
+    if (face.isConnected) playRound(c, face);   // もう一度、はじめから
+  }, (cryLen + 0.6 + songLen) * 1000);
 }
+
+// 止める。quiet のときは音を切るだけで、画面はこれから作り直す
+function stopZoom(quiet) {
+  clearTimeout(zoomTimer);
+  clearTimeout(walkTimer);
+  clearInterval(noteTimer);
+  if (ac) newBus();
+  if (!quiet) {
+    zoom.className = "";
+    zoom.innerHTML = "";
+  }
+}
+
 
 // 画面の下に、少しのあいだ出す文字（音いろの名前）
 let toastTimer = null;
@@ -1078,11 +1103,7 @@ function buildPads() {
 
 function setMode(next) {
   mode = next;
-  if (zoom) zoom.className = "";
-  clearTimeout(zoomTimer);
-  clearTimeout(walkTimer);
-  clearInterval(noteTimer);
-  if (ac) newBus();
+  stopZoom();
   hide();
   closeBook();
   document.body.classList.toggle("drum", mode === "drum");
@@ -1095,6 +1116,7 @@ function setMode(next) {
 
 // ── みつけた（図鑑）─────────────────────────────────────────
 function openBook() {
+  stopZoom();
   const got = seen();
   sheet.innerHTML = `<h1>みつけた ${got.length} / ${CHARAS.length}</h1><div class="grid">` +
     CHARAS.map((c) => {
@@ -1114,7 +1136,11 @@ function closeBook() {
 // ── 操作 ──────────────────────────────────────────────────
 function tap(e) {
   if (document.body.classList.contains("book")) { closeBook(); return; }
-  if (mode === "drum") return;
+  if (mode === "drum") {
+    // くり返しの最中に画面をさわったら、そこで止める
+    if (zoom.className === "on") stopZoom();
+    return;
+  }
   if (busy) return;
   busy = true;
   if (open) {

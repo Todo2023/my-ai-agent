@@ -235,13 +235,14 @@ body.book #sheet { display: block; }
   display: grid;
   place-items: end center;   /* 草の上に立たせる */
   gap: 8px;
-  pointer-events: none;
+  pointer-events: none;      /* .on のときだけ受け取る（下を見よ） */
   opacity: 0;
   z-index: 8;
   background: transparent;
 }
 
-#zoom.on { animation: zoomin 900ms ease-out forwards; }
+/* くり返している間は、画面をさわると止められるように受け取る */
+#zoom.on { animation: zoomin 900ms ease-out forwards; pointer-events: auto; }
 
 /* クローズアップの背景 */
 .scene {
@@ -884,4 +885,42 @@ body.book #sheet { display: block; }
 
 @media (prefers-reduced-motion: reduce) {
   .tail.wag { animation: none; }
+}
+
+/* ちょうちょは地面に立たない。空を飛ぶ */
+.zoomface.fly { margin-bottom: 34vh; }
+.zoomface.fly.walk { animation-name: flyacross; }
+
+@keyframes flyacross {
+  0%   { transform: translate(-32vw, 0) scaleX(1); }
+  24%  { transform: translate(0, -6vh) scaleX(1); }
+  48%  { transform: translate(32vw, 0) scaleX(1); }
+  52%  { transform: translate(32vw, 0) scaleX(-1); }
+  76%  { transform: translate(0, -6vh) scaleX(-1); }
+  100% { transform: translate(-32vw, 0) scaleX(-1); }
+}
+
+/* お友達のちょうちょも、空をふわふわ */
+.skyfriends {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 18%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6vw;
+  z-index: 1;
+}
+
+.skyfriends .friend { width: min(26vw, 18vh); }
+.skyfriends .bob { animation: hover 3.4s ease-in-out infinite; }
+.skyfriends .wingL, .skyfriends .wingR { animation: flap 240ms ease-in-out infinite; }
+
+@keyframes hover {
+  0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+  50%      { transform: translate(3vw, -4vh) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyfriends .bob, .skyfriends .wingL, .skyfriends .wingR { animation: none; }
 }
