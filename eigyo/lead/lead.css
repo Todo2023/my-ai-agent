@@ -1,0 +1,56 @@
+/*
+  IPROSリード仕分け ── 見た目の足し分
+
+  色や基本の形は ../app.css をそのまま使う。ここには足りないものだけ書く。
+*/
+
+.step{
+  margin-top:26px; padding:18px 16px 20px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+}
+.step h2{
+  margin:0 0 14px; font-size:14px; font-weight:700; letter-spacing:.04em;
+  display:flex; align-items:center; gap:10px;
+}
+.step h2 .no,.out h2 .no{
+  display:inline-grid; place-items:center;
+  width:22px; height:22px; border-radius:50%;
+  background:var(--navy); color:#fff; font-size:12px; font-weight:700;
+}
+#mapBox{display:none;}
+#mapBox.show{display:block;}
+
+.field input[type="file"]{
+  width:100%; padding:12px; font:inherit; font-size:13px;
+  background:#fff; border:1px dashed #c9d6e5; border-radius:var(--radius);
+}
+.field textarea{min-height:120px;}
+
+.note{margin:8px 0 0; font-size:12.5px; line-height:1.85; color:var(--dim);}
+.note.ok{color:#1d6b45; font-weight:700;}
+.note.ng{color:var(--accent-d); font-weight:700;}
+.err{margin:10px 0 0; font-size:13px; font-weight:700; color:var(--accent-d); min-height:1.9em;}
+
+/* ── 結果 ── */
+.out h2{margin-bottom:14px;}
+.sum{
+  margin:0; padding:16px 18px; list-style:none;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  font-size:13.5px;
+}
+.sum li + li{margin-top:6px; padding-top:6px; border-top:1px solid var(--line);}
+.sum b{color:var(--navy); font-size:15px;}
+.sub{display:block; font-size:12px; color:var(--dim);}
+
+#peek h3{
+  margin:24px 0 8px; font-size:13px; font-weight:700; color:var(--navy);
+}
+.peek-list{
+  margin:0; padding:12px 16px 12px 30px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  font-size:12.5px; line-height:1.8; color:var(--dim);
+  max-height:40vh; overflow:auto;
+}
+.peek-list li{overflow-wrap:anywhere;}
+
+.btn:disabled{opacity:.4; box-shadow:none;}

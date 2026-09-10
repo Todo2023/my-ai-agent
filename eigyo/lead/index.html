@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>IPROSリード仕分け</title>
+<meta name="description" content="IPROSから出したCSVを、Pardotに入れる前に仕分ける道具。重複・除外・メール不備を分ける。" />
+<meta name="theme-color" content="#123055" />
+<meta name="color-scheme" content="light" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="robots" content="noindex" /><!-- 社内用。検索に出さない -->
+<!--
+  ここには manifest も Service Worker も置かない。
+  これはアプリではなく、社内で使う道具のページ。
+  読み込んだCSVは端末の外へ出ない（通信するコードを入れていない）。
+-->
+<link rel="stylesheet" href="../app.css" />
+<link rel="stylesheet" href="lead.css" />
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>IPROSリード仕分け</h1>
+    <p>
+      IPROSから出したCSVを、Pardotに入れる前に4つに分けます。<br />
+      <b>ファイルは端末の外に出ません。</b>この画面は通信をしません。
+    </p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <p class="lead">
+      ① IPROSのCSVを選ぶ → ② 列を合わせる → ③ 仕分ける → ④ CSVを保存してPardotに入れる。
+    </p>
+
+    <section class="step">
+      <h2><span class="no">1</span>CSVを選ぶ</h2>
+
+      <div class="field">
+        <label for="fIpros">IPROSから出したCSV<span class="req">必須</span></label>
+        <input type="file" id="fIpros" accept=".csv,text/csv" />
+        <p class="note" id="nIpros">管理画面から出したものをそのまま選んでください。</p>
+      </div>
+
+      <div class="field">
+        <label for="fPardot">Pardotの既存プロスペクト一覧（CSV）</label>
+        <input type="file" id="fPardot" accept=".csv,text/csv" />
+        <p class="note" id="nPardot">
+          あれば重複を見ます。無くても動きますが、その場合は全員が「新規」になります。
+        </p>
+      </div>
+    </section>
+
+    <section class="step" id="mapBox">
+      <h2><span class="no">2</span>列を合わせる</h2>
+      <p class="note">
+        CSVの見出しから推測しています。違っていたら選び直してください。次回はこの選択を覚えます。
+      </p>
+      <div id="map"></div>
+    </section>
+
+    <section class="step">
+      <h2><span class="no">3</span>除外する会社</h2>
+      <p class="note">
+        1行に1社。会社名の一部でも当たります（「株式会社」「(株)」の有無・全角半角は無視します）。
+        この内容はこの端末にだけ残ります。
+      </p>
+      <div class="field">
+        <textarea id="ng" placeholder="ニクニ&#10;大生工業&#10;グローリン"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="run">仕分ける</button>
+      </div>
+      <p class="err" id="err"></p>
+    </section>
+
+    <section class="out" id="out">
+      <h2><span class="no">4</span>結果</h2>
+      <ul class="sum" id="sum"></ul>
+
+      <div class="btn-row" id="dl"></div>
+
+      <div id="peek"></div>
+
+      <div class="warn">
+        <b>Pardotに入れる前に、次を確かめてください。</b>
+        <ul>
+          <li><b>除外</b>と<b>メール不備</b>の束は、そのまま捨てない。会社名の一部一致なので、
+            関係のない会社を巻き込むことがあります</li>
+          <li><b>リスト追加のみ</b>の束は、インポートで新規作成しない設定にする。
+            二重にプロスペクトを作ると、あとで直すのが大変です</li>
+          <li>出力したCSVには会社名とメールアドレスが入っています。
+            <b>リポジトリや共有フォルダに置かない</b>こと</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="../">← 営業AIの作業台</a></p>
+  </div>
+</footer>
+
+<script src="lead.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
