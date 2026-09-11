@@ -302,14 +302,15 @@ function timeOf(v){
 
 /**
  * @param {{head:string[], body:string[][]}} ipros    IPROSから出したCSV
- * @param {Set<string>|null} known                   Pardotに既にいるメール（正規化済み）
+ * @param {Map<string,{opted:boolean,segment:string}>|null} known
+ *        Pardotに既にいる人。メール（正規化済み）→ オプトアウトの有無・導入先セグメント
  * @param {Object} map                               列の対応（COLS の key → 列番号）
  * @param {string[]} ngWords                         除外する会社名
  */
 function sortLeads(ipros, known, map, ngWords){
   const ng = ngWords.map(normCompany).filter(Boolean);
 
-  const out = { fresh:[], exists:[], excluded:[], invalid:[] };
+  const out = { fresh:[], exists:[], excluded:[], invalid:[], optout:[] };
   const seen = new Map();   // メール → out.fresh / out.exists 内の行
 
   for (const raw of ipros.body){
@@ -370,8 +371,22 @@ function sortLeads(ipros, known, map, ngWords){
       continue;
     }
 
-    // ⑤ Pardotに既にいるか
-    const bucket = (known && known.has(rec.email)) ? out.exists : out.fresh;
+    // ⑤ Pardotに既にいるか。いるなら、向こうが持っている情報で判定を足す
+    const pro = known ? known.get(rec.email) : null;
+    let bucket;
+    if (!pro){
+      bucket = out.fresh;
+    } else if (pro.opted){
+      // Pardot側で配信停止している人。ここを間違えると法律の問題になる
+      rec.reason = 'Pardotでオプトアウト済み';
+      bucket = out.optout;
+    } else if (nfkc(pro.segment || '').includes('代理店')){
+      // 岩田さんの「代理店除外」は、Pardot側が既にタグ付けしている
+      rec.reason = '導入先セグメントが「' + pro.segment + '」';
+      bucket = out.excluded;
+    } else {
+      bucket = out.exists;
+    }
     bucket.push(rec);
     seen.set(rec.email, { rec, dups:0 });
   }
@@ -389,11 +404,15 @@ function sortLeads(ipros, known, map, ngWords){
 
 const HEADERS = ['会社名','担当者','メールアドレス','DL資料','日時','動機','至急度','リードソース'];
 
+// Pardot側の Source フィールドで既に使われている表記に合わせる。
+// 「IPROS」と書くと、既存の292件と別の値になって集計が割れる（2026-09-11 確認）。
+const LEAD_SOURCE = 'イプロス';
+
 function toCsv(rows, withReason){
   const head = withReason ? [...HEADERS, '理由'] : HEADERS;
   const esc  = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const line = r => {
-    const cells = [r.company, r.name, r.email, r.doc, r.date, r.motive, r.urgency, 'IPROS'];
+    const cells = [r.company, r.name, r.email, r.doc, r.date, r.motive, r.urgency, LEAD_SOURCE];
     if (withReason) cells.push(r.reason);
     return cells.map(esc).join(',');
   };

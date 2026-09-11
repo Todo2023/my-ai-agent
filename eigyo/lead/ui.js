@@ -115,25 +115,43 @@ async function take(which, file, noteId){
   $('out').classList.remove('show');
 }
 
-/* ── Pardot側の既存メールを集める ── */
+/* ── Pardot側の既存プロスペクトを読む ── */
 
-function knownEmails(){
+/*
+  メールだけでなく、向こうが持っている「オプトアウト」と「導入先セグメント」も拾う。
+  配信停止した人に送らないため、代理店を弾くため。どちらもIPROS側には無い情報。
+*/
+function buildKnown(){
   if (!pardot) return null;
-  // メールらしい列を自動で探す。見つからなければ全列からメール形式を拾う。
-  const i = guessColumn(pardot.head, COLS.find(c => c.key === 'email'));
-  const set = new Set();
-  for (const row of pardot.body){
-    if (i >= 0){
-      const e = normEmail(row[i]);
-      if (EMAIL_RE.test(e)) set.add(e);
-    } else {
-      for (const cell of row){
-        const e = normEmail(cell);
-        if (EMAIL_RE.test(e)) { set.add(e); break; }
-      }
+
+  // 名前は書いた順に探す。Pardotの書き出しには「Do Not Email」と「Opted Out」が
+  // 両方あり、配信停止が入っているのは後者なので、順番を間違えると全員が対象になる。
+  const find = names => {
+    for (const want of names){
+      const i = pardot.head.findIndex(h => nfkc(h).trim() === want);
+      if (i >= 0) return i;
     }
+    return -1;
+  };
+  const iMailFound = find(['Email','メールアドレス','email']);
+  const iMail = iMailFound >= 0 ? iMailFound : guessColumn(pardot.head, COLS.find(c => c.key === 'email'));
+  const iOpt = find(['Opted Out','オプトアウト','配信停止','Do Not Email']);
+  const iSeg = find(['導入先セグメント']);
+
+  const map = new Map();
+  for (const row of pardot.body){
+    let e = '';
+    if (iMail >= 0) e = normEmail(row[iMail]);
+    else for (const cell of row){ const t = normEmail(cell); if (EMAIL_RE.test(t)){ e = t; break; } }
+    if (!EMAIL_RE.test(e)) continue;
+
+    const opted = iOpt >= 0 && ['1','true','yes','はい'].includes(nfkc(row[iOpt] || '').trim().toLowerCase());
+    const segment = iSeg >= 0 ? (row[iSeg] || '').trim() : '';
+    const prev = map.get(e);
+    // 同じ人が複数行あったら、オプトアウトしている側を優先して覚える
+    if (!prev || (opted && !prev.opted)) map.set(e, { opted, segment: segment || (prev && prev.segment) || '' });
   }
-  return set;
+  return map;
 }
 
 /* ── 結果を出す ── */
@@ -141,6 +159,7 @@ function knownEmails(){
 const BUCKETS = [
   { key:'fresh',    title:'新規インポート用',   desc:'Pardotに新しく作る。リードソース=IPROS 付き', file:'ipros_shinki',  reason:false },
   { key:'exists',   title:'リスト追加のみ',     desc:'既にいる人。新規作成せず、リストに足すだけ',   file:'ipros_kizon',   reason:false },
+  { key:'optout',   title:'配信不可（オプトアウト）', desc:'Pardot側で配信停止している人。ステップメールに入れない', file:'ipros_haishin_fuka', reason:true },
   { key:'hot',      title:'先に営業へ回す',     desc:'IPROSの時点で「至急」または「具体的検討」だった人', file:'ipros_yusen',  reason:false },
   { key:'excluded', title:'除外（要目視）',     desc:'除外リストに当たった行。取り込む前に人が見る', file:'ipros_jogai',   reason:true  },
   { key:'invalid',  title:'メール不備（要目視）', desc:'メールが空、または形式が不正な行',           file:'ipros_fubi',    reason:true  },
@@ -230,7 +249,7 @@ function init(){
     const { map, missing } = currentMap();
     if (missing.length){ err.textContent = `${missing.join('・')} の列を選んでください。`; return; }
     saveMap(map);
-    result = sortLeads(ipros, knownEmails(), map, ngWords());
+    result = sortLeads(ipros, buildKnown(), map, ngWords());
     drawResult();
   });
 }
