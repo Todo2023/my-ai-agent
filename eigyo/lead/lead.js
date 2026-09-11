@@ -262,7 +262,19 @@ const COLS = [
     exact:['引き合い時刻'], hints:['時刻','time'], avoid:/受付/ },
   { key:'member',  label:'会員区分', required:false,
     exact:['イプロス会員区分'], hints:['会員区分','会員','ステータス'] },
+  // IPROSの時点で分かっている意向。Pardotのカスタムフィールドに入れて、
+  // Day14を待たずに営業へ回す判断に使う
+  { key:'motive',  label:'動機', required:false,
+    exact:['コメント【動機】'], hints:['動機','motive'] },
+  { key:'urgency', label:'至急度', required:false,
+    exact:['コメント【至急度】'], hints:['至急','緊急','urgen'] },
 ];
+
+// 「いますぐ営業が見るべき行」か。IPROSが付けてくれた値をそのまま使う。
+function isHot(rec){
+  return nfkc(rec.urgency || '').includes('至急')
+      || nfkc(rec.motive  || '').includes('具体的検討');
+}
 
 // ヘッダの文字から、それらしい列をあてる。外したら画面で直せる。
 function guessColumn(head, col){
@@ -310,6 +322,8 @@ function sortLeads(ipros, known, map, ngWords){
       doc:     pick('doc'),
       // 日付と時刻も別の列。重複の新旧を比べるのにどちらも要る
       date:    [pick('date'), pick('time')].filter(Boolean).join(' '),
+      motive:  pick('motive'),
+      urgency: pick('urgency'),
       reason:  '',
     };
 
@@ -348,6 +362,10 @@ function sortLeads(ipros, known, map, ngWords){
       } else if (rec.doc && !dup.rec.doc.includes(rec.doc)){
         dup.rec.doc = [dup.rec.doc, rec.doc].filter(Boolean).join(' / ');
       }
+      // 何度も来ている人は、1回でも「至急」「具体的検討」があればそちらを採る
+      if (!isHot(dup.rec) && isHot(rec)){
+        dup.rec.motive = rec.motive; dup.rec.urgency = rec.urgency;
+      }
       dup.dups++;
       continue;
     }
@@ -359,18 +377,23 @@ function sortLeads(ipros, known, map, ngWords){
   }
 
   const merged = [...seen.values()].reduce((n, v) => n + v.dups, 0);
+
+  // 束を分けるのではなく、新規と既存の中から抜き出した一覧。
+  // Pardotへの入れ方は変えず、営業の見る順番だけを変えるため。
+  out.hot = [...out.fresh, ...out.exists].filter(isHot);
+
   return { ...out, merged, total: ipros.body.length, checkedAgainstPardot: !!known };
 }
 
 /* ══ CSVとして書き出す ══ */
 
-const HEADERS = ['会社名','担当者','メールアドレス','DL資料','日時','リードソース'];
+const HEADERS = ['会社名','担当者','メールアドレス','DL資料','日時','動機','至急度','リードソース'];
 
 function toCsv(rows, withReason){
   const head = withReason ? [...HEADERS, '理由'] : HEADERS;
   const esc  = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const line = r => {
-    const cells = [r.company, r.name, r.email, r.doc, r.date, 'IPROS'];
+    const cells = [r.company, r.name, r.email, r.doc, r.date, r.motive, r.urgency, 'IPROS'];
     if (withReason) cells.push(r.reason);
     return cells.map(esc).join(',');
   };

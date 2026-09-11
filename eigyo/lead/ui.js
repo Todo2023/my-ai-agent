@@ -141,6 +141,7 @@ function knownEmails(){
 const BUCKETS = [
   { key:'fresh',    title:'新規インポート用',   desc:'Pardotに新しく作る。リードソース=IPROS 付き', file:'ipros_shinki',  reason:false },
   { key:'exists',   title:'リスト追加のみ',     desc:'既にいる人。新規作成せず、リストに足すだけ',   file:'ipros_kizon',   reason:false },
+  { key:'hot',      title:'先に営業へ回す',     desc:'IPROSの時点で「至急」または「具体的検討」だった人', file:'ipros_yusen',  reason:false },
   { key:'excluded', title:'除外（要目視）',     desc:'除外リストに当たった行。取り込む前に人が見る', file:'ipros_jogai',   reason:true  },
   { key:'invalid',  title:'メール不備（要目視）', desc:'メールが空、または形式が不正な行',           file:'ipros_fubi',    reason:true  },
 ];
@@ -167,7 +168,9 @@ function drawResult(){
   line('同じメールをまとめた', `${result.merged}行`, 'DL資料は「/」でつないである');
   for (const b of BUCKETS){
     const n = result[b.key].length;
-    line(b.title, `${n}件`, b.key === 'exists' && !result.checkedAgainstPardot ? 'Pardot側のCSVが無いので、全部「新規」に入っている' : '');
+    const note = b.key === 'exists' && !result.checkedAgainstPardot ? 'Pardot側の一覧が無いので、全部「新規」に入っている'
+               : b.key === 'hot' ? '上の2つの中から抜き出したもの。二重に数えている' : '';
+    line(b.title, `${n}件`, note);
   }
 
   const dl = $('dl');
@@ -176,7 +179,7 @@ function drawResult(){
     const rows = result[b.key];
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'btn ' + (b.key === 'fresh' ? 'btn-primary' : 'btn-ghost');
+    btn.className = 'btn ' + (b.key === 'fresh' || b.key === 'hot' ? 'btn-primary' : 'btn-ghost');
     btn.disabled = rows.length === 0;
     btn.textContent = `${b.title}（${rows.length}件）を保存`;
     btn.addEventListener('click', () => download(`${b.file}_${stamp()}.csv`, toCsv(rows, b.reason)));
