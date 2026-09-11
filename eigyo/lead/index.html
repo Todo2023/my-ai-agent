@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>IPROSリード仕分け</title>
-<meta name="description" content="IPROSから出したCSVを、Pardotに入れる前に仕分ける道具。重複・除外・メール不備を分ける。" />
+<meta name="description" content="IPROSから出した引き合い一覧を、Pardotに入れる前に仕分ける道具。重複・除外・メール不備を分ける。" />
 <meta name="theme-color" content="#123055" />
 <meta name="color-scheme" content="light" />
 <meta name="format-detection" content="telephone=no" />
@@ -23,7 +23,7 @@
   <div class="wrap">
     <h1>IPROSリード仕分け</h1>
     <p>
-      IPROSから出したCSVを、Pardotに入れる前に4つに分けます。<br />
+      IPROSから出した引き合い一覧を、Pardotに入れる前に4つに分けます。<br />
       <b>ファイルは端末の外に出ません。</b>この画面は通信をしません。
     </p>
   </div>
@@ -33,21 +33,24 @@
   <div class="wrap">
 
     <p class="lead">
-      ① IPROSのCSVを選ぶ → ② 列を合わせる → ③ 仕分ける → ④ CSVを保存してPardotに入れる。
+      ① IPROSの一覧を選ぶ → ② 列を合わせる → ③ 仕分ける → ④ CSVを保存してPardotに入れる。
     </p>
 
     <section class="step">
       <h2><span class="no">1</span>CSVを選ぶ</h2>
 
       <div class="field">
-        <label for="fIpros">IPROSから出したCSV<span class="req">必須</span></label>
-        <input type="file" id="fIpros" accept=".csv,text/csv" />
-        <p class="note" id="nIpros">管理画面から出したものをそのまま選んでください。</p>
+        <label for="fIpros">IPROSの引き合い一覧<span class="req">必須</span></label>
+        <input type="file" id="fIpros" accept=".xlsx,.csv,text/csv" />
+        <p class="note" id="nIpros">
+          管理画面から出した <b>.xlsx をそのまま</b>選べます（CSVでも可）。
+          上に並ぶ検索条件の行は読み飛ばします。
+        </p>
       </div>
 
       <div class="field">
         <label for="fPardot">Pardotの既存プロスペクト一覧（CSV）</label>
-        <input type="file" id="fPardot" accept=".csv,text/csv" />
+        <input type="file" id="fPardot" accept=".xlsx,.csv,text/csv" />
         <p class="note" id="nPardot">
           あれば重複を見ます。無くても動きますが、その場合は全員が「新規」になります。
         </p>
@@ -57,7 +60,8 @@
     <section class="step" id="mapBox">
       <h2><span class="no">2</span>列を合わせる</h2>
       <p class="note">
-        CSVの見出しから推測しています。違っていたら選び直してください。次回はこの選択を覚えます。
+        見出しから推測しています。違っていたら選び直してください。次回はこの選択を覚えます。
+        <b>姓と名、日付と時刻</b>は別の列なので、それぞれ選ぶとつないで1つにします。
       </p>
       <div id="map"></div>
     </section>
@@ -90,7 +94,7 @@
         <b>Pardotに入れる前に、次を確かめてください。</b>
         <ul>
           <li><b>除外</b>と<b>メール不備</b>の束は、そのまま捨てない。会社名の一部一致なので、
-            関係のない会社を巻き込むことがあります</li>
+            関係のない会社を巻き込むことがあります（退会済みの行もここに入ります）</li>
           <li><b>リスト追加のみ</b>の束は、インポートで新規作成しない設定にする。
             二重にプロスペクトを作ると、あとで直すのが大変です</li>
           <li>出力したCSVには会社名とメールアドレスが入っています。

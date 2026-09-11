@@ -102,11 +102,12 @@ async function take(which, file, noteId){
   const note = $(noteId);
   if (!file){ return; }
   try {
-    const data = await readCsvFile(file);
+    const data = await readTable(file);
     if (which === 'ipros'){ ipros = data; drawMapping(); }
     else { pardot = data; }
     note.className = 'note ok';
-    note.textContent = `${file.name} … ${data.body.length}行（${data.head.length}列）`;
+    note.textContent = `${file.name} … ${data.body.length}行（${data.head.length}列）`
+      + (data.skipped ? `／見出しより上の${data.skipped}行（検索条件）は読み飛ばしました` : '');
   } catch (e){
     note.className = 'note ng';
     note.textContent = e.message;

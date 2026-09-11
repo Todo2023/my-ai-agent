@@ -57,14 +57,163 @@ function decode(buf){
   }
 }
 
-function readCsvFile(file){
+/* ══ xlsx を読む（ライブラリなし） ══ */
+
+/*
+  IPROSの出力は .xlsx で落ちてくる。CSVに保存し直してもらう手間を省くため、
+  ここで直接開く。外部ライブラリは使わない（このリポジトリは外部の読み込みをしない）。
+
+  xlsx の実体は zip。ブラウザに入っている DecompressionStream で展開し、
+  中の XML を DOMParser で読む。どちらも標準機能。
+*/
+
+// zip の中から要るファイルだけ取り出す
+async function unzip(buf, wanted){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  const out = {};
+
+  // 末尾から End of Central Directory を探す
+  let eocd = -1;
+  for (let i = buf.byteLength - 22; i >= 0 && i > buf.byteLength - 66000; i--){
+    if (dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('xlsxとして読めません（zipの形をしていない）');
+
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+  if (p === 0xFFFFFFFF) throw new Error('この xlsx は大きすぎて開けません（ZIP64）');
+
+  for (let n = 0; n < count; n++){
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method  = dv.getUint16(p + 10, true);
+    const zipped  = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extraLen= dv.getUint16(p + 30, true);
+    const cmtLen  = dv.getUint16(p + 32, true);
+    const local   = dv.getUint32(p + 42, true);
+    const name    = new TextDecoder('utf-8').decode(u8.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extraLen + cmtLen;
+
+    if (!wanted.some(w => name === w || (w.endsWith('/') && name.startsWith(w)))) continue;
+
+    // ローカルヘッダを見て、本体の開始位置を出す
+    const ln = dv.getUint16(local + 26, true), le = dv.getUint16(local + 28, true);
+    const from = local + 30 + ln + le;
+    const raw  = u8.subarray(from, from + zipped);
+
+    if (method === 0){
+      out[name] = new TextDecoder('utf-8').decode(raw);
+    } else if (method === 8){
+      const ds = new DecompressionStream('deflate-raw');
+      const blob = await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer();
+      out[name] = new TextDecoder('utf-8').decode(new Uint8Array(blob));
+    } else {
+      throw new Error('xlsxの中身が未対応の形式です');
+    }
+  }
+  return out;
+}
+
+// A1 形式の「列」部分を 0 始まりの番号に直す（AB → 27）
+function colOf(ref){
+  let n = 0;
+  for (const ch of ref){
+    const c = ch.charCodeAt(0);
+    if (c < 65 || c > 90) break;
+    n = n * 26 + (c - 64);
+  }
+  return n - 1;
+}
+
+function xmlDoc(text){
+  const d = new DOMParser().parseFromString(text, 'application/xml');
+  if (d.querySelector('parsererror')) throw new Error('xlsxの中身を読めませんでした');
+  return d;
+}
+
+async function readXlsx(buf){
+  const files = await unzip(buf, ['xl/sharedStrings.xml', 'xl/worksheets/sheet1.xml']);
+  const sheetXml = files['xl/worksheets/sheet1.xml'];
+  if (!sheetXml) throw new Error('1枚目のシートが見つかりません');
+
+  // 共有文字列（xlsxは文字を1ヶ所にまとめて持つ）
+  const shared = [];
+  if (files['xl/sharedStrings.xml']){
+    for (const si of xmlDoc(files['xl/sharedStrings.xml']).getElementsByTagName('si')){
+      // リッチテキストは <t> が複数に割れているのでつなぐ
+      shared.push([...si.getElementsByTagName('t')].map(t => t.textContent).join(''));
+    }
+  }
+
+  const rows = [];
+  for (const row of xmlDoc(sheetXml).getElementsByTagName('row')){
+    const cells = [];
+    for (const c of row.getElementsByTagName('c')){
+      const at = colOf(c.getAttribute('r') || '');
+      const t  = c.getAttribute('t');
+      let v = '';
+      if (t === 'inlineStr'){
+        v = [...c.getElementsByTagName('t')].map(x => x.textContent).join('');
+      } else {
+        const node = c.getElementsByTagName('v')[0];
+        const raw = node ? node.textContent : '';
+        v = (t === 's') ? (shared[Number(raw)] ?? '') : raw;
+      }
+      const i = at >= 0 ? at : cells.length;
+      while (cells.length < i) cells.push('');
+      cells[i] = v;
+    }
+    rows.push(cells);
+  }
+  return rows.filter(r => r.some(v => (v || '').trim() !== ''));
+}
+
+/* ══ 見出しの行を探す ══ */
+
+/*
+  IPROSの出力は、1行目から表が始まらない。上に検索条件が18行ほど並んでいて、
+  19行目に見出しが来る（2026-09の実物で確認）。行数は出力条件で変わるはずなので、
+  「いちばん列が埋まっている行」を見出しとみなす。
+*/
+function splitHeader(rows){
+  const filled = r => r.filter(v => (v || '').trim() !== '').length;
+  let best = 0, bestN = 0;
+  for (let i = 0; i < Math.min(rows.length, 40); i++){
+    const n = filled(rows[i]);
+    if (n > bestN){ bestN = n; best = i; }
+  }
+  if (bestN < 1) throw new Error('表の見出しが見つかりませんでした');
+  // skipped … 見出しより上にあった行の数（IPROSの場合は検索条件）
+  return { head: rows[best].map(h => (h || '').trim()), body: rows.slice(best + 1), skipped: best };
+}
+
+/* ══ ファイルを開く ══ */
+
+// 文字コードは選ばせない。UTF-8 として読めなければ Shift_JIS とみなす。
+function decode(buf){
+  const bytes = new Uint8Array(buf);
+  try {
+    const t = new TextDecoder('utf-8', { fatal:true }).decode(bytes);
+    return t.charCodeAt(0) === 0xFEFF ? t.slice(1) : t;   // BOMを落とす
+  } catch (e){
+    return new TextDecoder('shift_jis').decode(bytes);
+  }
+}
+
+function readTable(file){
   return new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onerror = () => reject(new Error('ファイルを読めませんでした'));
-    r.onload  = () => {
-      const rows = parseCsv(decode(r.result));
-      if (!rows.length) { reject(new Error('中身が空です')); return; }
-      resolve({ head: rows[0].map(h => h.trim()), body: rows.slice(1) });
+    r.onload  = async () => {
+      try {
+        const isXlsx = /\.xlsx$/i.test(file.name) || new Uint8Array(r.result, 0, 2)[0] === 0x50;
+        if (isXlsx && typeof DecompressionStream !== 'function'){
+          throw new Error('このブラウザではxlsxを開けません。Excelで「CSV UTF-8」として保存し直してください');
+        }
+        const rows = isXlsx ? await readXlsx(r.result) : parseCsv(decode(r.result));
+        if (!rows.length) throw new Error('中身が空です');
+        resolve(splitHeader(rows));
+      } catch (e){ reject(e); }
     };
     r.readAsArrayBuffer(file);
   });
@@ -95,19 +244,39 @@ function normCompany(s){
 /* ══ 仕分け ══ */
 
 const COLS = [
-  { key:'company', label:'会社名',   required:true,  hints:['会社','企業','法人','company','organization','account'] },
-  { key:'name',    label:'担当者',   required:false, hints:['担当','氏名','名前','name','contact'] },
-  { key:'email',   label:'メール',   required:true,  hints:['mail','メール','e-mail','アドレス'] },
-  { key:'doc',     label:'DL資料',   required:false, hints:['資料','ダウンロード','download','カタログ','コンテンツ'] },
-  { key:'date',    label:'日時',     required:false, hints:['日時','日付','date','time','登録','取得'] },
+  // exact … 見出しがこの文字そのものなら、それを選ぶ（IPROSの実物に合わせてある）
+  // hints … 見つからないときの部分一致。avoid に当たる見出しは選ばない
+  { key:'company', label:'会社名', required:true,
+    exact:['会社名'], hints:['会社','企業','法人','company','account'], avoid:/事業所/ },
+  { key:'name',    label:'担当者（姓）', required:false,
+    exact:['姓'], hints:['担当','氏名','name'], avoid:/ふりがな|かな|会社|事業所/ },
+  { key:'name2',   label:'担当者（名）', required:false,
+    exact:['名'], hints:[], avoid:/ふりがな|かな|会社|事業所|氏/ },
+  { key:'email',   label:'メール', required:true,
+    exact:['メールアドレス'], hints:['mail','メール','e-mail','アドレス'] },
+  { key:'doc',     label:'DL資料', required:false,
+    exact:['ファイル項目','項目'], hints:['資料','ダウンロード','download','カタログ','ファイル'], avoid:/数$/ },
+  { key:'date',    label:'日付', required:false,
+    exact:['引き合い日'], hints:['日付','date','登録日','取得日'], avoid:/時刻|受付/ },
+  { key:'time',    label:'時刻', required:false,
+    exact:['引き合い時刻'], hints:['時刻','time'], avoid:/受付/ },
+  { key:'member',  label:'会員区分', required:false,
+    exact:['イプロス会員区分'], hints:['会員区分','会員','ステータス'] },
 ];
 
 // ヘッダの文字から、それらしい列をあてる。外したら画面で直せる。
 function guessColumn(head, col){
-  const lower = head.map(h => nfkc(h).toLowerCase());
-  // 「メールアドレス」を「担当者名」より先に取りたいので、限定的な語から順に見る
+  const norm = head.map(h => nfkc(h).trim());
+
+  // まず完全一致。「名」が「会社名」に吸われるのを防ぐため、ここを先に見る
+  for (const want of (col.exact || [])){
+    const i = norm.indexOf(want);
+    if (i >= 0) return i;
+  }
+
+  const lower = norm.map(h => h.toLowerCase());
   for (const hint of col.hints){
-    const i = lower.findIndex(h => h.includes(hint));
+    const i = lower.findIndex((h, n) => h.includes(hint) && !(col.avoid && col.avoid.test(norm[n])));
     if (i >= 0) return i;
   }
   return -1;
@@ -135,10 +304,12 @@ function sortLeads(ipros, known, map, ngWords){
     const pick = k => (map[k] >= 0 ? (raw[map[k]] || '').trim() : '');
     const rec = {
       company: pick('company'),
-      name:    pick('name'),
+      // IPROSは姓と名が別の列。つなげて1つにする
+      name:    [pick('name'), pick('name2')].filter(Boolean).join(' '),
       email:   normEmail(pick('email')),
       doc:     pick('doc'),
-      date:    pick('date'),
+      // 日付と時刻も別の列。重複の新旧を比べるのにどちらも要る
+      date:    [pick('date'), pick('time')].filter(Boolean).join(' '),
       reason:  '',
     };
 
@@ -149,7 +320,15 @@ function sortLeads(ipros, known, map, ngWords){
       continue;
     }
 
-    // ② 競合・代理店の除外（会社名の部分一致）
+    // ② 退会済みは配信対象にしない（IPROSを退会した人にステップメールを送らない）
+    const member = pick('member');
+    if (member && nfkc(member).includes('退会')){
+      rec.reason = 'イプロスを退会済み';
+      out.excluded.push(rec);
+      continue;
+    }
+
+    // ③ 競合・代理店の除外（会社名の部分一致）
     const c = normCompany(rec.company);
     const hit = c ? ng.find(w => c.includes(w) || w.includes(c)) : null;
     if (hit){
@@ -158,7 +337,7 @@ function sortLeads(ipros, known, map, ngWords){
       continue;
     }
 
-    // ③ CSVの中での重複 → 日時が新しいほうを残す
+    // ④ 表の中での重複 → 日時が新しいほうを残す
     const dup = seen.get(rec.email);
     if (dup){
       if (timeOf(rec.date) > timeOf(dup.rec.date)){
@@ -173,7 +352,7 @@ function sortLeads(ipros, known, map, ngWords){
       continue;
     }
 
-    // ④ Pardotに既にいるか
+    // ⑤ Pardotに既にいるか
     const bucket = (known && known.has(rec.email)) ? out.exists : out.fresh;
     bucket.push(rec);
     seen.set(rec.email, { rec, dups:0 });
