@@ -43,6 +43,7 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .meta strong{color:var(--ink);font-weight:700}
+.meta .clk{white-space:nowrap}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .flag{height:4px;background:linear-gradient(90deg,var(--f1) 0 33.33%,var(--f2) 33.33% 66.66%,var(--f3) 66.66%)}
 
@@ -108,7 +109,8 @@ main{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:14px calc(9
 /* ルート */
 .clocks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .clock{padding:10px 12px}
-.clock .t{font-family:var(--f-mono);font-size:22px;font-variant-numeric:tabular-nums}
+.clock .t{font-family:var(--f-mono);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.2}
+.clock .d{font-family:var(--f-mono);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
 .days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .day{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 4px;text-align:center;line-height:1.25}
 .day b{display:block;font-family:var(--f-mono);font-size:15px}
@@ -175,6 +177,15 @@ textarea.field{min-height:120px;font-family:var(--f-mono);font-size:12px}
 .cal .now{outline:2px solid var(--ink);outline-offset:1px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* 発音ボタン */
+.spk{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px}
+.btn .spk{margin-right:2px}
+.spkbtn{display:grid;place-items:center;padding:0;width:44px;flex:none}
+.spkbtn .spk{width:19px;height:19px;margin:0}
+.optrow{display:flex;gap:6px;align-items:stretch}
+.optrow .opt{flex:1;min-width:0}
+.sayw{border:0;background:none;padding:0 1px;margin:0;font:inherit;font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.sayw .spk{width:13px;height:13px;margin-left:2px}
 .toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;max-width:calc(100% - 32px)}
 @media (max-width:420px){.ph-fl{font-size:21px}.clock .t{font-size:19px}.form{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.btn,.chip,.opt,.day{transition:background .15s,border-color .15s}}
@@ -213,7 +224,7 @@ textarea.field{min-height:120px;font-family:var(--f-mono);font-size:12px}
     <p class="show-fl" id="show-fl"></p>
     <p class="show-ja" id="show-ja"></p>
     <div class="row" style="justify-content:center">
-      <button class="btn big" data-act="show-say">聞く</button>
+      <button class="btn big" data-act="show-say"><svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg> 聞く</button>
       <button class="btn big primary" data-act="show-close">閉じる</button>
     </div>
   </div>
@@ -443,6 +454,9 @@ let toastT;
 function toast(m,ms=2200){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,ms)}
 function ymd(tz,d=new Date()){return new Intl.DateTimeFormat("en-CA",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit"}).format(d)}
 function hm(tz,d=new Date()){return new Intl.DateTimeFormat("ja-JP",{timeZone:tz,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(d)}
+/* 時刻だけだと日付をまたいだときに取り違えるので、月日と曜日を必ず添える（例：11/9(月) 07:00） */
+function mdw(tz,d=new Date()){const l=dayLabel(ymd(tz,d));return l.md+"("+l.wd+")"}
+const dt=(tz,d=new Date())=>mdw(tz,d)+" "+hm(tz,d);
 const today=()=>ymd("Asia/Tokyo");
 const dnum=s=>{const[y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d)/864e5};
 const WD="日月火水木金土";
@@ -465,6 +479,27 @@ function speak(text,slow,lang=S.lang){
   speechSynthesis.cancel();speechSynthesis.speak(u);
 }
 if("speechSynthesis" in window){try{speechSynthesis.getVoices()}catch(e){}}
+const SPK=`<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
+const sayBtn=(t,lang=S.lang)=>`<button class="btn spkbtn" data-act="sayt" data-t="${esc(t)}" data-l="${lang}" aria-label="${esc(t)} の発音を聞く">${SPK}</button>`;
+const sayRow=id=>`<div class="row" style="justify-content:center"><button class="btn" data-act="say" data-id="${id}">${SPK} 聞く</button><button class="btn" data-act="slow" data-id="${id}">ゆっくり</button></div>`;
+/* メモ中の外国語（ラテン文字の語句）をタップで読み上げられるようにする */
+const LATIN=/[A-Za-zÀ-ÖØ-öø-ÿ](?:[A-Za-zÀ-ÖØ-öø-ÿ'’\-, ]*[A-Za-zÀ-ÖØ-öø-ÿ])?/g;
+function noteHtml(n,lang=S.lang){
+  let out="",i=0;
+  for(const m of n.matchAll(LATIN)){
+    if(m[0].length<2)continue;
+    out+=esc(n.slice(i,m.index))+`<button class="sayw" data-act="sayt" data-t="${esc(m[0])}" data-l="${lang}" title="発音を聞く">${esc(m[0])}${SPK}</button>`;
+    i=m.index+m[0].length;
+  }
+  return out+esc(n.slice(i));
+}
+/* 4択の選択肢。外国語の選択肢には横に発音ボタンを付ける（押しても解答にはならない） */
+function optsHtml(q,isFl,act,txt){
+  return `<div class="opts">${q.opts.map(o=>{
+    let c="opt"+(isFl?" fl":"");if(q.pick){if(o===q.id)c+=" ok";else if(o===q.pick)c+=" ng"}
+    const b=`<button class="${c}" data-act="${act}" data-v="${o}" ${q.pick?"disabled":""}>${esc(txt(o))}</button>`;
+    return isFl?`<div class="optrow">${b}${sayBtn(fl(BY[o]))}</div>`:b}).join("")}</div>`;
+}
 
 /* ---------- ヘッダー ---------- */
 function renderMeta(){
@@ -473,8 +508,9 @@ function renderMeta(){
   if(diff>0)cd=`出発まで <strong class="mono">${diff}</strong> 日`;
   else if(end>=0)cd=`旅行 <strong class="mono">${-diff+1}</strong> 日目`;
   else cd=`おかえりなさい`;
-  $("#meta").innerHTML=`<span>${cd}</span><span>${esc(L[S.lang].city)} <strong class="mono">${hm(L[S.lang].tz)}</strong></span><span>日本 <strong class="mono">${hm("Asia/Tokyo")}</strong></span>`;
+  $("#meta").innerHTML=`<span>${cd}</span><span class="clk">${esc(L[S.lang].city)} <strong class="mono">${dt(L[S.lang].tz)}</strong>　日本 <strong class="mono">${dt("Asia/Tokyo")}</strong></span>`;
   document.querySelectorAll(".clock .t[data-tz]").forEach(e=>e.textContent=hm(e.dataset.tz));
+  document.querySelectorAll(".clock .d[data-tz]").forEach(e=>e.textContent=mdw(e.dataset.tz));
 }
 function renderChrome(){
   document.body.dataset.lang=S.lang;
@@ -518,14 +554,14 @@ function phraseRow(p){
     <div class="ph-fl" lang="${S.lang}">${esc(fl(p))}</div>
     <div class="ph-kana">${esc(kana(p))}</div>
     <div class="acts">
-      <button class="btn primary" data-act="say" data-id="${id}">聞く</button>
+      <button class="btn primary" data-act="say" data-id="${id}">${SPK} 聞く</button>
       <button class="btn" data-act="slow" data-id="${id}">ゆっくり</button>
       <button class="btn" data-act="show" data-id="${id}">見せる</button>
       <button class="btn star" data-act="fav" data-id="${id}" aria-pressed="${fav}" aria-label="お気に入り">${fav?"★":"☆"}</button>
       <button class="btn${b>=2?" on":""}" data-act="learn" data-id="${id}" title="もう一度押すと段階が進みます（習得済みで押すとリセット）">${lbl}<span class="lv" aria-hidden="true">${dots}</span></button>
       ${n?`<button class="btn" data-act="note" data-id="${id}" aria-expanded="${!!U.open[id]}">ヒント</button>`:""}
     </div>
-    ${n&&U.open[id]?`<p class="note">${esc(n)}</p>`:""}
+    ${n&&U.open[id]?`<p class="note">${noteHtml(n)}</p>`:""}
   </article>`;
 }
 function renderList(){
@@ -579,11 +615,11 @@ function viewCard(){
       <div style="display:grid;gap:10px;width:100%">
         <div class="eyebrow">${esc(CATNAME[id[0]])}</div>
         ${front}
-        ${c.flip?`<div class="a">${back}${note(p)?`<p class="note" style="text-align:left">${esc(note(p))}</p>`:""}</div>`:`<div class="tap">タップして答えを見る</div>`}
+        ${c.flip?`<div class="a">${back}${note(p)?`<p class="note" style="text-align:left">${noteHtml(note(p))}</p>`:""}</div>`:`<div class="tap">タップして答えを見る</div>`}
       </div>
     </div>
     <div class="row" style="justify-content:center">
-      <button class="btn" data-act="say" data-id="${id}">聞く</button>
+      <button class="btn" data-act="say" data-id="${id}">${SPK} 聞く</button>
       <button class="btn" data-act="slow" data-id="${id}">ゆっくり</button>
     </div>
     <div class="row split">
@@ -641,7 +677,7 @@ function viewQuiz(){
   }
   const q=z.qs[z.i],p=BY[q.id];
   const prompt=z.type==="ja"?`<div class="q ja">${esc(p[1])}</div>`
-    :z.type==="fl"?`<div class="q" lang="${S.lang}">${esc(fl(p))}</div>`
+    :z.type==="fl"?`<div class="q" lang="${S.lang}">${esc(fl(p))}</div>${sayRow(q.id)}`
     :`<button class="btn big primary" data-act="say" data-id="${q.id}">もう一度聞く</button><button class="btn" data-act="slow" data-id="${q.id}">ゆっくり</button>`;
   const optTxt=o=>z.type==="ja"?fl(BY[o]):BY[o][1];
   return `<div class="stack">
@@ -649,12 +685,10 @@ function viewQuiz(){
     <div class="hint">${z.i+1} / ${z.qs.length} 問　正解 ${z.ok}</div>
     <div class="panel card" style="cursor:default;min-height:150px"><div style="display:grid;gap:10px;justify-items:center">
       <div class="eyebrow">${esc(CATNAME[q.id[0]])}</div>${prompt}</div></div>
-    <div class="opts">${q.opts.map(o=>{
-      let cls="opt"+(z.type==="ja"?" fl":"");
-      if(q.pick){if(o===q.id)cls+=" ok";else if(o===q.pick)cls+=" ng"}
-      return `<button class="${cls}" data-act="qans" data-v="${o}" ${q.pick?"disabled":""}>${esc(optTxt(o))}</button>`}).join("")}</div>
+    ${optsHtml(q,z.type==="ja","qans",optTxt)}
     ${q.pick?`<div class="panel pad" style="display:grid;gap:2px">
         <div class="ph-ja">${esc(p[1])}</div><div class="ph-fl" lang="${S.lang}">${esc(fl(p))}</div><div class="ph-kana">${esc(kana(p))}</div>
+        <div class="acts"><button class="btn primary" data-act="say" data-id="${q.id}">${SPK} 聞く</button><button class="btn" data-act="slow" data-id="${q.id}">ゆっくり</button></div>
       </div>
       <button class="btn big primary" data-act="qnext">${z.i+1<z.qs.length?"次へ":"結果を見る"}</button>`:""}
   </div>`;
@@ -674,7 +708,7 @@ function viewRoute(){
   const stops=dayStops(U.day),f=U.form,fl_=f.l||S.lang,sl=U.spotLang||S.lang;
   return `<div class="stack">
     <div class="clocks">
-      ${[["ローマ","Europe/Rome"],["アムステルダム","Europe/Amsterdam"],["東京","Asia/Tokyo"]].map(([n,tz])=>`<div class="panel clock"><div class="hint">${n}</div><div class="t" data-tz="${tz}">${hm(tz)}</div></div>`).join("")}
+      ${[["ローマ","Europe/Rome"],["アムステルダム","Europe/Amsterdam"],["東京","Asia/Tokyo"]].map(([n,tz])=>`<div class="panel clock"><div class="hint">${n}</div><div class="d" data-tz="${tz}">${mdw(tz)}</div><div class="t" data-tz="${tz}">${hm(tz)}</div></div>`).join("")}
     </div>
     <p class="hint" style="margin:-4px 0 0">11月のローマとアムステルダムは同じ時刻。日本との時差は −8時間（夏時間は自動で反映）。</p>
     <div class="days" role="group" aria-label="日付">
@@ -685,6 +719,7 @@ function viewRoute(){
           <div class="tm">${esc(s.t)}</div>
           <div style="min-width:0;display:grid;gap:2px">
             <div><span class="tag ${s.l==="nl"?"nl":"it"}">${s.l==="nl"?"NL":"IT"}</span><b>${esc(s.name)}</b></div>
+            ${s.q?`<div class="hint">${noteHtml(s.q,s.l==="nl"?"nl":"it")}</div>`:""}
             ${s.note?`<div class="hint">${esc(s.note)}</div>`:""}
             <div class="row" style="margin-top:4px"><a class="link" href="${esc(mapSearch(s.q||s.name))}" target="_blank" rel="noopener">地図で開く</a>
             <button class="btn" data-act="sdel" data-k="${esc(s.t+"|"+s.name)}" style="margin-left:auto">削除</button></div>
@@ -897,7 +932,7 @@ function viewLesson(){
         <div class="eyebrow">${esc(CATNAME[p[0][0]])}</div><div class="q ja">${esc(p[1])}</div>
         ${z.reveal?`<div class="a"><div class="q" lang="${S.lang}" style="font-size:26px">${esc(fl(p))}</div><div class="ph-kana">${esc(kana(p))}</div></div>`:""}
       </div></div>
-      ${z.reveal?`<div class="row" style="justify-content:center"><button class="btn" data-act="say" data-id="${p[0]}">聞く</button><button class="btn" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
+      ${z.reveal?`<div class="row" style="justify-content:center"><button class="btn" data-act="say" data-id="${p[0]}">${SPK} 聞く</button><button class="btn" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
         <div class="row split"><button class="btn big" data-act="lrev" data-v="ng">まだ</button><button class="btn big primary" data-act="lrev" data-v="ok">言えた</button></div>`
       :`<button class="btn big primary" data-act="lreveal">答えを見る</button>`}`;
   }else if(z.step==="new"){
@@ -908,9 +943,9 @@ function viewLesson(){
         <div class="ph-ja" style="font-size:15px">${esc(p[1])}</div>
         <div class="q" lang="${S.lang}">${esc(fl(p))}</div>
         <div class="ph-kana" style="font-size:15px">${esc(kana(p))}</div>
-        ${n?`<p class="note" style="text-align:left">${esc(n)}</p>`:""}
+        ${n?`<p class="note" style="text-align:left">${noteHtml(n)}</p>`:""}
       </div></div>
-      <div class="row" style="justify-content:center"><button class="btn big" data-act="say" data-id="${p[0]}">聞く</button><button class="btn big" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
+      <div class="row" style="justify-content:center"><button class="btn big" data-act="say" data-id="${p[0]}">${SPK} 聞く</button><button class="btn big" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
       <div class="row split">
         <button class="btn big${z.said>=2?" on":""}" data-act="lsaid">声に出した ${"●".repeat(z.said)}${"○".repeat(2-z.said)}</button>
         <button class="btn big primary" data-act="lnext">${z.ni+1<z.nw.length?"次へ":"確認クイズへ"}</button>
@@ -921,9 +956,8 @@ function viewLesson(){
     body=`<div class="hint">${z.qi+1} / ${z.qs.length} 問　正解 ${z.ok}</div>
       <div class="panel card" style="cursor:default;min-height:130px"><div style="display:grid;gap:10px;justify-items:center">
         <div class="eyebrow">${q.dir==="ja"?"日本語 → "+esc(L[S.lang].name):esc(L[S.lang].name)+" → 日本語"}</div>
-        ${q.dir==="ja"?`<div class="q ja">${esc(p[1])}</div>`:`<div class="q" lang="${S.lang}">${esc(fl(p))}</div>`}</div></div>
-      <div class="opts">${q.opts.map(o=>{let c="opt"+(q.dir==="ja"?" fl":"");if(q.pick){if(o===q.id)c+=" ok";else if(o===q.pick)c+=" ng"}
-        return `<button class="${c}" data-act="lans" data-v="${o}" ${q.pick?"disabled":""}>${esc(optTxt(o))}</button>`}).join("")}</div>
+        ${q.dir==="ja"?`<div class="q ja">${esc(p[1])}</div>`:`<div class="q" lang="${S.lang}">${esc(fl(p))}</div>${sayRow(q.id)}`}</div></div>
+      ${optsHtml(q,q.dir==="ja","lans",optTxt)}
       ${q.pick?`<button class="btn big primary" data-act="lqnext">${z.qi+1<z.qs.length?"次へ":"レッスンを終える"}</button>`:""}`;
   }
   return `<div class="stack">${lessonHead(z)}${body}
@@ -1015,6 +1049,7 @@ document.addEventListener("click",e=>{
     case"filter":U.filter=v;render();break;
     case"say":speak(fl(BY[id]),false);break;
     case"slow":speak(fl(BY[id]),true);break;
+    case"sayt":speak(b.dataset.t,false,L[b.dataset.l]?b.dataset.l:S.lang);break;
     case"show":openShow(id);break;
     case"show-say":if(U.showId)speak(fl(BY[U.showId]),true);break;
     case"show-close":$("#show").hidden=true;U.showId=null;break;
