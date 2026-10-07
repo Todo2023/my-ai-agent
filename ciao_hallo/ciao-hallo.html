@@ -7,7 +7,7 @@
 :root{
   --bg:#eef1ee; --surface:#ffffff; --ink:#17201b; --muted:#5b675f; --line:#d9dfda;
   --it:#14774a; --nl:#c4520a; --accent:var(--it); --on-accent:#ffffff;
-  --good:#1d7f47; --bad:#bf3324; --flag-w:#ffffff;
+  --good:#1d7f47; --on-good:#ffffff; --bad:#bf3324; --flag-w:#ffffff;
   --it-r:#c8312f; --nl-r:#b5242c; --nl-b:#21468b;
   --f-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
   --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
@@ -15,11 +15,11 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111513; --surface:#1a1f1c; --ink:#e8ede9; --muted:#97a39b; --line:#2b332e;
-  --it:#43c483; --nl:#ff8b3e; --on-accent:#0c110e; --good:#4fcf88; --bad:#ff6d5c; --flag-w:#d8ddd9;
+  --it:#43c483; --nl:#ff8b3e; --on-accent:#0c110e; --good:#4fcf88; --on-good:#0c110e; --bad:#ff6d5c; --flag-w:#d8ddd9;
   --it-r:#e0524f; --nl-r:#e0525a; --nl-b:#5b80cf; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#111513; --surface:#1a1f1c; --ink:#e8ede9; --muted:#97a39b; --line:#2b332e;
-  --it:#43c483; --nl:#ff8b3e; --on-accent:#0c110e; --good:#4fcf88; --bad:#ff6d5c; --flag-w:#d8ddd9;
+  --it:#43c483; --nl:#ff8b3e; --on-accent:#0c110e; --good:#4fcf88; --on-good:#0c110e; --bad:#ff6d5c; --flag-w:#d8ddd9;
   --it-r:#e0524f; --nl-r:#e0525a; --nl-b:#5b80cf; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
   --accent:var(--it); --soft:color-mix(in srgb,var(--accent) 13%,var(--surface));
@@ -144,11 +144,37 @@ textarea.field{min-height:120px;font-family:var(--f-mono);font-size:12px}
 
 /* 下部タブ */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
 .tabs button{border:0;background:transparent;padding:9px 0 10px;font-size:12px;color:var(--muted);display:grid;justify-items:center;gap:3px;font-weight:500}
 .tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
 
+/* 今日 */
+.banner{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;margin-bottom:14px;border-radius:12px;border:1px solid var(--accent);background:var(--soft);font-size:13.5px}
+.banner.late{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.banner.late b{color:var(--bad)}
+.tabic{position:relative;display:inline-block;line-height:0}
+.tdot{position:absolute;top:-1px;right:-5px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--surface)}
+.langs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.state{margin-left:auto;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px}
+.state.ok{color:var(--good);background:color-mix(in srgb,var(--good) 13%,var(--surface))}
+.state.todo{color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;font-size:12px}
+.steps span{padding:5px 6px;border-radius:8px;background:var(--bg);color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steps .past{color:var(--ink)}
+.steps .cur{background:var(--accent);color:var(--on-accent);font-weight:700}
+.steps .skip{text-decoration:line-through}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .wd{font-size:11px;color:var(--muted);text-align:center}
+.cal div{aspect-ratio:1.15;border-radius:7px;display:grid;place-items:center;align-content:center;font-family:var(--f-mono);font-size:12px;line-height:1;font-variant-numeric:tabular-nums}
+.cal div small{font-size:9px;opacity:.75}
+.cal .both,.legend .both{background:var(--good);color:var(--on-good)}
+.cal .one,.legend .one{background:color-mix(in srgb,var(--good) 30%,var(--surface))}
+.cal .miss,.legend .miss{background:color-mix(in srgb,var(--bad) 18%,var(--surface));color:var(--bad)}
+.cal .fut{border:1px solid var(--line);color:var(--muted)}
+.cal .now{outline:2px solid var(--ink);outline-offset:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;max-width:calc(100% - 32px)}
 @media (max-width:420px){.ph-fl{font-size:21px}.clock .t{font-size:19px}.form{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.btn,.chip,.opt,.day{transition:background .15s,border-color .15s}}
@@ -168,10 +194,11 @@ textarea.field{min-height:120px;font-family:var(--f-mono);font-size:12px}
   <div class="flag" aria-hidden="true"></div>
 </header>
 
-<main id="view"></main>
+<main><div id="banner" hidden></div><div id="view"></div></main>
 
 <nav class="tabs" aria-label="画面">
   <div class="tabs-in">
+    <button data-act="tab" data-v="today"><span class="tabic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8.5 15l2.5 2.5 4.5-5"/></svg><i class="tdot" id="todayDot" hidden></i></span>今日</button>
     <button data-act="tab" data-v="phrase"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>フレーズ</button>
     <button data-act="tab" data-v="card"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v10"/></svg>カード</button>
     <button data-act="tab" data-v="quiz"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>クイズ</button>
@@ -393,15 +420,17 @@ const SPOTS={
 
 /* ---------- 状態（localStorage: ciao-hallo-v2） ---------- */
 const KEY="ciao-hallo-v2";
-function blank(){return{lang:"it",fav:{it:{},nl:{}},box:{it:{},nl:{}},miss:{it:{},nl:{}},quiz:{n:0,ok:0},days:[],route:{}}}
+function blank(){return{lang:"it",fav:{it:{},nl:{}},box:{it:{},nl:{}},miss:{it:{},nl:{}},quiz:{n:0,ok:0},days:[],route:{},
+  intro:{it:{},nl:{}},log:{},today:{it:null,nl:null},remind:{on:true,h:20,shown:""}}}
 let S=blank();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(blank(),o);
-  for(const k of["fav","box","miss"])S[k]=Object.assign({it:{},nl:{}},o[k]||{});
+  for(const k of["fav","box","miss","intro"])S[k]=Object.assign({it:{},nl:{}},o[k]||{});
   S.quiz=Object.assign({n:0,ok:0},o.quiz||{});if(!Array.isArray(S.days))S.days=[];if(!S.route||typeof S.route!=="object")S.route={};
+  if(!S.log||typeof S.log!=="object")S.log={};S.today=Object.assign({it:null,nl:null},o.today||{});S.remind=Object.assign({on:true,h:20,shown:""},o.remind||{});
   if(!L[S.lang])S.lang="it";}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
-const U={tab:"phrase",cat:"all",filter:"all",q:"",open:{},card:null,cardDir:"ja",cardScope:"all",
+const U={tab:"today",lesson:null,manualAsk:null,cat:"all",filter:"all",q:"",open:{},card:null,cardDir:"ja",cardScope:"all",
   quiz:null,qType:"ja",qCount:10,qScope:"all",day:TRIP[0],reset:false,shareText:"",shareMsg:"",spotLang:null,showId:null,form:{t:"10:00",name:"",q:"",note:"",l:null}};
 
 /* ---------- 小道具 ---------- */
@@ -411,12 +440,13 @@ const fl=(p,l=S.lang)=>p[L[l].i], kana=(p,l=S.lang)=>p[L[l].k], note=(p,l=S.lang
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const box=id=>S.box[S.lang][id]||0;
 let toastT;
-function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2200)}
+function toast(m,ms=2200){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,ms)}
 function ymd(tz,d=new Date()){return new Intl.DateTimeFormat("en-CA",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit"}).format(d)}
 function hm(tz,d=new Date()){return new Intl.DateTimeFormat("ja-JP",{timeZone:tz,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(d)}
 const today=()=>ymd("Asia/Tokyo");
 const dnum=s=>{const[y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d)/864e5};
 const WD="日月火水木金土";
+const iso=x=>new Date(x*864e5).toISOString().slice(0,10);
 const dayLabel=s=>{const[y,m,d]=s.split("-").map(Number);return{md:m+"/"+d,wd:WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()]}};
 function markDay(){const t=today();if(!S.days.includes(t)){S.days.push(t);S.days.sort()}}
 
@@ -564,17 +594,19 @@ function viewCard(){
 }
 
 /* ---------- クイズ ---------- */
+/* 4択の選択肢（id）。誤答は同じカテゴリを優先し、表示が同じ文になるものは除く */
+function makeOpts(p,type){
+  const ans=o=>type==="ja"?fl(o):o[1];
+  const same=shuffle(P.filter(o=>o[0]!==p[0]&&o[0][0]===p[0][0]&&ans(o)!==ans(p)));
+  const rest=shuffle(P.filter(o=>o[0]!==p[0]&&o[0][0]!==p[0][0]&&ans(o)!==ans(p)));
+  const dis=[];for(const o of same.concat(rest)){if(dis.length>=3)break;if(!dis.some(d=>ans(d)===ans(o)))dis.push(o)}
+  return shuffle([p,...dis]).map(o=>o[0]);
+}
 function startQuiz(){
   const src=pool(U.qScope);
   if(!src.length){toast("この範囲にはフレーズがありません");return}
   const picks=shuffle(src).slice(0,U.qCount);
-  const ans=p=>U.qType==="ja"?fl(p):p[1];
-  const qs=picks.map(p=>{
-    const same=shuffle(P.filter(o=>o[0]!==p[0]&&o[0][0]===p[0][0]&&ans(o)!==ans(p)));
-    const rest=shuffle(P.filter(o=>o[0]!==p[0]&&o[0][0]!==p[0][0]&&ans(o)!==ans(p)));
-    const dis=[];for(const o of same.concat(rest)){if(dis.length>=3)break;if(!dis.some(d=>ans(d)===ans(o)))dis.push(o)}
-    return{id:p[0],opts:shuffle([p,...dis]).map(o=>o[0]),pick:null};
-  });
+  const qs=picks.map(p=>({id:p[0],opts:makeOpts(p,U.qType),pick:null}));
   U.quiz={type:U.qType,qs,i:0,ok:0,done:false};
   if(U.qType==="audio")speak(fl(BY[qs[0].id]));
 }
@@ -734,7 +766,7 @@ function importData(txt){
 function streak(){
   const set=new Set(S.days);let d=dnum(today());
   if(!set.has(today()))d-=1;
-  let n=0;const iso=x=>new Date(x*864e5).toISOString().slice(0,10);
+  let n=0;
   while(set.has(iso(d))){n++;d--}
   return n;
 }
@@ -768,12 +800,208 @@ function viewLog(){
   </div>`;
 }
 
+/* ---------- 今日（毎日のレッスン。詳細は LEARNING_PLAN.md） ----------
+   10/8〜11/8 の32日間、言語ごとに約5分：前日の復習 → 新しいフレーズ → 確認クイズ5問。
+   当日の新規フレーズは日付ごとに固定（S.today）。日付は日本時間で数える。 */
+const STUDY_START="2026-10-08",STUDY_END="2026-11-08",LESSON_SEC=300;
+const ORDER_CATS="geanmrtdxhsvc"; // 旅行で使う順：あいさつ→必須→空港→数字→お金→レストラン→交通→道案内→緊急→ホテル→買い物→観光→時間
+const ORDER=P.slice().sort((a,b)=>ORDER_CATS.indexOf(a[0][0])-ORDER_CATS.indexOf(b[0][0]));
+const STUDY_DAYS=(()=>{const a=[];for(let d=dnum(STUDY_START);d<=dnum(STUDY_END);d++)a.push(iso(d));return a})();
+const REMIND_HOURS=[12,18,20,21,22];
+const done=(d,l)=>!!(S.log[d]&&S.log[d][l]);
+const studyOpen=()=>today()<=STUDY_END;
+const mmss=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+
+/* 新規数 = 残り ÷ 出発前日までの残り日数（切り上げ、3〜8個）。「覚えた」以上と学習済みは除外 */
+function todayNew(l){
+  const t=today(),cur=S.today[l];
+  if(cur&&cur.date===t)return cur.ids.filter(id=>BY[id]);
+  const rest=ORDER.filter(p=>!S.intro[l][p[0]]&&(S.box[l][p[0]]||0)<2);
+  const left=Math.max(1,dnum(STUDY_END)-dnum(t)+1);
+  const n=Math.min(rest.length,Math.min(8,Math.max(3,Math.ceil(rest.length/left))));
+  const ids=rest.slice(0,n).map(p=>p[0]);
+  S.today[l]={date:t,ids};save();
+  return ids;
+}
+/* 復習 = 今日より前で一番新しい新規学習日の分。5個未満なら、まちがいの多い未習得フレーズで5個まで補う（上限8個） */
+function reviewIds(l,excl){
+  const t=today(),intro=S.intro[l];
+  const prev=Object.values(intro).filter(d=>d<t).sort().pop();
+  if(!prev)return[];
+  let ids=Object.keys(intro).filter(id=>BY[id]&&intro[id]===prev);
+  if(ids.length<5){
+    const extra=Object.keys(intro).filter(id=>BY[id]&&!ids.includes(id)&&!excl.includes(id)&&intro[id]<t&&(S.box[l][id]||0)<3)
+      .sort((a,b)=>(S.miss[l][b]||0)-(S.miss[l][a]||0)||intro[a].localeCompare(intro[b]));
+    ids=ids.concat(extra.slice(0,5-ids.length));
+  }
+  return ids.slice(0,8);
+}
+function startLesson(l){
+  if(S.lang!==l){S.lang=l;U.card=null;U.quiz=null}
+  const nw=todayNew(l),rv=reviewIds(l,nw);
+  U.lesson={lang:l,step:rv.length?"review":"new",t0:Date.now(),rv,ri:0,reveal:false,nw,ni:0,said:0,qs:null,qi:0,ok:0,sec:0};
+  if(U.lesson.step==="new"){if(nw.length)speak(fl(BY[nw[0]]));else lessonQuiz()}
+  save();
+}
+function lessonQuiz(){
+  const z=U.lesson;let ids=[...new Set(z.nw.concat(z.rv))];
+  const fill=src=>{for(const id of shuffle(src))if(ids.length<5&&!ids.includes(id))ids.push(id)};
+  if(ids.length<5)fill(Object.keys(S.intro[S.lang]).filter(id=>BY[id]));
+  if(ids.length<5)fill(ORDER.map(p=>p[0]));
+  ids=shuffle(ids).slice(0,5);
+  z.qs=ids.map((id,i)=>{const dir=i%2?"fl":"ja";return{id,dir,opts:makeOpts(BY[id],dir),pick:null}});
+  z.step="quiz";z.qi=0;z.ok=0;
+}
+function finishLesson(){
+  const z=U.lesson,t=today();
+  z.sec=Math.round((Date.now()-z.t0)/1000);z.step="done";
+  S.log[t]=S.log[t]||{};
+  S.log[t][z.lang]={sec:z.sec,ok:z.ok,n:z.qs.length,at:new Date().toISOString()};
+  markDay();save();
+}
+function bothStreak(){
+  let d=dnum(today());
+  if(!(done(iso(d),"it")&&done(iso(d),"nl")))d--;
+  let n=0;while(done(iso(d),"it")&&done(iso(d),"nl")){n++;d--}
+  return n;
+}
+function lessonHead(z){
+  const steps=[["review","前日の復習"],["new","新しいフレーズ"],["quiz","確認クイズ"]];
+  const idx=steps.findIndex(s=>s[0]===z.step);
+  return `<div class="panel pad stack" style="gap:10px">
+    <div class="row"><b>${esc(L[z.lang].name)}のレッスン</b>
+      <span class="hint" style="margin-left:auto">経過 <span class="mono" id="ltimer" style="color:var(--ink)">${mmss((Date.now()-z.t0)/1000)}</span> / 目安 5:00</span></div>
+    <div class="steps">${steps.map(([k,n],i)=>`<span class="${i<idx||z.step==="done"?"past":i===idx?"cur":""}${k==="review"&&!z.rv.length?" skip":""}">${i+1} ${n}</span>`).join("")}</div>
+  </div>`;
+}
+function viewLesson(){
+  const z=U.lesson;
+  if(z.step==="done"){
+    const other=z.lang==="it"?"nl":"it",t=today();
+    return `<div class="stack">
+      <div class="panel pad stack" style="text-align:center">
+        <div class="eyebrow">${esc(L[z.lang].name)} 完了</div>
+        <div class="score">${z.ok}<span style="font-size:24px;color:var(--muted)"> / ${z.qs.length}</span></div>
+        <p class="hint" style="margin:0">所要時間 <span class="mono">${mmss(z.sec)}</span>　今日のレッスン ${["it","nl"].filter(l=>done(t,l)).length}/2</p>
+        <div class="row" style="justify-content:center">
+          ${!done(t,other)?`<button class="btn big primary" data-act="lstart" data-v="${other}">続けて${esc(L[other].name)}へ</button>`:""}
+          <button class="btn big${done(t,other)?" primary":""}" data-act="lquit">今日の画面に戻る</button>
+        </div>
+      </div></div>`;
+  }
+  let body="";
+  if(z.step==="review"){
+    const p=BY[z.rv[z.ri]];
+    body=`<div class="hint">${z.ri+1} / ${z.rv.length}　日本語を見て、声に出して言ってから答えを見ます</div>
+      <div class="panel card" style="cursor:default"><div style="display:grid;gap:10px;width:100%">
+        <div class="eyebrow">${esc(CATNAME[p[0][0]])}</div><div class="q ja">${esc(p[1])}</div>
+        ${z.reveal?`<div class="a"><div class="q" lang="${S.lang}" style="font-size:26px">${esc(fl(p))}</div><div class="ph-kana">${esc(kana(p))}</div></div>`:""}
+      </div></div>
+      ${z.reveal?`<div class="row" style="justify-content:center"><button class="btn" data-act="say" data-id="${p[0]}">聞く</button><button class="btn" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
+        <div class="row split"><button class="btn big" data-act="lrev" data-v="ng">まだ</button><button class="btn big primary" data-act="lrev" data-v="ok">言えた</button></div>`
+      :`<button class="btn big primary" data-act="lreveal">答えを見る</button>`}`;
+  }else if(z.step==="new"){
+    const p=BY[z.nw[z.ni]],n=note(p);
+    body=`<div class="hint">${z.ni+1} / ${z.nw.length}　聞いてから、声に出して2回言いましょう</div>
+      <div class="panel card" style="cursor:default"><div style="display:grid;gap:8px;width:100%">
+        <div class="eyebrow">${esc(CATNAME[p[0][0]])}</div>
+        <div class="ph-ja" style="font-size:15px">${esc(p[1])}</div>
+        <div class="q" lang="${S.lang}">${esc(fl(p))}</div>
+        <div class="ph-kana" style="font-size:15px">${esc(kana(p))}</div>
+        ${n?`<p class="note" style="text-align:left">${esc(n)}</p>`:""}
+      </div></div>
+      <div class="row" style="justify-content:center"><button class="btn big" data-act="say" data-id="${p[0]}">聞く</button><button class="btn big" data-act="slow" data-id="${p[0]}">ゆっくり</button></div>
+      <div class="row split">
+        <button class="btn big${z.said>=2?" on":""}" data-act="lsaid">声に出した ${"●".repeat(z.said)}${"○".repeat(2-z.said)}</button>
+        <button class="btn big primary" data-act="lnext">${z.ni+1<z.nw.length?"次へ":"確認クイズへ"}</button>
+      </div>`;
+  }else{
+    const q=z.qs[z.qi],p=BY[q.id];
+    const optTxt=o=>q.dir==="ja"?fl(BY[o]):BY[o][1];
+    body=`<div class="hint">${z.qi+1} / ${z.qs.length} 問　正解 ${z.ok}</div>
+      <div class="panel card" style="cursor:default;min-height:130px"><div style="display:grid;gap:10px;justify-items:center">
+        <div class="eyebrow">${q.dir==="ja"?"日本語 → "+esc(L[S.lang].name):esc(L[S.lang].name)+" → 日本語"}</div>
+        ${q.dir==="ja"?`<div class="q ja">${esc(p[1])}</div>`:`<div class="q" lang="${S.lang}">${esc(fl(p))}</div>`}</div></div>
+      <div class="opts">${q.opts.map(o=>{let c="opt"+(q.dir==="ja"?" fl":"");if(q.pick){if(o===q.id)c+=" ok";else if(o===q.pick)c+=" ng"}
+        return `<button class="${c}" data-act="lans" data-v="${o}" ${q.pick?"disabled":""}>${esc(optTxt(o))}</button>`}).join("")}</div>
+      ${q.pick?`<button class="btn big primary" data-act="lqnext">${z.qi+1<z.qs.length?"次へ":"レッスンを終える"}</button>`:""}`;
+  }
+  return `<div class="stack">${lessonHead(z)}${body}
+    <div style="text-align:center"><button class="btn" data-act="lquit">中断する</button></div></div>`;
+}
+function viewToday(){
+  if(U.lesson)return viewLesson();
+  const t=today(),open=studyOpen();
+  const nDone=["it","nl"].filter(l=>done(t,l)).length;
+  const left=Math.max(0,dnum(STUDY_END)-dnum(t)+1);
+  const langCard=l=>{
+    const r=S.log[t]&&S.log[t][l],intro=Object.keys(S.intro[l]).length;
+    let plan="";
+    if(open&&!r){const nw=todayNew(l),rv=reviewIds(l,nw);plan=`${rv.length?"復習 "+rv.length+"・":""}新規 ${nw.length}・確認 5問`}
+    return `<div class="panel pad stack lcard ${l}" style="gap:8px">
+      <div class="row"><span class="tag ${l}">${L[l].short}</span><b>${esc(L[l].name)}</b>
+        <span class="state ${r?"ok":"todo"}">${r?(r.manual?"✓ チェック済み":"✓ 完了"):"未実施"}</span></div>
+      <div class="hint">${r?(r.manual?"アプリ外で練習した日として記録":`確認 ${r.ok}/${r.n}・${mmss(r.sec)}`):plan}</div>
+      <div class="bar" aria-hidden="true"><span style="width:${Math.round(intro/P.length*100)}%;background:var(--${l})"></span></div>
+      <div class="hint">学習済み ${intro} / ${P.length} フレーズ</div>
+      <div class="row">
+        ${open?`<button class="btn${r?"":" primary"}" data-act="lstart" data-v="${l}">${r?"もう一度やる":"はじめる（約5分）"}</button>`:""}
+        ${open?(r&&r.manual?`<button class="btn" data-act="lmanual" data-v="${l}">チェックを外す</button>`
+          :r?``:`<button class="btn" data-act="lmanual" data-v="${l}">やったことにする</button>`):""}
+      </div></div>`;
+  };
+  const first=new Date(Date.UTC(2026,9,8)).getUTCDay();
+  const cal=STUDY_DAYS.map(d=>{
+    const both=done(d,"it")&&done(d,"nl"),one=done(d,"it")||done(d,"nl");
+    const cls=both?"both":one?"one":d<t?"miss":"fut";
+    const[,m,dd]=d.split("-").map(Number);
+    return `<div class="${cls}${d===t?" now":""}" title="${m}/${dd}${both?" 2言語完了":one?" 片方完了":d<t?" 未実施":""}">${dd===1||d===STUDY_START?`<small>${m}/</small>`:""}${dd}</div>`;
+  });
+  return `<div class="stack">
+    <div class="panel pad">
+      <div class="row"><div class="eyebrow">${(()=>{const l=dayLabel(t);return l.md+"（"+l.wd+"）"})()}</div>
+        <span class="hint" style="margin-left:auto">出発前日まで あと <b class="mono" style="color:var(--ink)">${left}</b> 日</span></div>
+      <h2 style="font-family:var(--f-display);font-size:28px;margin-top:4px">${open?`今日のレッスン <span class="mono">${nDone}/2</span>`:"旅行中はレッスンお休み"}</h2>
+      <p class="hint" style="margin:4px 0 0">${open?"言語ごとに約5分：前日の復習 → 新しいフレーズ → 確認クイズ5問。":"現地ではフレーズタブの「見せる」と「聞く」を使ってください。"}</p>
+    </div>
+    <div class="langs">${langCard("it")}${langCard("nl")}</div>
+    <div class="panel pad stack">
+      <div class="row"><div class="eyebrow">32日カレンダー（10/8〜11/8）</div>
+        <span class="hint" style="margin-left:auto">連続達成 <b class="mono" style="color:var(--ink)">${bothStreak()}</b> 日</span></div>
+      <div class="cal">${[..."日月火水木金土"].map(w=>`<span class="wd">${w}</span>`).join("")}${"<span></span>".repeat(first)}${cal.join("")}</div>
+      <div class="legend"><span><i class="both"></i>2言語完了</span><span><i class="one"></i>片方だけ</span><span><i class="miss"></i>未実施</span></div>
+    </div>
+    <div class="panel pad stack">
+      <div class="eyebrow">未実施のお知らせ</div>
+      <div class="row">
+        <div class="seg" role="group" aria-label="お知らせ"><button data-act="remon" data-v="1" aria-pressed="${S.remind.on}">オン</button><button data-act="remon" data-v="0" aria-pressed="${!S.remind.on}">オフ</button></div>
+        <select class="field" id="remHour" style="width:auto" aria-label="お知らせの時刻" ${S.remind.on?"":"disabled"}>${REMIND_HOURS.map(h=>`<option value="${h}"${h===S.remind.h?" selected":""}>${h}時を過ぎたら赤く表示</option>`).join("")}</select>
+      </div>
+      <p class="hint" style="margin:0">アプリを開いている間だけ表示されます。アプリを閉じている間のスマホ通知は出せません。</p>
+    </div>
+  </div>`;
+}
+function renderBanner(){
+  const el=$("#banner"),dot=$("#todayDot"),t=today();
+  const left=["it","nl"].filter(l=>!done(t,l));
+  const pending=studyOpen()&&S.remind.on&&left.length>0;
+  if(dot)dot.hidden=!pending;
+  if(!pending||(U.lesson&&U.tab==="today")){el.hidden=true;return}
+  const late=+hm("Asia/Tokyo").slice(0,2)>=S.remind.h;
+  el.hidden=false;el.className="banner"+(late?" late":"");
+  el.innerHTML=`<span>${late?`<b>${S.remind.h}時を過ぎました。</b>`:""}今日のレッスンがまだです（${left.map(l=>esc(L[l].name)).join("・")}）</span>`
+    +(U.tab!=="today"?`<button class="btn primary" data-act="tab" data-v="today">今日のレッスンへ</button>`:"");
+  if(late&&S.remind.shown!==t){S.remind.shown=t;save();toast(`${S.remind.h}時を過ぎました。今日のレッスン（約5分）をやりましょう`,7000)}
+}
+setInterval(()=>{const e=$("#ltimer");if(e&&U.lesson)e.textContent=mmss((Date.now()-U.lesson.t0)/1000)},1000);
+
 /* ---------- 描画とイベント ---------- */
 function render(){
   renderChrome();
   const v=$("#view");
-  v.innerHTML=U.tab==="phrase"?viewPhrase():U.tab==="card"?viewCard():U.tab==="quiz"?viewQuiz():U.tab==="route"?viewRoute():viewLog();
+  v.innerHTML=U.tab==="today"?viewToday():U.tab==="phrase"?viewPhrase():U.tab==="card"?viewCard():U.tab==="quiz"?viewQuiz():U.tab==="route"?viewRoute():viewLog();
   if(U.tab==="phrase")renderList();
+  renderBanner();
 }
 function refreshRows(){if(U.tab==="phrase")renderList();else render()}
 
@@ -782,7 +1010,7 @@ document.addEventListener("click",e=>{
   const a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
   switch(a){
     case"tab":U.tab=v;U.reset=false;render();window.scrollTo(0,0);break;
-    case"lang":if(S.lang!==v){S.lang=v;U.card=null;U.quiz=null;U.form.l=null;U.spotLang=null;save();render()}break;
+    case"lang":if(S.lang!==v){S.lang=v;U.lesson=null;U.card=null;U.quiz=null;U.form.l=null;U.spotLang=null;save();render()}break;
     case"cat":U.cat=v;renderList();document.querySelectorAll('[data-act="cat"]').forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===v)));break;
     case"filter":U.filter=v;render();break;
     case"say":speak(fl(BY[id]),false);break;
@@ -819,6 +1047,23 @@ document.addEventListener("click",e=>{
       if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast("コピーしました"),()=>{t.select();toast("選択しました。コピーしてください")});
       else{t.select();toast("選択しました。コピーしてください")}break}
     case"importPaste":{const t=$("#pasteText");if(t&&t.value.trim())importData(t.value);break}
+    case"lstart":startLesson(v);render();window.scrollTo(0,0);break;
+    case"lquit":U.lesson=null;render();break;
+    case"lreveal":U.lesson.reveal=true;speak(fl(BY[U.lesson.rv[U.lesson.ri]]));render();break;
+    case"lrev":{const z=U.lesson,rid=z.rv[z.ri];if(v==="ok")learn(rid);else miss(rid);z.ri++;z.reveal=false;
+      if(z.ri>=z.rv.length){z.step="new";if(z.nw.length)speak(fl(BY[z.nw[0]]));else lessonQuiz()}save();render();break}
+    case"lsaid":U.lesson.said=Math.min(2,U.lesson.said+1);render();break;
+    case"lnext":{const z=U.lesson,nid=z.nw[z.ni];
+      S.intro[z.lang][nid]=today();if(!S.box[z.lang][nid])S.box[z.lang][nid]=1;markDay();
+      z.ni++;z.said=0;if(z.ni>=z.nw.length)lessonQuiz();else speak(fl(BY[z.nw[z.ni]]));save();render();window.scrollTo(0,0);break}
+    case"lans":{const z=U.lesson,q=z.qs[z.qi];if(q.pick)break;q.pick=v;
+      if(v===q.id){z.ok++;learn(q.id)}else miss(q.id);speak(fl(BY[q.id]));save();render();break}
+    case"lqnext":{const z=U.lesson;z.qi++;if(z.qi>=z.qs.length)finishLesson();render();window.scrollTo(0,0);break}
+    case"lmanual":{const t=today(),r=S.log[t]&&S.log[t][v];
+      if(r){delete S.log[t][v];if(!Object.keys(S.log[t]).length)delete S.log[t];toast("チェックを外しました")}
+      else{S.log[t]=S.log[t]||{};S.log[t][v]={sec:0,ok:0,n:0,at:new Date().toISOString(),manual:true};markDay();toast(L[v].name+"をやったことにしました")}
+      save();render();break}
+    case"remon":S.remind.on=v==="1";save();render();break;
     case"resetAsk":U.reset=true;render();break;
     case"resetNo":U.reset=false;render();break;
     case"resetGo":{const lang=S.lang;S=blank();S.lang=lang;U.card=null;U.quiz=null;U.reset=false;save();render();toast("リセットしました");break}
@@ -835,6 +1080,7 @@ document.addEventListener("change",e=>{
   const t=e.target;
   if(t.id==="cardScope"){U.cardScope=t.value;startCards();render()}
   if(t.id==="qScope"){U.qScope=t.value}
+  if(t.id==="remHour"){S.remind.h=+t.value;S.remind.shown="";save();render()}
   if(t.id==="importFile"&&t.files&&t.files[0]){const r=new FileReader();r.onload=()=>importData(String(r.result));r.readAsText(t.files[0]);t.value=""}
 });
 function readForm(){
@@ -851,5 +1097,5 @@ document.addEventListener("submit",e=>{
 });
 
 render();
-setInterval(renderMeta,20000);
+setInterval(()=>{renderMeta();renderBanner()},20000);
 </script>
