@@ -8,9 +8,9 @@
 - 保存先: `localStorage`（キー `ciao-hallo-v2`）。共有はJSONファイルの書き出し・読み込み（体重帳アプリと同じ方式）
 - 公開: Claude のアーティファクト（`downloads` 機能のみ使用）
 - ホーム画面版（PWA）: `index.html`（自動生成）＋ `manifest.webmanifest` ＋ `sw.js` ＋ アイコンを GitHub Pages で配信。専用アイコンでインストールでき、一度開けば通信なしでも動く。アーティファクトは `<head>` を持てず manifest を置けないため、この形にしている
-  - 編集するのは `ciao-hallo.html` だけ。変更後に `python3 ciao/build_pwa.py` で `index.html` とアイコンを作り直す
+  - 編集するのは `ciao-hallo.html` だけ。変更後に `python3 hallo-app/build_pwa.py` で `index.html` とアイコンを作り直す
   - アイコンを変えたら `sw.js` の `VERSION` を上げる
-  - 置き場所は `ciao/`（2026-10-08 に `ciao_hallo/` から移動。Chrome が古いインストールの記録を持ったままで開けなくなったため、別の場所にして入れ直せるようにした。`ciao_hallo/index.html` は移動先への案内だけ）
+  - 置き場所は `hallo-app/`（2026-10-08 に `ciao_hallo/` から移動。Chrome が古いインストールの記録を持ったままで開けなくなったため、別の場所にして入れ直せるようにした。`ciao_hallo/index.html` は移動先への案内だけ）
   - 保存先はURLごとに別（アーティファクト版とホーム画面版で記録は共有されない）
 
 ## 画面（下部タブ6つ）

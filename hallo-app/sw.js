@@ -1,7 +1,7 @@
 /* Ciao Hallo の Service Worker：一度開けば通信なしでも動くようにする。
    ページ本体は「通信優先・失敗したらキャッシュ」（更新がすぐ届くように）、
    アイコンとフォントは「キャッシュ優先」。アイコンを変えたら VERSION を上げる。 */
-const VERSION = "ciao-hallo-v3";
+const VERSION = "hallo-app-v1";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {

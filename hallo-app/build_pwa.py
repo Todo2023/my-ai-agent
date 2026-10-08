@@ -8,7 +8,7 @@
   専用アイコンでインストールでき、一度開けば通信なしでも動く（現地での電波切れ対策）。
 
 本体は ciao-hallo.html の1か所だけを編集し、このスクリプトで index.html を作り直す。
-    python3 ciao/build_pwa.py
+    python3 hallo-app/build_pwa.py
 アイコンを変えたら sw.js の VERSION を上げる（古いキャッシュを捨てさせるため）。
 """
 from pathlib import Path
