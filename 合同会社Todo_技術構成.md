@@ -2,6 +2,7 @@
 
 - 書き出し日：2026年10月13日
 - リポジトリ：https://github.com/todo2023/todo-website
+- 最終更新：2026年10月13日（アクセス解析の設定項目を追加）
 
 ---
 
@@ -119,6 +120,15 @@ export default defineConfig({
   to = "/admin/"
   status = 301
 ```
+
+### src/data/site.mjs の `gaId`
+
+```js
+gaId: '',   // 空ならGoogleアナリティクスのタグは出力されない
+```
+
+測定IDを入れると、正式サイトにだけタグが出ます。控えサイトでは出ません。
+あわせてプライバシーポリシーの解析章も表示されます。詳細は「SEO構造化データ仕様.md」。
 
 ### .node-version
 
