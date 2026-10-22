@@ -284,7 +284,7 @@ def create_invoice_pdf(
     pdf.ln(16)
 
     # 明細テーブル
-    col_widths = [35, 83, 12, 25, 25]
+    col_widths = [38, 83, 12, 23, 24]
     headers = ["日付", "項目", "数量", "単価", "金額"]
     pdf.set_x(15)
     pdf.set_font("IPAGothic", size=9)
