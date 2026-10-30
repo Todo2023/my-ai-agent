@@ -187,9 +187,16 @@ def _format_date(value) -> str:
 
 
 def create_invoice_pdf(
-    customer_name: str, excel_path: str, output_path: str, issue_date: dt.date | None = None
+    customer_name: str,
+    excel_path: str,
+    output_path: str,
+    issue_date: dt.date | None = None,
+    title: str | None = None,
 ) -> None:
-    """指定した顧客の請求書PDFを作る。issue_date省略時は本日日付。"""
+    """指定した顧客の請求書PDFを作る。issue_date省略時は本日日付。
+
+    title はPDFの文書タイトル（ブラウザのタブなどに出る名前）。顧客によって指定があるため引数で渡す。
+    """
     data = load_items_for_customer(excel_path, customer_name)
     line_items = data["line_items"]
 
@@ -210,6 +217,8 @@ def create_invoice_pdf(
     invoice_number = next_invoice_number(issue_date)
 
     pdf = FPDF(format="A4")
+    if title:
+        pdf.set_title(title)
     pdf.set_margins(15, 15, 15)
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
