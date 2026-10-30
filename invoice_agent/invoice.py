@@ -314,9 +314,20 @@ def create_invoice_pdf(
                 f"{i['unit_price']:,}" if i["unit_price"] else "",
                 f"{i['subtotal']:,}" if i["subtotal"] else "",
             ]
-            for w, v in zip(col_widths, values):
-                pdf.cell(w, 7, v, border=1, fill=True)
-            pdf.ln(7)
+            # 項目名が長いと欄からはみ出して隣のセルに隠れるため、項目の欄だけ折り返し、行の高さを合わせる
+            line_h = 7
+            n_lines = len(pdf.multi_cell(col_widths[1], line_h, values[1], dry_run=True, output="LINES"))
+            row_h = line_h * max(1, n_lines)
+            y = pdf.get_y()
+            x = 15
+            for idx, (w, v) in enumerate(zip(col_widths, values)):
+                pdf.set_xy(x, y)
+                if idx == 1:
+                    pdf.multi_cell(w, line_h, v, border=1, fill=True)
+                else:
+                    pdf.cell(w, row_h, v, border=1, fill=True)
+                x += w
+            pdf.set_xy(15, y + row_h)
 
     pdf.ln(4)
 
