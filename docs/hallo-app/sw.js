@@ -2,7 +2,7 @@
    ページ本体は「通信優先。ただし2.5秒で返事がなければ保存済みを出す」。
    海外の弱い電波で読み込みが止まったままになるのを防ぐため（新しい版は裏で取り込み、次に開いたとき反映）。
    アイコンとフォントは「保存済み優先」。アイコンを変えたら VERSION を上げる。 */
-const VERSION = "hallo-app-v3";
+const VERSION = "hallo-app-v4";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 const PAGE = "./index.html";
 
