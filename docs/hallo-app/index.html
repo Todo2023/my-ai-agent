@@ -235,6 +235,7 @@ const P=[
 ["e12","写真を撮ってもいいですか？","Posso fare una foto?","ポッソ ファーレ ウナ フォト？","Mag ik een foto maken?","マッハ イック エン フォト マーケン？","ถ่ายรูปได้ไหม{q}","ターイループ ダイマイ{q}？"],
 ["e13","ちょっと待ってください","Un momento","ウン モメント","Een moment","エン モーメント","รอสักครู่{p}","ロー サックルー{p}"],
 
+["n14","0","zero","ゼーロ","nul","ニュル","ศูนย์","スーン"],
 ["n1","1","uno","ウーノ","een","エーン","หนึ่ง","ヌン"],
 ["n2","2","due","ドゥーエ","twee","トゥヴェー","สอง","ソーン"],
 ["n3","3","tre","トレ","drie","ドリー","สาม","サーム"],
@@ -245,9 +246,28 @@ const P=[
 ["n8","8","otto","オット","acht","アハト","แปด","ペート"],
 ["n9","9","nove","ノーヴェ","negen","ネーヘン","เก้า","カオ"],
 ["n10","10","dieci","ディエーチ","tien","ティーン","สิบ","シップ"],
+["n15","11","undici","ウンディチ","elf","エルフ","สิบเอ็ด","シップ エット"],
+["n16","12","dodici","ドーディチ","twaalf","トゥヴァールフ","สิบสอง","シップ ソーン"],
+["n17","13","tredici","トレーディチ","dertien","デルティーン","สิบสาม","シップ サーム"],
+["n18","14","quattordici","クアットルディチ","veertien","フェールティーン","สิบสี่","シップ シー"],
+["n19","15","quindici","クインディチ","vijftien","ファイフティーン","สิบห้า","シップ ハー"],
+["n20","16","sedici","セーディチ","zestien","ゼスティーン","สิบหก","シップ ホック"],
+["n21","17","diciassette","ディチャッセッテ","zeventien","ゼーフェンティーン","สิบเจ็ด","シップ チェット"],
+["n22","18","diciotto","ディチョット","achttien","アハティーン","สิบแปด","シップ ペート"],
+["n23","19","diciannove","ディチャンノーヴェ","negentien","ネーヘンティーン","สิบเก้า","シップ カオ"],
 ["n11","20","venti","ヴェンティ","twintig","トゥヴィンティフ","ยี่สิบ","イーシップ"],
+["n24","30","trenta","トレンタ","dertig","デルティフ","สามสิบ","サーム シップ"],
+["n25","40","quaranta","クアランタ","veertig","フェールティフ","สี่สิบ","シー シップ"],
+["n26","50","cinquanta","チンクアンタ","vijftig","ファイフティフ","ห้าสิบ","ハー シップ"],
+["n27","60","sessanta","セッサンタ","zestig","ゼスティフ","หกสิบ","ホック シップ"],
+["n28","70","settanta","セッタンタ","zeventig","ゼーフェンティフ","เจ็ดสิบ","チェット シップ"],
+["n29","80","ottanta","オッタンタ","tachtig","タハティフ","แปดสิบ","ペート シップ"],
+["n30","90","novanta","ノヴァンタ","negentig","ネーヘンティフ","เก้าสิบ","カオ シップ"],
 ["n12","100","cento","チェント","honderd","ホンデルト","หนึ่งร้อย","ヌン ローイ"],
+["n31","200","duecento","ドゥエチェント","tweehonderd","トゥヴェーホンデルト","สองร้อย","ソーン ローイ"],
+["n32","500","cinquecento","チンクエチェント","vijfhonderd","ファイフホンデルト","ห้าร้อย","ハー ローイ"],
 ["n13","1000","mille","ミッレ","duizend","ダウゼント","หนึ่งพัน","ヌン パン"],
+["n33","10000","diecimila","ディエチミーラ","tienduizend","ティーンダウゼント","หนึ่งหมื่น","ヌン ムーン"],
 
 ["m1","カードで払えますか？","Posso pagare con la carta?","ポッソ パガーレ コン ラ カルタ？","Kan ik met de kaart betalen?","カン イック メット デ カールト ベターレン？","จ่ายด้วยบัตรได้ไหม{q}","チャーイ ドゥアイ バット ダイマイ{q}？"],
 ["m2","現金で払います","Pago in contanti","パーゴ イン コンタンティ","Ik betaal contant","イック ベタール コンタント","จ่ายเงินสด{p}","チャーイ グン ソット{p}"],
@@ -429,7 +449,60 @@ function viewPhrase(){
         :`<span class="hint" style="margin-left:auto">カタカナは発音の目安です</span>`}
     </div>
     ${S.lang==="th"?`<p class="hint" style="margin:-6px 0 0">タイ語は話す人によって語尾が変わります。女性は「カー」、男性は「クラップ」。</p>`:""}
+    ${U.cat==="n"?numPanel():""}
     <div class="panel list" id="list"></div>
+  </div>`;
+}
+/* ---------- 数字の読み方（0〜999,999 を各言語の言い方に変換） ----------
+   値段やゲート番号を言う・聞き取るため。規則で組み立てるので、カナはタイ語だけ出す（伊・蘭は「聞く」で確認）。 */
+U.num="25";
+const IT_U=["zero","uno","due","tre","quattro","cinque","sei","sette","otto","nove","dieci","undici","dodici","tredici","quattordici","quindici","sedici","diciassette","diciotto","diciannove"];
+const IT_T=["","","venti","trenta","quaranta","cinquanta","sessanta","settanta","ottanta","novanta"];
+function it2(n){if(n<20)return IT_U[n];let t=IT_T[Math.floor(n/10)];const u=n%10;
+  if(u===1||u===8)t=t.slice(0,-1); // ventuno, ventotto：母音が落ちる
+  return t+(u===0?"":u===3?"tré":IT_U[u])}
+function it3(n){const h=Math.floor(n/100),r=n%100;let s=h===0?"":h===1?"cento":IT_U[h]+"cento";
+  if(r){let w=it2(r);if(h&&w.startsWith("ott"))s=s.slice(0,-1); // centottanta
+    s+=w}return s}
+function itWords(n){if(n===0)return"zero";const k=Math.floor(n/1000),r=n%1000;
+  return (k===0?"":k===1?"mille":it3(k)+"mila")+(r?it3(r):"")}
+const NL_U=["nul","een","twee","drie","vier","vijf","zes","zeven","acht","negen","tien","elf","twaalf","dertien","veertien","vijftien","zestien","zeventien","achttien","negentien"];
+const NL_T=["","tien","twintig","dertig","veertig","vijftig","zestig","zeventig","tachtig","negentig"];
+function nl2(n){if(n<20)return NL_U[n];const t=NL_T[Math.floor(n/10)],u=n%10;if(!u)return t;
+  const w=NL_U[u];return w+(w.endsWith("e")?"ën":"en")+t} // 1の位が先：eenentwintig、tweeëntwintig
+function nl3(n){const h=Math.floor(n/100),r=n%100;return (h===0?"":h===1?"honderd":NL_U[h]+"honderd")+(r?nl2(r):"")}
+function nlWords(n){if(n===0)return"nul";const k=Math.floor(n/1000),r=n%1000;
+  return ((k===0?"":k===1?"duizend":nl3(k)+"duizend")+(k&&r?" ":"")+(r?nl3(r):"")).trim()}
+const TH_D=[["ศูนย์","スーン"],["หนึ่ง","ヌン"],["สอง","ソーン"],["สาม","サーム"],["สี่","シー"],["ห้า","ハー"],["หก","ホック"],["เจ็ด","チェット"],["แปด","ペート"],["เก้า","カオ"]];
+const TH_P=[["",""],["สิบ","シップ"],["ร้อย","ローイ"],["พัน","パン"],["หมื่น","ムーン"],["แสน","セーン"]];
+function thWords(n){if(n===0)return{t:"ศูนย์",k:"スーン"};
+  const ds=String(n).split("").map(Number),L_=ds.length,t=[],k=[];
+  ds.forEach((x,i)=>{const p=L_-1-i;if(!x)return;
+    if(p===1){if(x===1){t.push("สิบ");k.push("シップ")}else if(x===2){t.push("ยี่สิบ");k.push("イー シップ")}else{t.push(TH_D[x][0]+"สิบ");k.push(TH_D[x][1]+" シップ")}}
+    else if(p===0){if(x===1&&n>=10){t.push("เอ็ด");k.push("エット")}else{t.push(TH_D[x][0]);k.push(TH_D[x][1])}}
+    else{t.push(TH_D[x][0]+TH_P[p][0]);k.push(TH_D[x][1]+" "+TH_P[p][1])}});
+  return{t:t.join(""),k:k.join(" ")}}
+function numWords(v,l){if(v===""||v==null)return null;const n=+v;if(!(n>=0&&n<1e6))return null;
+  return l==="th"?thWords(n):{t:l==="nl"?nlWords(n):itWords(n),k:""}}
+const NUM_RULES={
+  it:["16までは1語で覚える（sedici＝16）。17〜19は「10と7」の形：diciassette","21と28は前の母音が落ちる：ventuno（21）、ventotto（28）。23は ventitré","100は cento、200は duecento、1000は mille、2000は duemila","値段は小数点がコンマ。5,50€ は「cinque euro e cinquanta」"],
+  nl:["13〜19は「3＋10」：dertien（13）","21以上は「1と20」の順で言う：eenentwintig（21）、vijfentwintig（25）","100は honderd、1000は duizend。1200は twaalfhonderd（12百）とも言う","値段は小数点がコンマ。€ 5,50 は「vijf euro vijftig」"],
+  th:["11・21など1の位が1のときは「エット」：สิบเอ็ด（11）","20だけは「イー シップ」：ยี่สิบ。ほかは「数字＋シップ」：สามสิบ（30）","100 ร้อย（ローイ）、1000 พัน（パン）、1万 หมื่น（ムーン）、10万 แสน（セーン）","値段は「数字＋バーツ」：ห้าสิบบาท（50バーツ）"]
+};
+function numOut(){
+  const w=numWords(U.num,S.lang);
+  if(!w)return `<div class="hint">0〜999999 の数字を入れてください。</div>`;
+  return `<div class="ph-fl" lang="${S.lang}">${esc(w.t)}</div>
+    ${w.k?`<div class="ph-kana">${esc(w.k)}</div>`:""}
+    <div class="acts"><button class="btn primary" data-act="numsay">${SPK} 聞く</button><button class="btn" data-act="numsay" data-slow="1">ゆっくり</button><button class="btn" data-act="numshow">見せる</button></div>`;
+}
+function numPanel(){
+  return `<div class="panel pad stack" style="gap:8px">
+    <label class="eyebrow" for="numIn">数字を${esc(L[S.lang].name)}で言うと</label>
+    <input class="field mono" id="numIn" inputmode="numeric" autocomplete="off" value="${esc(U.num)}" placeholder="例：25、1250" style="font-size:20px">
+    <div id="numOut" style="display:grid;gap:4px">${numOut()}</div>
+    <details><summary class="hint" style="cursor:pointer">数え方のきまり（${esc(L[S.lang].name)}）</summary>
+      <ul class="hint" style="margin:6px 0 0;padding-left:18px;display:grid;gap:4px">${NUM_RULES[S.lang].map(r=>`<li>${noteHtml(r)}</li>`).join("")}</ul></details>
   </div>`;
 }
 function phraseRow(p){
@@ -744,7 +817,9 @@ document.addEventListener("click",e=>{
     case"tab":U.tab=v;render();window.scrollTo(0,0);break;
     case"lang":if(S.lang!==v){S.lang=v;U.mapCity=null;save();render()}break;
     case"gender":S.gender=v;save();render();break;
-    case"cat":U.cat=v;renderList();document.querySelectorAll('[data-act="cat"]').forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===v)));break;
+    case"cat":U.cat=v;render();break;
+    case"numsay":{const w=numWords(U.num,S.lang);if(w)speak(w.t,!!b.dataset.slow);break}
+    case"numshow":{const w=numWords(U.num,S.lang);if(w)openShow(L[S.lang].name,w.t,Number(U.num).toLocaleString("ja-JP"),S.lang,w.t);break}
     case"favonly":U.favOnly=!U.favOnly;render();break;
     case"say":speak(fl(BY[id]),false);break;
     case"slow":speak(fl(BY[id]),true);break;
@@ -771,6 +846,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#show").hidden)
 let memoT;
 document.addEventListener("input",e=>{
   if(e.target.id==="q"){U.q=e.target.value;renderList()}
+  if(e.target.id==="numIn"){U.num=e.target.value.replace(/[^0-9]/g,"").slice(0,6);const o=$("#numOut");if(o)o.innerHTML=numOut()}
   if(e.target.id==="trIn"){U.trIn=e.target.value;const a=document.querySelector('#transview a[href*="translate.google"]');if(a)a.href=gTrans(U.trIn.trim(),S.tr.from,S.tr.to)}
   if(e.target.id==="memo"){S.memo=e.target.value;clearTimeout(memoT);memoT=setTimeout(save,300)}
 });
