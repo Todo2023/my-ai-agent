@@ -87,6 +87,7 @@ main{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:14px calc(9
 textarea.field{min-height:160px;line-height:1.6}
 
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;line-height:1.3;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+a.btn{color:var(--ink)}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
 .btn.big{padding:12px 18px;font-size:15px}
@@ -575,6 +576,13 @@ function trCard(h,big){
     </div></div>`;
 }
 function transInner(){
+  const mode=`<div class="seg" role="group" aria-label="翻訳の方法" style="justify-self:start">
+    <button data-act="trmode" data-v="text" aria-pressed="${U.trMode!=="ocr"}">文字を入れる</button>
+    <button data-act="trmode" data-v="ocr" aria-pressed="${U.trMode==="ocr"}">写真から読む</button></div>`;
+  if(U.trMode==="ocr")return mode+ocrInner();
+  return mode+textInner();
+}
+function textInner(){
   const f=S.tr.from,tgs=trTargets(f);if(!tgs.includes(S.tr.to))S.tr.to=tgs[0];
   const last=S.tr.hist[0],showLast=last&&last.src===U.trIn.trim()&&last.f===f&&last.to===S.tr.to;
   return `<div class="panel pad stack" style="gap:10px">
@@ -593,6 +601,102 @@ function transInner(){
     <p class="hint" style="margin:0">機械翻訳なので、意味が少しずれることがあります。大事な場面は「見せる」で相手に確認してもらってください。翻訳：MyMemory</p>
     ${S.tr.hist.length?`<div><div class="row" style="margin-bottom:6px"><span class="eyebrow" style="flex:1">これまでの翻訳（通信なしでも見られます）</span><button class="btn" data-act="trclear">履歴を消す</button></div>
       <div class="panel list">${S.tr.hist.map(h=>trCard(h,false)).join("")}</div></div>`:""}`;
+}
+/* ---------- 写真から読む（OCR） ----------
+   メニューや看板を撮って文字を読み取り、1行ずつ日本語にする。
+   読み取りは端末の中で動く Tesseract.js（使うときだけ読み込む）。言語データは初回に通信で取り込み、
+   以後は端末に残るので通信なしでも読める（Service Worker と Tesseract 自身の保存）。日本語への翻訳は通信が必要。
+   文字の読み取りは完全ではないので、読み取った文は手で直せるようにし、Google 翻訳（カメラ）へも逃がす。 */
+const OCR_LANGS={it:["イタリア語","ita"],nl:["オランダ語","nld"],th:["タイ語","tha"],en:["英語","eng"]};
+const TESS_URL="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+U.trMode="text";
+U.ocr={lang:null,busy:false,prog:"",lines:[],err:"",img:"",ready:false};
+const ocrLang=()=>U.ocr.lang||S.lang;
+function loadTesseract(){
+  if(window.Tesseract)return Promise.resolve();
+  return new Promise((ok,ng)=>{const sc=document.createElement("script");sc.src=TESS_URL;sc.onload=ok;sc.onerror=()=>ng(new Error("load"));document.head.appendChild(sc)});
+}
+function progLabel(m){
+  if(m.status==="recognizing text")return "読み取り中… "+Math.round((m.progress||0)*100)+"%";
+  if(/language|traineddata/.test(m.status))return "読み取り用の言語データを準備中…（初回だけ通信が必要）";
+  return "準備中…";
+}
+function paintOcrProg(){const e=$("#ocrProg");if(e)e.textContent=U.ocr.prog}
+async function shrinkImage(file){
+  const url=URL.createObjectURL(file);
+  try{const img=new Image();await new Promise((ok,ng)=>{img.onload=ok;img.onerror=ng;img.src=url});
+    const k=Math.min(1,2000/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);return c}
+  finally{URL.revokeObjectURL(url)}
+}
+async function runOcr(file){
+  if(isArtifact()){U.ocr.err="claude.ai 版では使えません。ホーム画面版で開いてください。";paintTrans();return}
+  const ol=ocrLang();
+  U.ocr={...U.ocr,busy:true,err:"",prog:"準備中…",lines:[],img:""};paintTrans();
+  try{
+    await loadTesseract();
+    const c=await shrinkImage(file);U.ocr.img=c.toDataURL("image/jpeg",0.6);paintTrans();
+    const r=await Tesseract.recognize(c,OCR_LANGS[ol][1]+(ol==="en"?"":"+eng"),{logger:m=>{U.ocr.prog=progLabel(m);paintOcrProg()}});
+    U.ocr.lines=(r.data.text||"").split(/\n+/).map(t=>t.replace(/\s+/g," ").trim()).filter(t=>t.length>1&&/[A-Za-zÀ-ÿ\u0E00-\u0E7F]/.test(t)).slice(0,40).map(t=>({src:t,ja:""}));
+    if(!U.ocr.lines.length)U.ocr.err="文字を読み取れませんでした。明るい所で、文字が大きくまっすぐ写るように撮り直してください。";
+  }catch(e){U.ocr.err=navigator.onLine===false?"はじめて使うときは通信が必要です（読み取り用のデータを取り込みます）。通信のある所で一度使うと、次からは通信なしでも読めます。":"読み取りに失敗しました。もう一度試すか、下の Google 翻訳を使ってください。"}
+  U.ocr.busy=false;U.ocr.prog="";paintTrans();
+}
+/* 読み取り用データを先に取り込んでおく（Wi-Fi のうちに）。一度取り込めば通信なしでも読める */
+async function ocrPrepare(){
+  if(isArtifact()||U.ocr.busy)return;
+  U.ocr.busy=true;U.ocr.err="";U.ocr.prog="読み取り用のデータを取り込み中…（約12MB）";paintTrans();
+  try{await loadTesseract();const w=await Tesseract.createWorker(["ita","nld","tha","eng"],1,{logger:m=>{U.ocr.prog=progLabel(m);paintOcrProg()}});await w.terminate();
+    try{localStorage.setItem("ciao-hallo-ocr-ready","1")}catch(e){}U.ocr.ready=true;toast("取り込みました。通信なしでも読み取れます")}
+  catch(e){U.ocr.err="取り込めませんでした。Wi-Fi のある所でもう一度押してください。"}
+  U.ocr.busy=false;U.ocr.prog="";paintTrans();
+}
+try{U.ocr.ready=localStorage.getItem("ciao-hallo-ocr-ready")==="1"}catch(e){}
+async function ocrTranslate(){
+  const ol=ocrLang(),L_=U.ocr.lines;if(!L_.length||U.ocr.busy)return;
+  if(navigator.onLine===false){U.ocr.err="日本語への翻訳は通信が必要です。";paintTrans();return}
+  U.ocr.busy=true;U.ocr.err="";U.ocr.prog="日本語に翻訳中…";paintTrans();
+  let fail=0;
+  for(let i=0;i<L_.length;i+=4){
+    await Promise.all(L_.slice(i,i+4).map(async l=>{
+      if(l.ja)return;
+      try{const r=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(l.src.slice(0,450))+"&langpair="+ol+"|ja");
+        const j=await r.json();const out=j&&j.responseData&&j.responseData.translatedText;
+        if(!r.ok||+j.responseStatus!==200||!out||/MYMEMORY WARNING/i.test(out))throw 0;l.ja=String(out)}catch(e){fail++}
+    }));
+    U.ocr.prog="日本語に翻訳中… "+Math.min(L_.length,i+4)+" / "+L_.length;paintOcrProg();
+    if(fail>=4)break;
+  }
+  if(fail)U.ocr.err="一部を翻訳できませんでした（通信が不安定か、無料の上限）。下の「Google翻訳で開く」も使えます。";
+  U.ocr.busy=false;U.ocr.prog="";paintTrans();
+}
+function ocrInner(){
+  const o=U.ocr,ol=ocrLang(),all=o.lines.map(l=>l.src).join("\n");
+  return `<div class="panel pad stack" style="gap:10px">
+      <div class="row"><span class="eyebrow">読む言語</span>
+        <div class="chips" role="group" aria-label="読む言語" style="padding:0">${Object.entries(OCR_LANGS).map(([k,[n]])=>`<button class="chip" data-act="ocrlang" data-v="${k}" aria-pressed="${ol===k}">${n}</button>`).join("")}</div></div>
+      <div class="row">
+        <label class="btn big primary" for="ocrCam" style="cursor:pointer">カメラで撮る</label>
+        <label class="btn big" for="ocrPick" style="cursor:pointer">写真を選ぶ</label>
+        <input id="ocrCam" type="file" accept="image/*" capture="environment" hidden>
+        <input id="ocrPick" type="file" accept="image/*" hidden>
+      </div>
+      <div class="hint" id="ocrProg" aria-live="polite">${esc(o.prog)}</div>
+      ${o.err?`<p class="hint" style="margin:0;color:var(--bad)">${esc(o.err)}</p>`:""}
+      ${o.img?`<img src="${o.img}" alt="撮った写真" style="max-height:180px;width:auto;border-radius:10px;justify-self:start">`:""}
+      <div class="hint">文字が大きく、まっすぐ写るように撮ると読み取りやすくなります。${o.ready?"読み取り用のデータは取り込み済みです（通信なしでも読めます）。":""}</div>
+      ${o.ready?"":`<div class="row"><button class="btn" data-act="ocrprep" ${o.busy?"disabled":""}>読み取り用のデータを今取り込む（約12MB・Wi-Fiで）</button></div>`}
+    </div>
+    ${o.lines.length?`<div class="row"><span class="eyebrow" style="flex:1">読み取った文（${o.lines.length}行）</span>
+        ${o.lines.some(l=>!l.ja)?`<button class="btn primary" data-act="ocrja" ${o.busy?"disabled":""}>日本語に翻訳</button>`:""}
+        <a class="btn" href="${esc(gTrans(all.slice(0,1800),ol,"ja"))}" target="_blank" rel="noopener">Google翻訳で開く</a>
+        <button class="btn" data-act="copy" data-t="${esc(all)}">コピー</button></div>
+      <div class="panel list">${o.lines.map((l,i)=>`<div class="place">
+        <div class="row" style="align-items:flex-start;flex-wrap:nowrap"><b style="flex:1;min-width:0;overflow-wrap:anywhere" lang="${ol}">${esc(l.src)}</b>
+          <button class="btn" data-act="sayt" data-t="${esc(l.src)}" data-l="${ol}" aria-label="発音を聞く">${SPK}</button></div>
+        ${l.ja?`<div>${esc(l.ja)}</div>`:""}</div>`).join("")}</div>`:""}
+    <p class="hint" style="margin:0">読み取りは完全ではありません。写真の上に訳を重ねて見たいときは、Google 翻訳アプリの「カメラ」も便利です。</p>`;
 }
 function viewTrans(){return `<div class="stack" id="transview">${transInner()}</div>`}
 function paintTrans(){const el=$("#transview");if(!el)return;const a=document.activeElement&&document.activeElement.id==="trIn";el.innerHTML=transInner();if(a){const t=$("#trIn");t.focus();t.selectionStart=t.selectionEnd=t.value.length}}
@@ -840,6 +944,10 @@ document.addEventListener("click",e=>{
     case"trgo":translateNow();break;
     case"trshow":openShow(TRL[b.dataset.l],b.dataset.t,b.dataset.s,b.dataset.l,b.dataset.t);break;
     case"trclear":S.tr.hist=[];save();paintTrans();break;
+    case"trmode":U.trMode=v;paintTrans();break;
+    case"ocrlang":U.ocr.lang=v;U.ocr.lines.forEach(l=>l.ja="");paintTrans();break;
+    case"ocrja":ocrTranslate();break;
+    case"ocrprep":ocrPrepare();break;
     case"copy":{const t=b.dataset.t;if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast("コピーしました"),()=>toast("コピーできませんでした"));else toast("コピーできませんでした");break}
   }
 });
@@ -850,6 +958,10 @@ document.addEventListener("input",e=>{
   if(e.target.id==="numIn"){U.num=e.target.value.replace(/[^0-9]/g,"").slice(0,6);const o=$("#numOut");if(o)o.innerHTML=numOut()}
   if(e.target.id==="trIn"){U.trIn=e.target.value;const a=document.querySelector('#transview a[href*="translate.google"]');if(a)a.href=gTrans(U.trIn.trim(),S.tr.from,S.tr.to)}
   if(e.target.id==="memo"){S.memo=e.target.value;clearTimeout(memoT);memoT=setTimeout(save,300)}
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if((t.id==="ocrCam"||t.id==="ocrPick")&&t.files&&t.files[0]){const f=t.files[0];t.value="";runOcr(f)}
 });
 document.addEventListener("submit",e=>{
   if(e.target.id!=="placeForm")return;e.preventDefault();
