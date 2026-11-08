@@ -186,6 +186,11 @@ textarea.field{min-height:120px;font-family:var(--f-mono);font-size:12px}
 .optrow .opt{flex:1;min-width:0}
 .sayw{border:0;background:none;padding:0 1px;margin:0;font:inherit;font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 .sayw .spk{width:13px;height:13px;margin-left:2px}
+/* 通信なしの準備 */
+.prow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.prow > div{min-width:0;flex:1 1 220px}
+.prow .state{margin-left:6px}
+.offl{color:var(--bad);font-weight:700}
 .toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;max-width:calc(100% - 32px)}
 @media (max-width:420px){.ph-fl{font-size:21px}.clock .t{font-size:19px}.form{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.btn,.chip,.opt,.day{transition:background .15s,border-color .15s}}
@@ -473,7 +478,8 @@ function speak(text,slow,lang=S.lang){
   if(!("speechSynthesis" in window)){toast("この端末では音声読み上げが使えません");return}
   const u=new SpeechSynthesisUtterance(text.replace(/\.\.\./g," ").replace(/\s*\/\s*/g,", "));
   u.lang=L[lang].code;
-  const v=speechSynthesis.getVoices().find(v=>v.lang.replace("_","-").toLowerCase().startsWith(lang));
+  const vs=speechSynthesis.getVoices().filter(v=>v.lang.replace("_","-").toLowerCase().startsWith(lang));
+  const v=vs.find(v=>v.localService)||vs[0]; // 通信なしでも鳴るよう、端末内の音声を優先
   if(v)u.voice=v;
   u.rate=slow?0.6:0.95;
   speechSynthesis.cancel();speechSynthesis.speak(u);
@@ -508,7 +514,7 @@ function renderMeta(){
   if(diff>0)cd=`出発まで <strong class="mono">${diff}</strong> 日`;
   else if(end>=0)cd=`旅行 <strong class="mono">${-diff+1}</strong> 日目`;
   else cd=`おかえりなさい`;
-  $("#meta").innerHTML=`<span>${cd}</span><span class="clk">${esc(L[S.lang].city)} <strong class="mono">${dt(L[S.lang].tz)}</strong>　日本 <strong class="mono">${dt("Asia/Tokyo")}</strong></span>`;
+  $("#meta").innerHTML=`<span>${cd}</span>${navigator.onLine===false?`<span class="offl">通信なし（このまま使えます）</span>`:""}<span class="clk">${esc(L[S.lang].city)} <strong class="mono">${dt(L[S.lang].tz)}</strong>　日本 <strong class="mono">${dt("Asia/Tokyo")}</strong></span>`;
   document.querySelectorAll(".clock .t[data-tz]").forEach(e=>e.textContent=hm(e.dataset.tz));
   document.querySelectorAll(".clock .d[data-tz]").forEach(e=>e.textContent=mdw(e.dataset.tz));
 }
@@ -1003,6 +1009,7 @@ function viewToday(){
       <h2 style="font-family:var(--f-display);font-size:28px;margin-top:4px">${open?`今日のレッスン <span class="mono">${nDone}/2</span>`:"旅行中はレッスンお休み"}</h2>
       <p class="hint" style="margin:4px 0 0">${open?"言語ごとに約5分：前日の復習 → 新しいフレーズ → 確認クイズ5問。":"現地ではフレーズタブの「見せる」と「聞く」を使ってください。"}</p>
     </div>
+    ${t<=TRIP[4]?`<div class="panel pad stack" id="prep">${prepRows()}</div>`:""}
     <div class="langs">${langCard("it")}${langCard("nl")}</div>
     <div class="panel pad stack">
       <div class="row"><div class="eyebrow">32日カレンダー（10/8〜11/8）</div>
@@ -1033,6 +1040,65 @@ function renderBanner(){
   if(late&&S.remind.shown!==t){S.remind.shown=t;save();toast(`${S.remind.h}時を過ぎました。今日のレッスン（約5分）をやりましょう`,7000)}
 }
 setInterval(()=>{const e=$("#ltimer");if(e&&U.lesson)e.textContent=mmss((Date.now()-U.lesson.t0)/1000)},1000);
+
+/* ---------- 通信なしで使う準備（旅行前チェック） ----------
+   現地では電波が切れる前提。アプリ本体は Service Worker が保存するが、
+   読み上げの音声は端末のものを使うため、端末に音声データが入っていないと通信なしでは鳴らない。
+   ここではアプリから確認できることだけを確認し、確認できない部分は「機内モードで試す」と案内する。 */
+const PWA_URL="https://todo2023.github.io/my-ai-agent/hallo-app/";
+U.prep={app:"checking"};
+async function checkPrep(){
+  let app;
+  if(window.claude)app="artifact";
+  else if(!("serviceWorker" in navigator)||!window.caches)app="unsupported";
+  else{try{const reg=await navigator.serviceWorker.getRegistration();
+    const hit=await caches.match("index.html",{ignoreSearch:true});
+    app=reg&&reg.active&&hit?"ok":"no"}catch(e){app="no"}}
+  U.prep.app=app;paintPrep();
+}
+function voiceState(l){
+  if(!("speechSynthesis" in window))return"none";
+  const vs=speechSynthesis.getVoices().filter(v=>v.lang.replace("_","-").toLowerCase().startsWith(l));
+  return !vs.length?"none":vs.some(v=>v.localService)?"local":"net";
+}
+function prepRows(){
+  const pill=(ok,txt)=>`<span class="state ${ok?"ok":"todo"}">${txt}</span>`;
+  const a=U.prep.app;
+  const appRow=a==="ok"?[true,"保存済み","通信なしでも開けます。"]
+    :a==="checking"?[false,"確認中","…"]
+    :a==="artifact"?[false,"この画面は不可",`claude.ai 版は通信なしでは開けません。ホーム画面版（<a class="link" href="${PWA_URL}" target="_blank" rel="noopener">${PWA_URL.replace("https://","")}</a>）を使ってください。`]
+    :a==="unsupported"?[false,"非対応","このブラウザは保存に対応していません。Chrome（iPhoneはSafari）で開いてください。"]
+    :[false,"まだ","通信のある場所で、このアプリを一度閉じてから開き直してください。"];
+  const vrow=l=>{const v=voiceState(l);
+    return `<div class="prow"><div><b>${esc(L[l].name)}の音声</b> ${v==="none"?pill(false,"見つからない"):pill(true,"あり")}
+      <div class="hint">${v==="none"?"端末に音声データが入っていません。下の手順で入れてください。":"機内モードにして「試しに聞く」で鳴れば、通信なしでも大丈夫です。"}</div></div>
+      <button class="btn" data-act="sayt" data-t="${l==="it"?"Buongiorno, grazie mille":"Goedemorgen, dank je wel"}" data-l="${l}">${SPK} 試しに聞く</button></div>`};
+  return `<div class="eyebrow">通信なしで使う準備</div>
+    <div class="prow"><div><b>アプリ本体</b> ${pill(appRow[0],appRow[1])}<div class="hint">${appRow[2]}</div></div></div>
+    ${vrow("it")}${vrow("nl")}
+    <details><summary class="hint" style="cursor:pointer">音声が鳴らないときの直し方（音声データを端末に入れる）</summary>
+      <div class="hint" style="margin-top:6px;display:grid;gap:6px">
+        <div><b>Android：</b>設定 → システム → 言語と入力 → 音声出力（テキスト読み上げ）→「Google 音声サービス」の歯車 → 音声データをインストール → イタリア語・オランダ語をダウンロード（Wi-Fiで）</div>
+        <div><b>iPhone：</b>設定 → アクセシビリティ → 読み上げコンテンツ → 声 → イタリア語・オランダ語 → 声を選んでダウンロード</div>
+        <div>入れたあと、アプリを開き直して「試しに聞く」で確認してください。</div>
+      </div></details>
+    <div class="hint">地図（Googleマップへのリンク）は通信が必要です。Googleマップのアプリで、ローマ・アムステルダムなど行く街の「オフラインマップ」を先にダウンロードしておくと、通信なしでも地図が見られます。</div>`;
+}
+function paintPrep(){const el=$("#prep");if(el)el.innerHTML=prepRows()}
+/* 初回に読み込んだフォントは Service Worker を通っていないので、ここで保存しておく */
+function warmFonts(){
+  if(window.claude||!window.caches||!("serviceWorker" in navigator))return;
+  navigator.serviceWorker.ready.then(()=>caches.keys()).then(ks=>{
+    const k=ks.find(x=>x.startsWith("hallo-app"));if(!k)return;
+    return caches.open(k).then(c=>Promise.all(performance.getEntriesByType("resource").map(e=>e.name)
+      .filter(u=>/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u))
+      .map(u=>c.match(u).then(h=>h||fetch(u,{mode:"cors"}).then(r=>{if(r.ok)return c.put(u,r)}).catch(()=>{})))));
+  }).then(checkPrep).catch(()=>{});
+}
+if("speechSynthesis" in window&&speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",paintPrep);
+addEventListener("online",renderMeta);addEventListener("offline",renderMeta);
+addEventListener("load",()=>{checkPrep();setTimeout(warmFonts,2500)});
+if("serviceWorker" in navigator&&navigator.serviceWorker.addEventListener)navigator.serviceWorker.addEventListener("controllerchange",checkPrep);
 
 /* ---------- 描画とイベント ---------- */
 function render(){
