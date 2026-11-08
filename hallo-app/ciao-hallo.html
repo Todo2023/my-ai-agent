@@ -1,0 +1,783 @@
+<title>Ciao Hallo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+Thai:wght@500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* レイアウト：上に固定ヘッダー（言語・現地と日本の日時＋国旗帯）、中央に1列の作業面、下に4タブ。旅行中に片手で使うスマホ前提 */
+:root{
+  --bg:#eef1ee; --surface:#ffffff; --ink:#17201b; --muted:#5b675f; --line:#d9dfda;
+  --it:#14774a; --nl:#c4520a; --th:#2b48a8; --on-accent:#ffffff;
+  --good:#1d7f47; --bad:#bf3324; --flag-w:#ffffff;
+  --it-r:#c8312f; --nl-r:#b5242c; --nl-b:#21468b; --th-r:#b3243b; --th-b:#2d3a8c;
+  --wx-sun:#c98a00; --wx-rain:#2f6db3;
+  --f-display:"Bricolage Grotesque","Noto Sans Thai","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Zen Kaku Gothic New","Noto Sans Thai","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111513; --surface:#1a1f1c; --ink:#e8ede9; --muted:#97a39b; --line:#2b332e;
+  --it:#43c483; --nl:#ff8b3e; --th:#8aa2ee; --on-accent:#0c110e; --good:#4fcf88; --bad:#ff6d5c; --flag-w:#d8ddd9;
+  --it-r:#e0524f; --nl-r:#e0525a; --nl-b:#5b80cf; --th-r:#e0525a; --th-b:#6f86d8;
+  --wx-sun:#f2b84b; --wx-rain:#79a9e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111513; --surface:#1a1f1c; --ink:#e8ede9; --muted:#97a39b; --line:#2b332e;
+  --it:#43c483; --nl:#ff8b3e; --th:#8aa2ee; --on-accent:#0c110e; --good:#4fcf88; --bad:#ff6d5c; --flag-w:#d8ddd9;
+  --it-r:#e0524f; --nl-r:#e0525a; --nl-b:#5b80cf; --th-r:#e0525a; --th-b:#6f86d8;
+  --wx-sun:#f2b84b; --wx-rain:#79a9e6; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  --accent:var(--it); --soft:color-mix(in srgb,var(--accent) 13%,var(--surface));
+  --flag:linear-gradient(90deg,var(--it) 0 33.33%,var(--flag-w) 33.33% 66.66%,var(--it-r) 66.66%)}
+body[data-lang="nl"]{--accent:var(--nl);--flag:linear-gradient(90deg,var(--nl-r) 0 33.33%,var(--flag-w) 33.33% 66.66%,var(--nl-b) 66.66%)}
+body[data-lang="th"]{--accent:var(--th);--flag:linear-gradient(90deg,var(--th-r) 0 16.66%,var(--flag-w) 16.66% 33.33%,var(--th-b) 33.33% 66.66%,var(--flag-w) 66.66% 83.33%,var(--th-r) 83.33%)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top-in{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:10px 8px;display:grid;gap:6px}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:21px;letter-spacing:-.01em;line-height:1}
+.brand b{color:var(--accent);font-weight:700}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.meta{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.meta strong{color:var(--ink);font-weight:700}
+.meta .clk{white-space:nowrap}
+.offl{color:var(--bad);font-weight:700}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.flag{height:4px;background:var(--flag)}
+
+main{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:14px calc(96px + env(safe-area-inset-bottom,0px))}
+.stack{display:grid;gap:14px}
+.eyebrow{font-size:11.5px;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.hint{font-size:12.5px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.pad{padding:14px 16px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;white-space:nowrap}
+.chip small{color:var(--muted);margin-left:4px;font-family:var(--f-mono);font-size:11px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.7}
+.field{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;min-width:0}
+.field::placeholder{color:var(--muted)}
+textarea.field{min-height:160px;line-height:1.6}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;line-height:1.3;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn.big{padding:12px 18px;font-size:15px}
+.btn.on{background:var(--soft);border-color:var(--accent)}
+.btn.star[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+
+.list{display:grid}
+.ph{padding:14px 16px;border-top:1px solid var(--line);display:grid;gap:4px;min-width:0}
+.ph:first-child{border-top:0}
+.ph-ja{font-size:13.5px;color:var(--muted);font-weight:500}
+.ph-fl{font-family:var(--f-display);font-weight:700;font-size:23px;line-height:1.3;overflow-wrap:anywhere}
+.ph-kana{font-size:13px;color:var(--accent);font-weight:500}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.note{margin:6px 0 0;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:13.5px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+
+.spk{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;flex:none}
+.sayw{border:0;background:none;padding:0 1px;margin:0;font:inherit;font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.sayw .spk{width:13px;height:13px;margin-left:2px}
+
+/* 地図 */
+.mapframe{width:100%;aspect-ratio:4/3;max-width:100%;border:0;border-radius:14px;display:block;background:var(--line)}
+.place{display:grid;gap:4px;padding:12px 16px;border-top:1px solid var(--line)}
+.place:first-child{border-top:0}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:2px;color:var(--on-accent);background:var(--muted)}
+.tag.it{background:var(--it)} .tag.nl{background:var(--nl)} .tag.th{background:var(--th)}
+.form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.form .full{grid-column:1/-1}
+
+/* 時計 */
+.city{display:grid;gap:8px;padding:14px 16px}
+.city-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.city .t{font-family:var(--f-mono);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.city .d{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.city .diff{font-size:12px;color:var(--muted)}
+.daychip{font-size:11px;font-weight:700;border-radius:999px;padding:0 7px;margin-left:6px;background:var(--soft);color:var(--ink)}
+.wx{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px}
+.wx svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wx .temp{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
+.wx .sun{color:var(--wx-sun)} .wx .rain{color:var(--wx-rain)} .wx .other{color:var(--muted)}
+.fc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+.fc div{font-size:12px;text-align:center;background:var(--bg);border-radius:8px;padding:4px 2px;line-height:1.35}
+.fc svg{width:20px;height:20px;display:block;margin:2px auto}
+
+/* 情報 */
+.sos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.sos .panel{padding:10px 14px;display:grid;gap:2px}
+.sos .num{font-family:var(--f-mono);font-size:26px;font-weight:500;color:var(--bad);text-decoration:none;line-height:1.2}
+.prow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.prow > div{min-width:0;flex:1 1 220px}
+.state{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px}
+.state.ok{color:var(--good);background:color-mix(in srgb,var(--good) 13%,var(--surface))}
+.state.todo{color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+a.link{color:var(--accent);font-weight:700;text-decoration:none}
+
+/* 見せる（全画面） */
+.show{position:fixed;inset:0;z-index:40;background:var(--surface);display:grid;place-items:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.show-in{max-width:720px;width:100%;display:grid;gap:18px;text-align:center}
+.show-fl{font-family:var(--f-display);font-weight:700;font-size:clamp(32px,9vw,62px);line-height:1.2;overflow-wrap:anywhere;margin:0}
+.show-ja{font-size:16px;color:var(--muted);margin:0}
+.show-lead{font-size:14px;color:var(--accent);font-weight:700;margin:0;letter-spacing:.04em}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabs button{border:0;background:transparent;padding:9px 0 10px;font-size:11.5px;white-space:nowrap;color:var(--muted);display:grid;justify-items:center;gap:3px;font-weight:500}
+.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;max-width:calc(100% - 32px)}
+@media (max-width:420px){.ph-fl{font-size:21px}.city .t{font-size:30px}.seg button{padding:5px 9px}}
+@media (prefers-reduced-motion:no-preference){.btn,.chip{transition:background .15s,border-color .15s}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="top-row">
+      <h1 class="brand">Ciao <b>Hallo</b></h1>
+      <div class="seg" role="group" aria-label="言語">
+        <button id="lang-it" data-act="lang" data-v="it">イタリア語</button>
+        <button id="lang-nl" data-act="lang" data-v="nl">オランダ語</button>
+        <button id="lang-th" data-act="lang" data-v="th">タイ語</button>
+      </div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+  <div class="flag" aria-hidden="true"></div>
+</header>
+
+<main><div id="view"></div></main>
+
+<nav class="tabs" aria-label="画面">
+  <div class="tabs-in">
+    <button data-act="tab" data-v="phrase"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>フレーズ</button>
+    <button data-act="tab" data-v="trans"><svg viewBox="0 0 24 24"><path d="M3 5h9M7.5 3v2M5 5c0 4 3 7 6 8M10 5c-.5 3.5-3 7-6.5 8.5"/><path d="M13 21l4-10 4 10M14.5 17.5h5"/></svg>翻訳</button>
+    <button data-act="tab" data-v="map"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>地図</button>
+    <button data-act="tab" data-v="clock"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>時計</button>
+    <button data-act="tab" data-v="info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>情報</button>
+  </div>
+</nav>
+
+<div class="show" id="show" hidden role="dialog" aria-modal="true" aria-label="現地の人に見せる">
+  <div class="show-in">
+    <p class="show-lead" id="show-lead"></p>
+    <p class="show-fl" id="show-fl"></p>
+    <p class="show-ja" id="show-ja"></p>
+    <div class="row" style="justify-content:center">
+      <button class="btn big" id="show-say" data-act="show-say"><svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg> 聞く</button>
+      <button class="btn big primary" data-act="show-close">閉じる</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============================================================
+   Ciao Hallo — 旅行中に必要な情報を1か所に集める（2026/11/9〜11/13）
+   イタリア語・オランダ語・タイ語の頻出フレーズ、Googleマップ、各地の時計と天気、緊急連絡先とメモ。
+   学習（レッスン・カード・クイズ）は旅行直前に廃止した。旅行中は「すぐ探せて、聞けて、見せられる」ことだけを優先する。
+   フレーズ1件 = [id, 日本語, 伊, 伊カナ, 蘭, 蘭カナ, 泰, 泰カナ]
+   タイ語の {p}（平叙）{q}（疑問）は丁寧の語尾。話す人の性別で ครับ（男性）／ค่ะ・คะ（女性）に置き換える。
+   カタカナは発音の目安。
+   ============================================================ */
+const CATS=[["g","あいさつ"],["e","基本"],["n","数字"],["m","買い物・お金"],["r","レストラン"],["t","交通・道"],["h","ホテル"],["a","空港"],["x","緊急"]];
+const P=[
+["g1","こんにちは","Buongiorno","ボンジョルノ","Hallo","ハロー","สวัสดี{p}","サワッディー{p}"],
+["g2","ありがとう","Grazie","グラツィエ","Dank je wel","ダンク ヤ ヴェル","ขอบคุณ{p}","コープクン{p}"],
+["g3","すみません（呼びかけ）","Scusi","スクーズィ","Pardon","パルドン","ขอโทษ{p}","コートート{p}"],
+["g4","ごめんなさい","Mi dispiace","ミ ディスピアーチェ","Sorry","ソリー","ขอโทษ{p}","コートート{p}"],
+["g5","はい／いいえ","Sì / No","スィ／ノ","Ja / Nee","ヤー／ネー","ใช่ / ไม่ใช่","チャイ／マイチャイ"],
+["g6","さようなら","Arrivederci","アッリヴェデルチ","Tot ziens","トット ズィーンス","ลาก่อน{p}","ラーコーン{p}"],
+["g7","大丈夫です／気にしないで","Va bene","ヴァ ベーネ","Geen probleem","ヘーン プロブレーム","ไม่เป็นไร{p}","マイペンライ{p}"],
+["g8","結構です（断る）","No, grazie","ノ グラツィエ","Nee, dank je","ネー ダンク ヤ","ไม่เอา{p}","マイアオ{p}"],
+
+["e1","英語を話せますか？","Parla inglese?","パルラ イングレーゼ？","Spreekt u Engels?","スプレークト ユー エンゲルス？","พูดภาษาอังกฤษได้ไหม{q}","プート パーサー アンカリット ダイマイ{q}？"],
+["e2","わかりません","Non capisco","ノン カピスコ","Ik begrijp het niet","イック ベフライプ ヘット ニート","ไม่เข้าใจ{p}","マイ カオチャイ{p}"],
+["e3","ゆっくり話してください","Più lentamente, per favore","ピュウ レンタメンテ ペル ファヴォーレ","Langzamer, alstublieft","ランフザーメル アルステュブリーフト","พูดช้าๆ หน่อย{p}","プート チャーチャー ノイ{p}"],
+["e4","〜はどこですか？","Dov'è ...?","ドヴェ …？","Waar is ...?","ヴァール イス …？","...อยู่ที่ไหน{q}","… ユー ティーナイ{q}？"],
+["e5","トイレはどこですか？","Dov'è il bagno?","ドヴェ イル バーニョ？","Waar is het toilet?","ヴァール イス ヘット トワレット？","ห้องน้ำอยู่ที่ไหน{q}","ホンナーム ユー ティーナイ{q}？"],
+["e6","いくらですか？","Quanto costa?","クアント コスタ？","Hoeveel kost het?","フーフェール コスト ヘット？","เท่าไหร่{q}","タオライ{q}？"],
+["e7","これをください","Questo, per favore","クエスト ペル ファヴォーレ","Deze, alstublieft","デーゼ アルステュブリーフト","เอาอันนี้{p}","アオ アンニー{p}"],
+["e8","〜をください","Vorrei ...","ヴォッレイ …","Ik wil graag ...","イック ヴィル ハラーハ …","ขอ...{p}","コー …{p}"],
+["e9","助けてもらえますか？","Mi può aiutare?","ミ プオ アユターレ？","Kunt u mij helpen?","クント ユー マイ ヘルペン？","ช่วยหน่อยได้ไหม{q}","チュアイ ノイ ダイマイ{q}？"],
+["e10","ここに書いてもらえますか？","Può scriverlo qui?","プオ スクリーヴェルロ クイ？","Kunt u het hier opschrijven?","クント ユー ヘット ヒール オプスフライヴェン？","เขียนให้หน่อยได้ไหม{q}","キアン ハイ ノイ ダイマイ{q}？"],
+["e11","写真を撮ってもらえますか？","Può farci una foto?","プオ ファルチ ウナ フォト？","Wilt u een foto van ons maken?","ヴィルト ユー エン フォト ファン オンス マーケン？","ช่วยถ่ายรูปให้หน่อยได้ไหม{q}","チュアイ ターイループ ハイ ノイ ダイマイ{q}？"],
+["e12","写真を撮ってもいいですか？","Posso fare una foto?","ポッソ ファーレ ウナ フォト？","Mag ik een foto maken?","マッハ イック エン フォト マーケン？","ถ่ายรูปได้ไหม{q}","ターイループ ダイマイ{q}？"],
+["e13","ちょっと待ってください","Un momento","ウン モメント","Een moment","エン モーメント","รอสักครู่{p}","ロー サックルー{p}"],
+
+["n1","1","uno","ウーノ","een","エーン","หนึ่ง","ヌン"],
+["n2","2","due","ドゥーエ","twee","トゥヴェー","สอง","ソーン"],
+["n3","3","tre","トレ","drie","ドリー","สาม","サーム"],
+["n4","4","quattro","クアットロ","vier","フィール","สี่","シー"],
+["n5","5","cinque","チンクエ","vijf","ファイフ","ห้า","ハー"],
+["n6","6","sei","セイ","zes","ゼス","หก","ホック"],
+["n7","7","sette","セッテ","zeven","ゼーフェン","เจ็ด","チェット"],
+["n8","8","otto","オット","acht","アハト","แปด","ペート"],
+["n9","9","nove","ノーヴェ","negen","ネーヘン","เก้า","カオ"],
+["n10","10","dieci","ディエーチ","tien","ティーン","สิบ","シップ"],
+["n11","20","venti","ヴェンティ","twintig","トゥヴィンティフ","ยี่สิบ","イーシップ"],
+["n12","100","cento","チェント","honderd","ホンデルト","หนึ่งร้อย","ヌン ローイ"],
+["n13","1000","mille","ミッレ","duizend","ダウゼント","หนึ่งพัน","ヌン パン"],
+
+["m1","カードで払えますか？","Posso pagare con la carta?","ポッソ パガーレ コン ラ カルタ？","Kan ik met de kaart betalen?","カン イック メット デ カールト ベターレン？","จ่ายด้วยบัตรได้ไหม{q}","チャーイ ドゥアイ バット ダイマイ{q}？"],
+["m2","現金で払います","Pago in contanti","パーゴ イン コンタンティ","Ik betaal contant","イック ベタール コンタント","จ่ายเงินสด{p}","チャーイ グン ソット{p}"],
+["m3","高すぎます","È troppo caro","エ トロッポ カーロ","Dat is te duur","ダット イス テ デュール","แพงไป{p}","ペーン パイ{p}"],
+["m4","安くしてもらえますか？","Mi fa uno sconto?","ミ ファ ウノ スコント？","Kan het wat goedkoper?","カン ヘット ヴァット フートコーペル？","ลดหน่อยได้ไหม{q}","ロット ノイ ダイマイ{q}？"],
+["m5","レシートをください","Lo scontrino, per favore","ロ スコントリーノ ペル ファヴォーレ","Mag ik de bon?","マッハ イック デ ボン？","ขอใบเสร็จ{p}","コー バイセット{p}"],
+["m6","袋をください","Una busta, per favore","ウナ ブスタ ペル ファヴォーレ","Mag ik een tasje?","マッハ イック エン タッシェ？","ขอถุง{p}","コー トゥン{p}"],
+["m7","見ているだけです","Sto solo guardando","スト ソーロ グアルダンド","Ik kijk alleen even","イック カイク アレーン エーフェン","ดูเฉยๆ{p}","ドゥー チューイチューイ{p}"],
+["m8","ATMはどこですか？","Dov'è un bancomat?","ドヴェ ウン バンコマット？","Waar is een geldautomaat?","ヴァール イス エン ヘルトアウトマート？","ตู้ ATM อยู่ที่ไหน{q}","トゥー エーティーエム ユー ティーナイ{q}？"],
+["m9","免税手続きはできますか？","Posso avere il tax free?","ポッソ アヴェーレ イル タックス フリー？","Kan ik tax free krijgen?","カン イック タックス フリー クライヘン？","ทำ VAT Refund ได้ไหม{q}","タム ヴァット リーファン ダイマイ{q}？"],
+
+["r1","2人です","Siamo in due","スィアーモ イン ドゥーエ","Met z'n tweeën","メット ゼン トゥヴェーエン","สองคน{p}","ソーン コン{p}"],
+["r2","メニューをください","Il menù, per favore","イル メヌー ペル ファヴォーレ","Mag ik de kaart?","マッハ イック デ カールト？","ขอเมนู{p}","コー メーヌー{p}"],
+["r3","英語のメニューはありますか？","Avete un menù in inglese?","アヴェーテ ウン メヌー イン イングレーゼ？","Heeft u een Engelse kaart?","ヘーフト ユー エン エンゲルセ カールト？","มีเมนูภาษาอังกฤษไหม{q}","ミー メーヌー パーサー アンカリット マイ{q}？"],
+["r4","おすすめは何ですか？","Cosa mi consiglia?","コーザ ミ コンスィーリア？","Wat raadt u aan?","ヴァット ラート ユー アーン？","แนะนำอะไรดี{q}","ネナム アライ ディー{q}？"],
+["r5","これにします","Prendo questo","プレンド クエスト","Ik neem deze","イック ネーム デーゼ","เอาอันนี้{p}","アオ アンニー{p}"],
+["r6","水をください（炭酸なし）","Acqua naturale, per favore","アックア ナトゥラーレ ペル ファヴォーレ","Water zonder bubbels, alstublieft","ヴァーテル ゾンデル ブッベルス アルステュブリーフト","ขอน้ำเปล่า{p}","コー ナームプラオ{p}"],
+["r7","ビールをください","Una birra, per favore","ウナ ビッラ ペル ファヴォーレ","Een biertje, alstublieft","エン ビールチェ アルステュブリーフト","ขอเบียร์{p}","コー ビア{p}"],
+["r8","コーヒーをください","Un caffè, per favore","ウン カッフェ ペル ファヴォーレ","Een koffie, alstublieft","エン コフィー アルステュブリーフト","ขอกาแฟ{p}","コー カーフェー{p}"],
+["r9","辛くしないでください","Non piccante, per favore","ノン ピッカンテ ペル ファヴォーレ","Niet pittig, alstublieft","ニート ピッティフ アルステュブリーフト","ไม่เผ็ด{p}","マイ ペット{p}"],
+["r10","パクチー抜きで","Senza coriandolo","センツァ コリアンドロ","Zonder koriander","ゾンデル コリアンデル","ไม่ใส่ผักชี{p}","マイ サイ パクチー{p}"],
+["r11","おいしい！","Buonissimo!","ブオニッスィモ！","Heerlijk!","ヘールレク！","อร่อย{p}","アロイ{p}"],
+["r12","お会計をお願いします","Il conto, per favore","イル コント ペル ファヴォーレ","De rekening, alstublieft","デ レーケニング アルステュブリーフト","เช็คบิลด้วย{p}","チェックビン ドゥアイ{p}"],
+["r13","〜のアレルギーがあります","Ho un'allergia a ...","オ ウナッレルジーア ア …","Ik ben allergisch voor ...","イック ベン アレルヒス フォール …","แพ้...{p}","ペー …{p}"],
+["r14","持ち帰りで","Da portare via","ダ ポルターレ ヴィーア","Om mee te nemen","オム メー テ ネーメン","ใส่ถุงกลับบ้าน{p}","サイ トゥン クラップ バーン{p}"],
+["r15","予約しています","Ho una prenotazione","オ ウナ プレノタツィオーネ","Ik heb gereserveerd","イック ヘップ ヘレセルフェールト","จองไว้แล้ว{p}","チョーン ワイ レーオ{p}"],
+
+["t1","駅はどこですか？","Dov'è la stazione?","ドヴェ ラ スタツィオーネ？","Waar is het station?","ヴァール イス ヘット スタスィオン？","สถานีรถไฟอยู่ที่ไหน{q}","サターニー ロットファイ ユー ティーナイ{q}？"],
+["t2","〜までの切符を1枚ください","Un biglietto per ..., per favore","ウン ビリエット ペル … ペル ファヴォーレ","Eén kaartje naar ..., alstublieft","エーン カールチェ ナール … アルステュブリーフト","ตั๋วไป...หนึ่งใบ{p}","トゥア パイ … ヌン バイ{p}"],
+["t3","この電車は〜に行きますか？","Questo treno va a ...?","クエスト トレーノ ヴァ ア …？","Gaat deze trein naar ...?","ハート デーゼ トレイン ナール …？","รถไฟนี้ไป...ไหม{q}","ロットファイ ニー パイ … マイ{q}？"],
+["t4","何番線ですか？","Da quale binario parte?","ダ クアーレ ビナーリオ パルテ？","Van welk spoor vertrekt hij?","ファン ヴェルク スポール フェルトレクト ハイ？","ชานชาลาที่เท่าไหร่{q}","チャーンチャラー ティー タオライ{q}？"],
+["t5","タクシー乗り場はどこですか？","Dov'è la fermata dei taxi?","ドヴェ ラ フェルマータ デイ タクスィ？","Waar is de taxistandplaats?","ヴァール イス デ タクスィスタントプラーツ？","ที่ขึ้นแท็กซี่อยู่ที่ไหน{q}","ティー クン テクシー ユー ティーナイ{q}？"],
+["t6","この住所までお願いします","A questo indirizzo, per favore","ア クエスト インディリッツォ ペル ファヴォーレ","Naar dit adres, alstublieft","ナール ディット アドレス アルステュブリーフト","ไปที่อยู่นี้{p}","パイ ティーユー ニー{p}"],
+["t7","空港までお願いします","All'aeroporto, per favore","アッラエロポルト ペル ファヴォーレ","Naar het vliegveld, alstublieft","ナール ヘット フリーフフェルト アルステュブリーフト","ไปสนามบิน{p}","パイ サナームビン{p}"],
+["t8","メーターを使ってください","Usi il tassametro, per favore","ウーズィ イル タッサーメトロ ペル ファヴォーレ","Wilt u de meter aanzetten?","ヴィルト ユー デ メーテル アーンゼッテン？","เปิดมิเตอร์ด้วย{p}","プート ミター ドゥアイ{p}"],
+["t9","〜までいくらですか？","Quanto costa fino a ...?","クアント コスタ フィーノ ア …？","Wat kost het naar ...?","ヴァット コスト ヘット ナール …？","ไป...เท่าไหร่{q}","パイ … タオライ{q}？"],
+["t10","ここで止めてください","Si fermi qui, per favore","スィ フェルミ クイ ペル ファヴォーレ","Hier stoppen, alstublieft","ヒール ストッペン アルステュブリーフト","จอดตรงนี้{p}","チョート トロンニー{p}"],
+["t11","遠いですか？","È lontano?","エ ロンターノ？","Is het ver?","イス ヘット フェル？","ไกลไหม{q}","クライ マイ{q}？"],
+["t12","右／左／まっすぐ","Destra / Sinistra / Dritto","デストラ／スィニストラ／ドリット","Rechts / Links / Rechtdoor","レヒツ／リンクス／レヒトドール","ขวา / ซ้าย / ตรงไป","クワー／サーイ／トロン パイ"],
+
+["h1","チェックインをお願いします","Vorrei fare il check-in","ヴォッレイ ファーレ イル チェックイン","Ik wil graag inchecken","イック ヴィル ハラーハ インチェッケン","ขอเช็คอิน{p}","コー チェックイン{p}"],
+["h2","〜の名前で予約しています","Ho una prenotazione a nome di ...","オ ウナ プレノタツィオーネ ア ノーメ ディ …","Ik heb een reservering op naam van ...","イック ヘップ エン レセルフェーリング オップ ナーム ファン …","จองไว้ในชื่อ...{p}","チョーン ワイ ナイ チュー …{p}"],
+["h3","荷物を預かってもらえますか？","Posso lasciare i bagagli?","ポッソ ラッシャーレ イ バガーリ？","Kan ik mijn bagage hier laten?","カン イック マイン バハージェ ヒール ラーテン？","ฝากกระเป๋าได้ไหม{q}","ファーク クラパオ ダイマイ{q}？"],
+["h4","Wi-Fiのパスワードは？","Qual è la password del Wi-Fi?","クアレ ラ パスワード デル ワイファイ？","Wat is het wifi-wachtwoord?","ヴァット イス ヘット ワイファイ ヴァハトヴォールト？","รหัสไวไฟคืออะไร{q}","ラハット ワイファイ クー アライ{q}？"],
+["h5","チェックアウトは何時ですか？","A che ora è il check-out?","ア ケ オーラ エ イル チェックアウト？","Hoe laat is het uitchecken?","フー ラート イス ヘット アウトチェッケン？","เช็คเอาท์กี่โมง{q}","チェックアウ キー モーン{q}？"],
+["h6","お湯が出ません","Non c'è acqua calda","ノン チェ アックア カルダ","Er is geen warm water","エル イス ヘーン ヴァルム ヴァーテル","ไม่มีน้ำร้อน{p}","マイ ミー ナームローン{p}"],
+
+["a1","チェックインカウンターはどこですか？","Dov'è il check-in?","ドヴェ イル チェックイン？","Waar is de incheckbalie?","ヴァール イス デ インチェックバリー？","เคาน์เตอร์เช็คอินอยู่ที่ไหน{q}","カウター チェックイン ユー ティーナイ{q}？"],
+["a2","〜番ゲートはどこですか？","Dov'è il gate ...?","ドヴェ イル ゲート …？","Waar is gate ...?","ヴァール イス ゲート …？","เกต...อยู่ที่ไหน{q}","ケート … ユー ティーナイ{q}？"],
+["a3","乗り継ぎです","Sono in transito","ソノ イン トランズィト","Ik heb een overstap","イック ヘップ エン オーフェルスタップ","ต่อเครื่อง{p}","トー クルアン{p}"],
+["a4","乗り継ぎカウンターはどこですか？","Dov'è il banco transiti?","ドヴェ イル バンコ トランズィティ？","Waar is de transferbalie?","ヴァール イス デ トランスフェールバリー？","เคาน์เตอร์ต่อเครื่องอยู่ที่ไหน{q}","カウター トー クルアン ユー ティーナイ{q}？"],
+["a5","荷物が出てきません","Il mio bagaglio non è arrivato","イル ミオ バガーリオ ノン エ アッリヴァート","Mijn bagage is niet aangekomen","マイン バハージェ イス ニート アーンヘコーメン","กระเป๋าไม่มา{p}","クラパオ マイ マー{p}"],
+["a6","観光です","Sono qui per turismo","ソノ クイ ペル トゥリズモ","Ik ben hier als toerist","イック ベン ヒール アルス トゥーリスト","มาเที่ยว{p}","マー ティアオ{p}"],
+["a7","フライトは遅れていますか？","Il volo è in ritardo?","イル ヴォーロ エ イン リタルド？","Heeft de vlucht vertraging?","ヘーフト デ フルフト フェルトラーヒング？","เที่ยวบินดีเลย์ไหม{q}","ティアオビン ディーレー マイ{q}？"],
+
+["x1","助けて！","Aiuto!","アユート！","Help!","ヘルプ！","ช่วยด้วย","チュアイ ドゥアイ"],
+["x2","警察を呼んでください！","Chiami la polizia!","キアーミ ラ ポリツィーア！","Bel de politie!","ベル デ ポリツィー！","เรียกตำรวจด้วย{p}","リアック タムルアット ドゥアイ{p}"],
+["x3","救急車を呼んでください！","Chiami un'ambulanza!","キアーミ ウナンブランツァ！","Bel een ambulance!","ベル エン アンビュランセ！","เรียกรถพยาบาลด้วย{p}","リアック ロット パヤーバーン ドゥアイ{p}"],
+["x4","財布を盗まれました","Mi hanno rubato il portafoglio","ミ アンノ ルバート イル ポルタフォーリオ","Mijn portemonnee is gestolen","マイン ポルテモネー イス ヘストーレン","กระเป๋าสตางค์ถูกขโมย{p}","クラパオ サターン トゥーク カモーイ{p}"],
+["x5","パスポートをなくしました","Ho perso il passaporto","オ ペルソ イル パッサポルト","Ik ben mijn paspoort kwijt","イック ベン マイン パスポールト クヴァイト","ทำพาสปอร์ตหาย{p}","タム パースポート ハーイ{p}"],
+["x6","具合が悪いです","Mi sento male","ミ セント マーレ","Ik voel me niet goed","イック フール メ ニート フート","ไม่สบาย{p}","マイ サバーイ{p}"],
+["x7","病院はどこですか？","Dov'è l'ospedale?","ドヴェ ロスペダーレ？","Waar is het ziekenhuis?","ヴァール イス ヘット ズィーケンハウス？","โรงพยาบาลอยู่ที่ไหน{q}","ローン パヤーバーン ユー ティーナイ{q}？"],
+["x8","薬局はどこですか？","Dov'è la farmacia?","ドヴェ ラ ファルマチーア？","Waar is de apotheek?","ヴァール イス デ アポテーク？","ร้านขายยาอยู่ที่ไหน{q}","ラーン カーイ ヤー ユー ティーナイ{q}？"]
+];
+/* 現地のヒント（言語ごと。書いてある分だけ「ヒント」ボタンが出る） */
+const NOTE={
+  g3:{th:"店員さんを呼ぶときは「ノーン（น้อง）」とも言う"},
+  g7:{th:"「気にしないで」「どういたしまして」にも使える便利な言葉"},
+  g8:{th:"押し売りには手を軽く振りながら"},
+  e1:{nl:"オランダでは英語がよく通じる。困ったら英語でOK"},
+  e5:{it:"公衆トイレは少なく有料も。カフェで借りるなら何か注文する",nl:"駅などのトイレは有料（1ユーロ前後）が多い",th:"紙を流せないトイレもある（横のごみ箱へ）"},
+  m1:{nl:"カード社会。現金不可（Alleen pin）の店も多い",th:"屋台や市場は現金のみが多い"},
+  m4:{it:"普通の店では値切らない。市場くらい",nl:"普通の店では値切らない",th:"市場では値段交渉が普通"},
+  m9:{it:"パスポートが必要。店ごとに最低購入額あり",nl:"パスポートが必要。店ごとに最低購入額あり",th:"パスポートが必要。VAT Refund の表示がある店で"},
+  r1:{it:"指を2本立てて Due と言うだけでも通じる"},
+  r6:{it:"炭酸入りは frizzante。水はボトルで有料が普通",nl:"水道水は kraanwater（クラーンヴァーテル）",th:"水道水は飲まない"},
+  r8:{it:"caffè はエスプレッソのこと",nl:"「コーヒーショップ」は大麻の店。カフェは café"},
+  r9:{th:"少しだけ辛いのは เผ็ดนิดหน่อย（ペット ニットノイ）"},
+  r12:{it:"自分から頼むまで伝票は来ない",th:"空中で小さく書くしぐさでも通じる"},
+  t2:{it:"紙の切符は乗る前にホームの刻印機で打刻",nl:"電車・トラム・バスはタッチ決済のカードで乗れる。乗るときも降りるときもタッチ"},
+  t8:{th:"メーターを使わない運転手は避ける。配車アプリ（Grab）も便利"},
+  t7:{it:"ミラノ・マルペンサ空港へは Malpensa Express（電車）も",nl:"スキポール空港へは中央駅から電車で約15分"},
+  x2:{it:"緊急番号は 112",nl:"緊急番号は 112",th:"警察 191、観光警察 1155（英語可）"},
+  x3:{it:"緊急番号は 112",nl:"緊急番号は 112",th:"救急 1669"},
+  x5:{it:"警察で届出証明をもらい、日本の大使館・総領事館へ",nl:"警察で届出証明をもらい、日本大使館（ハーグ）へ",th:"警察で届出証明をもらい、日本大使館（バンコク）へ"}
+};
+const BY=Object.fromEntries(P.map(p=>[p[0],p]));
+const CATNAME=Object.fromEntries(CATS);
+const L={
+  it:{name:"イタリア語",short:"IT",code:"it-IT",city:"ミラノ",tz:"Europe/Rome",i:2,k:3,hey:"Mi scusi —"},
+  nl:{name:"オランダ語",short:"NL",code:"nl-NL",city:"アムステルダム",tz:"Europe/Amsterdam",i:4,k:5,hey:"Pardon —"},
+  th:{name:"タイ語",short:"TH",code:"th-TH",city:"バンコク",tz:"Asia/Bangkok",i:6,k:7,hey:"ขอโทษ{p} —"}
+};
+
+/* ---------- 状態（localStorage: ciao-hallo-v3。旧版のレッスン記録とは別） ---------- */
+const KEY="ciao-hallo-v3";
+function blank(){return{lang:"it",gender:"f",fav:{},places:[],memo:"",mapQ:"",tr:{from:"ja",to:"it",hist:[]}}}
+let S=blank();
+try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(blank(),o);
+  if(!L[S.lang])S.lang="it";if(!Array.isArray(S.places))S.places=[];if(!S.fav||typeof S.fav!=="object")S.fav={};
+  S.tr=Object.assign({from:"ja",to:"it",hist:[]},o.tr||{});if(!Array.isArray(S.tr.hist))S.tr.hist=[]}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const U={tab:"phrase",cat:"all",favOnly:false,q:"",open:{},show:null,mapCity:null,prep:{app:"checking"},wx:{loading:false,err:""}};
+
+/* ---------- 小道具 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const politeTh=t=>t.replace(/\{p\}/g,S.gender==="m"?"ครับ":"ค่ะ").replace(/\{q\}/g,S.gender==="m"?"ครับ":"คะ");
+const politeKana=t=>t.replace(/\{p\}/g,S.gender==="m"?" クラップ":" カー").replace(/\{q\}/g,S.gender==="m"?" クラップ":" カ");
+const fl=(p,l=S.lang)=>l==="th"?politeTh(p[L[l].i]):p[L[l].i];
+const kana=(p,l=S.lang)=>l==="th"?politeKana(p[L[l].k]):p[L[l].k];
+const note=(p,l=S.lang)=>(NOTE[p[0]]||{})[l]||"";
+let toastT;
+function toast(m,ms=2200){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,ms)}
+function ymd(tz,d=new Date()){return new Intl.DateTimeFormat("en-CA",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit"}).format(d)}
+function hm(tz,d=new Date()){return new Intl.DateTimeFormat("ja-JP",{timeZone:tz,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(d)}
+const WD="日月火水木金土";
+function mdw(tz,d=new Date()){const[y,m,dd]=ymd(tz,d).split("-").map(Number);return m+"/"+dd+"("+WD[new Date(Date.UTC(y,m-1,dd)).getUTCDay()]+")"}
+const dt=(tz,d=new Date())=>mdw(tz,d)+" "+hm(tz,d);
+/* その地域の UTC からのずれ（分）。夏時間も Intl が自動で反映する */
+function offMin(tz,d=new Date()){
+  const p=new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).formatToParts(d);
+  const g=t=>+p.find(x=>x.type===t).value;
+  return Math.round((Date.UTC(g("year"),g("month")-1,g("day"),g("hour")%24,g("minute"))-d.getTime())/60000);
+}
+const isArtifact=()=>!!window.claude;
+
+/* ---------- 音声（端末のTTS。通信なしでも鳴るよう端末内の音声を優先） ---------- */
+const TTS={it:"it-IT",nl:"nl-NL",th:"th-TH",en:"en-US",ja:"ja-JP"};
+function speak(text,slow,lang=S.lang){
+  if(!("speechSynthesis" in window)){toast("この端末では音声読み上げが使えません");return}
+  const u=new SpeechSynthesisUtterance(text.replace(/\.\.\./g," ").replace(/\s*\/\s*/g,", "));
+  u.lang=TTS[lang]||TTS.it;
+  const vs=speechSynthesis.getVoices().filter(v=>v.lang.replace("_","-").toLowerCase().startsWith(lang));
+  const v=vs.find(v=>v.localService)||vs[0];if(v)u.voice=v;
+  u.rate=slow?0.6:0.95;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+if("speechSynthesis" in window){try{speechSynthesis.getVoices()}catch(e){}}
+const SPK=`<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
+/* ヒント中の外国語（ラテン文字・タイ文字の語句）をタップで読み上げる */
+const FOREIGN=/[A-Za-zÀ-ÖØ-öø-ÿ฀-๿](?:[A-Za-zÀ-ÖØ-öø-ÿ฀-๿'’\-, ]*[A-Za-zÀ-ÖØ-öø-ÿ฀-๿])?/g;
+function noteHtml(n,lang=S.lang){
+  let out="",i=0;
+  for(const m of n.matchAll(FOREIGN)){
+    if(m[0].length<2)continue;
+    out+=esc(n.slice(i,m.index))+`<button class="sayw" data-act="sayt" data-t="${esc(m[0])}" data-l="${lang}" title="発音を聞く">${esc(m[0])}${SPK}</button>`;
+    i=m.index+m[0].length;
+  }
+  return out+esc(n.slice(i));
+}
+
+/* ---------- ヘッダー ---------- */
+function renderMeta(){
+  const l=L[S.lang];
+  $("#meta").innerHTML=`<span class="clk">${esc(l.city)} <strong class="mono">${dt(l.tz)}</strong>　日本 <strong class="mono">${dt("Asia/Tokyo")}</strong></span>${navigator.onLine===false?`<span class="offl">通信なし（このまま使えます）</span>`:""}`;
+}
+function renderChrome(){
+  document.body.dataset.lang=S.lang;
+  for(const l of["it","nl","th"])$("#lang-"+l).setAttribute("aria-pressed",String(S.lang===l));
+  document.querySelectorAll(".tabs button").forEach(b=>b.dataset.v===U.tab?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+  renderMeta();
+}
+
+/* ---------- フレーズ ---------- */
+function viewPhrase(){
+  const cnt=k=>P.filter(p=>p[0][0]===k).length;
+  return `<div class="stack">
+    <input class="field" id="q" type="search" placeholder="日本語・${esc(L[S.lang].name)}・カナで検索" value="${esc(U.q)}" autocomplete="off">
+    <div class="chips" role="group" aria-label="カテゴリ">
+      <button class="chip" data-act="cat" data-v="all" aria-pressed="${U.cat==="all"}">すべて<small>${P.length}</small></button>
+      ${CATS.map(([k,n])=>`<button class="chip" data-act="cat" data-v="${k}" aria-pressed="${U.cat===k}">${esc(n)}<small>${cnt(k)}</small></button>`).join("")}
+    </div>
+    <div class="row">
+      <button class="btn${U.favOnly?" on":""}" data-act="favonly">★ だけ表示</button>
+      ${S.lang==="th"?`<div class="seg" role="group" aria-label="話す人" style="margin-left:auto">
+        <button data-act="gender" data-v="f" aria-pressed="${S.gender==="f"}">女性（カー）</button>
+        <button data-act="gender" data-v="m" aria-pressed="${S.gender==="m"}">男性（クラップ）</button></div>`
+        :`<span class="hint" style="margin-left:auto">カタカナは発音の目安です</span>`}
+    </div>
+    ${S.lang==="th"?`<p class="hint" style="margin:-6px 0 0">タイ語は話す人によって語尾が変わります。女性は「カー」、男性は「クラップ」。</p>`:""}
+    <div class="panel list" id="list"></div>
+  </div>`;
+}
+function phraseRow(p){
+  const id=p[0],fav=!!S.fav[id],n=note(p);
+  return `<article class="ph">
+    <div class="ph-ja">${esc(p[1])}</div>
+    <div class="ph-fl" lang="${S.lang}">${esc(fl(p))}</div>
+    <div class="ph-kana">${esc(kana(p))}</div>
+    <div class="acts">
+      <button class="btn primary" data-act="say" data-id="${id}">${SPK} 聞く</button>
+      <button class="btn" data-act="slow" data-id="${id}">ゆっくり</button>
+      <button class="btn" data-act="show" data-id="${id}">見せる</button>
+      <button class="btn star" data-act="fav" data-id="${id}" aria-pressed="${fav}" aria-label="お気に入り">${fav?"★":"☆"}</button>
+      ${n?`<button class="btn" data-act="note" data-id="${id}" aria-expanded="${!!U.open[id]}">ヒント</button>`:""}
+    </div>
+    ${n&&U.open[id]?`<p class="note">${noteHtml(n)}</p>`:""}
+  </article>`;
+}
+function renderList(){
+  const el=$("#list");if(!el)return;
+  const q=U.q.trim().toLowerCase();
+  let rows=P.filter(p=>U.cat==="all"||p[0][0]===U.cat);
+  if(U.favOnly)rows=rows.filter(p=>S.fav[p[0]]);
+  if(q)rows=rows.filter(p=>[p[1],fl(p),kana(p),note(p)].some(s=>s.toLowerCase().includes(q)));
+  el.innerHTML=rows.length?rows.map(phraseRow).join(""):`<div class="empty">${U.favOnly?"☆を押したフレーズがここに並びます。":"見つかりませんでした。別の言葉で探してみてください。"}</div>`;
+}
+function openShow(lead,big,small,lang,speakText){
+  U.show={lang,t:speakText||big};
+  $("#show-lead").textContent=lead;
+  $("#show-fl").textContent=big;$("#show-fl").lang=lang||"";
+  $("#show-ja").textContent=small;
+  $("#show-say").hidden=!lang;
+  $("#show").hidden=false;
+  try{navigator.wakeLock&&navigator.wakeLock.request("screen").catch(()=>{})}catch(e){}
+}
+
+/* ---------- 翻訳 ----------
+   入力は日本語か英語。訳はイタリア語・オランダ語・タイ語と、日本語⇔英語。
+   翻訳は無料の MyMemory（キー不要・1日の量に上限あり）を使い、通信が必要。
+   うまくいかないときのために、同じ文を Google 翻訳で開くボタンも置く。訳した結果は履歴に残し、通信なしでも見られる。 */
+const TRL={ja:"日本語",en:"英語",it:"イタリア語",nl:"オランダ語",th:"タイ語"};
+const trTargets=f=>f==="ja"?["it","nl","th","en"]:["it","nl","th","ja"];
+const gTrans=(t,f,to)=>"https://translate.google.com/?sl="+f+"&tl="+to+"&text="+encodeURIComponent(t)+"&op=translate";
+U.trBusy=false;U.trErr="";U.trIn="";
+async function translateNow(){
+  const text=U.trIn.trim(),f=S.tr.from,to=S.tr.to;
+  if(!text||U.trBusy)return;
+  if(isArtifact()){U.trErr="claude.ai 版ではアプリ内で翻訳できません。下の「Google翻訳で開く」を使ってください。";paintTrans();return}
+  if(navigator.onLine===false){U.trErr="通信がないため翻訳できません。Google 翻訳アプリでオフライン用の言語を入れておくと、通信なしでも訳せます。";paintTrans();return}
+  U.trBusy=true;U.trErr="";paintTrans();
+  try{
+    const r=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,450))+"&langpair="+f+"|"+to);
+    const j=await r.json();
+    const out=j&&j.responseData&&j.responseData.translatedText;
+    if(!r.ok||+j.responseStatus!==200||!out||/MYMEMORY WARNING/i.test(out))throw new Error("tr");
+    S.tr.hist.unshift({f,to,src:text,out:String(out),at:Date.now()});S.tr.hist=S.tr.hist.slice(0,30);save();
+  }catch(e){U.trErr="翻訳できませんでした（通信が不安定か、無料の上限に達した可能性）。下の「Google翻訳で開く」を使ってください。"}
+  U.trBusy=false;paintTrans();
+}
+function trCard(h,big){
+  return `<div class="${big?"panel pad":"place"}" style="display:grid;gap:4px">
+    <div class="hint">${esc(TRL[h.f])} → ${esc(TRL[h.to])}　${esc(h.src)}</div>
+    <div class="${big?"ph-fl":""}" lang="${h.to}" style="${big?"":"font-weight:700;font-size:17px"};overflow-wrap:anywhere">${esc(h.out)}</div>
+    <div class="acts">
+      <button class="btn${big?" primary":""}" data-act="sayt" data-t="${esc(h.out)}" data-l="${h.to}">${SPK} 聞く</button>
+      <button class="btn" data-act="sayt" data-slow="1" data-t="${esc(h.out)}" data-l="${h.to}">ゆっくり</button>
+      <button class="btn" data-act="trshow" data-t="${esc(h.out)}" data-s="${esc(h.src)}" data-l="${h.to}">見せる</button>
+      <button class="btn" data-act="copy" data-t="${esc(h.out)}">コピー</button>
+    </div></div>`;
+}
+function transInner(){
+  const f=S.tr.from,tgs=trTargets(f);if(!tgs.includes(S.tr.to))S.tr.to=tgs[0];
+  const last=S.tr.hist[0],showLast=last&&last.src===U.trIn.trim()&&last.f===f&&last.to===S.tr.to;
+  return `<div class="panel pad stack" style="gap:10px">
+      <div class="row"><span class="eyebrow">入力</span>
+        <div class="seg" role="group" aria-label="入力の言語">${["ja","en"].map(k=>`<button data-act="trfrom" data-v="${k}" aria-pressed="${f===k}">${TRL[k]}</button>`).join("")}</div></div>
+      <div class="row"><span class="eyebrow">訳す先</span>
+        <div class="chips" role="group" aria-label="訳す先" style="padding:0">${tgs.map(k=>`<button class="chip" data-act="trto" data-v="${k}" aria-pressed="${S.tr.to===k}">${TRL[k]}</button>`).join("")}</div></div>
+      <textarea class="field" id="trIn" style="min-height:96px" maxlength="450" placeholder="${f==="ja"?"例：この近くにおいしいレストランはありますか？":"e.g. Is there a good restaurant near here?"}">${esc(U.trIn)}</textarea>
+      <div class="row">
+        <button class="btn big primary" data-act="trgo" ${U.trBusy?"disabled":""}>${U.trBusy?"翻訳中…":"翻訳する"}</button>
+        <a class="btn" href="${esc(gTrans(U.trIn.trim(),f,S.tr.to))}" target="_blank" rel="noopener">Google翻訳で開く</a>
+      </div>
+      ${U.trErr?`<p class="hint" style="margin:0;color:var(--bad)">${esc(U.trErr)}</p>`:""}
+    </div>
+    ${showLast?trCard(last,true):""}
+    <p class="hint" style="margin:0">機械翻訳なので、意味が少しずれることがあります。大事な場面は「見せる」で相手に確認してもらってください。翻訳：MyMemory</p>
+    ${S.tr.hist.length?`<div><div class="row" style="margin-bottom:6px"><span class="eyebrow" style="flex:1">これまでの翻訳（通信なしでも見られます）</span><button class="btn" data-act="trclear">履歴を消す</button></div>
+      <div class="panel list">${S.tr.hist.map(h=>trCard(h,false)).join("")}</div></div>`:""}`;
+}
+function viewTrans(){return `<div class="stack" id="transview">${transInner()}</div>`}
+function paintTrans(){const el=$("#transview");if(!el)return;const a=document.activeElement&&document.activeElement.id==="trIn";el.innerHTML=transInner();if(a){const t=$("#trIn");t.focus();t.selectionStart=t.selectionEnd=t.value.length}}
+
+/* ---------- 地図（Googleマップ） ----------
+   地図そのものは Google マップに任せる。オンラインならページ内に Google マップを表示し、
+   経路・近くの検索は Google マップ（アプリ）を開く。通信なしでは開けないので、行く街は Google マップの
+   「オフラインマップ」を事前にダウンロードしておく（情報タブで案内）。 */
+const CITIES=[
+  {k:"mi",name:"ミラノ",l:"it",center:"Milano, Italia",spots:[["ミラノ大聖堂（ドゥオーモ）","Duomo di Milano"],["ガッレリア","Galleria Vittorio Emanuele II, Milano"],["スフォルツェスコ城","Castello Sforzesco, Milano"],["最後の晩餐（サンタ・マリア・デッレ・グラツィエ）","Santa Maria delle Grazie, Milano"],["ミラノ中央駅","Milano Centrale"],["マルペンサ空港","Aeroporto di Milano Malpensa"]]},
+  {k:"am",name:"アムステルダム",l:"nl",center:"Amsterdam, Nederland",spots:[["アムステルダム中央駅","Amsterdam Centraal"],["国立美術館","Rijksmuseum, Amsterdam"],["ゴッホ美術館","Van Gogh Museum, Amsterdam"],["アンネ・フランクの家","Anne Frank Huis, Amsterdam"],["ダム広場","Dam, Amsterdam"],["スキポール空港","Amsterdam Airport Schiphol"]]},
+  {k:"th",name:"タイ（空港）",l:"th",center:"Suvarnabhumi Airport",spots:[["スワンナプーム空港","Suvarnabhumi Airport"],["空港のエアポートレイル駅","Suvarnabhumi Airport Rail Link Station"]]},
+  {k:"hk",name:"香港（空港）",l:"",center:"Hong Kong International Airport",spots:[["香港国際空港","Hong Kong International Airport"]]}
+];
+const NEARBY=[["トイレ","toilet"],["薬局","pharmacy"],["ATM","ATM"],["両替","currency exchange"],["駅","train station"],["スーパー","supermarket"],["カフェ","cafe"],["レストラン","restaurant"],["病院","hospital"]];
+const gSearch=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
+const gDir=q=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(q)+"&travelmode=transit";
+const gEmbed=q=>"https://maps.google.com/maps?q="+encodeURIComponent(q)+"&hl=ja&z=14&output=embed";
+function defaultCity(){return U.mapCity||({it:"mi",nl:"am",th:"th"})[S.lang]||"mi"}
+function placeRow(name,q,extra,del){
+  return `<div class="place">
+    <div><b>${esc(name)}</b></div>
+    ${q&&q!==name?`<div class="hint">${esc(q)}</div>`:""}
+    ${extra?`<div class="hint">${esc(extra)}</div>`:""}
+    <div class="acts" style="margin-top:2px">
+      <button class="btn" data-act="mapshow" data-q="${esc(q)}">ここに表示</button>
+      <a class="btn primary" href="${esc(gDir(q))}" target="_blank" rel="noopener">行き方</a>
+      <a class="btn" href="${esc(gSearch(q))}" target="_blank" rel="noopener">Googleマップ</a>
+      <button class="btn" data-act="addrshow" data-q="${esc(q)}" data-n="${esc(name)}">見せる</button>
+      ${del?`<button class="btn danger" data-act="pdel" data-i="${del-1}">削除</button>`:""}
+    </div></div>`;
+}
+function viewMap(){
+  const ck=defaultCity(),c=CITIES.find(x=>x.k===ck)||CITIES[0];
+  const q=S.mapQ||c.center;
+  const canEmbed=!isArtifact()&&navigator.onLine!==false;
+  const mine=S.places.map((p,i)=>({...p,i})).filter(p=>p.city===c.k);
+  return `<div class="stack">
+    <div class="chips" role="group" aria-label="街">${CITIES.map(x=>`<button class="chip" data-act="city" data-v="${x.k}" aria-pressed="${x.k===c.k}">${esc(x.name)}</button>`).join("")}</div>
+    ${canEmbed?`<iframe class="mapframe" title="Googleマップ" src="${esc(gEmbed(q))}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+      :`<div class="panel pad hint">${isArtifact()?"この画面（claude.ai版）では地図を埋め込めません。下のボタンで Google マップを開いてください。":"通信がないため地図を表示できません。Google マップのアプリでオフラインマップを使ってください。"}</div>`}
+    <div class="row"><span class="hint" style="flex:1;min-width:0">表示中：${esc(q)}</span><a class="btn" href="${esc(gSearch(q))}" target="_blank" rel="noopener">Googleマップで開く</a></div>
+    <div class="panel pad stack" style="gap:8px">
+      <div class="eyebrow">近くを探す（Googleマップが開きます）</div>
+      <div class="row">${NEARBY.map(([n,en])=>`<a class="chip" href="${esc(gSearch(en))}" target="_blank" rel="noopener">${n}</a>`).join("")}</div>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">自分の場所（ホテル・予約したお店など）</div>
+      <div class="panel list">${mine.length?mine.map(p=>placeRow(p.name,p.q,p.note,p.i+1)).join(""):`<div class="empty">${esc(c.name)}の場所はまだありません。<br>下のフォームでホテルなどを登録すると、行き方と住所の「見せる」がすぐ使えます。</div>`}</div>
+    </div>
+    <form class="panel pad stack" id="placeForm">
+      <div class="eyebrow">${esc(c.name)}に場所を登録</div>
+      <div class="form">
+        <input class="field" id="p-name" placeholder="名前（例：ホテル）" required aria-label="名前">
+        <input class="field" id="p-note" placeholder="メモ（予約番号など）" aria-label="メモ">
+        <input class="field full" id="p-q" placeholder="住所または Google マップで探せる名前" required aria-label="住所">
+      </div>
+      <button class="btn big primary" type="submit">登録する</button>
+    </form>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">${esc(c.name)}の主な場所</div>
+      <div class="panel list">${c.spots.map(([n,q])=>placeRow(n,q)).join("")}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 時計・天気 ----------
+   天気は Open-Meteo（無料・キー不要）から取得し、端末に保存する。通信なしでは前回の天気を時刻つきで出す。 */
+const CLOCKS=[
+  {name:"日本",sub:"京都",tz:"Asia/Tokyo",lat:35.0116,lon:135.7681},
+  {name:"ミラノ",sub:"イタリア",tz:"Europe/Rome",lat:45.4642,lon:9.19},
+  {name:"アムステルダム",sub:"オランダ",tz:"Europe/Amsterdam",lat:52.3676,lon:4.9041},
+  {name:"タイ",sub:"スワンナプーム空港（バンコク）",tz:"Asia/Bangkok",lat:13.69,lon:100.7501},
+  {name:"香港",sub:"香港国際空港",tz:"Asia/Hong_Kong",lat:22.308,lon:113.9185}
+];
+const WKEY="ciao-hallo-weather";
+let W=null;try{W=JSON.parse(localStorage.getItem(WKEY)||"null")}catch(e){}
+function wmo(c){
+  if(c===0)return["快晴","sun"];if(c===1)return["晴れ","sun"];if(c===2)return["晴れ時々くもり","part"];if(c===3)return["くもり","cloud"];
+  if(c===45||c===48)return["霧","fog"];if(c>=51&&c<=57)return["霧雨","rain"];if(c>=61&&c<=67)return["雨","rain"];
+  if(c>=71&&c<=77)return["雪","snow"];if(c>=80&&c<=82)return["にわか雨","rain"];if(c===85||c===86)return["にわか雪","snow"];
+  if(c>=95)return["雷雨","thunder"];return["—","cloud"];
+}
+const CL='<path d="M7 15h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 8.1 3.5 3.5 0 0 0 7 15z"/>';
+const WXI={
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  part:'<path d="M8 3v1.5M3.5 8H2M4.6 4.6l1 1M12.4 4.6l-1 1M5.6 10.4A3.5 3.5 0 0 1 11.6 7"/><path d="M9 20h8a3.5 3.5 0 0 0 .4-6.98A5 5 0 0 0 8 13.6 3.2 3.2 0 0 0 9 20z"/>',
+  cloud:'<path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 11.1 3.5 3.5 0 0 0 7 18z"/>',
+  rain:CL+'<path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+  snow:CL+'<path d="M8 19h.01M12 19h.01M16 19h.01M10 22h.01M14 22h.01"/>',
+  thunder:CL+'<path d="M12 15l-2 4h3l-2 4"/>',
+  fog:'<path d="M4 9h16M3 13h18M5 17h14"/>'
+};
+function wxIcon(code,day){let[t,k]=wmo(code);if(day===0&&(k==="sun"))k="moon";
+  const cls=k==="sun"||k==="part"?"sun":k==="rain"||k==="thunder"?"rain":"other";
+  return {t,svg:`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${WXI[k]}</svg>`}}
+async function fetchWeather(force){
+  if(U.wx.loading)return;
+  if(isArtifact()){U.wx.err="claude.ai 版では天気を取得できません。ホーム画面版で開いてください。";paintClock();return}
+  if(navigator.onLine===false){paintClock();return}
+  if(!force&&W&&Date.now()-W.at<30*60e3)return;
+  U.wx.loading=true;U.wx.err="";paintClock();
+  const q="latitude="+CLOCKS.map(c=>c.lat).join(",")+"&longitude="+CLOCKS.map(c=>c.lon).join(",")
+    +"&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4";
+  try{
+    const r=await fetch("https://api.open-meteo.com/v1/forecast?"+q);if(!r.ok)throw new Error(r.status);
+    let j=await r.json();if(!Array.isArray(j))j=[j];
+    W={at:Date.now(),list:j.map(x=>({t:x.current.temperature_2m,c:x.current.weather_code,day:x.current.is_day,
+      d:x.daily.time.map((d,i)=>({d,c:x.daily.weather_code[i],hi:x.daily.temperature_2m_max[i],lo:x.daily.temperature_2m_min[i]}))}))};
+    try{localStorage.setItem(WKEY,JSON.stringify(W))}catch(e){}
+  }catch(e){U.wx.err="天気を取得できませんでした。通信のある場所で「天気を更新」を押してください。"}
+  U.wx.loading=false;paintClock();
+}
+function clockInner(){
+  const now=new Date(),jp=offMin("Asia/Tokyo",now),jpDay=ymd("Asia/Tokyo",now);
+  const at=W&&W.at?new Date(W.at):null;
+  const head=`<div class="row"><div class="hint" style="flex:1;min-width:0">${U.wx.loading?"天気を取得中…":at?`天気は ${mdw("Asia/Tokyo",at)} ${hm("Asia/Tokyo",at)}（日本時間）時点${navigator.onLine===false?"・通信なしのため前回の天気":""}`:"天気はまだ取得していません"}</div>
+    <button class="btn" data-act="wxreload" ${U.wx.loading?"disabled":""}>天気を更新</button></div>
+    ${U.wx.err?`<p class="hint" style="margin:0;color:var(--bad)">${esc(U.wx.err)}</p>`:""}`;
+  const cards=CLOCKS.map((c,i)=>{
+    const diff=(offMin(c.tz,now)-jp)/60,day=ymd(c.tz,now);
+    const dl=i===0?"":diff===0?"日本と同じ時刻":`日本より ${diff>0?"+":"−"}${Math.abs(diff)}時間`;
+    const chip=day<jpDay?"日本の前日":day>jpDay?"日本の翌日":"";
+    const w=W&&W.list&&W.list[i];
+    let wx="";
+    if(w){const ic=wxIcon(w.c,w.day),td=w.d&&w.d[0];
+      wx=`<div class="wx">${ic.svg}<span class="temp">${Math.round(w.t)}°</span>
+        <span>${esc(ic.t)}${td?`<br><span class="hint">最高 ${Math.round(td.hi)}° / 最低 ${Math.round(td.lo)}°</span>`:""}</span>
+        ${w.d&&w.d.length>1?`<div class="fc">${w.d.slice(1,4).map(f=>{const fi=wxIcon(f.c,1);const[y,m,d]=f.d.split("-").map(Number);
+          return `<div>${m}/${d}(${WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()]})${fi.svg}${Math.round(f.hi)}° / ${Math.round(f.lo)}°</div>`}).join("")}</div>`:""}
+      </div>`}
+    return `<div class="panel city">
+      <div class="city-top">
+        <div><b style="font-size:17px">${esc(c.name)}</b> <span class="hint">${esc(c.sub)}</span>
+          <div class="d">${mdw(c.tz,now)}${chip?`<span class="daychip">${chip}</span>`:""}</div>
+          ${dl?`<div class="diff">${dl}</div>`:""}</div>
+        <div class="t">${hm(c.tz,now)}</div>
+      </div>${wx}</div>`;
+  }).join("");
+  return head+cards+`<p class="hint" style="margin:0">夏時間は自動で反映します。気温は摂氏。天気：Open-Meteo</p>`;
+}
+function viewClock(){return `<div class="stack" id="clockview">${clockInner()}</div>`}
+function paintClock(){const el=$("#clockview");if(el)el.innerHTML=clockInner()}
+
+/* ---------- 情報（緊急連絡先・メモ・通信なしの準備） ---------- */
+const SOS=[
+  ["イタリア","112","警察・救急・消防（共通）"],
+  ["オランダ","112","警察・救急・消防（共通）"],
+  ["タイ","191","警察"],["タイ","1669","救急"],["タイ","1155","観光警察（英語可）"],
+  ["香港","999","警察・救急・消防"],
+  ["日本","110 / 119","警察 / 救急・消防"]
+];
+const PWA_URL="https://todo2023.github.io/my-ai-agent/hallo-app/";
+async function checkPrep(){
+  let app;
+  if(isArtifact())app="artifact";
+  else if(!("serviceWorker" in navigator)||!window.caches)app="unsupported";
+  else{try{const reg=await navigator.serviceWorker.getRegistration();
+    const hit=await caches.match("index.html",{ignoreSearch:true});
+    app=reg&&reg.active&&hit?"ok":"no"}catch(e){app="no"}}
+  U.prep.app=app;paintPrep();
+}
+function voiceState(l){
+  if(!("speechSynthesis" in window))return"none";
+  return speechSynthesis.getVoices().some(v=>v.lang.replace("_","-").toLowerCase().startsWith(l))?"ok":"none";
+}
+function prepRows(){
+  const pill=(ok,txt)=>`<span class="state ${ok?"ok":"todo"}">${txt}</span>`;
+  const a=U.prep.app;
+  const appRow=a==="ok"?[true,"保存済み","通信なしでも開けます。"]
+    :a==="checking"?[false,"確認中","…"]
+    :a==="artifact"?[false,"この画面は不可",`claude.ai 版は通信なしでは開けません。ホーム画面版（<a class="link" href="${PWA_URL}" target="_blank" rel="noopener">${PWA_URL.replace("https://","")}</a>）を使ってください。`]
+    :a==="unsupported"?[false,"非対応","Chrome（iPhoneはSafari）で開いてください。"]
+    :[false,"まだ","通信のある場所で、このアプリを一度閉じてから開き直してください。"];
+  const sample={it:"Buongiorno, grazie mille",nl:"Goedemorgen, dank je wel",th:"สวัสดีค่ะ ขอบคุณค่ะ"};
+  const vrow=l=>{const ok=voiceState(l)==="ok";
+    return `<div class="prow"><div><b>${esc(L[l].name)}の音声</b> ${pill(ok,ok?"あり":"見つからない")}
+      <div class="hint">${ok?"機内モードで「試しに聞く」が鳴れば、通信なしでも大丈夫。":"端末に音声データが入っていません。下の手順で入れてください。"}</div></div>
+      <button class="btn" data-act="sayt" data-t="${esc(sample[l])}" data-l="${l}">${SPK} 試しに聞く</button></div>`};
+  return `<div class="eyebrow">通信なしで使う準備</div>
+    <div class="prow"><div><b>アプリ本体</b> ${pill(appRow[0],appRow[1])}<div class="hint">${appRow[2]}</div></div></div>
+    ${vrow("it")}${vrow("nl")}${vrow("th")}
+    <details><summary class="hint" style="cursor:pointer">音声が鳴らないときの直し方（音声データを端末に入れる）</summary>
+      <div class="hint" style="margin-top:6px;display:grid;gap:6px">
+        <div><b>Android：</b>設定 → システム → 言語と入力 → 音声出力（テキスト読み上げ）→「Google 音声サービス」の歯車 → 音声データをインストール → イタリア語・オランダ語・タイ語をダウンロード（Wi-Fiで）</div>
+        <div><b>iPhone：</b>設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 各言語の声をダウンロード</div>
+      </div></details>
+    <div class="hint">地図は通信が必要です。Google マップのアプリで、ミラノ・アムステルダムなど行く街の「オフラインマップ」を先にダウンロードしておくと、通信なしでも地図と経路が見られます。</div>`;
+}
+function paintPrep(){const el=$("#prep");if(el)el.innerHTML=prepRows()}
+function viewInfo(){
+  return `<div class="stack">
+    <div><div class="eyebrow" style="margin-bottom:6px">緊急番号（タップで電話）</div>
+      <div class="sos">${SOS.map(([c,n,d])=>`<div class="panel"><span class="hint">${esc(c)}</span>
+        <a class="num" href="tel:${esc(n.split(" ")[0])}">${esc(n)}</a><span class="hint">${esc(d)}</span></div>`).join("")}</div>
+      <p class="hint" style="margin:8px 0 0">パスポートの紛失などは、日本の大使館・総領事館へ。連絡先は外務省の<a class="link" href="https://www.mofa.go.jp/mofaj/annai/zaigai/list/index.html" target="_blank" rel="noopener">在外公館リスト</a>で確認できます（通信が必要なので、必要な番号は下のメモに控えておくと安心）。</p>
+    </div>
+    <div class="panel pad stack" style="gap:8px">
+      <label class="eyebrow" for="memo">旅行メモ（この端末だけに保存）</label>
+      <textarea class="field" id="memo" placeholder="例：便名と出発時刻、ホテルの住所と電話、予約番号、カード会社の紛失時の電話、大使館の番号など">${esc(S.memo)}</textarea>
+      <div class="hint">入力すると自動で保存されます。通信なしでも見られます。</div>
+    </div>
+    <div class="panel pad stack" id="prep">${prepRows()}</div>
+  </div>`;
+}
+
+/* ---------- 描画とイベント ---------- */
+function render(){
+  renderChrome();
+  const v=$("#view");
+  v.innerHTML=U.tab==="phrase"?viewPhrase():U.tab==="trans"?viewTrans():U.tab==="map"?viewMap():U.tab==="clock"?viewClock():viewInfo();
+  if(U.tab==="phrase")renderList();
+  if(U.tab==="clock")fetchWeather(false);
+  if(U.tab==="info")checkPrep();
+}
+function refreshRows(){if(U.tab==="phrase")renderList();else render()}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
+  switch(a){
+    case"tab":U.tab=v;render();window.scrollTo(0,0);break;
+    case"lang":if(S.lang!==v){S.lang=v;U.mapCity=null;save();render()}break;
+    case"gender":S.gender=v;save();render();break;
+    case"cat":U.cat=v;renderList();document.querySelectorAll('[data-act="cat"]').forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===v)));break;
+    case"favonly":U.favOnly=!U.favOnly;render();break;
+    case"say":speak(fl(BY[id]),false);break;
+    case"slow":speak(fl(BY[id]),true);break;
+    case"sayt":speak(b.dataset.t,!!b.dataset.slow,TTS[b.dataset.l]?b.dataset.l:S.lang);break;
+    case"show":{const p=BY[id];openShow(S.lang==="th"?politeTh(L.th.hey):L[S.lang].hey,fl(p),p[1]+"　/　"+kana(p),S.lang);break}
+    case"addrshow":openShow("この場所に行きたいです / I want to go here",b.dataset.q,b.dataset.n,"",b.dataset.q);break;
+    case"show-say":if(U.show&&U.show.lang)speak(U.show.t,true,U.show.lang);break;
+    case"show-close":$("#show").hidden=true;U.show=null;break;
+    case"fav":{if(S.fav[id])delete S.fav[id];else S.fav[id]=1;save();refreshRows();break}
+    case"note":U.open[id]=!U.open[id];refreshRows();break;
+    case"city":U.mapCity=v;S.mapQ="";save();render();break;
+    case"mapshow":S.mapQ=b.dataset.q;save();render();window.scrollTo(0,0);break;
+    case"pdel":{const i=+b.dataset.i;if(S.places[i]){S.places.splice(i,1);save();render();toast("削除しました")}break}
+    case"wxreload":fetchWeather(true);break;
+    case"trfrom":S.tr.from=v;save();paintTrans();break;
+    case"trto":S.tr.to=v;save();paintTrans();break;
+    case"trgo":translateNow();break;
+    case"trshow":openShow(TRL[b.dataset.l],b.dataset.t,b.dataset.s,b.dataset.l,b.dataset.t);break;
+    case"trclear":S.tr.hist=[];save();paintTrans();break;
+    case"copy":{const t=b.dataset.t;if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast("コピーしました"),()=>toast("コピーできませんでした"));else toast("コピーできませんでした");break}
+  }
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#show").hidden){$("#show").hidden=true;U.show=null}});
+let memoT;
+document.addEventListener("input",e=>{
+  if(e.target.id==="q"){U.q=e.target.value;renderList()}
+  if(e.target.id==="trIn"){U.trIn=e.target.value;const a=document.querySelector('#transview a[href*="translate.google"]');if(a)a.href=gTrans(U.trIn.trim(),S.tr.from,S.tr.to)}
+  if(e.target.id==="memo"){S.memo=e.target.value;clearTimeout(memoT);memoT=setTimeout(save,300)}
+});
+document.addEventListener("submit",e=>{
+  if(e.target.id!=="placeForm")return;e.preventDefault();
+  const g=id=>($("#"+id).value||"").trim();
+  const name=g("p-name"),q=g("p-q");if(!name||!q)return;
+  S.places.push({city:defaultCity(),name,q,note:g("p-note")});S.mapQ=q;save();render();toast("登録しました");
+});
+
+/* 通信なし対応：初回に読み込んだフォントは Service Worker を通っていないので、ここで保存しておく */
+function warmFonts(){
+  if(isArtifact()||!window.caches||!("serviceWorker" in navigator))return;
+  navigator.serviceWorker.ready.then(()=>caches.keys()).then(ks=>{
+    const k=ks.find(x=>x.startsWith("hallo-app"));if(!k)return;
+    return caches.open(k).then(c=>Promise.all(performance.getEntriesByType("resource").map(e=>e.name)
+      .filter(u=>/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u))
+      .map(u=>c.match(u).then(h=>h||fetch(u,{mode:"cors"}).then(r=>{if(r.ok)return c.put(u,r)}).catch(()=>{})))));
+  }).then(checkPrep).catch(()=>{});
+}
+if("speechSynthesis" in window&&speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",paintPrep);
+addEventListener("online",()=>{renderMeta();if(U.tab==="clock")fetchWeather(false)});
+addEventListener("offline",renderMeta);
+addEventListener("load",()=>{setTimeout(warmFonts,2500)});
+
+render();
+setInterval(()=>{renderMeta();if(U.tab==="clock")paintClock()},15000);
+</script>
