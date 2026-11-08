@@ -1,11 +1,11 @@
 # Ciao Hallo 設計メモ（Claude Code 引き継ぎ用）
 
 旅行中に必要な情報（イタリア語・オランダ語・タイ語のフレーズ、翻訳、地図、時計と天気、緊急連絡先）を1つにまとめたアプリ。
-旅行日: 2026/11/9〜11/13。利用者は両言語とも完全な初心者（日本語話者）。
+旅行日: 2026/11/9〜11/13（イタリア・オランダ、タイと香港は空港経由）。利用者は日本語話者で、現地語は初心者。
 
 ## 現在の実装
-- 単一ファイル `ciao-hallo.html`（HTML/CSS/JS、外部依存はGoogle Fontsのみ）
-- 保存先: `localStorage`（キー `ciao-hallo-v2`）。共有はJSONファイルの書き出し・読み込み（体重帳アプリと同じ方式）
+- 単一ファイル `ciao-hallo.html`（HTML/CSS/JS）。外部に頼るのは Google Fonts、Google マップ（埋め込みとリンク）、Open-Meteo（天気）、MyMemory（翻訳）
+- 保存先: `localStorage`（キー `ciao-hallo-v3`、天気は `ciao-hallo-weather`）。端末ごとに独立し、共有はしない
 - 公開: Claude のアーティファクト（`downloads` 機能のみ使用）
 - ホーム画面版（PWA）: `index.html`（自動生成）＋ `manifest.webmanifest` ＋ `sw.js` ＋ アイコンを GitHub Pages で配信。専用アイコンでインストールでき、一度開けば通信なしでも動く。アーティファクトは `<head>` を持てず manifest を置けないため、この形にしている
   - 編集するのは `ciao-hallo.html` だけ。変更後に `python3 hallo-app/build_pwa.py` で `index.html` とアイコンを作り直す
