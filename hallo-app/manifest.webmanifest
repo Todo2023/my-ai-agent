@@ -1,7 +1,7 @@
 {
   "name": "Ciao Hallo",
   "short_name": "Ciao Hallo",
-  "description": "イタリア語とオランダ語の旅行会話（2026/11/9〜13）",
+  "description": "旅行中に必要な情報をまとめたアプリ（イタリア語・オランダ語・タイ語のフレーズ、翻訳、地図、時計と天気）",
   "lang": "ja",
   "start_url": "./",
   "scope": "./",

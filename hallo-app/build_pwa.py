@@ -30,7 +30,7 @@ def build_index() -> None:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 {title}
-<meta name="description" content="イタリア語とオランダ語の旅行会話（2026/11/9〜13）">
+<meta name="description" content="旅行中に必要な情報をまとめたアプリ（フレーズ・翻訳・地図・時計と天気）">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
