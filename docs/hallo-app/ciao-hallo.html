@@ -480,7 +480,8 @@ function numOut(){
 }
 function numPanel(){
   return `<div class="panel pad stack" style="gap:8px">
-    <label class="eyebrow" for="numIn">数字を${esc(L[S.lang].name)}で言うと</label>
+    <label class="eyebrow" for="numIn">数字を入れると${esc(L[S.lang].name)}の読み方が出ます</label>
+    <div class="hint" style="margin-top:-4px">いまは例として 25 が入っています。値段や番号を入れ直してください（0〜999999）。</div>
     <input class="field mono" id="numIn" inputmode="numeric" autocomplete="off" value="${esc(U.num)}" placeholder="例：25、1250" style="font-size:20px">
     <div id="numOut" style="display:grid;gap:4px">${numOut()}</div>
     <details><summary class="hint" style="cursor:pointer">数え方のきまり（${esc(L[S.lang].name)}）</summary>
