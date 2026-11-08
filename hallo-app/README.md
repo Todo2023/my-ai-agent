@@ -8,7 +8,7 @@
 - 保存先: `localStorage`（キー `ciao-hallo-v3`、天気は `ciao-hallo-weather`）。端末ごとに独立し、共有はしない
 - 公開: Claude のアーティファクト（`downloads` 機能のみ使用）
 - ホーム画面版（PWA）: `index.html`（自動生成）＋ `manifest.webmanifest` ＋ `sw.js` ＋ アイコンを GitHub Pages で配信。専用アイコンでインストールでき、一度開けば通信なしでも動く。アーティファクトは `<head>` を持てず manifest を置けないため、この形にしている
-  - **配信元（2026-11-08 時点）：GitHub Pages は `claude/hp-implementation-xubnv6` ブランチを配信している**（`main` ではない。Actions の「pages build and deployment」の head_branch で確認）。更新したら `hallo-app/` をそのブランチにも入れる（`git checkout claude/wizardly-mccarthy-q9o3i1 -- hallo-app` で取り込みコミット）。`main` にも同じものを入れてある
+  - **配信元（2026-11-08 時点）：GitHub Pages は `claude/hp-implementation-xubnv6` ブランチの `docs/` フォルダを配信している**（`main` ではない。Actions の「pages build and deployment」の head_branch と、他のアプリが `docs/` 下にあることで確認）。公開URL `/my-ai-agent/hallo-app/` は `docs/hallo-app/` に当たる。更新したら、そのブランチの `docs/hallo-app/` を差し替える。`main` の `hallo-app/` は配信されない控え
   - 編集するのは `ciao-hallo.html` だけ。変更後に `python3 hallo-app/build_pwa.py` で `index.html` とアイコンを作り直す
   - アイコンを変えたら `sw.js` の `VERSION` を上げる
   - 置き場所は `hallo-app/`（2026-10-08 に `ciao_hallo/` から移動。Chrome が古いインストールの記録を持ったままで開けなくなったため、別の場所にして入れ直せるようにした。`ciao_hallo/index.html` は移動先への案内だけ）
