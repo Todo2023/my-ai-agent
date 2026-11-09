@@ -1,7 +1,4 @@
 <title>Ciao Hallo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+Thai:wght@500;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* レイアウト：上に固定ヘッダー（言語・現地と日本の日時＋国旗帯）、中央に1列の作業面、下に4タブ。旅行中に片手で使うスマホ前提 */
 :root{
@@ -10,9 +7,10 @@
   --good:#1d7f47; --bad:#bf3324; --flag-w:#ffffff;
   --it-r:#c8312f; --nl-r:#b5242c; --nl-b:#21468b; --th-r:#b3243b; --th-b:#2d3a8c;
   --wx-sun:#c98a00; --wx-rain:#2f6db3;
-  --f-display:"Bricolage Grotesque","Noto Sans Thai","Helvetica Neue",Arial,sans-serif;
-  --f-body:"Zen Kaku Gothic New","Noto Sans Thai","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  /* 軽さ優先で Web フォントは読み込まない（端末の文字を使う） */
+  --f-display:"Helvetica Neue",Roboto,Arial,"Noto Sans Thai","Noto Sans JP",sans-serif;
+  --f-body:"Hiragino Sans","Noto Sans JP","Yu Gothic","Noto Sans Thai",system-ui,sans-serif;
+  --f-mono:ui-monospace,"Roboto Mono",Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111513; --surface:#1a1f1c; --ink:#e8ede9; --muted:#97a39b; --line:#2b332e;
@@ -378,16 +376,36 @@ function offMin(tz,d=new Date()){
 }
 const isArtifact=()=>!!window.claude;
 
-/* ---------- 音声（端末のTTS。通信なしでも鳴るよう端末内の音声を優先） ---------- */
+/* ---------- 音声 ----------
+   まず端末の読み上げ（通信なしでも鳴る）。その言語の音声が端末に無い、または2秒たっても鳴り始めないときは、
+   Google 翻訳の音声を再生する（通信が必要）。端末によってはイタリア語・オランダ語の音声が入っておらず、
+   黙ったままになるため（2026-11-09 に実機で発生）。 */
 const TTS={it:"it-IT",nl:"nl-NL",th:"th-TH",en:"en-US",ja:"ja-JP"};
+const TTS_NAME={it:"イタリア語",nl:"オランダ語",th:"タイ語",en:"英語",ja:"日本語"};
+let ttsAudio=null,ttsSeq=0;
+function onlineSpeak(text,slow,lang){
+  if(navigator.onLine===false||isArtifact()){toast(TTS_NAME[lang]+"の音声がこの端末にありません。通信のある所で聞くか、情報タブの手順で音声データを入れてください",6000);return}
+  try{if(ttsAudio)ttsAudio.pause();
+    ttsAudio=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+lang+"&q="+encodeURIComponent(text.slice(0,200)));
+    ttsAudio.playbackRate=slow?0.7:1;
+    ttsAudio.play().catch(()=>toast("音声を再生できませんでした。通信を確認してください",4000));
+  }catch(e){toast("音声を再生できませんでした",4000)}
+}
 function speak(text,slow,lang=S.lang){
-  if(!("speechSynthesis" in window)){toast("この端末では音声読み上げが使えません");return}
-  const u=new SpeechSynthesisUtterance(text.replace(/\.\.\./g," ").replace(/\s*\/\s*/g,", "));
+  text=text.replace(/\.\.\./g," ").replace(/\s*\/\s*/g,", ");
+  if(ttsAudio)ttsAudio.pause();
+  const has="speechSynthesis" in window;
+  const vs=has?speechSynthesis.getVoices().filter(v=>v.lang.replace("_","-").toLowerCase().startsWith(lang)):[];
+  if(!has||(!vs.length&&navigator.onLine!==false)){onlineSpeak(text,slow,lang);return}
+  const u=new SpeechSynthesisUtterance(text);
   u.lang=TTS[lang]||TTS.it;
-  const vs=speechSynthesis.getVoices().filter(v=>v.lang.replace("_","-").toLowerCase().startsWith(lang));
   const v=vs.find(v=>v.localService)||vs[0];if(v)u.voice=v;
   u.rate=slow?0.6:0.95;
+  const seq=++ttsSeq;let started=false;
+  u.onstart=()=>{started=true};
+  u.onerror=()=>{if(!started&&seq===ttsSeq){started=true;onlineSpeak(text,slow,lang)}};
   speechSynthesis.cancel();speechSynthesis.speak(u);
+  setTimeout(()=>{if(!started&&seq===ttsSeq){started=true;speechSynthesis.cancel();onlineSpeak(text,slow,lang)}},2000);
 }
 if("speechSynthesis" in window){try{speechSynthesis.getVoices()}catch(e){}}
 const SPK=`<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
@@ -690,8 +708,7 @@ function paintTrans(){const el=$("#transview");if(!el)return;const a=document.ac
 const CITIES=[
   {k:"mi",name:"ミラノ",l:"it",center:"Milano, Italia",spots:[["ミラノ大聖堂（ドゥオーモ）","Duomo di Milano"],["ガッレリア","Galleria Vittorio Emanuele II, Milano"],["スフォルツェスコ城","Castello Sforzesco, Milano"],["最後の晩餐（サンタ・マリア・デッレ・グラツィエ）","Santa Maria delle Grazie, Milano"],["ミラノ中央駅","Milano Centrale"],["マルペンサ空港","Aeroporto di Milano Malpensa"]]},
   {k:"am",name:"アムステルダム",l:"nl",center:"Amsterdam, Nederland",spots:[["アムステルダム中央駅","Amsterdam Centraal"],["国立美術館","Rijksmuseum, Amsterdam"],["ゴッホ美術館","Van Gogh Museum, Amsterdam"],["アンネ・フランクの家","Anne Frank Huis, Amsterdam"],["ダム広場","Dam, Amsterdam"],["スキポール空港","Amsterdam Airport Schiphol"]]},
-  {k:"th",name:"タイ（空港）",l:"th",center:"Suvarnabhumi Airport",spots:[["スワンナプーム空港","Suvarnabhumi Airport"],["空港のエアポートレイル駅","Suvarnabhumi Airport Rail Link Station"]]},
-  {k:"hk",name:"香港（空港）",l:"",center:"Hong Kong International Airport",spots:[["香港国際空港","Hong Kong International Airport"]]}
+  {k:"th",name:"タイ（空港）",l:"th",center:"Suvarnabhumi Airport",spots:[["スワンナプーム空港","Suvarnabhumi Airport"],["空港のエアポートレイル駅","Suvarnabhumi Airport Rail Link Station"]]}
 ];
 const NEARBY=[["トイレ","toilet"],["薬局","pharmacy"],["ATM","ATM"],["両替","currency exchange"],["駅","train station"],["スーパー","supermarket"],["カフェ","cafe"],["レストラン","restaurant"],["病院","hospital"]];
 const gSearch=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
@@ -715,10 +732,12 @@ function viewMap(){
   const ck=defaultCity(),c=CITIES.find(x=>x.k===ck)||CITIES[0];
   const q=S.mapQ||c.center;
   const canEmbed=!isArtifact()&&navigator.onLine!==false;
+  const embed=canEmbed&&U.mapOn; // 地図は重いので、押したときだけ読み込む
   const mine=S.places.map((p,i)=>({...p,i})).filter(p=>p.city===c.k);
   return `<div class="stack">
     <div class="chips" role="group" aria-label="街">${CITIES.map(x=>`<button class="chip" data-act="city" data-v="${x.k}" aria-pressed="${x.k===c.k}">${esc(x.name)}</button>`).join("")}</div>
-    ${canEmbed?`<iframe class="mapframe" title="Googleマップ" src="${esc(gEmbed(q))}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    ${embed?`<iframe class="mapframe" title="Googleマップ" src="${esc(gEmbed(q))}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+      :canEmbed?`<button class="btn big" data-act="mapon" style="justify-content:center">ここに地図を表示する</button>`
       :`<div class="panel pad hint">${isArtifact()?"この画面（claude.ai版）では地図を埋め込めません。下のボタンで Google マップを開いてください。":"通信がないため地図を表示できません。Google マップのアプリでオフラインマップを使ってください。"}</div>`}
     <div class="row"><span class="hint" style="flex:1;min-width:0">表示中：${esc(q)}</span><a class="btn" href="${esc(gSearch(q))}" target="_blank" rel="noopener">Googleマップで開く</a></div>
     <div class="panel pad stack" style="gap:8px">
@@ -751,8 +770,7 @@ const CLOCKS=[
   {name:"日本",sub:"京都",tz:"Asia/Tokyo",lat:35.0116,lon:135.7681},
   {name:"ミラノ",sub:"イタリア",tz:"Europe/Rome",lat:45.4642,lon:9.19},
   {name:"アムステルダム",sub:"オランダ",tz:"Europe/Amsterdam",lat:52.3676,lon:4.9041},
-  {name:"タイ",sub:"スワンナプーム空港（バンコク）",tz:"Asia/Bangkok",lat:13.69,lon:100.7501},
-  {name:"香港",sub:"香港国際空港",tz:"Asia/Hong_Kong",lat:22.308,lon:113.9185}
+  {name:"タイ",sub:"スワンナプーム空港（バンコク）",tz:"Asia/Bangkok",lat:13.69,lon:100.7501}
 ];
 const WKEY="ciao-hallo-weather";
 let W=null;try{W=JSON.parse(localStorage.getItem(WKEY)||"null")}catch(e){}
@@ -829,7 +847,6 @@ const SOS=[
   ["イタリア","112","警察・救急・消防（共通）"],
   ["オランダ","112","警察・救急・消防（共通）"],
   ["タイ","191","警察"],["タイ","1669","救急"],["タイ","1155","観光警察（英語可）"],
-  ["香港","999","警察・救急・消防"],
   ["日本","110 / 119","警察 / 救急・消防"]
 ];
 const PWA_URL="https://todo2023.github.io/my-ai-agent/hallo-app/";
@@ -918,7 +935,8 @@ document.addEventListener("click",e=>{
     case"fav":{if(S.fav[id])delete S.fav[id];else S.fav[id]=1;save();refreshRows();break}
     case"note":U.open[id]=!U.open[id];refreshRows();break;
     case"city":U.mapCity=v;S.mapQ="";save();render();break;
-    case"mapshow":S.mapQ=b.dataset.q;save();render();window.scrollTo(0,0);break;
+    case"mapshow":S.mapQ=b.dataset.q;U.mapOn=true;save();render();window.scrollTo(0,0);break;
+    case"mapon":U.mapOn=true;render();break;
     case"pdel":{const i=+b.dataset.i;if(S.places[i]){S.places.splice(i,1);save();render();toast("削除しました")}break}
     case"wxreload":fetchWeather(true);break;
     case"trfrom":S.tr.from=v;save();paintTrans();break;
@@ -952,20 +970,9 @@ document.addEventListener("submit",e=>{
   S.places.push({city:defaultCity(),name,q,note:g("p-note")});S.mapQ=q;save();render();toast("登録しました");
 });
 
-/* 通信なし対応：初回に読み込んだフォントは Service Worker を通っていないので、ここで保存しておく */
-function warmFonts(){
-  if(isArtifact()||!window.caches||!("serviceWorker" in navigator))return;
-  navigator.serviceWorker.ready.then(()=>caches.keys()).then(ks=>{
-    const k=ks.find(x=>x.startsWith("hallo-app"));if(!k)return;
-    return caches.open(k).then(c=>Promise.all(performance.getEntriesByType("resource").map(e=>e.name)
-      .filter(u=>/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u))
-      .map(u=>c.match(u).then(h=>h||fetch(u,{mode:"cors"}).then(r=>{if(r.ok)return c.put(u,r)}).catch(()=>{})))));
-  }).then(checkPrep).catch(()=>{});
-}
 if("speechSynthesis" in window&&speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",paintPrep);
 addEventListener("online",()=>{renderMeta();if(U.tab==="clock")fetchWeather(false)});
 addEventListener("offline",renderMeta);
-addEventListener("load",()=>{setTimeout(warmFonts,2500)});
 
 render();
 setInterval(()=>{renderMeta();if(U.tab==="clock")paintClock()},15000);
