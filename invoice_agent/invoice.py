@@ -87,11 +87,14 @@ def next_invoice_number(issue_date: dt.date) -> str:
 
 
 def compute_due_date(issue_date: dt.date) -> dt.date:
-    """支払期日 = 発行月の翌月末日。"""
+    """支払期日 = 発行月の翌月末日。
+
+    ただし12月発行分だけは例外（Todoさんより毎年の決まりとして指定）。
+    翌月末日（1月31日）ではなく、**どんなに遅くても1月30日**にする。
+    """
     if issue_date.month == 12:
-        next_month_first = dt.date(issue_date.year + 1, 1, 1)
-    else:
-        next_month_first = dt.date(issue_date.year, issue_date.month + 1, 1)
+        return dt.date(issue_date.year + 1, 1, 30)
+    next_month_first = dt.date(issue_date.year, issue_date.month + 1, 1)
     if next_month_first.month == 12:
         month_after_first = dt.date(next_month_first.year + 1, 1, 1)
     else:
