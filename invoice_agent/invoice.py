@@ -89,17 +89,23 @@ def next_invoice_number(issue_date: dt.date) -> str:
 def compute_due_date(issue_date: dt.date) -> dt.date:
     """支払期日 = 発行月の翌月末日。
 
-    ただし12月発行分だけは例外（Todoさんより毎年の決まりとして指定）。
-    翌月末日（1月31日）ではなく、**どんなに遅くても1月30日**にする。
+    ただし**支払期日が12月になる場合**（＝11月発行分）だけは例外
+    （Todoさんより毎年の決まりとして指定）。翌月末日（12月31日）ではなく、
+    **どんなに遅くても12月30日**にする。
+    （注意：「12月発行分の支払期日」＝翌年1月31日の話ではない。混同しないこと）
     """
     if issue_date.month == 12:
-        return dt.date(issue_date.year + 1, 1, 30)
-    next_month_first = dt.date(issue_date.year, issue_date.month + 1, 1)
+        next_month_first = dt.date(issue_date.year + 1, 1, 1)
+    else:
+        next_month_first = dt.date(issue_date.year, issue_date.month + 1, 1)
     if next_month_first.month == 12:
         month_after_first = dt.date(next_month_first.year + 1, 1, 1)
     else:
         month_after_first = dt.date(next_month_first.year, next_month_first.month + 1, 1)
-    return month_after_first - dt.timedelta(days=1)
+    due_date = month_after_first - dt.timedelta(days=1)
+    if due_date.month == 12:
+        return dt.date(due_date.year, 12, 30)
+    return due_date
 
 
 def list_customer_names(excel_path: str) -> list[str]:
